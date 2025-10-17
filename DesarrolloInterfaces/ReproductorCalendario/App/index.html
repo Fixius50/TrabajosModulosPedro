@@ -205,6 +205,13 @@
             aspect-ratio: 1 / 1; border: 1px solid transparent;
             border-radius: 50%; transition: all 0.2s; font-size: 1.2rem; position: relative; /* Font size increased */
             cursor: pointer;
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .day-with-icon-bg {
+             background-image: var(--icon-bg-url);
+             opacity: 0.2;
         }
         .calendar-day.empty { pointer-events: none; opacity: 0.5; }
         .calendar-day.has-audio { border: 1px solid var(--primary-color); color: var(--primary-color); font-weight: 500; }
@@ -235,6 +242,7 @@
             width: 22px; height: 22px; font-size: 1.2rem; line-height: 22px;
             text-align: center; cursor: pointer; margin-top: 2px;
             transition: all 0.2s; opacity: 0; /* Oculto por defecto */
+            z-index: 5;
         }
         .calendar-day:hover .day-action-btn { opacity: 1; } /* Visible al pasar el ratón por encima del día */
         .day-action-btn:hover { color: var(--primary-color); transform: scale(1.2); }
@@ -336,6 +344,7 @@
         .player-controls { display: flex; align-items: center; gap: 1.5rem; }
         .player-controls button { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; }
         .player-controls button svg { fill: var(--text-color); }
+        .player-controls button.active svg { fill: var(--primary-color); }
         .player-controls button:disabled { cursor: not-allowed; }
         .player-controls button:disabled svg { fill: var(--secondary-text-color); opacity: 0.5; }
         #player-play-pause-btn { background-color: var(--primary-color); width: 60px; height: 60px; border-radius: 50%; }
@@ -343,6 +352,7 @@
         #playlist-sidebar {
             height: 200px;
             overflow-y: auto;
+            text-align: center;
         }
         #playlist-sidebar h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--secondary-text-color); }
         .playlist-item {
@@ -354,18 +364,39 @@
             text-overflow: ellipsis;
             color: var(--secondary-text-color);
         }
+        .track-card {
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .track-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .track-card.playing {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        #full-playlist-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
         /* --- Ventana Emergente (Modal) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            display: none; /* Cambiado a 'none' por defecto */
+            display: none;
             justify-content: center; align-items: center;
             z-index: 2000;
             backdrop-filter: blur(5px);
         }
         .modal-overlay.visible {
-            display: flex; /* Se usa esta clase para mostrarlo */
+            display: flex;
         }
         .modal-content {
             background: var(--container-background); padding: 1.5rem; border-radius: 12px;
@@ -381,7 +412,7 @@
             cursor: pointer; color: var(--secondary-text-color); line-height: 1;
         }
         .modal-body { line-height: 1.6; }
-        .modal-body select {
+        .modal-body textarea, .modal-body select {
             width: 100%;
             padding: 0.5rem;
             border-radius: 8px;
@@ -390,7 +421,25 @@
             color: var(--text-color);
             font-size: 1rem;
             margin-top: 1rem;
+            resize: vertical;
+            min-height: 80px;
         }
+        .icon-selector {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+        }
+        .icon-selector button {
+            background: none; border: 2px solid transparent; border-radius: 50%;
+            width: 40px; height: 40px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color 0.2s;
+        }
+        .icon-selector button.selected {
+            border-color: var(--primary-color);
+        }
+        .icon-selector button svg { width: 24px; height: 24px; fill: var(--secondary-text-color); }
+
         .modal-actions {
             margin-top: 1.5rem;
             padding-top: 1.5rem;
@@ -409,7 +458,7 @@
             transition: opacity 0.2s;
         }
         .modal-actions button:hover { opacity: 0.8; }
-        #modal-assign-btn { background-color: var(--primary-color); color: white; }
+        #modal-save-btn { background-color: var(--accent-color); color: white; }
         #modal-remove-btn { background-color: var(--danger-color); color: white; }
 
 
@@ -471,15 +520,21 @@
                                 </div>
                             </div>
                             <div class="player-controls">
+                                <button id="player-shuffle-btn"></button>
                                 <button id="player-prev-btn"></button>
                                 <button id="player-play-pause-btn"></button>
                                 <button id="player-next-btn"></button>
+                                <button id="player-repeat-btn"></button>
                             </div>
                         </div>
                          <div id="playlist-sidebar">
                              <h3>A continuación:</h3>
                              <div id="playlist-items"></div>
                          </div>
+                    </div>
+                    <div id="playlist-container" class="content-box">
+                        <h2>Biblioteca de Sonidos</h2>
+                        <div id="full-playlist-items"></div>
                     </div>
                 </div>
 
@@ -495,7 +550,7 @@
                         </div>
                          <div class="setting-item">
                             <label>Biblioteca de Sonidos</label>
-                            <button id="select-sound-library-btn">Seleccionar Carpeta</button>
+                            <button id="select-sound-library-btn">Seleccionar Archivos</button>
                         </div>
                         <p id="sound-library-status"></p>
                     </div>
@@ -533,12 +588,20 @@
             play: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>`,
             pause: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
             prev: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"></path></svg>`,
-            next: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM8 18l8.5-6L8 6z"></path></svg>`
+            next: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM8 18l8.5-6L8 6z"></path></svg>`,
+            party: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,19H5V8H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M10,10H12V12H10V10M14,10H16V12H14V10M10,14H12V16H10V14M14,14H16V16H14V14Z"/></svg>`, 
+            meeting: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.5,18H11.5V13H9.5V18H6.5V13H4.5V18H2V12A2,2 0 0,1 4,10H17A2,2 0 0,1 19,12V18H16.5V13H14.5V18M17,9H4A1,1 0 0,0 3,10V11H18V10A1,1 0 0,0 17,9M12,7A3,3 0 0,1 9,4A3,3 0 0,1 12,1A3,3 0 0,1 15,4A3,3 0 0,1 12,7Z"/></svg>`,
+            event: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z" /></svg>`,
+            game: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.5,2H5.5A2.5,2.5 0 0,0 3,4.5V19.5A2.5,2.5 0 0,0 5.5,22H18.5A2.5,2.5 0 0,0 21,19.5V4.5A2.5,2.5 0 0,0 18.5,2M12,19.36C10.15,19.36 8.64,17.85 8.64,16H15.36C15.36,17.85 13.85,19.36 12,19.36M18,13H6V11H18V13Z"/></svg>`,
+            shuffle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59,9.17L5.41,4L4,5.41L9.17,10.59L10.59,9.17M14.83,13.41L13.41,14.83L18.59,20L20,18.59L14.83,13.41M14.83,9.17L9.17,3.5L4,8.67V4H2V10H8L3,15L4.41,16.41L10.59,10.24L11.76,11.41L10.21,12.96L11.62,14.38L13.41,12.59L14.83,9.17Z" /></svg>`,
+            repeat: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z" /></svg>`,
+            repeatOne: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13,15V9H12L10,10V11H11.5V15M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z" /></svg>`
         };
 
-        // --- CONFIGURACIÓN DE AUDIOS ---
-        let audioMap = {};
-        let soundLibrary = [];
+        // --- CONFIGURACIÓN DE DATOS ---
+        let audioMap = {}; // { 'YYYY-MM-DD': { title: 'song.mp3' } }
+        let dayDataMap = {}; // { 'YYYY-MM-DD': { text: '...', icon: '...' } }
+        let soundLibrary = []; // { name: '...', dataUrl: '...', duration: ... }
 
         // --- ELEMENTOS DEL DOM ---
         const themeSelector = document.getElementById('theme-selector');
@@ -567,10 +630,13 @@
         const playerPrevBtn = document.getElementById('player-prev-btn');
         const playerPlayPauseBtn = document.getElementById('player-play-pause-btn');
         const playerNextBtn = document.getElementById('player-next-btn');
+        const playerShuffleBtn = document.getElementById('player-shuffle-btn');
+        const playerRepeatBtn = document.getElementById('player-repeat-btn');
         const playlistItems = document.getElementById('playlist-items');
         const visualizerCanvas = document.getElementById('visualizer-canvas');
         const visualizerCtx = visualizerCanvas.getContext('2d');
         const soundLibraryInput = document.getElementById('sound-library-input');
+        const fullPlaylistItems = document.getElementById('full-playlist-items');
 
         // --- ESTADO DE LA APLICACIÓN ---
         let currentDate = new Date();
@@ -579,14 +645,18 @@
         let currentTrackIndex = -1;
         let isVisualizerSetup = false;
         let audioContext, analyser, sourceNode, frequencyData;
+        let hueOffset = 0;
+        let isShuffling = false;
+        let repeatMode = 'none'; // 'none', 'all', 'one'
 
         // --- INICIALIZACIÓN ---
         displayNavbarInfo();
-        renderCalendar();
         setupTabs();
         setupTheme();
         updateToggleViewIcon();
         setupPlayer();
+        loadFromStorage();
+        renderCalendar();
 
         // --- EVENT LISTENERS ---
         prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
@@ -600,70 +670,131 @@
         playerPlayPauseBtn.addEventListener('click', togglePlayPause);
         playerNextBtn.addEventListener('click', playNextTrack);
         playerPrevBtn.addEventListener('click', playPrevTrack);
+        playerShuffleBtn.addEventListener('click', toggleShuffle);
+        playerRepeatBtn.addEventListener('click', cycleRepeatMode);
         audioElement.addEventListener('timeupdate', updatePlayerProgress);
         audioElement.addEventListener('loadedmetadata', updatePlayerProgress);
-        audioElement.addEventListener('ended', () => { playerPlayPauseBtn.innerHTML = ICONS.play; playNextTrack(); });
+        audioElement.addEventListener('ended', handleTrackEnd);
         playerProgressBar.addEventListener('input', setAudioPosition);
 
-        // --- FUNCIONES ---
-        
-        function handleLibraryFileSelect(event) {
-            const files = event.target.files;
-            if (!files || files.length === 0) {
-                soundLibraryStatus.textContent = "No se seleccionaron archivos.";
-                return;
+        // --- FUNCIONES DE PERSISTENCIA ---
+
+        function saveDataToStorage() {
+             try {
+                localStorage.setItem('soundLibrary', JSON.stringify(soundLibrary));
+                localStorage.setItem('audioMap', JSON.stringify(audioMap));
+                localStorage.setItem('dayDataMap', JSON.stringify(dayDataMap));
+            } catch (e) {
+                soundLibraryStatus.textContent = "Error al guardar (biblioteca puede ser demasiado grande).";
+                console.error("LocalStorage error:", e);
             }
+        }
+
+        function loadFromStorage() {
+            const storedLibrary = localStorage.getItem('soundLibrary');
+            const storedAudioMap = localStorage.getItem('audioMap');
+            const storedDayData = localStorage.getItem('dayDataMap');
+            if (storedLibrary) {
+                try {
+                    soundLibrary = JSON.parse(storedLibrary);
+                    soundLibraryStatus.textContent = `Biblioteca cargada con ${soundLibrary.length} sonidos.`;
+                    renderFullPlaylist();
+                } catch(e) { console.error("Error cargando biblioteca"); }
+            }
+            if(storedAudioMap) audioMap = JSON.parse(storedAudioMap);
+            if(storedDayData) dayDataMap = JSON.parse(storedDayData);
+        }
+
+        // --- FUNCIONES DE BIBLIOTECA DE SONIDOS ---
+        
+        async function handleLibraryFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
 
             soundLibraryStatus.textContent = `Cargando ${files.length} sonidos...`;
             
-            soundLibrary = [];
-            for (const file of files) {
-                soundLibrary.push({ name: file.name, file: file });
-            }
+            const filePromises = Array.from(files).map(file => {
+                return new Promise(async (resolve) => {
+                    const dataUrl = await fileToDataUrl(file);
+                    const duration = await getAudioDuration(dataUrl);
+                    resolve({ name: file.name, dataUrl: dataUrl, duration: duration });
+                });
+            });
+
+            soundLibrary = await Promise.all(filePromises);
             
-            soundLibraryStatus.textContent = `Se cargaron ${soundLibrary.length} sonidos en la biblioteca.`;
+            soundLibraryStatus.textContent = `Se cargaron ${soundLibrary.length} sonidos.`;
+            renderFullPlaylist();
+            saveDataToStorage();
             event.target.value = '';
         }
+
+        function fileToDataUrl(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function getAudioDuration(src) {
+            return new Promise((resolve) => {
+                const audio = new Audio();
+                audio.onloadedmetadata = () => resolve(audio.duration);
+                audio.onerror = () => resolve(Infinity); // Handle errors
+                audio.src = src;
+            });
+        }
+
+        // --- FUNCIONES DEL REPRODUCTOR Y VISUALIZADOR ---
         
         function setupPlayer() {
             playerPlayPauseBtn.innerHTML = ICONS.play;
             playerPrevBtn.innerHTML = ICONS.prev;
             playerNextBtn.innerHTML = ICONS.next;
+            playerShuffleBtn.innerHTML = ICONS.shuffle;
+            playerRepeatBtn.innerHTML = ICONS.repeat;
         }
 
         function setupAudioVisualizer() {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            sourceNode = audioContext.createMediaElementSource(audioElement);
-            sourceNode.connect(analyser);
-            analyser.connect(audioContext.destination);
-            analyser.fftSize = 128;
-            const bufferLength = analyser.frequencyBinCount;
-            frequencyData = new Uint8Array(bufferLength);
-            isVisualizerSetup = true;
-            drawVisualizer();
+            if (isVisualizerSetup) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                sourceNode = audioContext.createMediaElementSource(audioElement);
+                sourceNode.connect(analyser);
+                analyser.connect(audioContext.destination);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                frequencyData = new Uint8Array(bufferLength);
+                isVisualizerSetup = true;
+                drawVisualizer();
+            } catch (e) {
+                console.error("No se pudo inicializar el visualizador de audio.", e);
+            }
         }
 
         function drawVisualizer() {
             requestAnimationFrame(drawVisualizer);
-            if (!analyser) return;
+            if (!isVisualizerSetup || !analyser || audioElement.paused) {
+                visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                return;
+            };
 
             analyser.getByteFrequencyData(frequencyData);
-
             visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
             
-            const barWidth = (visualizerCanvas.width / frequencyData.length) * 1.5;
-            let barHeight;
-            let x = 0;
+            const barHeight = visualizerCanvas.height / analyser.frequencyBinCount;
+            let barWidth;
+            let y = 0;
+            hueOffset += 0.5;
 
-            for(let i = 0; i < frequencyData.length; i++) {
-                barHeight = frequencyData[i] / 2;
-                
-                const hue = i * 3; // Color changes across the spectrum
-                visualizerCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-                visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-
-                x += barWidth + 1;
+            for(let i = 0; i < analyser.frequencyBinCount; i++) {
+                barWidth = (frequencyData[i] / 255) * visualizerCanvas.width;
+                const hue = (i * (360 / analyser.frequencyBinCount) + hueOffset) % 360;
+                visualizerCtx.fillStyle = `hsl(${hue}, 100%, 60%)`;
+                visualizerCtx.fillRect(0, y, barWidth, barHeight);
+                y += barHeight;
             }
         }
         
@@ -675,6 +806,39 @@
             } else {
                 audioElement.pause();
                 playerPlayPauseBtn.innerHTML = ICONS.play;
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffling = !isShuffling;
+            playerShuffleBtn.classList.toggle('active', isShuffling);
+        }
+
+        function cycleRepeatMode() {
+            if (repeatMode === 'none') {
+                repeatMode = 'all';
+                playerRepeatBtn.innerHTML = ICONS.repeat;
+                playerRepeatBtn.classList.add('active');
+            } else if (repeatMode === 'all') {
+                repeatMode = 'one';
+                playerRepeatBtn.innerHTML = ICONS.repeatOne;
+            } else {
+                repeatMode = 'none';
+                playerRepeatBtn.innerHTML = ICONS.repeat;
+                playerRepeatBtn.classList.remove('active');
+            }
+        }
+
+        function handleTrackEnd() {
+            playerPlayPauseBtn.innerHTML = ICONS.play;
+            if (repeatMode === 'one') {
+                playTrack(currentTrackIndex);
+            } else if (isShuffling) {
+                playRandomTrack();
+            } else if (repeatMode === 'all' && currentTrackIndex === soundLibrary.length - 1) {
+                playTrack(0);
+            } else {
+                playNextTrack();
             }
         }
         
@@ -693,6 +857,8 @@
                 audioElement.currentTime = (playerProgressBar.value / 100) * audioElement.duration;
             }
         }
+
+        // --- FUNCIONES DEL CALENDARIO Y UI GENERAL ---
         
         function toggleCalendarView() {
             calendarView = (calendarView === 'expanded') ? 'dynamic' : 'expanded';
@@ -800,9 +966,13 @@
                 }
                 
                 dayCell.addEventListener('click', () => playAudioForDate(dateString));
-                if (audioMap[dateString]) {
-                    dayCell.classList.add('has-audio');
+                if (audioMap[dateString]) dayCell.classList.add('has-audio');
+                if (dayDataMap[dateString]?.icon) {
+                    dayCell.style.setProperty('--icon-bg-url', `url('data:image/svg+xml;utf8,${encodeURIComponent(ICONS[dayDataMap[dateString].icon])}')`);
+                    dayCell.classList.add('day-with-icon-bg');
                 }
+
+
                 calendarGrid.appendChild(dayCell);
             }
         }
@@ -836,10 +1006,8 @@
 
                 const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                 
-                if (audioMap[dateString]) {
-                    card.style.borderColor = 'var(--primary-color)';
-                }
-
+                if (audioMap[dateString]) card.style.borderColor = 'var(--primary-color)';
+                
                 card.addEventListener('click', () => openDayModal(dateString));
                 dynamicCalendarView.appendChild(card);
             }
@@ -852,52 +1020,83 @@
             const formattedDate = date.toLocaleDateString('es-ES', options);
             modalTitle.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
             
+            const currentData = dayDataMap[dateString] || {};
+            const assignedSound = audioMap[dateString];
+            const shortSounds = soundLibrary.filter(s => s.duration < 10);
+            
+            let iconSelectorHTML = `<div class="icon-selector">
+                <button data-icon="party" class="${currentData.icon === 'party' ? 'selected' : ''}">${ICONS.party}</button>
+                <button data-icon="meeting" class="${currentData.icon === 'meeting' ? 'selected' : ''}">${ICONS.meeting}</button>
+                <button data-icon="event" class="${currentData.icon === 'event' ? 'selected' : ''}">${ICONS.event}</button>
+                <button data-icon="game" class="${currentData.icon === 'game' ? 'selected' : ''}">${ICONS.game}</button>
+            </div>`;
+            
+            let soundSelectorHTML = '';
             if (soundLibrary.length === 0) {
-                modalBody.innerHTML = `<p>Primero debe seleccionar una carpeta con sonidos en la pestaña de <strong>Configuración</strong>.</p>`;
-                modalActions.innerHTML = '';
+                soundSelectorHTML = `<p>Seleccione una biblioteca de sonidos en Configuración.</p>`;
+            } else if (shortSounds.length === 0) {
+                soundSelectorHTML = `<p>No hay sonidos de menos de 10s en su biblioteca para asignar.</p>`;
             } else {
-                let optionsHTML = soundLibrary.map(sound => `<option value="${sound.name}">${sound.name}</option>`).join('');
-                modalBody.innerHTML = `<p>Seleccione un sonido de su biblioteca:</p><select id="modal-sound-selector">${optionsHTML}</select>`;
-                
-                const assignedSound = audioMap[dateString];
-                if (assignedSound) {
-                    document.getElementById('modal-sound-selector').value = assignedSound.title;
-                }
-                
-                modalActions.innerHTML = `<button id="modal-assign-btn">Asignar</button>`;
-                if (assignedSound) {
-                    modalActions.innerHTML += `<button id="modal-remove-btn">Quitar Sonido</button>`;
-                    document.getElementById('modal-remove-btn').addEventListener('click', removeAudioForDate);
-                }
-                document.getElementById('modal-assign-btn').addEventListener('click', assignSoundFromLibrary);
+                let optionsHTML = shortSounds.map(sound => `<option value="${sound.name}" ${assignedSound?.title === sound.name ? 'selected' : ''}>${sound.name}</option>`).join('');
+                soundSelectorHTML = `<p>Asignar sonido (menos de 10s):</p><select id="modal-sound-selector"><option value="">-- Ninguno --</option>${optionsHTML}</select>`;
             }
+            
+            modalBody.innerHTML = `
+                <p>Notas:</p>
+                <textarea id="modal-text-input">${currentData.text || ''}</textarea>
+                <p>Icono del evento:</p>
+                ${iconSelectorHTML}
+                ${soundSelectorHTML}
+            `;
+            
+            modalActions.innerHTML = `<button id="modal-save-btn">Guardar</button>`;
+            if (assignedSound || currentData.text || currentData.icon) {
+                 modalActions.innerHTML += `<button id="modal-remove-btn">Borrar Datos</button>`;
+                 document.getElementById('modal-remove-btn').addEventListener('click', removeDayData);
+            }
+            document.getElementById('modal-save-btn').addEventListener('click', saveDayData);
+            
+            document.querySelectorAll('.icon-selector button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.icon-selector button').forEach(b => b.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                });
+            });
 
             modalOverlay.classList.add('visible');
         }
 
-        function assignSoundFromLibrary() {
-            const selector = document.getElementById('modal-sound-selector');
-            if (!selector || !currentlyEditingDate) return;
+        function saveDayData() {
+            if (!currentlyEditingDate) return;
 
-            const selectedName = selector.value;
+            const text = document.getElementById('modal-text-input').value;
+            const selectedIconEl = document.querySelector('.icon-selector button.selected');
+            const icon = selectedIconEl ? selectedIconEl.dataset.icon : null;
             
-            if (audioMap[currentlyEditingDate]) {
-                URL.revokeObjectURL(audioMap[currentlyEditingDate].fileUrl);
+            dayDataMap[currentlyEditingDate] = { text, icon };
+
+            const soundSelector = document.getElementById('modal-sound-selector');
+            if (soundSelector) {
+                const selectedSoundName = soundSelector.value;
+                if (selectedSoundName) {
+                    audioMap[currentlyEditingDate] = { title: selectedSoundName };
+                } else {
+                    delete audioMap[currentlyEditingDate];
+                }
             }
-            audioMap[currentlyEditingDate] = { title: selectedName };
-            
+
             closeDayModal();
             renderCalendar();
+            saveDataToStorage();
         }
         
-        function removeAudioForDate() {
-            if (currentlyEditingDate && audioMap[currentlyEditingDate]) {
-                 if (audioMap[currentlyEditingDate].fileUrl) {
-                    URL.revokeObjectURL(audioMap[currentlyEditingDate].fileUrl);
-                }
+        function removeDayData() {
+            if (currentlyEditingDate) {
                 delete audioMap[currentlyEditingDate];
+                delete dayDataMap[currentlyEditingDate];
                 closeDayModal();
                 renderCalendar();
+                saveDataToStorage();
             }
         }
         
@@ -907,6 +1106,10 @@
         }
         
         function playNextTrack() {
+            if (isShuffling) {
+                playRandomTrack();
+                return;
+            }
             if (soundLibrary.length === 0 || currentTrackIndex >= soundLibrary.length - 1) return;
             playTrack(currentTrackIndex + 1);
         }
@@ -914,6 +1117,15 @@
         function playPrevTrack() {
             if (soundLibrary.length === 0 || currentTrackIndex <= 0) return;
             playTrack(currentTrackIndex - 1);
+        }
+
+        function playRandomTrack() {
+            if (soundLibrary.length <= 1) return;
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * soundLibrary.length);
+            } while (newIndex === currentTrackIndex);
+            playTrack(newIndex);
         }
 
         function playTrack(trackIndex) {
@@ -925,7 +1137,7 @@
             if(!isVisualizerSetup) setupAudioVisualizer();
 
             playerTrackTitle.textContent = sound.name;
-            audioElement.src = URL.createObjectURL(sound.file);
+            audioElement.src = sound.dataUrl;
             audioElement.play();
             playerPlayPauseBtn.innerHTML = ICONS.pause;
 
@@ -933,6 +1145,7 @@
             playerNextBtn.disabled = currentTrackIndex === soundLibrary.length - 1;
 
             updatePlaylistDisplay();
+            renderFullPlaylist();
 
             const playerTabIndex = Array.from(tabLinks).findIndex(link => link.dataset.tab === 'player-tab');
             if (playerTabIndex !== -1) {
@@ -952,14 +1165,34 @@
 
         function updatePlaylistDisplay() {
             playlistItems.innerHTML = '';
-            if (soundLibrary.length === 0 || currentTrackIndex < 0) return;
+            if (soundLibrary.length === 0 || currentTrackIndex < 0 || currentTrackIndex >= soundLibrary.length - 1) {
+                playlistItems.innerHTML = '<div class="playlist-item">Fin de la lista</div>';
+                return;
+            };
 
-            const nextTracks = soundLibrary.slice(currentTrackIndex + 1, currentTrackIndex + 6);
-            nextTracks.forEach(track => {
+            const nextTrack = soundLibrary[currentTrackIndex + 1];
+            const item = document.createElement('div');
+            item.className = 'playlist-item';
+            item.textContent = nextTrack.name;
+            playlistItems.appendChild(item);
+        }
+        
+        function renderFullPlaylist() {
+            fullPlaylistItems.innerHTML = '';
+            if (soundLibrary.length === 0) {
+                 fullPlaylistItems.innerHTML = '<p style="text-align: center; color: var(--secondary-text-color)">No hay sonidos en la biblioteca.</p>';
+                 return;
+            }
+
+            soundLibrary.forEach((track, index) => {
                 const item = document.createElement('div');
-                item.className = 'playlist-item';
+                item.className = 'track-card';
+                if (index === currentTrackIndex) {
+                    item.classList.add('playing');
+                }
                 item.textContent = track.name;
-                playlistItems.appendChild(item);
+                item.addEventListener('click', () => playTrack(index));
+                fullPlaylistItems.appendChild(item);
             });
         }
     </script>
