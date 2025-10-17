@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Personas con IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CuentaPersonas.css">
+</head>
+<body>
+    
+    <button id="menu-toggle">☰</button>
+
+    <div id="sidebar">
+        <h3>Configuración</h3>
+        <div class="setting-group">
+            <label for="bg-file-input">Cambiar fondo (subir)</label>
+            <input type="file" id="bg-file-input" accept="image/*">
+        </div>
+        <div class="setting-group">
+            <label for="bg-url-input">Cambiar fondo (URL)</label>
+            <input type="text" id="bg-url-input" placeholder="Pega la URL de una imagen aquí">
+            <button class="btn" id="apply-bg-btn">Aplicar</button>
+        </div>
+        <hr>
+        <div class="setting-group">
+            <label>Cambiar Tema</label>
+            <button class="btn" id="theme-toggle-btn">Activar Modo Oscuro</button>
+        </div>
+        <hr>
+        <div class="setting-group">
+            <label>Cambiar Colores</label>
+            <div class="color-picker-container">
+                <span>Hombres</span>
+                <input type="color" id="hombres-color-picker" value="#3b82f6">
+            </div>
+            <div class="color-picker-container">
+                <span>Mujeres</span>
+                <input type="color" id="mujeres-color-picker" value="#ec4899">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="app-container">
+        <!-- Sección del Contador General -->
+        <div class="contador-general">
+            <h1 id="total-display">0</h1>
+            <p id="total-texto">personas</p>
+        </div>
+
+        <!-- Sección de Contadores Específicos -->
+        <div class="contadores-especificos">
+            <!-- Contador de Hombres -->
+            <div class="contador-tarjeta hombres">
+                <h2>Hombres</h2>
+                <p><span id="hombres-display">0</span> <span id="hombres-texto">personas</span></p>
+                <div class="controles">
+                    <button class="btn btn-control" id="hombres-menos">-1</button>
+                    <button class="btn btn-control" id="hombres-mas">+1</button>
+                </div>
+            </div>
+
+            <!-- Contador de Mujeres -->
+            <div class="contador-tarjeta mujeres">
+                <h2>Mujeres</h2>
+                <p><span id="mujeres-display">0</span> <span id="mujeres-texto">personas</span></p>
+                <div class="controles">
+                    <button class="btn btn-control" id="mujeres-menos">-1</button>
+                    <button class="btn btn-control" id="mujeres-mas">+1</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botón de Reinicio -->
+        <button class="btn btn-reset" id="reset">Reiniciar Contadores</button>
+        
+        <!-- Botón de Gemini -->
+        <button class="btn btn-gemini" id="gemini-suggester">✨ Sugerir Actividad</button>
+
+        <!-- Caja de sugerencias de Gemini -->
+        <div class="suggestion-box hidden" id="suggestion-container">
+            <p id="suggestion-text"></p>
+            <div class="loader" id="loader"></div>
+        </div>
+
+    </div>
+</body>
+    <script src="CuentaPersonas.js"> </script>
+</html>
