@@ -521,6 +521,7 @@
     </div>
 
     <audio id="audio-element" crossorigin="anonymous"></audio>
+    <input type="file" id="sound-library-input" multiple accept="audio/*" style="display: none;">
 
     <script>
         // --- ICONOS SVG ---
@@ -569,6 +570,7 @@
         const playlistItems = document.getElementById('playlist-items');
         const visualizerCanvas = document.getElementById('visualizer-canvas');
         const visualizerCtx = visualizerCanvas.getContext('2d');
+        const soundLibraryInput = document.getElementById('sound-library-input');
 
         // --- ESTADO DE LA APLICACIÓN ---
         let currentDate = new Date();
@@ -593,7 +595,8 @@
         themeSelector.addEventListener('change', (e) => setTheme(e.target.value));
         modalCloseBtn.addEventListener('click', closeDayModal);
         modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeDayModal(); });
-        selectSoundLibraryBtn.addEventListener('click', selectSoundLibrary);
+        selectSoundLibraryBtn.addEventListener('click', () => soundLibraryInput.click());
+        soundLibraryInput.addEventListener('change', handleLibraryFileSelect);
         playerPlayPauseBtn.addEventListener('click', togglePlayPause);
         playerNextBtn.addEventListener('click', playNextTrack);
         playerPrevBtn.addEventListener('click', playPrevTrack);
@@ -604,30 +607,22 @@
 
         // --- FUNCIONES ---
         
-        async function selectSoundLibrary() {
-            if (!window.showDirectoryPicker) {
-                soundLibraryStatus.textContent = 'Tu navegador no soporta esta función.';
+        function handleLibraryFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) {
+                soundLibraryStatus.textContent = "No se seleccionaron archivos.";
                 return;
             }
-            try {
-                const dirHandle = await window.showDirectoryPicker();
-                soundLibraryStatus.textContent = 'Escaneando carpeta...';
-                const audioFiles = [];
-                const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac'];
-                for await (const entry of dirHandle.values()) {
-                    if (entry.kind === 'file' && audioExtensions.some(ext => entry.name.toLowerCase().endsWith(ext))) {
-                        const file = await entry.getFile();
-                        audioFiles.push({ name: file.name, file: file });
-                    }
-                }
-                soundLibrary = audioFiles;
-                soundLibraryStatus.textContent = `Se encontraron ${soundLibrary.length} sonidos en la biblioteca.`;
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Error seleccionando el directorio:', error);
-                    soundLibraryStatus.textContent = 'Error al leer la carpeta.';
-                }
+
+            soundLibraryStatus.textContent = `Cargando ${files.length} sonidos...`;
+            
+            soundLibrary = [];
+            for (const file of files) {
+                soundLibrary.push({ name: file.name, file: file });
             }
+            
+            soundLibraryStatus.textContent = `Se cargaron ${soundLibrary.length} sonidos en la biblioteca.`;
+            event.target.value = '';
         }
         
         function setupPlayer() {
