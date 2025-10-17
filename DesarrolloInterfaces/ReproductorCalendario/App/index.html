@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Audio con Calendario</title>
+    
+    <style>
+        /* --- Diseño Minimalista: Variables de Color --- */
+        :root {
+            --primary-color: #007AFF; /* Azul iOS */
+            --accent-color: #34C759; /* Verde iOS */
+            --accent-color-faded: rgba(52, 199, 89, 0.2); /* Verde iOS difuminado */
+            --danger-color: #FF3B30; /* Rojo iOS */
+            --background-color: #F2F2F7;
+            --container-background: #FFFFFF;
+            --text-color: #000000;
+            --secondary-text-color: #000000; /* Cambiado de gris a negro */
+            --border-color: #E5E5EA;
+            --button-background-color: #EFEFF4;
+        }
+
+        body.dark-theme {
+            --primary-color: #0A84FF;
+            --accent-color: #30D158;
+            --accent-color-faded: rgba(48, 209, 88, 0.25); /* Verde iOS difuminado para modo oscuro */
+            --danger-color: #FF453A;
+            --background-color: #000000;
+            --container-background: #1C1C1E;
+            --text-color: #FFFFFF;
+            --secondary-text-color: #8D8D93;
+            --border-color: #38383A;
+            --button-background-color: #2C2C2E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- Barra de Navegación Superior --- */
+        .top-nav {
+            background-color: var(--container-background);
+            color: var(--secondary-text-color);
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+            width: 100%;
+            transition: background-color 0.3s, color 0.3s, border-bottom 0.3s;
+        }
+        
+        #location-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .nav-item svg {
+            stroke: var(--secondary-text-color);
+        }
+
+        /* --- Contenido Principal --- */
+        .main-content {
+            padding: 2rem 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .main-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        /* --- Pestañas --- */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .tabs::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .tab-link {
+            flex-grow: 1;
+            text-align: center;
+            padding: 0.8rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--secondary-text-color);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .tab-link:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-link.active {
+            color: var(--primary-color);
+        }
+
+        .tab-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 15%;
+            right: 15%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Contenedor para el efecto de deslizamiento */
+        .tabs-content-container {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tabs-content-wrapper {
+            display: flex;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .tab-content {
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        /* --- Contenedores Generales --- */
+        .content-box {
+            background: var(--container-background);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        /* --- Calendario --- */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .calendar-header-nav {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .calendar-header h2 { font-weight: 600; color: var(--text-color); text-align: center; margin: 0 1rem; }
+        .calendar-header button {
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color);
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: background-color 0.2s; flex-shrink: 0;
+        }
+        #toggle-view-btn svg { width: 22px; height: 22px; fill: var(--primary-color); }
+        .calendar-header button:hover { background-color: rgba(0, 0, 0, 0.05); }
+        .dark-theme .calendar-header button:hover { background-color: rgba(255, 255, 255, 0.1); }
+        
+        .calendar-grid, .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-weekdays div { font-weight: 500; text-align: center; color: var(--secondary-text-color); font-size: 0.8rem; }
+        .calendar-day {
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            aspect-ratio: 1 / 1; border: 1px solid transparent;
+            border-radius: 50%; transition: all 0.2s; font-size: 1.2rem; position: relative; /* Font size increased */
+            cursor: pointer;
+        }
+        .calendar-day.empty { pointer-events: none; opacity: 0.5; }
+        .calendar-day.has-audio { border: 1px solid var(--primary-color); color: var(--primary-color); font-weight: 500; }
+        .calendar-day.has-audio::after {
+            content: ''; width: 5px; height: 5px; background-color: var(--primary-color); border-radius: 50%;
+            position: absolute; bottom: 8px; /* Ajustado para no solapar con el botón + */
+        }
+        .calendar-day.has-audio:hover { background-color: var(--primary-color); color: white; }
+        .calendar-day.has-audio:hover::after { background-color: white; }
+        .calendar-day.today .day-number { 
+            background-color: var(--accent-color); color: white; font-weight: 700;
+            border-radius: 50%; width: 32px; height: 32px; display: flex; /* Circle size increased */
+            align-items: center; justify-content: center;
+        }
+        
+        .calendar-day.adjacent-day .day-number {
+            background-color: var(--accent-color-faded);
+            color: var(--accent-color);
+            font-weight: 500;
+            border-radius: 50%;
+            width: 32px; height: 32px; display: flex; /* Circle size increased */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .day-action-btn {
+            background: none; border: none; color: var(--secondary-text-color);
+            width: 22px; height: 22px; font-size: 1.2rem; line-height: 22px;
+            text-align: center; cursor: pointer; margin-top: 2px;
+            transition: all 0.2s; opacity: 0; /* Oculto por defecto */
+        }
+        .calendar-day:hover .day-action-btn { opacity: 1; } /* Visible al pasar el ratón por encima del día */
+        .day-action-btn:hover { color: var(--primary-color); transform: scale(1.2); }
+
+        /* --- Calendario Dinámico --- */
+        .dynamic-calendar-view {
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem 0;
+        }
+        .dynamic-day-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 60px; height: 80px; border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--button-background-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .dynamic-day-card .day-name { font-size: 0.8rem; text-transform: uppercase; color: var(--secondary-text-color); }
+        .dynamic-day-card .day-num { font-size: 1.5rem; font-weight: 600; }
+        .dynamic-day-card.adjacent { opacity: 0.6; transform: scale(0.9); }
+        .dynamic-day-card.adjacent:hover { opacity: 1; transform: scale(1); }
+        .dynamic-day-card.current {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        .dynamic-day-card.current .day-name { color: rgba(255, 255, 255, 0.8); }
+
+        /* --- Control de Vistas --- */
+        .calendar-container.dynamic-view .calendar-header-nav,
+        .calendar-container.dynamic-view .calendar-grid,
+        .calendar-container.dynamic-view .calendar-weekdays { display: none; }
+        .calendar-container.dynamic-view .dynamic-calendar-view { display: flex; }
+        
+        /* --- Configuración --- */
+        .settings-container h2 { margin-bottom: 1.5rem; font-weight: 600; }
+        .setting-item {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+            padding: 1rem 0; border-bottom: 1px solid var(--border-color);
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-item label { font-size: 1rem; margin-right: 1rem; margin-bottom: 0.5rem; }
+        .setting-item select, .setting-item button {
+            padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);
+            background-color: var(--button-background-color); color: var(--text-color); font-size: 0.9rem;
+            cursor: pointer;
+        }
+        #sound-library-status {
+            width: 100%;
+            text-align: right;
+            color: var(--secondary-text-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* --- Reproductor de Audio UI --- */
+        .player-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        #visualizer-canvas {
+            width: 100%;
+            height: 200px;
+        }
+        .player-center-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .album-art {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            background-color: var(--button-background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .album-art img { width: 100%; height: 100%; object-fit: cover; }
+        .album-art svg { width: 80px; height: 80px; fill: var(--secondary-text-color); opacity: 0.5; }
+        .track-info { text-align: center; }
+        #player-track-title { font-size: 1.2rem; font-weight: 600; }
+        .progress-container { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; }
+        #player-progress-bar { width: 100%; }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--secondary-text-color);
+            font-family: 'SF Mono', 'Courier New', monospace;
+        }
+        .player-controls { display: flex; align-items: center; gap: 1.5rem; }
+        .player-controls button { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; }
+        .player-controls button svg { fill: var(--text-color); }
+        .player-controls button:disabled { cursor: not-allowed; }
+        .player-controls button:disabled svg { fill: var(--secondary-text-color); opacity: 0.5; }
+        #player-play-pause-btn { background-color: var(--primary-color); width: 60px; height: 60px; border-radius: 50%; }
+        #player-play-pause-btn svg { fill: white; width: 30px; height: 30px; }
+        #playlist-sidebar {
+            height: 200px;
+            overflow-y: auto;
+        }
+        #playlist-sidebar h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--secondary-text-color); }
+        .playlist-item {
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--secondary-text-color);
+        }
+
+        /* --- Ventana Emergente (Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* Cambiado a 'none' por defecto */
+            justify-content: center; align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.visible {
+            display: flex; /* Se usa esta clase para mostrarlo */
+        }
+        .modal-content {
+            background: var(--container-background); padding: 1.5rem; border-radius: 12px;
+            width: 90%; max-width: 500px; animation: slideIn 0.3s ease-out;
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;
+        }
+        #modal-title { font-weight: 600; font-size: 1.2rem; }
+        #modal-close-btn {
+            background: none; border: none; font-size: 2rem;
+            cursor: pointer; color: var(--secondary-text-color); line-height: 1;
+        }
+        .modal-body { line-height: 1.6; }
+        .modal-body select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--button-background-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        .modal-actions {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+        .modal-actions button {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .modal-actions button:hover { opacity: 0.8; }
+        #modal-assign-btn { background-color: var(--primary-color); color: white; }
+        #modal-remove-btn { background-color: var(--danger-color); color: white; }
+
+
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div id="location-info">Cargando ubicación y zona horaria...</div>
+    </nav>
+
+    <main class="main-content">
+        <h1 class="main-title">ProMinimal Calendar of Sounds</h1>
+        <div class="tabs">
+            <button class="tab-link active" data-tab="calendar-tab">Calendario</button>
+            <button class="tab-link" data-tab="player-tab">Reproductor</button>
+            <button class="tab-link" data-tab="settings-tab">Configuración</button>
+        </div>
+        <div class="tabs-content-container">
+            <div class="tabs-content-wrapper">
+                <div id="calendar-tab" class="tab-content">
+                    <div id="calendar-container" class="content-box calendar-container">
+                        <div class="calendar-header">
+                            <div class="calendar-header-nav">
+                                <button id="prev-month-btn" aria-label="Mes anterior">&lt;</button>
+                                <h2 id="month-year-display"></h2>
+                                <button id="next-month-btn" aria-label="Mes siguiente">&gt;</button>
+                            </div>
+                            <button id="toggle-view-btn" aria-label="Cambiar vista"></button>
+                        </div>
+                        <div class="calendar-weekdays">
+                            <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                        </div>
+                        <div id="calendar-grid" class="calendar-grid"></div>
+                        <div id="dynamic-calendar-view" class="dynamic-calendar-view"></div>
+                    </div>
+                </div>
+
+                <div id="player-tab" class="tab-content">
+                    <div class="content-box player-grid-container">
+                        <canvas id="visualizer-canvas"></canvas>
+                        <div class="player-center-column">
+                            <div class="album-art">
+                                <img id="player-album-art" src="https://placehold.co/200x200/efeff4/000000?text=♪" alt="Carátula del álbum">
+                            </div>
+                            <div class="track-info">
+                                <p id="player-track-title">Ningún sonido seleccionado</p>
+                            </div>
+                            <div class="progress-container">
+                                <input type="range" id="player-progress-bar" value="0" step="1">
+                                <div class="time-display">
+                                    <span id="player-current-time">0:00</span>
+                                    <span id="player-total-time">0:00</span>
+                                </div>
+                            </div>
+                            <div class="player-controls">
+                                <button id="player-prev-btn"></button>
+                                <button id="player-play-pause-btn"></button>
+                                <button id="player-next-btn"></button>
+                            </div>
+                        </div>
+                         <div id="playlist-sidebar">
+                             <h3>A continuación:</h3>
+                             <div id="playlist-items"></div>
+                         </div>
+                    </div>
+                </div>
+
+                <div id="settings-tab" class="tab-content">
+                    <div class="content-box settings-container">
+                        <h2>Configuración</h2>
+                        <div class="setting-item">
+                            <label for="theme-selector">Tema de la aplicación</label>
+                            <select id="theme-selector">
+                                <option value="light">Claro</option>
+                                <option value="dark">Oscuro</option>
+                            </select>
+                        </div>
+                         <div class="setting-item">
+                            <label>Biblioteca de Sonidos</label>
+                            <button id="select-sound-library-btn">Seleccionar Carpeta</button>
+                        </div>
+                        <p id="sound-library-status"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- HTML de la Ventana Emergente (Modal) -->
+    <div id="day-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button id="modal-close-btn" aria-label="Cerrar">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body">
+                <!-- Contenido se inyecta con JavaScript -->
+            </div>
+            <div id="modal-actions" class="modal-actions">
+                <!-- Botones de acción se inyectan con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <audio id="audio-element" crossorigin="anonymous"></audio>
+
+    <script>
+        // --- ICONOS SVG ---
+        const ICONS = {
+            location: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+            clock: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+            viewGrid: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3,3H9V9H3V3M15,3H21V9H15V3M3,15H9V21H3V15M15,15H21V21H15V15Z"/></svg>`,
+            viewRow: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21,18H3V16H21V18M21,13H3V11H21V13M21,8H3V6H21V8Z" /></svg>`,
+            play: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>`,
+            pause: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
+            prev: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"></path></svg>`,
+            next: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM8 18l8.5-6L8 6z"></path></svg>`
+        };
+
+        // --- CONFIGURACIÓN DE AUDIOS ---
+        let audioMap = {};
+        let soundLibrary = [];
+
+        // --- ELEMENTOS DEL DOM ---
+        const themeSelector = document.getElementById('theme-selector');
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabsContentWrapper = document.querySelector('.tabs-content-wrapper');
+        const locationInfo = document.getElementById('location-info');
+        const monthYearDisplay = document.getElementById('month-year-display');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+        const modalOverlay = document.getElementById('day-modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalActions = document.getElementById('modal-actions');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const calendarContainer = document.getElementById('calendar-container');
+        const toggleViewBtn = document.getElementById('toggle-view-btn');
+        const dynamicCalendarView = document.getElementById('dynamic-calendar-view');
+        const selectSoundLibraryBtn = document.getElementById('select-sound-library-btn');
+        const soundLibraryStatus = document.getElementById('sound-library-status');
+        const audioElement = document.getElementById('audio-element');
+        const playerTrackTitle = document.getElementById('player-track-title');
+        const playerProgressBar = document.getElementById('player-progress-bar');
+        const playerCurrentTime = document.getElementById('player-current-time');
+        const playerTotalTime = document.getElementById('player-total-time');
+        const playerPrevBtn = document.getElementById('player-prev-btn');
+        const playerPlayPauseBtn = document.getElementById('player-play-pause-btn');
+        const playerNextBtn = document.getElementById('player-next-btn');
+        const playlistItems = document.getElementById('playlist-items');
+        const visualizerCanvas = document.getElementById('visualizer-canvas');
+        const visualizerCtx = visualizerCanvas.getContext('2d');
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        let currentDate = new Date();
+        let calendarView = 'expanded';
+        let currentlyEditingDate = null;
+        let currentTrackIndex = -1;
+        let isVisualizerSetup = false;
+        let audioContext, analyser, sourceNode, frequencyData;
+
+        // --- INICIALIZACIÓN ---
+        displayNavbarInfo();
+        renderCalendar();
+        setupTabs();
+        setupTheme();
+        updateToggleViewIcon();
+        setupPlayer();
+
+        // --- EVENT LISTENERS ---
+        prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
+        nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
+        toggleViewBtn.addEventListener('click', toggleCalendarView);
+        themeSelector.addEventListener('change', (e) => setTheme(e.target.value));
+        modalCloseBtn.addEventListener('click', closeDayModal);
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeDayModal(); });
+        selectSoundLibraryBtn.addEventListener('click', selectSoundLibrary);
+        playerPlayPauseBtn.addEventListener('click', togglePlayPause);
+        playerNextBtn.addEventListener('click', playNextTrack);
+        playerPrevBtn.addEventListener('click', playPrevTrack);
+        audioElement.addEventListener('timeupdate', updatePlayerProgress);
+        audioElement.addEventListener('loadedmetadata', updatePlayerProgress);
+        audioElement.addEventListener('ended', () => { playerPlayPauseBtn.innerHTML = ICONS.play; playNextTrack(); });
+        playerProgressBar.addEventListener('input', setAudioPosition);
+
+        // --- FUNCIONES ---
+        
+        async function selectSoundLibrary() {
+            if (!window.showDirectoryPicker) {
+                soundLibraryStatus.textContent = 'Tu navegador no soporta esta función.';
+                return;
+            }
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                soundLibraryStatus.textContent = 'Escaneando carpeta...';
+                const audioFiles = [];
+                const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac'];
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && audioExtensions.some(ext => entry.name.toLowerCase().endsWith(ext))) {
+                        const file = await entry.getFile();
+                        audioFiles.push({ name: file.name, file: file });
+                    }
+                }
+                soundLibrary = audioFiles;
+                soundLibraryStatus.textContent = `Se encontraron ${soundLibrary.length} sonidos en la biblioteca.`;
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Error seleccionando el directorio:', error);
+                    soundLibraryStatus.textContent = 'Error al leer la carpeta.';
+                }
+            }
+        }
+        
+        function setupPlayer() {
+            playerPlayPauseBtn.innerHTML = ICONS.play;
+            playerPrevBtn.innerHTML = ICONS.prev;
+            playerNextBtn.innerHTML = ICONS.next;
+        }
+
+        function setupAudioVisualizer() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            sourceNode = audioContext.createMediaElementSource(audioElement);
+            sourceNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            analyser.fftSize = 128;
+            const bufferLength = analyser.frequencyBinCount;
+            frequencyData = new Uint8Array(bufferLength);
+            isVisualizerSetup = true;
+            drawVisualizer();
+        }
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            if (!analyser) return;
+
+            analyser.getByteFrequencyData(frequencyData);
+
+            visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            
+            const barWidth = (visualizerCanvas.width / frequencyData.length) * 1.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < frequencyData.length; i++) {
+                barHeight = frequencyData[i] / 2;
+                
+                const hue = i * 3; // Color changes across the spectrum
+                visualizerCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                visualizerCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+
+                x += barWidth + 1;
+            }
+        }
+        
+        function togglePlayPause() {
+            if (!audioElement.src || isNaN(audioElement.duration)) return;
+            if (audioElement.paused) {
+                audioElement.play();
+                playerPlayPauseBtn.innerHTML = ICONS.pause;
+            } else {
+                audioElement.pause();
+                playerPlayPauseBtn.innerHTML = ICONS.play;
+            }
+        }
+        
+        function updatePlayerProgress() {
+            if (isNaN(audioElement.duration)) return;
+            const { currentTime, duration } = audioElement;
+            playerProgressBar.value = (duration > 0) ? (currentTime / duration) * 100 : 0;
+            playerCurrentTime.textContent = formatTime(currentTime);
+            playerTotalTime.textContent = formatTime(duration);
+        }
+
+        const formatTime = (time) => isNaN(time) ? "0:00" : `${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, '0')}`;
+
+        function setAudioPosition() {
+             if (!isNaN(audioElement.duration)) {
+                audioElement.currentTime = (playerProgressBar.value / 100) * audioElement.duration;
+            }
+        }
+        
+        function toggleCalendarView() {
+            calendarView = (calendarView === 'expanded') ? 'dynamic' : 'expanded';
+            calendarContainer.classList.toggle('dynamic-view', calendarView === 'dynamic');
+            updateToggleViewIcon();
+            renderCalendar();
+        }
+
+        function updateToggleViewIcon() {
+            toggleViewBtn.innerHTML = (calendarView === 'expanded') ? ICONS.viewRow : ICONS.viewGrid;
+        }
+
+        function renderCalendar() {
+            if (calendarView === 'expanded') {
+                renderExpandedCalendar();
+            } else {
+                renderDynamicCalendar();
+            }
+        }
+
+        function setupTabs() {
+            tabLinks.forEach((tab, index) => {
+                tab.addEventListener('mouseover', () => {
+                    switchToTab(index);
+                });
+            });
+        }
+
+        function switchToTab(tabIndex) {
+            tabLinks.forEach((link, index) => {
+                link.classList.toggle('active', index === tabIndex);
+            });
+            const offset = tabIndex * 100;
+            tabsContentWrapper.style.transform = `translateX(-${offset}%)`;
+        }
+        
+        function setupTheme() {
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            themeSelector.value = savedTheme;
+            setTheme(savedTheme);
+        }
+        
+        function setTheme(themeName) {
+            document.body.classList.toggle('dark-theme', themeName === 'dark');
+            localStorage.setItem('theme', themeName);
+        }
+
+        function displayNavbarInfo() {
+            try {
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const region = timeZone.split('/')[1]?.replace('_', ' ') || timeZone;
+                locationInfo.innerHTML = `
+                    <span class="nav-item">${ICONS.location} ${region}</span>
+                    <span class="nav-item">${ICONS.clock} ${timeZone}</span>
+                `;
+            } catch {
+                locationInfo.textContent = "Zona horaria no detectada.";
+            }
+        }
+
+        function renderExpandedCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthName = new Date(year, month).toLocaleDateString('es-ES', { month: 'long' });
+            monthYearDisplay.textContent = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
+            calendarGrid.innerHTML = '';
+            const firstDayOfMonth = new Date(year, month, 1);
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let startDayIndex = (firstDayOfMonth.getDay() === 0) ? 6 : firstDayOfMonth.getDay() - 1;
+
+            const today = new Date();
+            const todayTimestamp = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+            const yesterdayTimestamp = todayTimestamp - 86400000;
+            const tomorrowTimestamp = todayTimestamp + 86400000;
+
+            for (let i = 0; i < startDayIndex; i++) calendarGrid.insertAdjacentHTML('beforeend', '<div class="calendar-day empty"></div>');
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+
+                const dayNumber = document.createElement('span');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayCell.appendChild(dayNumber);
+
+                const actionBtn = document.createElement('button');
+                actionBtn.className = 'day-action-btn';
+                actionBtn.textContent = '+';
+                actionBtn.setAttribute('aria-label', `Más opciones para el día ${day}`);
+                dayCell.appendChild(actionBtn);
+
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                actionBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openDayModal(dateString);
+                });
+
+                const currentTimestamp = new Date(year, month, day).getTime();
+
+                if (currentTimestamp === todayTimestamp) {
+                    dayCell.classList.add('today');
+                } else if (currentTimestamp === yesterdayTimestamp || currentTimestamp === tomorrowTimestamp) {
+                    dayCell.classList.add('adjacent-day');
+                }
+                
+                dayCell.addEventListener('click', () => playAudioForDate(dateString));
+                if (audioMap[dateString]) {
+                    dayCell.classList.add('has-audio');
+                }
+                calendarGrid.appendChild(dayCell);
+            }
+        }
+        
+        function renderDynamicCalendar() {
+            dynamicCalendarView.innerHTML = '';
+            const today = new Date();
+            
+            for (let i = -2; i <= 2; i++) {
+                const date = new Date();
+                date.setDate(today.getDate() + i);
+
+                const card = document.createElement('div');
+                card.className = 'dynamic-day-card';
+                if (i === 0) {
+                    card.classList.add('current');
+                } else {
+                    card.classList.add('adjacent');
+                }
+                
+                const dayName = document.createElement('span');
+                dayName.className = 'day-name';
+                dayName.textContent = date.toLocaleDateString('es-ES', { weekday: 'short' });
+                
+                const dayNum = document.createElement('span');
+                dayNum.className = 'day-num';
+                dayNum.textContent = date.getDate();
+
+                card.appendChild(dayName);
+                card.appendChild(dayNum);
+
+                const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                
+                if (audioMap[dateString]) {
+                    card.style.borderColor = 'var(--primary-color)';
+                }
+
+                card.addEventListener('click', () => openDayModal(dateString));
+                dynamicCalendarView.appendChild(card);
+            }
+        }
+
+        function openDayModal(dateString) {
+            currentlyEditingDate = dateString;
+            const date = new Date(dateString + 'T12:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = date.toLocaleDateString('es-ES', options);
+            modalTitle.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+            
+            if (soundLibrary.length === 0) {
+                modalBody.innerHTML = `<p>Primero debe seleccionar una carpeta con sonidos en la pestaña de <strong>Configuración</strong>.</p>`;
+                modalActions.innerHTML = '';
+            } else {
+                let optionsHTML = soundLibrary.map(sound => `<option value="${sound.name}">${sound.name}</option>`).join('');
+                modalBody.innerHTML = `<p>Seleccione un sonido de su biblioteca:</p><select id="modal-sound-selector">${optionsHTML}</select>`;
+                
+                const assignedSound = audioMap[dateString];
+                if (assignedSound) {
+                    document.getElementById('modal-sound-selector').value = assignedSound.title;
+                }
+                
+                modalActions.innerHTML = `<button id="modal-assign-btn">Asignar</button>`;
+                if (assignedSound) {
+                    modalActions.innerHTML += `<button id="modal-remove-btn">Quitar Sonido</button>`;
+                    document.getElementById('modal-remove-btn').addEventListener('click', removeAudioForDate);
+                }
+                document.getElementById('modal-assign-btn').addEventListener('click', assignSoundFromLibrary);
+            }
+
+            modalOverlay.classList.add('visible');
+        }
+
+        function assignSoundFromLibrary() {
+            const selector = document.getElementById('modal-sound-selector');
+            if (!selector || !currentlyEditingDate) return;
+
+            const selectedName = selector.value;
+            
+            if (audioMap[currentlyEditingDate]) {
+                URL.revokeObjectURL(audioMap[currentlyEditingDate].fileUrl);
+            }
+            audioMap[currentlyEditingDate] = { title: selectedName };
+            
+            closeDayModal();
+            renderCalendar();
+        }
+        
+        function removeAudioForDate() {
+            if (currentlyEditingDate && audioMap[currentlyEditingDate]) {
+                 if (audioMap[currentlyEditingDate].fileUrl) {
+                    URL.revokeObjectURL(audioMap[currentlyEditingDate].fileUrl);
+                }
+                delete audioMap[currentlyEditingDate];
+                closeDayModal();
+                renderCalendar();
+            }
+        }
+        
+        function closeDayModal() {
+            modalOverlay.classList.remove('visible');
+            currentlyEditingDate = null;
+        }
+        
+        function playNextTrack() {
+            if (soundLibrary.length === 0 || currentTrackIndex >= soundLibrary.length - 1) return;
+            playTrack(currentTrackIndex + 1);
+        }
+
+        function playPrevTrack() {
+            if (soundLibrary.length === 0 || currentTrackIndex <= 0) return;
+            playTrack(currentTrackIndex - 1);
+        }
+
+        function playTrack(trackIndex) {
+            if (trackIndex < 0 || trackIndex >= soundLibrary.length) return;
+            
+            currentTrackIndex = trackIndex;
+            const sound = soundLibrary[trackIndex];
+            
+            if(!isVisualizerSetup) setupAudioVisualizer();
+
+            playerTrackTitle.textContent = sound.name;
+            audioElement.src = URL.createObjectURL(sound.file);
+            audioElement.play();
+            playerPlayPauseBtn.innerHTML = ICONS.pause;
+
+            playerPrevBtn.disabled = currentTrackIndex === 0;
+            playerNextBtn.disabled = currentTrackIndex === soundLibrary.length - 1;
+
+            updatePlaylistDisplay();
+
+            const playerTabIndex = Array.from(tabLinks).findIndex(link => link.dataset.tab === 'player-tab');
+            if (playerTabIndex !== -1) {
+                switchToTab(playerTabIndex);
+            }
+        }
+
+        function playAudioForDate(dateString) {
+            const specificSound = audioMap[dateString];
+            if (!specificSound || soundLibrary.length === 0) return;
+
+            const trackIndex = soundLibrary.findIndex(s => s.name === specificSound.title);
+            if (trackIndex !== -1) {
+                playTrack(trackIndex);
+            }
+        }
+
+        function updatePlaylistDisplay() {
+            playlistItems.innerHTML = '';
+            if (soundLibrary.length === 0 || currentTrackIndex < 0) return;
+
+            const nextTracks = soundLibrary.slice(currentTrackIndex + 1, currentTrackIndex + 6);
+            nextTracks.forEach(track => {
+                const item = document.createElement('div');
+                item.className = 'playlist-item';
+                item.textContent = track.name;
+                playlistItems.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
