@@ -256,22 +256,6 @@
             transform: scale(1.2);
         }
 
-        .youtube-thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .track-item.has-external-url {
-            position: relative;
-        }
-
-        .track-item.has-external-url .track-title {
-            display: flex;
-            align-items: center;
-        }
-
         #external-url-status.success {
             background: var(--accent-color);
             color: white;
@@ -295,13 +279,13 @@
     <main class="main-content">
         <h1 class="main-title">ProMinimal Calendar of Sounds</h1>
         <div class="tabs">
-            <button class="tab-link" data-tab="calendar-tab">Calendario</button>
-            <button class="tab-link active" data-tab="player-tab">Reproductor</button>
+            <button class="tab-link active" data-tab="calendar-tab">Calendario</button>
+            <button class="tab-link" data-tab="player-tab">Reproductor</button>
             <button class="tab-link" data-tab="tasks-tab">Tareas</button>
             <button class="tab-link" data-tab="settings-tab">Configuración</button>
         </div>
         
-        <div id="calendar-tab" class="tab-content">
+        <div id="calendar-tab" class="tab-content active">
             <div id="calendar-container" class="content-box calendar-container">
                 <div class="calendar-header">
                     <div class="calendar-header-nav">
@@ -322,7 +306,7 @@
             </div>
         </div>
 
-        <div id="player-tab" class="tab-content active">
+        <div id="player-tab" class="tab-content">
             <div class="content-box player-container">
                <canvas id="visualizer-canvas"></canvas>
                 <div class="track-info">
@@ -365,7 +349,8 @@
                     <div id="library-settings-card" class="settings-card">
                         <h3>Biblioteca de Sonidos</h3>
                         <p>Gestiona tus archivos de audio.</p>
-                    
+                    </div>
+                
                     <div class="settings-card">
                         <h3>🌐 Añadir Música desde URL</h3>
                         <p>Añade canciones desde YouTube u otras fuentes externas.</p>
@@ -390,7 +375,7 @@
 
                         <div id="external-url-status" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; display: none;"></div>
                     </div>
-</div>
+
                 </div>
             </div>
         </div>
@@ -486,7 +471,6 @@
         const librarySettingsCard = document.getElementById('library-settings-card');
         
         // --- INICIALIZACIÓN ---
-        async 
         function isYouTubeUrl(url) {
             return url.includes('youtube.com') || url.includes('youtu.be');
         }
@@ -500,9 +484,7 @@
 
             for (const pattern of patterns) {
                 const match = url.match(pattern);
-                if (match && match[1]) {
-                    return match[1];
-                }
+                if (match && match[1]) return match[1];
             }
             return null;
         }
@@ -513,7 +495,7 @@
 
         function addExternalTrack(url, title, artist) {
             if (!url || !title) {
-                showExternalUrlStatus('Por favor completa URL y título', 'error');
+                showExternalUrlStatus('⚠️ Por favor completa URL y título', 'error');
                 return;
             }
 
@@ -523,12 +505,12 @@
 
             if (isYoutube) {
                 const videoId = getYouTubeVideoId(url);
-                if (videoId) {
-                    thumbnailUrl = getYouTubeThumbnail(videoId);
-                }
+                if (videoId) thumbnailUrl = getYouTubeThumbnail(videoId);
             }
 
+            // Guardar en externalTracks
             externalTracks[trackId] = {
+                id: trackId,
                 url: url,
                 title: title,
                 artist: artist || 'Desconocido',
@@ -537,6 +519,7 @@
                 type: 'external'
             };
 
+            // Añadir a soundLibrary
             soundLibrary.push({
                 id: trackId,
                 name: title,
@@ -547,9 +530,17 @@
                 thumbnailUrl: thumbnailUrl
             });
 
+            // Guardar datos
             saveData();
-            showExternalUrlStatus(`✓ "${title}" añadido a la biblioteca`, 'success');
 
+            // IMPORTANTE: Actualizar la UI
+            renderFullPlaylist();
+
+            // Mostrar notificación
+            const sourceType = isYoutube ? 'YouTube' : 'URL externa';
+            showExternalUrlStatus(`✅ "${title}" añadida desde ${sourceType}`, 'success');
+
+            // Limpiar inputs
             document.getElementById('external-url-input').value = '';
             document.getElementById('external-title-input').value = '';
             document.getElementById('external-artist-input').value = '';
@@ -557,6 +548,7 @@
 
         function showExternalUrlStatus(message, type) {
             const statusDiv = document.getElementById('external-url-status');
+            if (!statusDiv) return;
             statusDiv.textContent = message;
             statusDiv.className = type;
             statusDiv.style.display = 'block';
@@ -567,7 +559,7 @@
         }
 
 
-        function init() {
+        async function init() {
             await initDB();
             await loadAppData();
             applyCustomTheme();
@@ -578,7 +570,6 @@
             renderCalendar();
             renderTasks();
             renderFullPlaylist();
-            
             prevMonthBtn.addEventListener('click', handlePrevClick);
             nextMonthBtn.addEventListener('click', handleNextClick);
             monthYearDisplay.addEventListener('click', toggleCalendarViewMode);
@@ -624,22 +615,50 @@
                 localStorage.setItem('audioMap', JSON.stringify(audioMap));
                 localStorage.setItem('dayDataMap', JSON.stringify(dayDataMap));
                 localStorage.setItem('dynamic_theme_enabled', dynamicThemeEnabled);
+                localStorage.setItem('externalTracks', JSON.stringify(externalTracks));
             } catch (e) {
                 console.error("LocalStorage error:", e);
             }
         };
+
+        // Función saveData que llama a saveDataToStorage
+        function saveData() {
+            saveDataToStorage();
+        }
+
 
         function loadAppData() {
             return new Promise(resolve => {
                 dynamicThemeEnabled = localStorage.getItem('dynamic_theme_enabled') === 'true';
                 audioMap = JSON.parse(localStorage.getItem('audioMap')) || {};
                 dayDataMap = JSON.parse(localStorage.getItem('dayDataMap')) || {};
-                
+                externalTracks = JSON.parse(localStorage.getItem('externalTracks')) || {};
+
                 const transaction = db.transaction(['sounds'], 'readonly');
                 const store = transaction.objectStore('sounds');
                 const request = store.getAll();
-                request.onsuccess = e => { soundLibrary = e.target.result; resolve(); };
-                request.onerror = () => resolve(); // Resolve even if DB fails
+                request.onsuccess = e => { 
+                    soundLibrary = e.target.result;
+
+                    // Sincronizar tracks externos con soundLibrary
+                    Object.values(externalTracks).forEach(track => {
+                        const exists = soundLibrary.find(t => t.id === track.id);
+                        if (!exists) {
+                            soundLibrary.push({
+                                id: track.id || 'ext_' + Date.now(),
+                                name: track.title,
+                                type: 'external',
+                                url: track.url,
+                                artist: track.artist,
+                                isYoutube: track.isYoutube,
+                                thumbnailUrl: track.thumbnailUrl
+                            });
+                        }
+                    });
+
+                    resolve(); 
+                };
+                request.onerror = () => resolve();
             });
         }
         
@@ -788,27 +807,6 @@
                 }
                 dayCell.addEventListener('click', () => playAudioForDate(dateString));
                 dayCell.querySelector('.day-action-btn').addEventListener('click', (e) => { e.stopPropagation(); openDayModal(dateString); });
-
-            const addExternalUrlBtn = document.getElementById('add-external-url-btn');
-            if (addExternalUrlBtn) {
-                addExternalUrlBtn.addEventListener('click', () => {
-                    const url = document.getElementById('external-url-input').value.trim();
-                    const title = document.getElementById('external-title-input').value.trim();
-                    const artist = document.getElementById('external-artist-input').value.trim();
-                    addExternalTrack(url, title, artist);
-                });
-            }
-
-            ['external-url-input', 'external-title-input', 'external-artist-input'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            document.getElementById('add-external-url-btn').click();
-                        }
-                    });
-                }
-            });
                 calendarGrid.appendChild(dayCell);
             }
         }
@@ -967,6 +965,29 @@
             renderLibraryModalContent();
             modalActions.innerHTML = `<button id="add-sounds-btn">Añadir Archivos</button>`;
             document.getElementById('add-sounds-btn').addEventListener('click', handleLibraryFileSelect);
+
+            // Event listeners para URLs externas
+            const addExternalUrlBtn = document.getElementById('add-external-url-btn');
+            if (addExternalUrlBtn) {
+                addExternalUrlBtn.addEventListener('click', () => {
+                    const url = document.getElementById('external-url-input').value.trim();
+                    const title = document.getElementById('external-title-input').value.trim();
+                    const artist = document.getElementById('external-artist-input').value.trim();
+                    addExternalTrack(url, title, artist);
+                });
+            }
+
+            ['external-url-input', 'external-title-input', 'external-artist-input'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const btn = document.getElementById('add-external-url-btn');
+                            if (btn) btn.click();
+                        }
+                    });
+                }
+            });
             modalOverlay.classList.add('visible');
         }
         
