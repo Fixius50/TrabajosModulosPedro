@@ -175,8 +175,10 @@
         .settings-card h3 { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; }
         .settings-card p { font-size: 0.9rem; color: var(--secondary-text-color); }
         .color-picker-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; }
-        .color-picker-item input[type="color"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 44px; height: 44px; background-color: transparent; border: none; cursor: pointer; }
-        .color-picker-item input[type="color"]::-webkit-color-swatch { border-radius: 8px; border: 1px solid var(--border-color); }
+        .color-picker-item input[type="color"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 44px; height: 44px; background-color: transparent; border: none; cursor: pointer; border-radius: 50%; }
+        .color-picker-item input[type="color"]::-webkit-color-swatch { border-radius: 50%; border: 2px solid var(--border-color); }
+        .color-picker-item input[type="color"]::-moz-color-swatch { border-radius: 50%; border: 2px solid var(--border-color); }
+        .color-picker-item input[type="color"]:hover { transform: scale(1.1); transition: transform 0.2s; }
         .library-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .library-table th, .library-table td { text-align: left; padding: 0.8rem; border-bottom: 1px solid var(--border-color); }
         .library-table th { font-weight: 600; font-size: 0.9rem; }
@@ -236,7 +238,52 @@
             .player-controls { gap: 1rem; }
             .tab-link { font-size: 0.9rem; padding: 0.8rem 0.5rem; }
         }
-    </style>
+    
+        /* Estilos para URLs externas */
+        .external-link-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+            vertical-align: middle;
+        }
+
+        .external-link-icon:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .youtube-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .track-item.has-external-url {
+            position: relative;
+        }
+
+        .track-item.has-external-url .track-title {
+            display: flex;
+            align-items: center;
+        }
+
+        #external-url-status.success {
+            background: var(--accent-color);
+            color: white;
+            display: block;
+        }
+
+        #external-url-status.error {
+            background: var(--danger-color);
+            color: white;
+            display: block;
+        }
+</style>
 </head>
 <body>
 
@@ -248,13 +295,13 @@
     <main class="main-content">
         <h1 class="main-title">ProMinimal Calendar of Sounds</h1>
         <div class="tabs">
-            <button class="tab-link active" data-tab="calendar-tab">Calendario</button>
-            <button class="tab-link" data-tab="player-tab">Reproductor</button>
+            <button class="tab-link" data-tab="calendar-tab">Calendario</button>
+            <button class="tab-link active" data-tab="player-tab">Reproductor</button>
             <button class="tab-link" data-tab="tasks-tab">Tareas</button>
             <button class="tab-link" data-tab="settings-tab">Configuración</button>
         </div>
         
-        <div id="calendar-tab" class="tab-content active">
+        <div id="calendar-tab" class="tab-content">
             <div id="calendar-container" class="content-box calendar-container">
                 <div class="calendar-header">
                     <div class="calendar-header-nav">
@@ -275,7 +322,7 @@
             </div>
         </div>
 
-        <div id="player-tab" class="tab-content">
+        <div id="player-tab" class="tab-content active">
             <div class="content-box player-container">
                <canvas id="visualizer-canvas"></canvas>
                 <div class="track-info">
@@ -318,7 +365,32 @@
                     <div id="library-settings-card" class="settings-card">
                         <h3>Biblioteca de Sonidos</h3>
                         <p>Gestiona tus archivos de audio.</p>
+                    
+                    <div class="settings-card">
+                        <h3>🌐 Añadir Música desde URL</h3>
+                        <p>Añade canciones desde YouTube u otras fuentes externas.</p>
+
+                        <div style="margin-top: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">URL de la canción:</label>
+                            <input type="text" id="external-url-input" placeholder="https://www.youtube.com/watch?v=..." 
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--button-background-color); color: var(--text-color); font-size: 0.9rem; margin-bottom: 0.75rem;">
+
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nombre de la canción:</label>
+                            <input type="text" id="external-title-input" placeholder="Título de la canción" 
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--button-background-color); color: var(--text-color); font-size: 0.9rem; margin-bottom: 0.75rem;">
+
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Artista (opcional):</label>
+                            <input type="text" id="external-artist-input" placeholder="Nombre del artista" 
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--button-background-color); color: var(--text-color); font-size: 0.9rem; margin-bottom: 1rem;">
+
+                            <button id="add-external-url-btn" style="width: 100%; padding: 0.75rem; background: var(--primary-color); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">
+                                ➕ Añadir a Biblioteca
+                            </button>
+                        </div>
+
+                        <div id="external-url-status" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; display: none;"></div>
                     </div>
+</div>
                 </div>
             </div>
         </div>
@@ -365,6 +437,8 @@
         let dayDataMap = {}; 
         let audioMap = {};
         let soundLibrary = [];
+
+        let externalTracks = {}; // { id: {url, title, artist, isYoutube, thumbnailUrl} }
         let currentDate = new Date();
         let currentlyEditingDate = null;
         let currentTrackIndex = -1;
@@ -412,7 +486,88 @@
         const librarySettingsCard = document.getElementById('library-settings-card');
         
         // --- INICIALIZACIÓN ---
-        async function init() {
+        async 
+        function isYouTubeUrl(url) {
+            return url.includes('youtube.com') || url.includes('youtu.be');
+        }
+
+        function getYouTubeVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=)([^&]+)/,
+                /(?:youtu\.be\/)([^?]+)/,
+                /(?:youtube\.com\/embed\/)([^?]+)/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        function getYouTubeThumbnail(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        }
+
+        function addExternalTrack(url, title, artist) {
+            if (!url || !title) {
+                showExternalUrlStatus('Por favor completa URL y título', 'error');
+                return;
+            }
+
+            const trackId = 'ext_' + Date.now();
+            const isYoutube = isYouTubeUrl(url);
+            let thumbnailUrl = null;
+
+            if (isYoutube) {
+                const videoId = getYouTubeVideoId(url);
+                if (videoId) {
+                    thumbnailUrl = getYouTubeThumbnail(videoId);
+                }
+            }
+
+            externalTracks[trackId] = {
+                url: url,
+                title: title,
+                artist: artist || 'Desconocido',
+                isYoutube: isYoutube,
+                thumbnailUrl: thumbnailUrl,
+                type: 'external'
+            };
+
+            soundLibrary.push({
+                id: trackId,
+                name: title,
+                type: 'external',
+                url: url,
+                artist: artist || 'Desconocido',
+                isYoutube: isYoutube,
+                thumbnailUrl: thumbnailUrl
+            });
+
+            saveData();
+            showExternalUrlStatus(`✓ "${title}" añadido a la biblioteca`, 'success');
+
+            document.getElementById('external-url-input').value = '';
+            document.getElementById('external-title-input').value = '';
+            document.getElementById('external-artist-input').value = '';
+        }
+
+        function showExternalUrlStatus(message, type) {
+            const statusDiv = document.getElementById('external-url-status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+
+        function init() {
             await initDB();
             await loadAppData();
             applyCustomTheme();
@@ -633,6 +788,27 @@
                 }
                 dayCell.addEventListener('click', () => playAudioForDate(dateString));
                 dayCell.querySelector('.day-action-btn').addEventListener('click', (e) => { e.stopPropagation(); openDayModal(dateString); });
+
+            const addExternalUrlBtn = document.getElementById('add-external-url-btn');
+            if (addExternalUrlBtn) {
+                addExternalUrlBtn.addEventListener('click', () => {
+                    const url = document.getElementById('external-url-input').value.trim();
+                    const title = document.getElementById('external-title-input').value.trim();
+                    const artist = document.getElementById('external-artist-input').value.trim();
+                    addExternalTrack(url, title, artist);
+                });
+            }
+
+            ['external-url-input', 'external-title-input', 'external-artist-input'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            document.getElementById('add-external-url-btn').click();
+                        }
+                    });
+                }
+            });
                 calendarGrid.appendChild(dayCell);
             }
         }
@@ -869,13 +1045,18 @@
 
         function generateAndApplyThemeFromHue(hue) {
             const isDark = document.body.classList.contains('dark-theme');
-            const s = 80;
+            const s = 88;
             const theme = {
-                '--primary-color': `hsl(${hue}, ${s}%, ${isDark ? 55 : 50}%)`,
-                '--accent-color': `hsl(${(hue + 120) % 360}, 70%, 55%)`,
-                '--background-color': isDark ? `hsl(${hue}, 10%, 10%)` : `hsl(${hue}, 20%, 95%)`,
-                '--container-background': isDark ? `hsl(${hue}, 10%, 15%)` : `hsl(${hue}, 20%, 100%)`,
-                '--text-color': isDark ? `hsl(${hue}, 15%, 85%)` : `hsl(${hue}, 15%, 10%)`
+                '--primary-color': `hsl(${hue}, ${s}%, ${isDark ? 65 : 55}%)`,
+                '--accent-color': `hsl(${(hue + 120) % 360}, 80%, ${isDark ? 65 : 55}%)`,
+                '--danger-color': `hsl(${(hue + 180) % 360}, 85%, ${isDark ? 60 : 50}%)`,
+                '--background-color': isDark ? `hsl(${hue}, 20%, 8%)` : `hsl(${hue}, 30%, 97%)`,
+                '--container-background': isDark ? `hsl(${hue}, 18%, 14%)` : `hsl(${hue}, 25%, 100%)`,
+                '--text-color': isDark ? `hsl(${hue}, 25%, 92%)` : `hsl(${hue}, 30%, 12%)`,
+                '--secondary-text-color': isDark ? `hsl(${hue}, 20%, 75%)` : `hsl(${hue}, 25%, 40%)`,
+                '--border-color': isDark ? `hsl(${hue}, 15%, 28%)` : `hsl(${hue}, 20%, 82%)`,
+                '--button-background-color': isDark ? `hsl(${hue}, 22%, 20%)` : `hsl(${hue}, 25%, 92%)`,
+                '--hover-background-color': isDark ? `hsl(${hue}, 25%, 25%)` : `hsl(${hue}, 30%, 88%)`
             };
             for (const [key, value] of Object.entries(theme)) {
                 document.documentElement.style.setProperty(key, value);
@@ -902,96 +1083,201 @@
 
             analyser.getByteFrequencyData(frequencyData);
 
-            // Tema dinámico basado en frecuencias
             if (dynamicThemeEnabled && !audioElement.paused) {
                 const binCount = analyser.frequencyBinCount;
                 const lowFreqAvg = frequencyData.slice(0, binCount / 8).reduce((a, b) => a + b, 0) / (binCount / 8);
                 const midFreqAvg = frequencyData.slice(binCount / 8, binCount / 2).reduce((a, b) => a + b, 0) / (binCount / 2 - binCount / 8);
-                const targetHue = lowFreqAvg / midFreqAvg > 1.2 ? 30 : 220;
-                currentDynamicHue += (targetHue - currentDynamicHue) * 0.01;
+                const highFreqAvg = frequencyData.slice(binCount / 2, binCount).reduce((a, b) => a + b, 0) / (binCount - binCount / 2);
+
+                let targetHue;
+                if (lowFreqAvg > midFreqAvg * 1.3) {
+                    targetHue = 0 + (lowFreqAvg / 255) * 40;
+                } else if (highFreqAvg > midFreqAvg * 1.2) {
+                    targetHue = 260 + (highFreqAvg / 255) * 60;
+                } else {
+                    targetHue = 160 + (midFreqAvg / 255) * 80;
+                }
+
+                currentDynamicHue += (targetHue - currentDynamicHue) * 0.08;
                 generateAndApplyThemeFromHue(currentDynamicHue);
             }
 
-            // Limpiar canvas si está pausado
             if (audioElement.paused) {
                 visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+                if (currentTrackIndex >= 0 && soundLibrary[currentTrackIndex]) {
+                    const track = soundLibrary[currentTrackIndex];
+                    if (track.isYoutube && track.thumbnailUrl) {
+                        const width = visualizerCanvas.width;
+                        const height = visualizerCanvas.height;
+                        const centerX = width * 0.5;
+                        const centerY = height * 0.5;
+                        const radius = Math.min(width, height) * 0.35;
+
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = function() {
+                            visualizerCtx.save();
+                            visualizerCtx.beginPath();
+                            visualizerCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                            visualizerCtx.closePath();
+                            visualizerCtx.clip();
+                            visualizerCtx.drawImage(img, centerX - radius, centerY - radius, radius * 2, radius * 2);
+                            visualizerCtx.restore();
+
+                            visualizerCtx.beginPath();
+                            visualizerCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                            visualizerCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                            visualizerCtx.lineWidth = 3;
+                            visualizerCtx.stroke();
+                        };
+                        img.src = track.thumbnailUrl;
+                    }
+                }
                 return;
             }
 
-            // Limpiar canvas para nueva animación
             visualizerCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
 
-            // NUEVA VISUALIZACIÓN: ONDAS/WAVEFORM en lugar de barras
             const width = visualizerCanvas.width;
             const height = visualizerCanvas.height;
-            const centerY = height / 2;
+            const centerX = width * 0.5;
+            const centerY = height * 0.5;
+            const baseRadius = Math.min(width, height) * 0.28;
+            const time = Date.now() * 0.001;
 
-            // Configurar el estilo de línea
-            visualizerCtx.lineWidth = 3;
+            const glowGradient = visualizerCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, baseRadius * 2);
+            glowGradient.addColorStop(0, `hsla(${currentDynamicHue}, 80%, 50%, 0.05)`);
+            glowGradient.addColorStop(1, 'transparent');
+            visualizerCtx.fillStyle = glowGradient;
+            visualizerCtx.fillRect(0, 0, width, height);
+
             visualizerCtx.lineCap = 'round';
             visualizerCtx.lineJoin = 'round';
+            visualizerCtx.shadowBlur = 15;
 
-            // Dibujar múltiples ondas con diferentes colores para efecto de profundidad
-            const waveCount = 3;
+            const waveCount = 5;
 
             for (let wave = 0; wave < waveCount; wave++) {
                 visualizerCtx.beginPath();
 
-                const sliceWidth = width / analyser.frequencyBinCount;
-                let x = 0;
+                const radiusMultiplier = 0.6 + (wave * 0.25);
+                const waveSpeed = 0.0003 * (wave + 1);
+                const rotation = (time * waveSpeed) % (Math.PI * 2);
+                const opacity = 0.9 - (wave * 0.12);
+                const phaseShift = wave * Math.PI * 0.4;
 
-                // Calcular offset y escala para cada onda
-                const waveOffset = wave * 10;
-                const waveScale = 1 - (wave * 0.2);
-                const opacity = 1 - (wave * 0.3);
+                const sectionSize = Math.floor(analyser.frequencyBinCount / waveCount);
+                const startIdx = wave * sectionSize;
+                const endIdx = Math.min(startIdx + sectionSize, analyser.frequencyBinCount);
+                const avgAmplitude = frequencyData.slice(startIdx, endIdx).reduce((a, b) => a + b, 0) / sectionSize;
+                const pulseScale = 1 + (avgAmplitude / 255) * 0.3;
 
-                for (let i = 0; i < analyser.frequencyBinCount; i++) {
-                    const amplitude = frequencyData[i] / 255.0;
-                    const y = centerY + (Math.sin((i / analyser.frequencyBinCount) * Math.PI * 4 + waveOffset) * amplitude * height * 0.4 * waveScale);
+                for (let i = 0; i <= analyser.frequencyBinCount; i++) {
+                    const angle = (i / analyser.frequencyBinCount) * Math.PI * 2 + rotation;
+                    const amplitude = frequencyData[i % analyser.frequencyBinCount] / 255.0;
+
+                    const waveEffect = Math.sin(angle * 3 + time * 2 + phaseShift) * 0.15;
+                    const waveEffect2 = Math.sin(angle * 5 - time * 3 + phaseShift) * 0.08;
+
+                    const radius = baseRadius * radiusMultiplier * pulseScale + 
+                                   (amplitude * baseRadius * 0.4) + 
+                                   (waveEffect * baseRadius) + 
+                                   (waveEffect2 * baseRadius);
+
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
 
                     if (i === 0) {
                         visualizerCtx.moveTo(x, y);
                     } else {
                         visualizerCtx.lineTo(x, y);
                     }
-
-                    x += sliceWidth;
                 }
 
-                // Color con gradiente
-                const hue = (wave * 60 + Date.now() * 0.05) % 360;
-                visualizerCtx.strokeStyle = `hsla(${hue}, 100%, 60%, ${opacity})`;
+                visualizerCtx.closePath();
+
+                const hue = (currentDynamicHue + wave * 25 + time * 10) % 360;
+                visualizerCtx.strokeStyle = `hsla(${hue}, 100%, ${60 + wave * 5}%, ${opacity})`;
+                visualizerCtx.shadowColor = `hsla(${hue}, 100%, 70%, 0.8)`;
+                visualizerCtx.lineWidth = Math.min(width, height) * (0.004 + wave * 0.001);
                 visualizerCtx.stroke();
             }
 
-            // Onda principal más prominente
             visualizerCtx.beginPath();
-            const sliceWidth = width / analyser.frequencyBinCount;
-            let x = 0;
+            const mainRotation = (time * 0.5) % (Math.PI * 2);
 
-            for (let i = 0; i < analyser.frequencyBinCount; i++) {
-                const amplitude = frequencyData[i] / 255.0;
-                const smoothAmplitude = amplitude * 0.8 + (frequencyData[Math.max(0, i - 1)] / 255.0) * 0.2;
-                const y = centerY + Math.sin((i / analyser.frequencyBinCount) * Math.PI * 2) * smoothAmplitude * height * 0.45;
+            for (let i = 0; i <= analyser.frequencyBinCount * 2; i++) {
+                const angle = (i / (analyser.frequencyBinCount * 2)) * Math.PI * 2 + mainRotation;
+                const dataIdx = Math.floor(i / 2) % analyser.frequencyBinCount;
+                const amplitude = frequencyData[dataIdx] / 255.0;
+                const nextAmplitude = frequencyData[(dataIdx + 1) % analyser.frequencyBinCount] / 255.0;
+                const smoothAmplitude = amplitude * 0.6 + nextAmplitude * 0.4;
+
+                const wave1 = Math.sin(angle * 4 + time * 3) * 0.12;
+                const wave2 = Math.cos(angle * 6 - time * 4) * 0.08;
+                const wave3 = Math.sin(angle * 8 + time * 5) * 0.05;
+
+                const radius = baseRadius * 1.1 + 
+                               (smoothAmplitude * baseRadius * 0.6) + 
+                               (wave1 + wave2 + wave3) * baseRadius;
+
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
 
                 if (i === 0) {
                     visualizerCtx.moveTo(x, y);
                 } else {
                     visualizerCtx.lineTo(x, y);
                 }
-
-                x += sliceWidth;
             }
 
-            // Gradiente para la onda principal
-            const gradient = visualizerCtx.createLinearGradient(0, 0, width, 0);
-            gradient.addColorStop(0, 'rgba(255, 100, 150, 0.8)');
-            gradient.addColorStop(0.5, 'rgba(100, 200, 255, 0.8)');
-            gradient.addColorStop(1, 'rgba(150, 255, 100, 0.8)');
+            visualizerCtx.closePath();
 
-            visualizerCtx.strokeStyle = gradient;
-            visualizerCtx.lineWidth = 4;
+            const epicGradient = visualizerCtx.createRadialGradient(
+                centerX, centerY, baseRadius * 0.3,
+                centerX, centerY, baseRadius * 2
+            );
+            epicGradient.addColorStop(0, `hsla(${currentDynamicHue}, 100%, 75%, 1)`);
+            epicGradient.addColorStop(0.3, `hsla(${(currentDynamicHue + 40) % 360}, 100%, 65%, 0.95)`);
+            epicGradient.addColorStop(0.6, `hsla(${(currentDynamicHue + 80) % 360}, 100%, 55%, 0.9)`);
+            epicGradient.addColorStop(1, `hsla(${(currentDynamicHue + 120) % 360}, 100%, 45%, 0.8)`);
+
+            visualizerCtx.strokeStyle = epicGradient;
+            visualizerCtx.shadowColor = `hsla(${currentDynamicHue}, 100%, 70%, 1)`;
+            visualizerCtx.shadowBlur = 25;
+            visualizerCtx.lineWidth = Math.min(width, height) * 0.012;
             visualizerCtx.stroke();
+
+            const particleCount = 12;
+            const avgFreq = frequencyData.reduce((a, b) => a + b, 0) / frequencyData.length;
+
+            for (let p = 0; p < particleCount; p++) {
+                const particleAngle = (p / particleCount) * Math.PI * 2 + time * 0.5;
+                const particleDistance = baseRadius * 0.5 + Math.sin(time * 2 + p) * baseRadius * 0.3;
+                const px = centerX + Math.cos(particleAngle) * particleDistance;
+                const py = centerY + Math.sin(particleAngle) * particleDistance;
+                const particleSize = (Math.min(width, height) * 0.008) * (1 + avgFreq / 255);
+
+                visualizerCtx.beginPath();
+                visualizerCtx.arc(px, py, particleSize, 0, Math.PI * 2);
+                visualizerCtx.fillStyle = `hsla(${(currentDynamicHue + p * 30) % 360}, 100%, 70%, 0.8)`;
+                visualizerCtx.shadowColor = `hsla(${(currentDynamicHue + p * 30) % 360}, 100%, 70%, 1)`;
+                visualizerCtx.shadowBlur = 20;
+                visualizerCtx.fill();
+            }
+
+            visualizerCtx.beginPath();
+            const coreSize = baseRadius * 0.08 * (1 + avgFreq / 255 * 0.5);
+            visualizerCtx.arc(centerX, centerY, coreSize, 0, Math.PI * 2);
+            const coreGradient = visualizerCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, coreSize);
+            coreGradient.addColorStop(0, `hsla(${currentDynamicHue}, 100%, 95%, 1)`);
+            coreGradient.addColorStop(0.5, `hsla(${currentDynamicHue}, 100%, 80%, 0.8)`);
+            coreGradient.addColorStop(1, `hsla(${currentDynamicHue}, 100%, 60%, 0.3)`);
+            visualizerCtx.fillStyle = coreGradient;
+            visualizerCtx.shadowColor = `hsla(${currentDynamicHue}, 100%, 80%, 1)`;
+            visualizerCtx.shadowBlur = 40;
+            visualizerCtx.fill();
         }
 
         init();

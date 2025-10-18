@@ -84,17 +84,17 @@ h2 {
 }
 
 .tech-card {
-  flex: 1 1 250px;
+  flex: 1 1 25vw;
   background: var(--dark);
   padding: 1rem;
-  border-radius: 10px;
+  border-radius: 2vw;
   text-align: center;
   color: white;
   transition: transform 0.3s;
 }
 
 .tech-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2vw) rotate(-0.025rad);
 }
 
 .steps {

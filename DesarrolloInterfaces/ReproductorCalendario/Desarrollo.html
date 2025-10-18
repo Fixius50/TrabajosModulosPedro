@@ -60,6 +60,19 @@
         </div>
       </div>
     </div>
+    <br>
+    <div class="container">
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h3>Google Gemini PRO</h3>
+          <p>Diseño y previsualización del contendio y desarrollo de previos prototipos.</p>
+        </div>
+        <div class="tech-card">
+          <h3>Perplexity AI PRO</h3>
+          <p>Retoques y detallado para la resolución y finalización del trabajo.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ================== PROCESO ================== -->
@@ -67,11 +80,67 @@
     <div class="container">
       <h2>Proceso de desarrollo</h2>
       <ol class="steps">
-        <li><strong>Fase 1:</strong> Definición de la idea y estructura inicial.</li>
-        <li><strong>Fase 2:</strong> Diseño del layout principal y prototipo.</li>
-        <li><strong>Fase 3:</strong> Implementación de HTML y estilos base.</li>
-        <li><strong>Fase 4:</strong> Añadir interactividad y eventos con JavaScript.</li>
-        <li><strong>Fase 5:</strong> Ajustes finales y documentación.</li>
+        <li><h3>Paso 1: Prototipo Inicial del Calendario</h3><p>Comenzamos con un prototipo de calendario. La primera tarea consistió en organizar la estructura visual:
+
+Se ajustó el tamaño de los números para que tuvieran una apariencia uniforme.
+
+Se utilizó CSS Grid para alinear perfectamente los días bajo las cabeceras de la semana (L, M, X, J, V, S, D).
+
+Se implementó la navegación básica entre meses mediante botones de "anterior" y "siguiente".</p></li>
+        <li><h3>Paso 2: Implementación de Navegación por Pestañas</h3><p>Para organizar las futuras funcionalidades, se transformó la estructura de una sola vista a una aplicación multi-pestaña:
+
+Se crearon las secciones para Calendario, Eventos, Tareas y Ajustes.
+
+Se diseñó una cabecera con un menú desplegable que permite al usuario navegar de forma cómoda e intuitiva entre las diferentes secciones de la aplicación.</p></li>
+        <li><h3>Paso 3: Funcionalidades Básicas de las Pestañas</h3><p>Se dotó de vida a las secciones recién creadas, implementando sus características principales:
+
+Eventos: Se añadió la capacidad de crear eventos. Para visualizarlos, un punto de color aparece en el día correspondiente del calendario.
+
+Tareas: Se implementó una lista de tareas pendientes, permitiendo al usuario añadir nuevas tareas y marcarlas como completadas.
+
+Ajustes: Se introdujo la opción de Modo Oscuro mediante un interruptor, permitiendo adaptar la apariencia de la aplicación a las preferencias del usuario.</p></li>
+        <li><h3>Paso 4: Fusión con el Prototipo del Reproductor de Audio</h3><p>Este fue un paso crucial. Adoptamos un nuevo diseño basado en el código que proporcionaste ("ProMinimal Calendar of Sounds") y fusionamos sus funcionalidades de audio con nuestra aplicación:
+
+Nuevo Diseño: Se adoptó una estética minimalista inspirada en iOS, con una paleta de colores y tipografías definidas.
+
+Reproductor de Audio: Se integró un reproductor completo en una nueva pestaña, incluyendo controles de reproducción, barra de progreso y visualizador de audio.
+
+Biblioteca de Sonidos: Se añadió la capacidad de cargar archivos de audio desde el dispositivo del usuario, creando una biblioteca personal.
+
+Calendario de Sonidos: Se conectó el calendario con la biblioteca, permitiendo asignar sonidos a días específicos.</p></li>
+        <li><h3>Paso 5: Integración Profunda de Tareas y Calendario</h3><p>Se rediseñó por completo la gestión de tareas para integrarla directamente con el calendario:
+
+Creación de Tareas por Día: Al hacer clic en el botón + de un día, la ventana emergente ahora permite añadir tareas directamente a esa fecha.
+
+Pestaña de Tareas por Fecha: La pestaña "Tareas" se transformó para mostrar las tareas agrupadas por su fecha correspondiente, ofreciendo una vista organizada de las actividades pendientes.
+
+Notas por Tarea: Dentro de la pestaña "Tareas", cada tarea individual recibió un botón para añadir o editar notas, permitiendo una descripción más detallada de cada pendiente.</p></li>
+        <li><h3>Paso 6: Selector de Año en el Calendario</h3><p>Para mejorar la navegación a largo plazo, se añadió una nueva funcionalidad:
+
+Al hacer clic en el título del mes y año, la vista del calendario cambia a un selector de años.
+
+Esta nueva vista permite navegar por décadas y seleccionar un año específico para visualizarlo rápidamente.</p></li>
+        <li><h3>Paso 7: Rediseño Total de la Pestaña de Configuración</h3><p>La sección de "Configuración" fue completamente reinventada para ofrecer una personalización avanzada:
+
+Menú de Tarjetas: Se reemplazó la lista de opciones por dos tarjetas interactivas: "Tema de la Aplicación" y "Biblioteca de Sonidos".
+
+Personalización de Tema con Rueda de Color: Al hacer clic en la tarjeta de tema, se abre una ventana con una rueda de color maestra. Al elegir un color base, la aplicación genera y aplica una paleta de colores armónica para toda la interfaz (fondos, texto, acentos).
+
+Biblioteca Detallada: La tarjeta de biblioteca ahora abre una ventana que muestra una lista completa de los sonidos cargados, especificando su nombre, duración y clasificación (para Calendario si dura menos de 11 segundos, o para Reproductor si dura más).</p></li>
+        <li><h3>Paso 8: Tema Dinámico Basado en la Música</h3><p>Se implementó una de las características más innovadoras de la aplicación:
+
+Se añadió la opción "Color dinámico con música".
+
+Cuando esta opción está activa, el tema de la aplicación cambia en tiempo real según la energía de la canción que se está reproduciendo, utilizando la Web Audio API para analizar las frecuencias:
+
+Música tranquila: La interfaz adopta tonos fríos (azules, cianes).
+
+Música animada: La interfaz cambia a colores cálidos (rojos, naranjas).</p></li>
+        <li><h3>Paso 9: Migración a IndexedDB para Almacenamiento Ilimitado</h3><p>Para resolver el problema de límite de almacenamiento del <b>LocalStorage</b> , se realizó una mejora técnica fundamental:
+
+Se reemplazó el sistema de almacenamiento <b>LocalStorage</b> por <b>IndexedDB</b> .
+
+Este cambio permite a la aplicación manejar una cantidad mucho mayor de datos, solucionando el error de "cuota excedida" y permitiendo al usuario guardar una biblioteca de sonidos tan grande como desee.</p></li>
       </ol>
     </div>
   </section>
