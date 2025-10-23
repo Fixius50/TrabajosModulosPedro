@@ -69,8 +69,13 @@ nav a:hover {
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 90vw;
   margin: 0 auto;
+}
+
+#contenido{
+  border-left: 1px solid #0f172a;
+  padding-left: 3%;
 }
 
 h2 {
