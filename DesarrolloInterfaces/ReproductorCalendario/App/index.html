@@ -8,9 +8,9 @@
     <style>
         /* --- Diseño Minimalista: Variables de Color --- */
         :root {
-            --primary-color: #007AFF; /* Azul iOS */
-            --accent-color: #34C759; /* Verde iOS */
-            --danger-color: #FF3B30; /* Rojo iOS */
+            --primary-color: #007AFF; /* Valor por defecto, se sobrescribe con JS */
+            --accent-color: #34C759;
+            --danger-color: #FF3B30;
             --background-color: #F2F2F7;
             --container-rgb: 255, 255, 255;
             --text-color: #000000;
@@ -20,7 +20,7 @@
         }
 
         body.dark-theme {
-            --primary-color: #0A84FF;
+            --primary-color: #0A84FF; /* Valor por defecto oscuro, se sobrescribe con JS */
             --accent-color: #30D158;
             --danger-color: #FF453A;
             --background-color: #000000;
@@ -47,9 +47,9 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            justify-content: flex-start; /* Alinea al inicio para el contenido de pantalla completa */
+            justify-content: flex-start;
             align-items: center;
-            padding: 0; /* Eliminado el padding */
+            padding: 0;
             overflow-x: hidden;
             position: relative;
         }
@@ -65,13 +65,15 @@
             background-size: cover;
             filter: blur(10px) brightness(0.7);
             transition: background-image 0.5s ease-in-out;
+            background-color: var(--background-color); /* Fondo sólido si no hay imagen */
         }
         
         #app-wrapper {
-            width: 100%; /* Ocupa el 100% del ancho */
-            max-width: none; /* Eliminado el max-width */
-            margin: 0; /* Eliminado el margin auto */
+            width: 100%;
+            max-width: none;
+            margin: 0;
             z-index: 1;
+            padding-bottom: 1rem; /* Espacio al final */
         }
 
         /* --- Barra de Navegación Superior --- */
@@ -86,6 +88,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky; /* Fija la barra arriba */
+            top: 0;
+            z-index: 10;
         }
         
         #main-page-title {
@@ -104,7 +109,7 @@
             height: 38px;
             cursor: pointer;
             font-size: 1.5rem;
-            color: var(--primary-color);
+            color: var(--primary-color); /* Usa color de acento */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -121,7 +126,7 @@
         }
 
         /* --- Contenido Principal y Carrusel --- */
-        .main-content { width: 100%; position: relative; }
+        .main-content { width: 100%; position: relative; padding-top: 1rem; } /* Padding para compensar barra fija */
         .carousel-container { overflow: hidden; width: 100%; cursor: grab; }
         .carousel-container:active { cursor: grabbing; }
         .carousel-track { display: flex; }
@@ -132,7 +137,7 @@
             transition: opacity 0.5s, transform 0.5s;
             opacity: 0.4;
             transform: scale(0.85);
-            min-height: 500px;
+            min-height: calc(100vh - 100px); /* Ajusta altura mínima */
         }
         .carousel-slide.is-active { opacity: 1; transform: scale(1); }
         
@@ -146,7 +151,6 @@
             margin-bottom: 1rem;
             transition: background-color 0.3s, border-color 0.3s;
             overflow: hidden;
-            /* Asegura que los content-box tengan un ancho máximo para no ser demasiado anchos */
             max-width: 900px; 
             margin-left: auto;
             margin-right: auto;
@@ -199,7 +203,7 @@
         }
         .search-controls input:focus, .search-controls select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--primary-color-translucent, rgba(0, 122, 255, 0.3));
+            box-shadow: 0 0 0 2px var(--primary-color-translucent, rgba(0, 122, 255, 0.3)); /* Ajustar transparencia */
         }
         .search-controls input { flex-grow: 1; }
         .search-controls select { flex-shrink: 0; width: 30%; max-width: 150px; }
@@ -234,15 +238,22 @@
         
         .theme-control-group { margin-bottom: 1.5rem; }
         .theme-control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .theme-control-group input { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); color: var(--text-color); }
+        .theme-control-group input[type="text"], .theme-control-group input[type="color"] { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); color: var(--text-color); }
+        /* Style specifically for color input */
+        .theme-control-group input[type="color"] { padding: 0; height: 40px; border: none; cursor: pointer; }
+        .theme-control-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .theme-control-group input[type="color"]::-webkit-color-swatch { border-radius: 8px; border: 1px solid var(--border-color); }
         .theme-toggle-btns { display: flex; gap: 0.5rem; }
         .theme-toggle-btns button { flex-grow: 1; padding: 0.7rem; border: 1px solid var(--border-color); background-color: transparent; color: var(--text-color); border-radius: 8px; cursor: pointer; }
         .theme-toggle-btns button.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        #bg-image-controls { display: flex; gap: 0.5rem; align-items: center; }
+        #bg-image-controls input { flex-grow: 1; }
+        #bg-image-controls button { padding: 0.5rem; background-color: var(--button-background-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
 
         @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
-<body class="dark-theme">
+<body class="dark-theme"> <!-- Default to dark -->
 
 <div id="app-wrapper">
     <div class="top-nav">
@@ -309,6 +320,7 @@
 
     <audio id="audio-element"></audio>
     <input type="file" id="audio-file-input" multiple accept="audio/*" style="display: none;">
+    <input type="file" id="bg-image-input" accept="image/*" style="display: none;">
 
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
@@ -324,14 +336,17 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+        // --- ICONS ---
         const ICONS = {
             play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30px" height="30px"><path d="M8 5v14l11-7z"></path></svg>`,
             pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30px" height="30px"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
-            attach: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16,12A2,2 0 0,0 18,10A2,2 0 0,0 16,8A2,2 0 0,0 14,10A2,2 0 0,0 16,12M16,4.05C18.37,4.05 20.44,5.38 21.32,7.34L22.21,9.23L19.75,10.15L19.34,9.31C18.78,8.16 17.5,7.39 16,7.39C14.5,7.39 13.22,8.16 12.66,9.31L12.25,10.15L9.79,9.23L10.68,7.34C11.56,5.38 13.63,4.05 16,4.05M8,12A2,2 0 0,0 10,10A2,2 0 0,0 8,8A2,2 0 0,0 6,10A2,2 0 0,0 8,12M8,4.05C10.37,4.05 12.44,5.38 13.32,7.34L14.21,9.23L11.75,10.15L11.34,9.31C10.78,8.16 9.5,7.39 8,7.39C6.5,7.39 5.22,8.16 4.66,9.31L4.25,10.15L1.79,9.23L2.68,7.34C3.56,5.38 5.63,4.05 8,4.05M16,14C13.63,14 11.56,15.33 10.68,17.28L9.79,19.17L12.25,18.25L12.66,17.41C13.22,16.26 14.5,15.5 16,15.5C17.5,15.5 18.78,16.26 19.34,17.41L19.75,18.25L22.21,19.17L21.32,17.28C20.44,15.33 18.37,14 16,14M8,14C5.63,14 3.56,15.33 2.68,17.28L1.79,19.17L4.25,18.25L4.66,17.41C5.22,16.26 6.5,15.5 8,15.5C9.5,15.5 10.78,16.26 11.34,17.41L11.75,18.25L14.21,19.17L13.32,17.28C12.44,15.33 10.37,14 8,14Z" /></svg>`,
-            play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
+            attach: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M16,12A2,2 0 0,0 18,10A2,2 0 0,0 16,8A2,2 0 0,0 14,10A2,2 0 0,0 16,12M16,4.05C18.37,4.05 20.44,5.38 21.32,7.34L22.21,9.23L19.75,10.15L19.34,9.31C18.78,8.16 17.5,7.39 16,7.39C14.5,7.39 13.22,8.16 12.66,9.31L12.25,10.15L9.79,9.23L10.68,7.34C11.56,5.38 13.63,4.05 16,4.05M8,12A2,2 0 0,0 10,10A2,2 0 0,0 8,8A2,2 0 0,0 6,10A2,2 0 0,0 8,12M8,4.05C10.37,4.05 12.44,5.38 13.32,7.34L14.21,9.23L11.75,10.15L11.34,9.31C10.78,8.16 9.5,7.39 8,7.39C6.5,7.39 5.22,8.16 4.66,9.31L4.25,10.15L1.79,9.23L2.68,7.34C3.56,5.38 5.63,4.05 8,4.05M16,14C13.63,14 11.56,15.33 10.68,17.28L9.79,19.17L12.25,18.25L12.66,17.41C13.22,16.26 14.5,15.5 16,15.5C17.5,15.5 18.78,16.26 19.34,17.41L19.75,18.25L22.21,19.17L21.32,17.28C20.44,15.33 18.37,14 16,14M8,14C5.63,14 3.56,15.33 2.68,17.28L1.79,19.17L4.25,18.25L4.66,17.41C5.22,16.26 6.5,15.5 8,15.5C9.5,15.5 10.78,16.26 11.34,17.41L11.75,18.25L14.21,19.17L13.32,17.28C12.44,15.33 10.37,14 8,14Z" /></svg>`,
+            play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
         };
         
+        // --- DOM Elements ---
         const dom = {
+            body: document.body,
             mainPageTitle: document.getElementById('main-page-title'),
             carousel: {
                 container: document.querySelector('.carousel-container'),
@@ -368,8 +383,10 @@
                 closeBtn: document.querySelector('.modal-close-btn'),
             },
             audioFileInput: document.getElementById('audio-file-input'),
+            bgImageInput: document.getElementById('bg-image-input'),
         };
 
+        // --- Application State ---
         const state = {
             db: null,
             dayDataMap: {},
@@ -380,11 +397,13 @@
             modal: { selectedAudioId: null }
         };
         
+        // --- App Initialization ---
         async function init() {
             try {
                 loadStateFromLocalStorage();
-                applyTheme();
+                applyTheme(); // Apply saved theme on load
                 state.db = await initDB();
+                if (!state.db) throw new Error("Failed to initialize database.");
                 await loadSoundsFromDB();
                 setupEventListeners();
                 setupPlayerIcons();
@@ -392,6 +411,7 @@
                 renderAll();
             } catch (error) {
                 console.error("Error fatal al inicializar la aplicación:", error);
+                // Optionally display a user-friendly error message here
             }
         }
         
@@ -404,19 +424,33 @@
             updateCarouselUI(false);
         }
         
+        // --- Persistence (LocalStorage & IndexedDB) ---
         function saveThemeSettings(settings) {
             localStorage.setItem('themeClass', settings.themeClass);
             localStorage.setItem('customPrimaryColor', settings.primaryColor);
-            localStorage.setItem('customBackgroundImage', settings.backgroundImage);
+            localStorage.setItem('customBackgroundImage', settings.backgroundImage); // Can be URL or Data URL
         }
 
         function loadStateFromLocalStorage() {
             const savedData = localStorage.getItem('dayDataMap');
-            if (savedData) state.dayDataMap = JSON.parse(savedData);
+            if (savedData) {
+                 try {
+                     state.dayDataMap = JSON.parse(savedData);
+                 } catch (e) {
+                     console.error("Error parsing dayDataMap from localStorage:", e);
+                     state.dayDataMap = {}; // Reset if invalid
+                 }
+            } else {
+                 state.dayDataMap = {};
+            }
         }
         
         function initDB() {
-            return new Promise((resolve, reject) => {
+             return new Promise((resolve, reject) => {
+                if (!window.indexedDB) {
+                    console.warn("IndexedDB no soportado por este navegador.");
+                    return reject(new Error("IndexedDB no soportado"));
+                }
                 const request = indexedDB.open('AudioAppDB', 2);
                 request.onupgradeneeded = e => {
                     const db = e.target.result;
@@ -425,46 +459,62 @@
                     }
                 };
                 request.onsuccess = e => resolve(e.target.result);
-                request.onerror = e => reject(e.target.error);
+                request.onerror = e => {
+                     console.error("IndexedDB error:", e.target.error);
+                     reject(e.target.error);
+                };
             });
         }
         
+        // --- Event Listeners Setup ---
         function setupEventListeners() {
-            dom.carousel.prevBtn.addEventListener('click', handlePrevSlide);
-            dom.carousel.nextBtn.addEventListener('click', handleNextSlide);
-            dom.carousel.container.addEventListener('touchstart', touchStart, { passive: true });
-            dom.carousel.container.addEventListener('touchmove', touchMove, { passive: true });
-            dom.carousel.container.addEventListener('touchend', touchEnd);
-            dom.carousel.container.addEventListener('mousedown', touchStart);
-            dom.carousel.container.addEventListener('mousemove', touchMove);
-            dom.carousel.container.addEventListener('mouseup', touchEnd);
-            dom.carousel.container.addEventListener('mouseleave', touchEnd);
-            dom.carousel.container.addEventListener('dragstart', (e) => e.preventDefault());
-            dom.calendar.prevMonthBtn.addEventListener('click', handlePrevClick);
-            dom.calendar.nextMonthBtn.addEventListener('click', handleNextClick);
-            dom.calendar.grid.addEventListener('click', e => {
+             if (!dom.carousel.prevBtn || !dom.carousel.nextBtn) {
+                console.error("Error: Buttons prev/next carousel no encontrados.");
+                // Decide how to handle this - maybe disable carousel features or stop init?
+                 // For now, let's just log and potentially skip carousel listeners
+            } else {
+                dom.carousel.prevBtn.addEventListener('click', handlePrevSlide);
+                dom.carousel.nextBtn.addEventListener('click', handleNextSlide);
+                dom.carousel.container.addEventListener('touchstart', touchStart, { passive: true });
+                dom.carousel.container.addEventListener('touchmove', touchMove, { passive: true });
+                dom.carousel.container.addEventListener('touchend', touchEnd);
+                dom.carousel.container.addEventListener('mousedown', touchStart);
+                dom.carousel.container.addEventListener('mousemove', touchMove);
+                dom.carousel.container.addEventListener('mouseup', touchEnd);
+                dom.carousel.container.addEventListener('mouseleave', touchEnd);
+                dom.carousel.container.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+
+            // Ensure other elements exist too before adding listeners
+            if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.addEventListener('click', handlePrevClick);
+            if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.addEventListener('click', handleNextClick);
+            if (dom.calendar.grid) dom.calendar.grid.addEventListener('click', e => {
                 const dayElement = e.target.closest('.calendar-day:not(.empty)');
                 if (dayElement) openDayModal(dayElement.dataset.date);
             });
-            dom.tasks.container.addEventListener('click', handleTaskClick);
-            dom.settings.themeCard.addEventListener('click', openThemeModal);
-            dom.modal.closeBtn.addEventListener('click', closeModal);
-            dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); });
-            dom.settings.libraryCard.addEventListener('click', openLibraryModal);
-            dom.audioFileInput.addEventListener('change', handleFileSelection);
+            if (dom.tasks.container) dom.tasks.container.addEventListener('click', handleTaskClick);
+            if (dom.settings.themeCard) dom.settings.themeCard.addEventListener('click', openThemeModal);
+            if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', closeModal);
+            if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); });
+            if (dom.settings.libraryCard) dom.settings.libraryCard.addEventListener('click', openLibraryModal);
+            if (dom.audioFileInput) dom.audioFileInput.addEventListener('change', handleFileSelection);
+            if (dom.bgImageInput) dom.bgImageInput.addEventListener('change', handleBgImageSelection);
             
-            dom.player.searchBar.addEventListener('input', renderPlayerPlaylist);
-            dom.player.artistFilter.addEventListener('change', renderPlayerPlaylist);
-            dom.player.genreFilter.addEventListener('change', renderPlayerPlaylist);
-            dom.player.playlist.addEventListener('click', handlePlaylistClick);
-            dom.player.playPauseBtn.addEventListener('click', togglePlayPause);
-            dom.player.audioElement.addEventListener('ended', updatePlayerUI);
-            dom.player.audioElement.addEventListener('pause', updatePlayerUI);
-            dom.player.audioElement.addEventListener('play', updatePlayerUI);
+            if (dom.player.searchBar) dom.player.searchBar.addEventListener('input', renderPlayerPlaylist);
+            if (dom.player.artistFilter) dom.player.artistFilter.addEventListener('change', renderPlayerPlaylist);
+            if (dom.player.genreFilter) dom.player.genreFilter.addEventListener('change', renderPlayerPlaylist);
+            if (dom.player.playlist) dom.player.playlist.addEventListener('click', handlePlaylistClick);
+            if (dom.player.playPauseBtn) dom.player.playPauseBtn.addEventListener('click', togglePlayPause);
+            if (dom.player.audioElement) {
+                dom.player.audioElement.addEventListener('ended', updatePlayerUI);
+                dom.player.audioElement.addEventListener('pause', updatePlayerUI);
+                dom.player.audioElement.addEventListener('play', updatePlayerUI);
+            }
         }
         
+        // --- Carousel & Navigation ---
         function setupResizeObserver() {
-            const observer = new ResizeObserver(() => { updateCarouselUI(false); });
+             const observer = new ResizeObserver(() => { updateCarouselUI(false); });
             observer.observe(dom.carousel.container);
         }
 
@@ -509,7 +559,8 @@
         function setSliderPosition() { dom.carousel.track.style.transform = `translateX(${state.carousel.currentTranslate}px)`; }
 
         function updateCarouselUI(animate = true) {
-            if (animate) { dom.carousel.track.style.transition = `transform 0.5s ease-out`; } 
+            if (!dom.carousel.slides || dom.carousel.slides.length === 0) return; // Guard against empty slides
+            if (animate) { dom.carousel.track.style.transition = `transform 0.5s ease-out`; }
             else { dom.carousel.track.style.transition = 'none'; }
             const slideWidth = dom.carousel.slides[0].clientWidth;
             if (slideWidth === 0) return;
@@ -521,22 +572,32 @@
                 slide.classList.toggle('is-active', index === state.carousel.currentSlideIndex);
             });
             dom.mainPageTitle.textContent = dom.carousel.slides[state.carousel.currentSlideIndex].dataset.title || 'Calendario';
-            dom.carousel.prevBtn.disabled = state.carousel.currentSlideIndex === 0;
-            dom.carousel.nextBtn.disabled = state.carousel.currentSlideIndex === dom.carousel.slides.length - 1;
-            if (dom.carousel.slides[state.carousel.currentSlideIndex].dataset.title === "Tareas") renderTasks();
-            if (dom.carousel.slides[state.carousel.currentSlideIndex].dataset.title === "Reproductor") renderPlayerPlaylist();
+            // Check if buttons exist before accessing disabled property
+            if (dom.carousel.prevBtn) dom.carousel.prevBtn.disabled = state.carousel.currentSlideIndex === 0;
+            if (dom.carousel.nextBtn) dom.carousel.nextBtn.disabled = state.carousel.currentSlideIndex === dom.carousel.slides.length - 1;
+            // Conditional rendering based on active slide title
+            const activeSlideTitle = dom.carousel.slides[state.carousel.currentSlideIndex]?.dataset.title;
+             if (activeSlideTitle === "Tareas") renderTasks();
+             if (activeSlideTitle === "Reproductor") renderPlayerPlaylist();
         }
 
-        function handlePrevClick() { state.currentDate.setMonth(state.currentDate.getMonth() - 1); renderCalendar(); }
-        function handleNextClick() { state.currentDate.setMonth(state.currentDate.getMonth() + 1); renderCalendar(); }
+        // --- Calendar & Task ---
+        function handlePrevClick() { state.currentDate.setMonth(state.currentDate.getMonth() - 1); renderAll(); }
+        function handleNextClick() { state.currentDate.setMonth(state.currentDate.getMonth() + 1); renderAll(); }
         
         function handleTaskClick(e) {
-            const target = e.target;
+             const target = e.target;
             const taskItem = target.closest('.task-item');
             if (!taskItem) return;
             const { date, index } = taskItem.dataset;
             const taskIndex = parseInt(index, 10);
-            const task = state.dayDataMap[date]?.tasks[taskIndex];
+            
+            // Ensure date exists and has tasks
+            if (!state.dayDataMap[date] || !state.dayDataMap[date].tasks || taskIndex >= state.dayDataMap[date].tasks.length) {
+                 console.error("Task data mismatch:", date, index);
+                 return;
+            }
+            const task = state.dayDataMap[date].tasks[taskIndex];
 
             if (target.type === 'checkbox') {
                 task.completed = target.checked;
@@ -552,6 +613,7 @@
             renderAll();
         }
         
+        // --- Theme & Modal ---
         function openThemeModal() {
             const savedTheme = localStorage.getItem('themeClass') || 'dark-theme';
             const savedColor = localStorage.getItem('customPrimaryColor') || (savedTheme === 'dark-theme' ? '#0A84FF' : '#007AFF');
@@ -570,8 +632,12 @@
                     createElement('input', { type: 'color', id: 'color-picker', value: savedColor })
                 ),
                 createElement('div', { class: 'theme-control-group' },
-                    createElement('label', { for: 'bg-image-url' }, 'URL de Imagen de Fondo'),
-                    createElement('input', { type: 'text', id: 'bg-image-url', placeholder: 'https://...', value: savedBg })
+                    createElement('label', { for: 'bg-image-url' }, 'Imagen de Fondo'),
+                    createElement('div', {id: 'bg-image-controls'},
+                         createElement('input', { type: 'text', id: 'bg-image-url', placeholder: 'Pegar URL o subir archivo...', value: savedBg.startsWith('http') ? savedBg : (savedBg ? 'Archivo local cargado' : '') }),
+                         createElement('button', {id: 'upload-bg-btn'}, 'Subir'),
+                         createElement('button', {id: 'clear-bg-btn'}, 'Quitar')
+                    )
                 )
             );
             
@@ -587,44 +653,138 @@
                 }
             });
 
+            body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click();
+            body.querySelector('#clear-bg-btn').onclick = () => {
+                 body.querySelector('#bg-image-url').value = '';
+                 saveThemeSettings({
+                    themeClass: themeBtns.querySelector('.active').dataset.theme,
+                    primaryColor: body.querySelector('#color-picker').value,
+                    backgroundImage: '',
+                 });
+                 applyTheme();
+            };
+
             actions.onclick = () => {
+                const imageUrlInput = body.querySelector('#bg-image-url').value.trim();
+                const currentBg = localStorage.getItem('customBackgroundImage') || '';
+                let finalBg = '';
+
+                if (imageUrlInput.startsWith('http')) {
+                    finalBg = imageUrlInput; // Use the new URL
+                } else if (imageUrlInput === 'Archivo local cargado' && currentBg.startsWith('data:')) {
+                    finalBg = currentBg; // Keep the existing local file data URL
+                } else if (imageUrlInput === '') {
+                     finalBg = ''; // Clear background
+                } else {
+                    // If input is neither URL nor "Archivo local cargado", assume it's cleared or invalid, clear bg
+                    finalBg = ''; 
+                }
+                
                 const settings = {
                     themeClass: themeBtns.querySelector('.active').dataset.theme,
                     primaryColor: body.querySelector('#color-picker').value,
-                    backgroundImage: body.querySelector('#bg-image-url').value,
+                    backgroundImage: finalBg,
                 };
                 saveThemeSettings(settings);
                 applyTheme();
                 closeModal();
             };
         }
+
+        function handleBgImageSelection(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const dataUrl = event.target.result;
+                    // Limit size to prevent localStorage issues (e.g., 2MB)
+                    if (dataUrl.length > 2 * 1024 * 1024) {
+                         alert("La imagen es demasiado grande. Por favor, elige una más pequeña (máx 2MB).");
+                         return;
+                    }
+                    localStorage.setItem('customBackgroundImage', dataUrl); 
+                    applyTheme();
+                    const urlInput = document.getElementById('bg-image-url');
+                    if(urlInput) {
+                        urlInput.value = 'Archivo local cargado';
+                    }
+                };
+                 // Reset input value so the same file can be selected again
+                e.target.value = null;
+                 reader.onerror = () => {
+                     console.error("Error reading image file.");
+                     alert("Error al cargar la imagen.");
+                 };
+                reader.readAsDataURL(file);
+            }
+        }
         
         function applyTheme() {
-            const themeClass = localStorage.getItem('themeClass') || 'dark-theme';
-            const primaryColor = localStorage.getItem('customPrimaryColor') || (themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF');
-            const backgroundImage = localStorage.getItem('customBackgroundImage') || '';
+             const themeClass = localStorage.getItem('themeClass') || 'dark-theme';
+             const primaryColor = localStorage.getItem('customPrimaryColor') || (themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF');
+            const backgroundImage = localStorage.getItem('customBackgroundImage') || ''; // Could be URL or Data URL
             
-            document.body.className = themeClass;
-            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            dom.body.className = themeClass; // Use dom.body
+             document.documentElement.style.setProperty('--primary-color', primaryColor);
             
-            // Aplica el fondo a body::before
-            const bodyBefore = document.head.querySelector('style').sheet.cssRules[5]; // Adjust index if needed
-            if (backgroundImage) {
-                bodyBefore.style.setProperty('background-image', `url('${backgroundImage}')`);
-            } else {
-                bodyBefore.style.setProperty('background-image', 'none');
+            // Use a more robust way to manage the dynamic style
+            let styleSheet = document.getElementById('dynamic-bg-style');
+            if (!styleSheet) {
+                styleSheet = document.createElement('style');
+                styleSheet.id = 'dynamic-bg-style';
+                document.head.appendChild(styleSheet);
             }
+            
+            styleSheet.textContent = `
+                body::before {
+                    background-image: ${backgroundImage ? `url('${backgroundImage}')` : 'none'};
+                 }
+                 /* Add rules for primary color application */
+                 .top-nav-btn, 
+                 .calendar-header button, 
+                 .calendar-day.has-task::before, 
+                 .calendar-day::after,
+                 .task-item input[type="checkbox"]:checked,
+                 .modal-button.primary,
+                 .theme-toggle-btns button.active,
+                 .playlist-item.playing,
+                 #attach-audio-btn svg,
+                 .task-item .action-btn:hover svg {
+                     color: var(--primary-color);
+                     /* Use fill for SVG where appropriate */
+                     fill: var(--primary-color); 
+                 }
+                 .playlist-item.playing,
+                 .theme-toggle-btns button.active,
+                 .modal-button.primary {
+                     background-color: var(--primary-color);
+                     border-color: var(--primary-color); /* Ensure border color matches */
+                     color: white; /* Ensure text contrast */
+                 }
+                 /* Specific background color needed */
+                 .task-item input[type="checkbox"] { accent-color: var(--primary-color); } 
+                  /* Focus styles */
+                 .search-controls input:focus, .search-controls select:focus {
+                     border-color: var(--primary-color);
+                     /* Calculate translucent color based on primary */
+                     /* This is complex, simplified for now */
+                     box-shadow: 0 0 0 2px ${primaryColor}4D; /* Add alpha hex */
+                 }
+
+            `;
         }
 
         function openModal(title, bodyElement, actionsElement = null) {
-            dom.modal.title.textContent = title;
-            dom.modal.body.innerHTML = '';
-            dom.modal.body.appendChild(bodyElement);
-            dom.modal.actions.innerHTML = '';
-            if (actionsElement) dom.modal.actions.appendChild(actionsElement);
-            dom.modal.overlay.classList.add('visible');
+             dom.modal.title.textContent = title;
+            dom.modal.body.innerHTML = ''; // Clear previous content
+             dom.modal.body.appendChild(bodyElement);
+            dom.modal.actions.innerHTML = ''; // Clear previous actions
+             if (actionsElement) dom.modal.actions.appendChild(actionsElement);
+             dom.modal.overlay.classList.add('visible');
         }
-        function closeModal() { dom.modal.overlay.classList.remove('visible'); }
+        function closeModal() {
+             dom.modal.overlay.classList.remove('visible');
+        }
         
         function openDayModal(dateStr) {
             state.modal.selectedAudioId = null; // Reset selection
@@ -670,6 +830,23 @@
                     renderCalendar();
                 }
             };
+             taskList.addEventListener('change', (e) => { // Added listener for checkboxes inside modal
+                if(e.target.type === 'checkbox') {
+                    const taskItem = e.target.closest('.task-item');
+                     if (!taskItem) return;
+                    const { index } = taskItem.dataset;
+                     // Ensure date exists and has tasks
+                    if (!state.dayDataMap[dateStr] || !state.dayDataMap[dateStr].tasks || index >= state.dayDataMap[dateStr].tasks.length) {
+                         console.error("Task data mismatch in modal:", dateStr, index);
+                         return;
+                    }
+                    state.dayDataMap[dateStr].tasks[parseInt(index, 10)].completed = e.target.checked;
+                    taskItem.querySelector('.task-title').classList.toggle('completed', e.target.checked);
+                    saveStateToLocalStorage();
+                    renderTasks(); // Update main task list
+                    renderCalendar(); // Update calendar indicator
+                }
+            });
         }
         
         function openSoundSelectorModal(dateStr) {
@@ -681,7 +858,8 @@
                         state.modal.selectedAudioId = sound.id;
                         closeModal();
                         openDayModal(dateStr); // Re-open day modal
-                        document.getElementById('attached-audio-info').textContent = `Audio: ${sound.name}`;
+                        const audioInfoEl = document.getElementById('attached-audio-info');
+                         if(audioInfoEl) audioInfoEl.textContent = `Audio: ${sound.name}`;
                     };
                     body.appendChild(item);
                 });
@@ -691,13 +869,15 @@
             openModal("Seleccionar Sonido", body);
         }
         
+        // --- Sound Library & Player ---
         async function loadSoundsFromDB() {
              return new Promise((resolve, reject) => {
+                 if (!state.db) return reject("Database not initialized");
                 const transaction = state.db.transaction('sounds', 'readonly');
                 const store = transaction.objectStore('sounds');
                 const request = store.getAll();
-                request.onsuccess = () => { state.soundLibrary = request.result; resolve(); };
-                request.onerror = (e) => reject(e.target.error);
+                request.onsuccess = () => { state.soundLibrary = request.result || []; resolve(); };
+                request.onerror = (e) => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); };
             });
         }
 
@@ -711,27 +891,43 @@
 
         function saveSoundToDB(file) {
             return new Promise(async (resolve, reject) => {
-                const duration = await getAudioDuration(file);
-                const newSound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Artista Desconocido', genre: 'Desconocido', duration, file };
-                const transaction = state.db.transaction('sounds', 'readwrite');
-                const store = transaction.objectStore('sounds');
-                const request = store.add(newSound);
-                request.onsuccess = resolve;
-                request.onerror = reject;
+                if (!state.db) return reject("Database not initialized");
+                try {
+                    const duration = await getAudioDuration(file);
+                    const newSound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Artista Desconocido', genre: 'Desconocido', duration, file };
+                    const transaction = state.db.transaction('sounds', 'readwrite');
+                    const store = transaction.objectStore('sounds');
+                    const request = store.add(newSound);
+                    request.onsuccess = resolve;
+                    request.onerror = (e) => { console.error("Error saving sound:", e.target.error); reject(e.target.error); };
+                } catch (error) {
+                    console.error("Error processing audio file:", error);
+                    reject(error);
+                }
             });
         }
         
         function updateSoundInDB(soundData) {
+             if (!state.db) return;
             const transaction = state.db.transaction('sounds', 'readwrite');
             const store = transaction.objectStore('sounds');
-            store.put(soundData);
+             try {
+                 store.put(soundData);
+             } catch (error) {
+                 console.error("Error updating sound in DB:", error);
+             }
         }
 
         function getAudioDuration(file) {
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
                 const audio = document.createElement('audio');
                 audio.preload = 'metadata';
                 audio.onloadedmetadata = () => { window.URL.revokeObjectURL(audio.src); resolve(audio.duration); };
+                 audio.onerror = (e) => { 
+                     console.error("Error loading audio metadata:", e);
+                     window.URL.revokeObjectURL(audio.src);
+                     reject(new Error("Could not read audio duration")); 
+                 };
                 audio.src = window.URL.createObjectURL(file);
             });
         }
@@ -764,12 +960,17 @@
                 );
                 item.addEventListener('change', (e) => {
                     if(e.target.tagName === 'INPUT') {
-                        const soundToUpdate = state.soundLibrary.find(s => s.id === sound.id);
-                        const field = e.target.dataset.field;
-                        soundToUpdate[field] = e.target.value;
-                        updateSoundInDB(soundToUpdate);
-                        populateFilterDropdowns();
-                        renderPlayerPlaylist();
+                        const soundId = parseInt(item.dataset.id);
+                        const soundToUpdate = state.soundLibrary.find(s => s.id === soundId); 
+                        if (soundToUpdate) {
+                            const field = e.target.dataset.field;
+                            soundToUpdate[field] = e.target.value;
+                            updateSoundInDB(soundToUpdate);
+                            populateFilterDropdowns();
+                            renderPlayerPlaylist();
+                        } else {
+                            console.error("Sound not found in state for update:", soundId);
+                        }
                     }
                 });
                 container.appendChild(item);
@@ -777,14 +978,14 @@
         }
         
         function populateFilterDropdowns() {
-            const genres = ['Todos los Géneros', ...new Set(state.soundLibrary.map(s => s.genre))];
-            const artists = ['Todos los Artistas', ...new Set(state.soundLibrary.map(s => s.artist))];
+            const genres = ['Todos los Géneros', ...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean); // Filter out potential undefined/null
+            const artists = ['Todos los Artistas', ...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean);
             const currentGenre = dom.player.genreFilter.value;
             const currentArtist = dom.player.artistFilter.value;
             dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join('');
             dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join('');
-            dom.player.genreFilter.value = currentGenre;
-            dom.player.artistFilter.value = currentArtist;
+            dom.player.genreFilter.value = genres.includes(currentGenre) ? currentGenre : genres[0];
+            dom.player.artistFilter.value = artists.includes(currentArtist) ? currentArtist : artists[0];
         }
         
         function renderPlayerPlaylist() {
@@ -794,10 +995,11 @@
             const selectedArtist = dom.player.artistFilter.value;
 
             const filteredLibrary = state.soundLibrary.filter(sound => {
-                const matchesSearch = searchTerm === '' || 
-                                      sound.name.toLowerCase().includes(searchTerm) ||
-                                      sound.artist.toLowerCase().includes(searchTerm) ||
-                                      sound.genre.toLowerCase().includes(searchTerm);
+                const nameMatch = sound.name?.toLowerCase().includes(searchTerm) ?? false;
+                const artistMatch = sound.artist?.toLowerCase().includes(searchTerm) ?? false;
+                const genreMatch = sound.genre?.toLowerCase().includes(searchTerm) ?? false;
+                const matchesSearch = searchTerm === '' || nameMatch || artistMatch || genreMatch;
+
                 const matchesGenre = selectedGenre === 'Todos los Géneros' || sound.genre === selectedGenre;
                 const matchesArtist = selectedArtist === 'Todos los Artistas' || sound.artist === selectedArtist;
                 return matchesSearch && matchesGenre && matchesArtist;
@@ -830,32 +1032,67 @@
             if (item) {
                 const trackId = parseInt(item.dataset.id, 10);
                 const sound = state.soundLibrary.find(s => s.id === trackId);
-                if (sound) playTrack(sound);
+                if (sound && sound.file) { // Check if file exists
+                     playTrack(sound);
+                 } else {
+                     console.error("Sound file not found for track:", trackId);
+                     alert("Error: No se pudo encontrar el archivo de audio para esta pista.");
+                 }
             }
         }
 
         function playTrack(sound) {
-            const url = URL.createObjectURL(sound.file);
-            state.currentTrackId = sound.id;
-            dom.player.audioElement.src = url;
-            dom.player.audioElement.play();
-            dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`;
-            renderPlayerPlaylist();
+            try {
+                 const url = URL.createObjectURL(sound.file);
+                 state.currentTrackId = sound.id;
+                dom.player.audioElement.src = url;
+                dom.player.audioElement.play().catch(e => console.error("Error playing audio:", e)); // Catch potential play errors
+                dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`;
+                renderPlayerPlaylist();
+                 // Revoke previous object URL if any to free memory
+                 // Ideally, manage this more carefully, maybe on 'ended' or when changing tracks
+            } catch (error) {
+                 console.error("Error creating object URL:", error);
+                 alert("Error al intentar reproducir el archivo.");
+            }
         }
 
         function playTaskAudio(audioId) {
             if (!audioId) return;
             const sound = state.soundLibrary.find(s => s.id === audioId);
-            if (!sound) return;
+            if (!sound || !sound.file) {
+                 console.error("Task audio file not found:", audioId);
+                 return;
+            }
 
-            const url = URL.createObjectURL(sound.file);
-            const taskAudio = new Audio(url);
-            taskAudio.play();
+             try {
+                 const url = URL.createObjectURL(sound.file);
+                 const taskAudio = new Audio(url);
+                
+                if (!dom.player.audioElement.paused) {
+                    dom.player.audioElement.pause();
+                }
+                
+                taskAudio.play().catch(e => console.error("Error playing task audio:", e));
 
-            setTimeout(() => {
-                taskAudio.pause();
-                taskAudio.currentTime = 0;
-            }, 10000); // Stop after 10 seconds
+                 const timeoutId = setTimeout(() => {
+                     taskAudio.pause();
+                     taskAudio.currentTime = 0;
+                     URL.revokeObjectURL(url); // Clean up object URL
+                }, 10000); 
+
+                taskAudio.onended = () => {
+                     clearTimeout(timeoutId);
+                     URL.revokeObjectURL(url); // Clean up object URL
+                 };
+                 taskAudio.onerror = () => { // Handle potential loading errors
+                     clearTimeout(timeoutId);
+                     URL.revokeObjectURL(url);
+                     console.error("Error loading/playing task audio");
+                 }
+            } catch (error) {
+                 console.error("Error creating object URL for task audio:", error);
+            }
         }
 
         function setupPlayerIcons() {
@@ -863,8 +1100,8 @@
         }
 
         function togglePlayPause() {
-            if (!state.currentTrackId) return;
-            if (dom.player.audioElement.paused) dom.player.audioElement.play(); 
+            if (!state.currentTrackId || !dom.player.audioElement.src) return; // Check if src is set
+            if (dom.player.audioElement.paused) dom.player.audioElement.play().catch(e => console.error("Play error:", e)); 
             else dom.player.audioElement.pause();
         }
 
@@ -873,33 +1110,40 @@
             dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play;
         }
         
+        // --- Utils ---
         function createElement(tag, attributes = {}, ...children) {
              const element = document.createElement(tag);
              for (const [key, value] of Object.entries(attributes)) {
                  if (key === 'class') element.className = value;
                  else if (key.startsWith('data-')) element.dataset[key.substring(5)] = value;
                  else if (typeof value === 'boolean') element[key] = value;
-                 else element.setAttribute(key, value);
+                 // Handle null/undefined values safely
+                 else if (value !== null && value !== undefined) element.setAttribute(key, value);
              }
              for (const child of children) {
-                 element.append(typeof child === 'string' ? document.createTextNode(child) : child);
+                 if (child !== null && child !== undefined) { // Check for null/undefined children
+                     element.append(typeof child === 'string' ? document.createTextNode(child) : child);
+                 }
              }
              return element;
         }
         function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
+            if (isNaN(seconds) || seconds < 0) return '0:00'; // Added check for negative
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
             return `${mins}:${secs}`;
         }
 
+        // --- Render Views ---
         function renderCalendar() {
+             if (!dom.calendar.grid) return; // Guard clause
             dom.calendar.grid.innerHTML = '';
             const today = new Date();
             today.setHours(0,0,0,0);
+             if (!state.currentDate) state.currentDate = new Date(); // Ensure currentDate exists
             const year = state.currentDate.getFullYear();
             const month = state.currentDate.getMonth();
-            dom.calendar.monthYearDisplay.textContent = `${state.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
+             if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = `${state.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const startOffset = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
@@ -911,7 +1155,7 @@
                 const dayDate = new Date(dateStr + 'T00:00:00');
                 const classes = ['calendar-day'];
                 if (dayDate.getTime() === today.getTime()) classes.push('today');
-                if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks.some(t => !t.completed)) classes.push('has-task');
+                if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks?.some(t => !t.completed)) classes.push('has-task'); // Added optional chaining
                 const dayEl = createElement('div', { class: classes.join(' '), 'data-date': dateStr },
                     createElement('span', { class: 'day-number' }, day.toString())
                 );
@@ -920,12 +1164,18 @@
         }
         
         function renderTasks() {
+             if (!dom.tasks.container) return; // Guard clause
             dom.tasks.container.innerHTML = '';
             dom.tasks.container.appendChild(createElement('h2', {}, 'Próximas Tareas'));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const upcomingTasks = Object.entries(state.dayDataMap)
-                .filter(([dateStr]) => new Date(dateStr + 'T00:00:00') >= today && state.dayDataMap[dateStr].tasks.length > 0)
+             // Ensure dayDataMap is an object
+             const taskEntries = typeof state.dayDataMap === 'object' && state.dayDataMap !== null ? Object.entries(state.dayDataMap) : [];
+            const upcomingTasks = taskEntries
+                .filter(([dateStr, data]) => {
+                     // Add checks for data and tasks array
+                    return data && Array.isArray(data.tasks) && data.tasks.length > 0 && new Date(dateStr + 'T00:00:00') >= today;
+                 })
                 .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
             if (upcomingTasks.length === 0) {
                 dom.tasks.container.appendChild(createElement('p', {}, 'No tienes tareas pendientes.'));
@@ -937,7 +1187,7 @@
                 const group = createElement('div', { class: 'task-date-group' });
                 group.appendChild(createElement('h3', {}, dateTitle));
                 data.tasks.forEach((task, index) => {
-                    const playBtn = task.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : '';
+                    const playBtn = task.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; // Use null for clarity
                     if(playBtn) playBtn.innerHTML = ICONS.play_task;
 
                     const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
@@ -945,7 +1195,7 @@
                             createElement('input', { type: 'checkbox', id: `overview-task-${dateStr}-${index}`, checked: task.completed }),
                             createElement('label', { for: `overview-task-${dateStr}-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
                        ),
-                       playBtn,
+                       playBtn, // createElement handles null children correctly
                        createElement('button', { class: 'delete-btn action-btn' }, '×')
                     );
                     group.appendChild(taskEl);
