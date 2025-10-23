@@ -47,14 +47,13 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            justify-content: center;
+            justify-content: flex-start; /* Alinea al inicio para el contenido de pantalla completa */
             align-items: center;
-            padding: 1rem 0;
+            padding: 0; /* Eliminado el padding */
             overflow-x: hidden;
             position: relative;
         }
         
-        /* MEJORA: Pseudo-elemento para el fondo de pantalla personalizado */
         body::before {
             content: '';
             position: fixed;
@@ -69,15 +68,14 @@
         }
         
         #app-wrapper {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
+            width: 100%; /* Ocupa el 100% del ancho */
+            max-width: none; /* Eliminado el max-width */
+            margin: 0; /* Eliminado el margin auto */
             z-index: 1;
         }
 
         /* --- Barra de Navegación Superior --- */
         .top-nav {
-            /* MEJORA: Fondo translúcido */
             background-color: rgba(var(--container-rgb), 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -139,7 +137,6 @@
         .carousel-slide.is-active { opacity: 1; transform: scale(1); }
         
         .content-box {
-            /* MEJORA: Fondo translúcido */
             background-color: rgba(var(--container-rgb), 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -149,6 +146,10 @@
             margin-bottom: 1rem;
             transition: background-color 0.3s, border-color 0.3s;
             overflow: hidden;
+            /* Asegura que los content-box tengan un ancho máximo para no ser demasiado anchos */
+            max-width: 900px; 
+            margin-left: auto;
+            margin-right: auto;
         }
         
         /* --- Calendario --- */
@@ -231,7 +232,6 @@
         #new-task-input { flex-grow: 1; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); font-size: 1rem; }
         #attach-audio-btn svg { width: 24px; height: 24px; fill: var(--primary-color); }
         
-        /* MEJORA: Estilos para el nuevo modal de temas */
         .theme-control-group { margin-bottom: 1.5rem; }
         .theme-control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         .theme-control-group input { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); color: var(--text-color); }
@@ -606,7 +606,14 @@
             
             document.body.className = themeClass;
             document.documentElement.style.setProperty('--primary-color', primaryColor);
-            document.body.style.backgroundImage = backgroundImage ? `url('${backgroundImage}')` : '';
+            
+            // Aplica el fondo a body::before
+            const bodyBefore = document.head.querySelector('style').sheet.cssRules[5]; // Adjust index if needed
+            if (backgroundImage) {
+                bodyBefore.style.setProperty('background-image', `url('${backgroundImage}')`);
+            } else {
+                bodyBefore.style.setProperty('background-image', 'none');
+            }
         }
 
         function openModal(title, bodyElement, actionsElement = null) {
