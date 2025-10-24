@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Audio con Calendario (Refactorizado)</title>
+    <title>Panel de Productividad (Web Style)</title>
     
-    <style>
-        /* --- Diseño Minimalista: Variables de Color --- */
-        :root {
-            --primary-color: #007AFF; /* Valor por defecto, se sobrescribe con JS */
-            --accent-color: #34C759;
-            --danger-color: #FF3B30;
-            --background-color: #F2F2F7;
-            --container-rgb: 255, 255, 255;
-            --text-color: #000000;
-            --secondary-text-color: #8A8A8E;
-            --border-color: #E5E5EA;
-            --button-background-color: #EFEFF4;
-        }
+    <!-- Fuente Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        body.dark-theme {
-            --primary-color: #0A84FF; /* Valor por defecto oscuro, se sobrescribe con JS */
-            --accent-color: #30D158;
-            --danger-color: #FF453A;
+    <style>
+        /* --- Variables de Color (Tema Oscuro por defecto) --- */
+        :root {
+            --primary-color: #0A84FF;
+            --primary-color-translucent: rgba(10, 132, 255, 0.3);
             --background-color: #000000;
-            --container-rgb: 28, 28, 30;
+            --container-rgb: 28, 28, 30; /* --container-color: #1C1C1E; */
             --text-color: #FFFFFF;
             --secondary-text-color: #8D8D93;
             --border-color: #38383A;
             --button-background-color: #2C2C2E;
+            --danger-color: #FF453A;
+            
+            /* Usamos rem para accesibilidad y escalado */
+            font-size: 16px; /* Base para rem */
+        }
+
+        html.light-theme {
+            --primary-color: #007AFF;
+            --primary-color-translucent: rgba(0, 122, 255, 0.3);
+            --background-color: #F2F2F7;
+            --container-rgb: 255, 255, 255; /* --container-color: #FFFFFF; */
+            --text-color: #000000;
+            --secondary-text-color: #8A8A8E;
+            --border-color: #E5E5EA;
+            --button-background-color: #EFEFF4;
+            --danger-color: #FF3B30;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
         }
@@ -43,17 +51,16 @@
         body {
             background-color: var(--background-color);
             color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            display: flex; /* Cambiado a flex para layout de sidebar */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Evitar scroll en el body */
             transition: background-color 0.3s, color 0.3s;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 0;
-            overflow-x: hidden;
             position: relative;
+            z-index: 1;
         }
         
+        /* Fondo dinámico */
         body::before {
             content: '';
             position: fixed;
@@ -68,107 +75,115 @@
             background-color: var(--background-color); /* Fondo sólido si no hay imagen */
         }
         
-        #app-wrapper {
-            width: 100%;
-            max-width: none;
-            margin: 0;
-            z-index: 1;
-            padding-bottom: 1rem; /* Espacio al final */
+        /* Hoja de estilos dinámica para el fondo */
+        #dynamic-bg-style {
+            display: none;
         }
 
-        /* --- Barra de Navegación Superior --- */
-        .top-nav {
+        /* --- Barra Lateral de Navegación --- */
+        #sidebar-nav {
+            width: 15rem; /* Ancho fijo para la barra lateral */
+            height: 100vh;
             background-color: rgba(var(--container-rgb), 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid var(--border-color);
-            width: 100%;
-            transition: background-color 0.3s, color 0.3s, border-bottom 0.3s;
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky; /* Fija la barra arriba */
-            top: 0;
+            flex-direction: column;
+            justify-content: space-evenly; /* Distribuir botones equitativamente */
+            flex-shrink: 0;
+            transition: background-color 0.3s, border-color 0.3s;
             z-index: 10;
         }
-        
-        #main-page-title {
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 1.1rem;
-            text-align: center;
-            flex-grow: 1;
-        }
 
-        .top-nav-btn {
-            background: none;
+        .nav-btn {
+            background-color: transparent;
             border: none;
-            border-radius: 50%;
-            width: 38px;
-            height: 38px;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--primary-color); /* Usa color de acento */
+            border-radius: 0.5rem; /* 8px */
+            padding: 0.75rem; /* 12px */
             display: flex;
-            justify-content: center;
             align-items: center;
-            transition: background-color 0.2s, opacity 0.2s;
+            gap: 0.75rem; /* 12px */
+            font-size: 1rem; /* 16px */
+            font-weight: 500;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            text-align: left;
+            width: 100%;
+        }
+        
+        .nav-btn svg {
+            width: 1.5rem; /* 24px */
+            height: 1.5rem; /* 24px */
+            fill: currentColor;
             flex-shrink: 0;
         }
-        .top-nav-btn:hover {
+
+        .nav-btn:hover {
             background-color: var(--button-background-color);
-        }
-        .top-nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            background-color: transparent !important;
+            color: var(--text-color);
         }
 
-        /* --- Contenido Principal y Carrusel --- */
-        .main-content { width: 100%; position: relative; padding-top: 1rem; } /* Padding para compensar barra fija */
-        .carousel-container { overflow: hidden; width: 100%; cursor: grab; }
-        .carousel-container:active { cursor: grabbing; }
-        .carousel-track { display: flex; }
-        .carousel-slide {
-            flex: 0 0 100%;
-            width: 100%;
-            padding: 1rem;
-            transition: opacity 0.5s, transform 0.5s;
-            opacity: 0.4;
-            transform: scale(0.85);
-            min-height: calc(100vh - 100px); /* Ajusta altura mínima */
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white; /* El color de acento se aplica al fondo */
         }
-        .carousel-slide.is-active { opacity: 1; transform: scale(1); }
+
+        /* --- Contenido Principal --- */
+        .main-content {
+            flex-grow: 1; /* Ocupa el resto del espacio */
+            height: 100vh;
+            overflow-y: auto; /* Scroll solo en esta área */
+            position: relative;
+        }
+
+        .app-page {
+            width: 100%;
+            min-height: 100%;
+            padding: 2rem;
+            display: none; /* Oculto por defecto */
+        }
         
+        .app-page.active {
+            display: block; /* Visible */
+        }
+
         .content-box {
             background-color: rgba(var(--container-rgb), 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 0.75rem; /* 12px */
             border: 1px solid var(--border-color);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             transition: background-color 0.3s, border-color 0.3s;
             overflow: hidden;
-            max-width: 900px; 
+            max-width: 60rem; /* 960px */
             margin-left: auto;
             margin-right: auto;
         }
         
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
         /* --- Calendario --- */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .calendar-header h2 { font-weight: 600; color: var(--text-color); margin: 0 1rem; }
-        .calendar-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; flex-shrink: 0; }
+        .calendar-header h2 { font-weight: 600; color: var(--text-color); margin: 0 1rem; font-size: 1.25rem; }
+        .calendar-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; flex-shrink: 0; }
         .calendar-header button:hover { background-color: var(--button-background-color); }
-        .calendar-grid, .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-grid, .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; /* 8px */ }
         .calendar-weekdays div { font-weight: 500; text-align: center; color: var(--secondary-text-color); font-size: 0.8rem; }
         .calendar-day { display: flex; justify-content: center; align-items: center; flex-direction: column; aspect-ratio: 1 / 1; border-radius: 50%; transition: all 0.2s; position: relative; cursor: pointer; }
         .calendar-day.empty { pointer-events: none; opacity: 0.5; }
-        .calendar-day.has-task::before { content: ''; width: 6px; height: 6px; background-color: var(--primary-color); border-radius: 50%; position: absolute; bottom: 8px; left: calc(50% - 3px); z-index: 3; }
-        .day-number { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease-in-out; position: relative; z-index: 2; }
+        .calendar-day.has-task::before { content: ''; width: 0.375rem; height: 0.375rem; background-color: var(--primary-color); border-radius: 50%; position: absolute; bottom: 0.5rem; left: calc(50% - 0.1875rem); z-index: 3; }
+        .day-number { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease-in-out; position: relative; z-index: 2; }
         .calendar-day:hover .day-number { background-color: var(--button-background-color); }
-        .calendar-day.today .day-number { background-color: var(--accent-color); color: white; font-weight: 700; }
+        .calendar-day.today .day-number { background-color: var(--danger-color); color: white; font-weight: 700; }
         .calendar-day::after { content: '+'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.8rem; font-weight: 300; color: var(--primary-color); opacity: 0; transition: opacity 0.2s ease-in-out; z-index: 3; }
         .calendar-day:not(.empty):hover .day-number { opacity: 0; }
         .calendar-day:not(.empty):hover::after { opacity: 1; }
@@ -179,22 +194,36 @@
         .task-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
         .task-item:last-child { border-bottom: none; }
         .task-item-content { flex-grow: 1; display: flex; align-items: center; gap: 0.8rem; }
-        .task-item input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-color); flex-shrink: 0; }
+        .task-item input[type="checkbox"] { width: 1.25rem; height: 1.25rem; cursor: pointer; accent-color: var(--primary-color); flex-shrink: 0; }
         .task-item .task-title.completed { text-decoration: line-through; color: var(--secondary-text-color); }
-        .task-item .action-btn { background: none; border: none; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; justify-content: center; }
-        .task-item .action-btn svg { width: 20px; height: 20px; fill: var(--secondary-text-color); transition: fill 0.2s; }
-        .task-item .action-btn:hover svg { fill: var(--primary-color); }
+        .task-item .action-btn { background: none; border: none; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; justify-content: center; color: var(--secondary-text-color); /* Color base para SVG */ }
+        .task-item .action-btn svg { width: 1.25rem; height: 1.25rem; fill: currentColor; /* Usa color del botón */ transition: color 0.2s; }
+        .task-item .action-btn:hover { color: var(--primary-color); /* Cambia color en hover */ }
         .task-item .delete-btn { color: var(--danger-color); font-size: 1.5rem; line-height: 1; }
+        .task-item .delete-btn:hover { color: var(--danger-color); /* Mantiene color rojo */}
         
-        .settings-card { background-color: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 12px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .settings-card { background-color: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 0.75rem; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
+        .settings-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
         .player-container { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        #player-track-title { font-weight: 500; font-size: 1.1rem; text-align: center;}
         
+        .time-display { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--secondary-text-color); font-family: 'SF Mono', monospace; width: 100%; max-width: 25rem; margin-top: 0.3rem;}
+        .player-controls { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+        .player-controls button { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 50%; transition: background-color 0.2s; }
+        .player-controls button:hover:not(:disabled) { background-color: var(--button-background-color); }
+        .player-controls button svg { fill: currentColor; width: 1.5rem; height: 1.5rem; }
+        .player-controls button.active { color: var(--primary-color); } /* Indicador activo para shuffle/repeat */
+        .player-controls button:disabled { opacity: 0.4; cursor: not-allowed; background-color: transparent !important; }
+        #player-play-pause-btn { background-color: var(--primary-color); color: white; width: 3.75rem; height: 3.75rem; border-radius: 50%; }
+        #player-play-pause-btn:hover { background-color: var(--primary-color); filter: brightness(1.1); } /* Ligero brillo */
+        #player-play-pause-btn svg { width: 1.875rem; height: 1.875rem; }
+
         .search-controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; width: 100%; }
         .search-controls input, .search-controls select {
             background-color: var(--button-background-color);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 1rem; /* 16px */
             padding: 0.75rem 1rem;
             font-size: 1rem;
             color: var(--text-color);
@@ -203,26 +232,28 @@
         }
         .search-controls input:focus, .search-controls select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--primary-color-translucent, rgba(0, 122, 255, 0.3)); /* Ajustar transparencia */
+            /* Usamos la variable --primary-color-translucent para el shadow */
+            box-shadow: 0 0 0 2px var(--primary-color-translucent);
         }
         .search-controls input { flex-grow: 1; }
-        .search-controls select { flex-shrink: 0; width: 30%; max-width: 150px; }
+        .search-controls select { flex-shrink: 0; width: 30%; max-width: 9.375rem; /* 150px */ }
         
-        #player-playlist { max-height: 250px; overflow-y: auto; width: 100%; }
-        .playlist-item { padding: 0.8rem; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; transition: background-color 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        #player-playlist { max-height: 15.625rem; /* 250px */ overflow-y: auto; width: 100%; }
+        .playlist-item { padding: 0.8rem; border-radius: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; transition: background-color 0.2s; display: flex; justify-content: space-between; align-items: center; }
         .playlist-item:hover { background-color: var(--button-background-color); }
         .playlist-item.playing { background-color: var(--primary-color); color: white; }
         .playlist-item.playing .track-meta { color: rgba(255,255,255,0.8); }
+        .track-meta { font-size: 0.9rem; color: var(--secondary-text-color); }
         
-        /* --- Modal --- */
+        /* --- Modal (Custom for tasks/sound selector/theme/library) --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px); }
         .modal-overlay.visible { display: flex; }
-        .modal-content { background: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 600px; animation: slideIn 0.3s ease-out; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-content { background: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 0.75rem; width: 90%; max-width: 37.5rem; /* 600px */ animation: slideIn 0.3s ease-out; max-height: 90vh; display: flex; flex-direction: column; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
         .modal-body { overflow-y: auto; flex-grow: 1; }
-        .modal-actions { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-actions { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.625rem; /* 10px */ }
         .modal-close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--secondary-text-color); line-height: 1; }
-        .modal-button { padding: 0.6rem 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; }
+        .modal-button { padding: 0.6rem 1rem; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; }
         .modal-button.primary { background-color: var(--primary-color); color: white; }
 
         .new-task-controls {
@@ -233,95 +264,225 @@
             border-top: 1px solid var(--border-color);
             padding-top: 1.5rem;
         }
-        #new-task-input { flex-grow: 1; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); font-size: 1rem; }
-        #attach-audio-btn svg { width: 24px; height: 24px; fill: var(--primary-color); }
+        #new-task-input { flex-grow: 1; padding: 0.7rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--button-background-color); font-size: 1rem; color: var(--text-color); }
+        #attach-audio-btn svg { width: 1.5rem; height: 1.5rem; fill: var(--primary-color); }
         
-        .theme-control-group { margin-bottom: 1.5rem; }
+        /* Theme modal specific styles (used in custom modal now) */
+        .theme-control-group { margin-bottom: 1.5rem; text-align: left;}
         .theme-control-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .theme-control-group input[type="text"], .theme-control-group input[type="color"] { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--button-background-color); color: var(--text-color); }
-        /* Style specifically for color input */
-        .theme-control-group input[type="color"] { padding: 0; height: 40px; border: none; cursor: pointer; }
+        .theme-control-group input[type="text"], .theme-control-group input[type="color"] { width: 100%; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--button-background-color); color: var(--text-color); }
+        .theme-control-group input[type="color"] { padding: 0; height: 2.5rem; /* 40px */ border: none; cursor: pointer; }
         .theme-control-group input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        .theme-control-group input[type="color"]::-webkit-color-swatch { border-radius: 8px; border: 1px solid var(--border-color); }
+        .theme-control-group input[type="color"]::-webkit-color-swatch { border-radius: 0.5rem; border: 1px solid var(--border-color); }
         .theme-toggle-btns { display: flex; gap: 0.5rem; }
-        .theme-toggle-btns button { flex-grow: 1; padding: 0.7rem; border: 1px solid var(--border-color); background-color: transparent; color: var(--text-color); border-radius: 8px; cursor: pointer; }
+        .theme-toggle-btns button { flex-grow: 1; padding: 0.7rem; border: 1px solid var(--border-color); background-color: transparent; color: var(--text-color); border-radius: 0.5rem; cursor: pointer; }
         .theme-toggle-btns button.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
         #bg-image-controls { display: flex; gap: 0.5rem; align-items: center; }
         #bg-image-controls input { flex-grow: 1; }
-        #bg-image-controls button { padding: 0.5rem; background-color: var(--button-background-color); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+        #bg-image-controls button { padding: 0.5rem; background-color: var(--button-background-color); border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; color: var(--text-color); }
+        
+        /* Library modal styles */
+        #library-list-container { max-height: 40vh; overflow-y: auto; text-align: left; }
+        .library-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); }
+        .library-item:last-child { border-bottom: none; }
+        .library-item-info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; }
+        .library-item-info input { width: 100%; background: var(--button-background-color); border: 1px solid var(--border-color); border-radius: 0.25rem; padding: 0.3rem; color: var(--text-color); }
+        .library-item-title { grid-column: 1 / -1; font-weight: 500; }
+        .library-item-duration { justify-self: end; font-family: 'SF Mono', monospace; }
+        #library-placeholder { text-align: center; padding: 2rem; color: var(--secondary-text-color); }
 
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* Estilos para la página de estadísticas */
+        #stats-chart-container {
+            width: 100%;
+            max-width: 60rem; /* 960px */
+            margin: 0 auto;
+            height: 25rem; /* 400px */
+        }
+
+
+        @keyframes slideIn { from { transform: translateY(1.25rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Media query para pantallas más pequeñas (móviles) */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* Cambia a layout de columna */
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            #sidebar-nav {
+                width: 100%;
+                height: auto;
+                padding: 0.5rem;
+                flex-direction: row; /* Botones en fila */
+                justify-content: space-around; /* Espaciado uniforme */
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            .nav-btn {
+                flex-direction: column; /* Ícono arriba, texto abajo */
+                gap: 0.2rem;
+                font-size: 0.75rem; /* Texto más pequeño */
+                padding: 0.5rem;
+                flex-grow: 1; /* Ocupar espacio equitativo */
+            }
+            
+            .nav-btn span {
+                display: block; /* Asegurar que el span esté visible */
+            }
+            
+            .main-content {
+                height: auto;
+                overflow-y: visible;
+                flex-grow: 1;
+            }
+            
+            .app-page {
+                padding: 1rem; /* Menos padding */
+            }
+            
+            .page-title {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            .search-controls select {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .modal-content {
+                width: 95%;
+                max-height: 85vh;
+            }
+        }
     </style>
 </head>
 <body class="dark-theme"> <!-- Default to dark -->
 
-<div id="app-wrapper">
-    <div class="top-nav">
-        <button id="prev-page-btn" class="top-nav-btn">&lt;</button>
-        <h1 id="main-page-title">Calendario</h1>
-        <button id="next-page-btn" class="top-nav-btn">&gt;</button>
-    </div>
+    <!-- Hoja de estilos dinámica para el fondo (usada por JS) -->
+    <style id="dynamic-bg-style"></style>
 
+    <!-- Barra Lateral -->
+    <nav id="sidebar-nav">
+        <!-- Los data-index coinciden con el orden de las páginas -->
+        <button class="nav-btn active" data-index="0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z" /></svg>
+            <span>Música</span>
+        </button>
+        <button class="nav-btn" data-index="1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z" /></svg>
+            <span>Calendario</span>
+        </button>
+        <button class="nav-btn" data-index="2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.54,5.23C20.83,5.57 21,6 21,6.5C21,7.28 20.5,8.14 19.83,8.71L18.71,7.59C19.05,7.25 19.23,6.9 19.23,6.5C19.23,6.3 19.16,6.11 19.04,5.96L17.5,3.54C17.21,3 16.68,2.65 16,2.5C15.32,2.35 14.63,2.5 14.11,3L12,4.4L9.89,3C9.37,2.5 8.68,2.35 8,2.5C7.32,2.65 6.79,3 6.5,3.54L5,5.96C4.84,6.11 4.77,6.3 4.77,6.5C4.77,6.9 4.95,7.25 5.29,7.59L4.17,8.71C3.5,8.14 3,7.28 3,6.5C3,6 3.17,5.57 3.46,5.23L5.34,2.77C5.8,2.16 6.5,1.74 7.28,1.58C8.06,1.42 8.88,1.58 9.54,2.11L12,4L14.46,2.11C15.12,1.58 15.94,1.42 16.72,1.58C17.5,1.74 18.2,2.16 18.66,2.77L20.54,5.23M19.83,15.29L18.71,16.41C19.05,16.75 19.23,17.1 19.23,17.5C19.23,17.7 19.16,17.89 19.04,18.04L17.5,20.46C17.21,21 16.68,21.35 16,21.5C15.32,21.65 14.63,21.5 14.11,21L12,19.6L9.89,21C9.37,21.5 8.68,21.65 8,21.5C7.32,21.35 6.79,21 6.5,20.46L5,18.04C4.84,17.89 4.77,17.7 4.77,17.5C4.77,17.1 4.95,16.75 5.29,16.41L4.17,15.29C3.5,15.86 3,16.72 3,17.5C3,18 3.17,18.43 3.46,18.77L5.34,21.23C5.8,21.84 6.5,22.26 7.28,22.42C8.06,22.58 8.88,22.42 9.54,21.89L12,20L14.46,21.89C15.12,22.42 15.94,22.58 16.72,22.42C17.5,22.26 18.2,21.84 18.66,21.23L20.54,18.77C20.83,18.43 21,18 21,17.5C21,16.72 20.5,15.86 19.83,15.29M12,8C10.9,8 10,8.9 10,10C10,11.1 10.9,12 12,12C13.1,12 14,11.1 14,10C14,8.9 13.1,8 12,8Z" /></svg>
+            <span>Tareas</span>
+        </button>
+        <button class="nav-btn" data-index="3">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.5,20.5L9.5,14.5L13.5,18.5L19.5,12.5L20.91,13.91L13.5,21.31L9.5,17.31L3.5,23.31L2.09,21.9L3.5,20.5M3.5,12.5L9.5,6.5L13.5,10.5L20.91,3.09L19.5,1.68L13.5,7.68L9.5,3.68L3.5,9.68L2.09,8.27L3.5,6.86L3.5,12.5Z" /></svg>
+            <span>Estadísticas</span>
+        </button>
+        <button class="nav-btn" data-index="4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94C19.03,11.93 18.69,10.96 18.13,10.06C17.56,9.15 16.74,8.4 15.77,7.85L16.7,6.93C17.09,6.54 17.09,5.91 16.7,5.5L15.28,4.09C14.89,3.7 14.26,3.7 13.87,4.09L12.95,5.02C12.04,4.5 11.07,4.2 10.06,4.1C9.04,4 8,4.16 7.03,4.6L6.11,3.68C5.72,3.29 5.09,3.29 4.7,3.68L3.28,5.09C2.89,5.48 2.89,6.11 3.28,6.5L4.2,7.42C3.66,8.39 3.31,9.45 3.19,10.56C3.07,11.67 3.25,12.8 3.7,13.82L2.78,14.74C2.39,15.13 2.39,15.76 2.78,16.15L4.2,17.56C4.59,17.95 5.22,17.95 5.61,17.56L6.53,16.64C7.44,17.16 8.4,17.47 9.4,17.57C10.4,17.67 11.42,17.5 12.37,17.07L13.29,18C13.68,18.39 14.31,18.39 14.7,18L16.12,16.59C16.5,16.2 16.5,15.57 16.12,15.18L15.2,14.26C15.73,13.35 16.03,12.38 16.04,11.37C16.05,10.36 15.8,9.35 15.3,8.46L17.75,6C18.69,6.94 19.38,8.12 19.75,9.45C20.11,10.78 20.12,12.17 19.77,13.5C19.42,14.82 18.73,16.03 17.79,16.97L19.21,18.38C19.6,18.77 20.23,18.77 20.62,18.38L22,17C22.39,16.61 22.39,15.97 22,15.58C21.39,14.64 20.47,13.9 19.34,13.42C19.24,13.26 19.16,13.1 19.14,12.94M12,9.5A2.5,2.5 0 0,1 14.5,12A2.5,2.5 0 0,1 12,14.5A2.5,2.5 0 0,1 9.5,12A2.5,2.5 0 0,1 12,9.5Z" /></svg>
+            <span>Ajustes</span>
+        </button>
+    </nav>
+
+    <!-- Contenido Principal -->
     <main class="main-content">
-        <div class="carousel-container">
-            <div class="carousel-track">
-                <div class="carousel-slide is-active" data-title="Calendario">
-                    <div id="calendar-container" class="content-box">
-                        <div class="calendar-header">
-                            <button id="prev-month-btn" aria-label="Mes anterior">&lt;</button>
-                            <h2 id="month-year-display"></h2>
-                            <button id="next-month-btn" aria-label="Mes siguiente">&gt;</button>
-                        </div>
-                        <div id="calendar-grid-wrapper" class="calendar-grid-wrapper">
-                             <div class="calendar-weekdays">
-                                 <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
-                            </div>
-                            <div id="calendar-grid" class="calendar-grid"></div>
-                        </div>
+
+        <!-- Página 0: Música (Activa por defecto) -->
+        <div class="app-page active" data-title="Reproductor">
+            <h1 class="page-title">Música</h1>
+            <div class="content-box player-container">
+                <p id="player-track-title">Ningún sonido seleccionado</p>
+                <div class="time-display">
+                    <span id="player-current-time">0:00</span>
+                    <span id="player-total-time">0:00</span>
+                </div>
+                <div class="player-controls">
+                    <button id="player-shuffle-btn" aria-label="Aleatorio"></button>
+                    <button id="player-prev-btn" aria-label="Anterior"></button>
+                    <button id="player-play-pause-btn" aria-label="Reproducir/Pausar"></button>
+                    <button id="player-next-btn" aria-label="Siguiente"></button>
+                    <button id="player-repeat-btn" aria-label="Repetir"></button>
+                </div>
+            </div>
+            <div class="content-box">
+                <div class="search-controls">
+                    <input type="search" id="search-bar" placeholder="Buscar en la biblioteca...">
+                    <select id="artist-filter"></select>
+                    <select id="genre-filter"></select>
+                </div>
+                <div id="player-playlist"></div>
+            </div>
+        </div>
+
+        <!-- Página 1: Calendario -->
+        <div class="app-page" data-title="Calendario">
+            <h1 class="page-title">Calendario</h1>
+            <div id="calendar-container" class="content-box">
+                <div class="calendar-header">
+                    <button id="prev-month-btn" aria-label="Mes anterior">&lt;</button>
+                    <h2 id="month-year-display"></h2>
+                    <button id="next-month-btn" aria-label="Mes siguiente">&gt;</button>
+                </div>
+                <div id="calendar-grid-wrapper" class="calendar-grid-wrapper">
+                    <div class="calendar-weekdays">
+                        <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
                     </div>
-                </div>
-
-                <div class="carousel-slide" data-title="Reproductor">
-                     <div class="content-box player-container">
-                         <p id="player-track-title">Ningún sonido seleccionado</p>
-                         <input type="range" id="player-progress-bar" value="0" step="1" style="width: 100%; max-width: 400px;">
-                         <div class="player-controls">
-                             <button id="player-play-pause-btn"></button>
-                         </div>
-                     </div>
-                     <div class="content-box">
-                        <div class="search-controls">
-                            <input type="search" id="search-bar" placeholder="Buscar en la biblioteca...">
-                            <select id="artist-filter"></select>
-                            <select id="genre-filter"></select>
-                        </div>
-                        <div id="player-playlist"></div>
-                     </div>
-                </div>
-                
-                <div class="carousel-slide" data-title="Tareas">
-                    <div id="tasks-list-container" class="content-box"></div>
-                </div>
-
-                <div class="carousel-slide" data-title="Configuración">
-                     <div style="display: grid; gap: 1rem;">
-                         <div id="theme-settings-card" class="settings-card">
-                             <h3>Tema de la Aplicación</h3><p>Personaliza la apariencia.</p>
-                         </div>
-                         <div id="library-settings-card" class="settings-card">
-                             <h3>Biblioteca de Sonidos</h3><p>Gestiona tus archivos de audio.</p>
-                         </div>
-                     </div>
+                    <div id="calendar-grid" class="calendar-grid"></div>
                 </div>
             </div>
         </div>
-    </main>
-</div>
+        
+        <!-- Página 2: Tareas -->
+        <div class="app-page" data-title="Tareas">
+            <h1 class="page-title">Tareas</h1>
+            <div id="tasks-list-container" class="content-box">
+                <!-- El contenido se renderiza con JS -->
+            </div>
+        </div>
 
-    <audio id="audio-element"></audio>
+        <!-- Página 3: Estadísticas -->
+        <div class="app-page" data-title="Estadísticas">
+            <h1 class="page-title">Estadísticas</h1>
+            <div class="content-box">
+                <div id="stats-chart-container">
+                    <canvas id="stats-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Página 4: Ajustes -->
+        <div class="app-page" data-title="Ajustes">
+            <h1 class="page-title">Ajustes</h1>
+            <div style="display: grid; gap: 1rem; max-width: 60rem; margin: 0 auto;">
+                <div id="theme-settings-card" class="settings-card">
+                    <h3>Tema de la Aplicación</h3>
+                    <p>Personaliza la apariencia.</p>
+                </div>
+                <div id="library-settings-card" class="settings-card">
+                    <h3>Biblioteca de Sonidos</h3>
+                    <p>Gestiona tus archivos de audio.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Inputs de archivos ocultos -->
     <input type="file" id="audio-file-input" multiple accept="audio/*" style="display: none;">
     <input type="file" id="bg-image-input" accept="image/*" style="display: none;">
 
+    <!-- Estructura del Modal -->
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -333,28 +494,47 @@
         </div>
     </div>
 
+    <!-- Librerías Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js"></script>
+    <!-- Chart.js PRIMERO -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Adaptador DESPUÉS -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-dayjs@1.0.0/dist/chartjs-adapter-dayjs.min.js"></script>
+
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- Setup Day.js ---
+        dayjs.extend(window.dayjs_plugin_isSameOrAfter);
+        dayjs.locale('es');
 
-        // --- ICONS ---
+        // --- ELIMINADO Registro explícito del adaptador ---
+        // El script del adaptador debería registrarse automáticamente si se carga DESPUÉS de Chart.js
+        
+        // --- ICONS (Usados en JS) ---
         const ICONS = {
-            play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30px" height="30px"><path d="M8 5v14l11-7z"></path></svg>`,
-            pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="30px" height="30px"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
-            attach: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M16,12A2,2 0 0,0 18,10A2,2 0 0,0 16,8A2,2 0 0,0 14,10A2,2 0 0,0 16,12M16,4.05C18.37,4.05 20.44,5.38 21.32,7.34L22.21,9.23L19.75,10.15L19.34,9.31C18.78,8.16 17.5,7.39 16,7.39C14.5,7.39 13.22,8.16 12.66,9.31L12.25,10.15L9.79,9.23L10.68,7.34C11.56,5.38 13.63,4.05 16,4.05M8,12A2,2 0 0,0 10,10A2,2 0 0,0 8,8A2,2 0 0,0 6,10A2,2 0 0,0 8,12M8,4.05C10.37,4.05 12.44,5.38 13.32,7.34L14.21,9.23L11.75,10.15L11.34,9.31C10.78,8.16 9.5,7.39 8,7.39C6.5,7.39 5.22,8.16 4.66,9.31L4.25,10.15L1.79,9.23L2.68,7.34C3.56,5.38 5.63,4.05 8,4.05M16,14C13.63,14 11.56,15.33 10.68,17.28L9.79,19.17L12.25,18.25L12.66,17.41C13.22,16.26 14.5,15.5 16,15.5C17.5,15.5 18.78,16.26 19.34,17.41L19.75,18.25L22.21,19.17L21.32,17.28C20.44,15.33 18.37,14 16,14M8,14C5.63,14 3.56,15.33 2.68,17.28L1.79,19.17L4.25,18.25L4.66,17.41C5.22,16.26 6.5,15.5 8,15.5C9.5,15.5 10.78,16.26 11.34,17.41L11.75,18.25L14.21,19.17L13.32,17.28C12.44,15.33 10.37,14 8,14Z" /></svg>`,
-            play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
+            play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>`,
+            pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
+            prev: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"></path></svg>`,
+            next: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM8 18l8.5-6L8 6z"></path></svg>`,
+            shuffle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.59,9.17L5.41,4L4,5.41L9.17,10.59L10.59,9.17M14.83,13.41L13.41,14.83L18.59,20L20,18.59L14.83,13.41M14.83,9.17L9.17,3.5L4,8.67V4H2V10H8L3,15L4.41,16.41L10.59,10.24L11.76,11.41L10.21,12.96L11.62,14.38L13.41,12.59L14.83,9.17Z" /></svg>`,
+            repeat: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z" /></svg>`,
+            repeatOne: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13,15V9H12L10,10V11H11.5V15M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z" /></svg>`,
+            attach: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16,12A2,2 0 0,0 18,10A2,2 0 0,0 16,8A2,2 0 0,0 14,10A2,2 0 0,0 16,12M16,4.05C18.37,4.05 20.44,5.38 21.32,7.34L22.21,9.23L19.75,10.15L19.34,9.31C18.78,8.16 17.5,7.39 16,7.39C14.5,7.39 13.22,8.16 12.66,9.31L12.25,10.15L9.79,9.23L10.68,7.34C11.56,5.38 13.63,4.05 16,4.05M8,12A2,2 0 0,0 10,10A2,2 0 0,0 8,8A2,2 0 0,0 6,10A2,2 0 0,0 8,12M8,4.05C10.37,4.05 12.44,5.38 13.32,7.34L14.21,9.23L11.75,10.15L11.34,9.31C10.78,8.16 9.5,7.39 8,7.39C6.5,7.39 5.22,8.16 4.66,9.31L4.25,10.15L1.79,9.23L2.68,7.34C3.56,5.38 5.63,4.05 8,4.05M16,14C13.63,14 11.56,15.33 10.68,17.28L9.79,19.17L12.25,18.25L12.66,17.41C13.22,16.26 14.5,15.5 16,15.5C17.5,15.5 18.78,16.26 19.34,17.41L19.75,18.25L22.21,19.17L21.32,17.28C20.44,15.33 18.37,14 16,14M8,14C5.63,14 3.56,15.33 2.68,17.28L1.79,19.17L4.25,18.25L4.66,17.41C5.22,16.26 6.5,15.5 8,15.5C9.5,15.5 10.78,16.26 11.34,17.41L11.75,18.25L14.21,19.17L13.32,17.28C12.44,15.33 10.37,14 8,14Z" /></svg>`,
+            play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
         };
         
         // --- DOM Elements ---
         const dom = {
             body: document.body,
-            mainPageTitle: document.getElementById('main-page-title'),
-            carousel: {
-                container: document.querySelector('.carousel-container'),
-                track: document.querySelector('.carousel-track'),
-                slides: Array.from(document.querySelector('.carousel-track').children),
-                prevBtn: document.getElementById('prev-page-btn'),
-                nextBtn: document.getElementById('next-page-btn'),
-            },
+            // Navegación
+            sidebar: document.getElementById('sidebar-nav'),
+            navButtons: document.querySelectorAll('.nav-btn'),
+            appPages: document.querySelectorAll('.app-page'),
+            
             calendar: {
                 monthYearDisplay: document.getElementById('month-year-display'),
                 prevMonthBtn: document.getElementById('prev-month-btn'),
@@ -362,15 +542,24 @@
                 grid: document.getElementById('calendar-grid'),
             },
             player: {
-                audioElement: document.getElementById('audio-element'),
                 trackTitle: document.getElementById('player-track-title'),
+                currentTime: document.getElementById('player-current-time'),
+                totalTime: document.getElementById('player-total-time'),
                 playPauseBtn: document.getElementById('player-play-pause-btn'),
+                prevBtn: document.getElementById('player-prev-btn'),
+                nextBtn: document.getElementById('player-next-btn'),
+                shuffleBtn: document.getElementById('player-shuffle-btn'),
+                repeatBtn: document.getElementById('player-repeat-btn'),
                 playlist: document.getElementById('player-playlist'),
                 searchBar: document.getElementById('search-bar'),
                 artistFilter: document.getElementById('artist-filter'),
                 genreFilter: document.getElementById('genre-filter'),
             },
             tasks: { container: document.getElementById('tasks-list-container') },
+            stats: {
+                chartContainer: document.getElementById('stats-chart-container'),
+                chartCanvas: document.getElementById('stats-chart'),
+            },
             settings: {
                 themeCard: document.getElementById('theme-settings-card'),
                 libraryCard: document.getElementById('library-settings-card'),
@@ -389,821 +578,1262 @@
         // --- Application State ---
         const state = {
             db: null,
-            dayDataMap: {},
+            dayDataMap: {}, // Para tareas
             soundLibrary: [],
             currentTrackId: null,
-            currentDate: new Date(),
-            carousel: { currentSlideIndex: 0, isDragging: false, startX: 0, currentTranslate: 0, prevTranslate: 0 },
-            modal: { selectedAudioId: null }
+            currentHowl: null,
+            currentPlaylist: [],  
+            currentTrackIndexInPlaylist: -1,
+            isShuffling: false,
+            repeatMode: 'none', // 'none', 'all', 'one'
+            currentDate: dayjs(),  
+            currentPageIndex: 0, // Iniciar en Música (índice 0)
+            modal: { selectedAudioId: null },
+            playback: { rafId: null },
+            stats: {
+                chartInstance: null,
+                listeningLog: {}, // { 'YYYY-MM-DD': 120 (seconds) }
+                sessionStartTime: 0, // Epoch para registrar tiempo de escucha
+            }
         };
         
         // --- App Initialization ---
         async function init() {
             try {
                 loadStateFromLocalStorage();
-                applyTheme(); // Apply saved theme on load
+                loadListeningLog(); // Cargar (o simular) log de escucha
+                applyTheme();  
                 state.db = await initDB();
                 if (!state.db) throw new Error("Failed to initialize database.");
+                
                 await loadSoundsFromDB();
+                
                 setupEventListeners();
                 setupPlayerIcons();
-                setupResizeObserver();
-                renderAll();
+                
+                // Ir a la página por defecto (Música, índice 0)
+                goToPage(state.currentPageIndex, true); 
+                
+                renderAllTabs();
+                
             } catch (error) {
                 console.error("Error fatal al inicializar la aplicación:", error);
-                // Optionally display a user-friendly error message here
+                // Eliminada la llamada a showAppAlert
             }
         }
         
-        function renderAll() {
+        // Renderiza el contenido de todas las pestañas
+        function renderAllTabs() {
             renderCalendar();
             renderTasks();
+            renderStatsPage(); // Renderizar gráfica
             populateFilterDropdowns();
-            renderPlayerPlaylist();
+            renderPlayerPlaylist(); // This also builds state.currentPlaylist
             updatePlayerUI();
-            updateCarouselUI(false);
         }
         
         // --- Persistence (LocalStorage & IndexedDB) ---
-        function saveThemeSettings(settings) {
-            localStorage.setItem('themeClass', settings.themeClass);
-            localStorage.setItem('customPrimaryColor', settings.primaryColor);
-            localStorage.setItem('customBackgroundImage', settings.backgroundImage); // Can be URL or Data URL
-        }
-
-        function loadStateFromLocalStorage() {
-            const savedData = localStorage.getItem('dayDataMap');
-            if (savedData) {
-                 try {
-                     state.dayDataMap = JSON.parse(savedData);
-                 } catch (e) {
-                     console.error("Error parsing dayDataMap from localStorage:", e);
-                     state.dayDataMap = {}; // Reset if invalid
-                 }
-            } else {
-                 state.dayDataMap = {};
+        
+        // Guardar tareas
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('dayDataMap', JSON.stringify(state.dayDataMap));
+            } catch (e) {
+                console.error("Error saving state to localStorage:", e);
+                // Eliminada la llamada a showAppAlert
             }
         }
         
-        function initDB() {
-             return new Promise((resolve, reject) => {
-                if (!window.indexedDB) {
-                    console.warn("IndexedDB no soportado por este navegador.");
-                    return reject(new Error("IndexedDB no soportado"));
+        // Cargar tareas
+        function loadStateFromLocalStorage() {
+            const savedData = localStorage.getItem('dayDataMap');
+            if (savedData) {
+                try {
+                    state.dayDataMap = JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Error parsing dayDataMap:", e);
+                    state.dayDataMap = {};
                 }
-                const request = indexedDB.open('AudioAppDB', 2);
-                request.onupgradeneeded = e => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('sounds')) {
-                        db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true });
+            } else {
+                state.dayDataMap = {};
+            }
+        }
+        
+        // Guardar configuración de tema
+        function saveThemeSettings(settings) { 
+            localStorage.setItem('themeClass', settings.themeClass); 
+            localStorage.setItem('customPrimaryColor', settings.primaryColor); 
+            localStorage.setItem('customBackgroundImage', settings.backgroundImage); 
+        }
+        
+        // --- Registro de Estadísticas ---
+        function loadListeningLog() {
+            const savedLog = localStorage.getItem('listeningLog');
+            if (savedLog) {
+                try {
+                    state.stats.listeningLog = JSON.parse(savedLog);
+                } catch (e) { state.stats.listeningLog = {}; }
+            } else {
+                // *** Revertido: Simular datos usando Date nativo para aislar el problema ***
+                state.stats.listeningLog = {};
+                const today = new Date(); // Usar Date nativo
+                today.setHours(0, 0, 0, 0); // Establecer al inicio del día
+
+                for (let i = 8; i > 0; i--) {
+                    const date = new Date(today); // Crear copia para no modificar 'today'
+                    date.setDate(date.getDate() - i); // Restar días
+                    
+                    // Obtener YYYY-MM-DD
+                    const year = date.getFullYear();
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const dateStr = `${year}-${month}-${day}`;
+                    
+                    // Simular entre 5 y 120 minutos (en segundos)
+                    state.stats.listeningLog[dateStr] = Math.floor(Math.random() * (120 - 5 + 1) + 5) * 60;
+                }
+            }
+        }
+
+
+        function saveListeningLog() {
+            try {
+                localStorage.setItem('listeningLog', JSON.stringify(state.stats.listeningLog));
+            } catch (e) {
+                console.error("Error saving listening log:", e);
+            }
+        }
+        
+        // Inicia el contador de sesión cuando empieza la reproducción
+        function startListeningSession() {
+            if (state.sessionStartTime === 0) { // Solo si no está ya contando
+                state.sessionStartTime = Date.now();
+            }
+        }
+        
+        // Detiene el contador, suma el tiempo al log y guarda
+        function stopAndLogListeningSession() {
+            if (state.sessionStartTime > 0) {
+                const elapsedSeconds = Math.floor((Date.now() - state.sessionStartTime) / 1000);
+                
+                if (elapsedSeconds > 1) { // Solo registrar si es más de 1 segundo
+                    const todayStr = dayjs().format('YYYY-MM-DD');
+                    const currentTodaySeconds = state.stats.listeningLog[todayStr] || 0;
+                    state.stats.listeningLog[todayStr] = currentTodaySeconds + elapsedSeconds;
+                    
+                    saveListeningLog(); // Guardar en localStorage
+                    
+                    // Actualizar la gráfica si la página está activa
+                    if (state.currentPageIndex === 3) {
+                        renderStatsPage();
                     }
-                };
-                request.onsuccess = e => resolve(e.target.result);
-                request.onerror = e => {
-                     console.error("IndexedDB error:", e.target.error);
-                     reject(e.target.error);
-                };
-            });
+                }
+                state.sessionStartTime = 0; // Reiniciar contador
+            }
+        }
+
+
+        // --- IndexedDB ---
+        function initDB() { 
+            return new Promise((resolve, reject) => { 
+                if (!window.indexedDB) return reject(new Error("IndexedDB no soportado")); 
+                const request = indexedDB.open('AudioAppDB', 2); 
+                request.onupgradeneeded = e => { 
+                    const db = e.target.result; 
+                    if (!db.objectStoreNames.contains('sounds')) 
+                        db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); 
+                }; 
+                request.onsuccess = e => resolve(e.target.result); 
+                request.onerror = e => { 
+                    console.error("IndexedDB error:", e.target.error); 
+                    reject(e.target.error); 
+                }; 
+            }); 
         }
         
         // --- Event Listeners Setup ---
         function setupEventListeners() {
-             if (!dom.carousel.prevBtn || !dom.carousel.nextBtn) {
-                console.error("Error: Buttons prev/next carousel no encontrados.");
-                // Decide how to handle this - maybe disable carousel features or stop init?
-                 // For now, let's just log and potentially skip carousel listeners
-            } else {
-                dom.carousel.prevBtn.addEventListener('click', handlePrevSlide);
-                dom.carousel.nextBtn.addEventListener('click', handleNextSlide);
-                dom.carousel.container.addEventListener('touchstart', touchStart, { passive: true });
-                dom.carousel.container.addEventListener('touchmove', touchMove, { passive: true });
-                dom.carousel.container.addEventListener('touchend', touchEnd);
-                dom.carousel.container.addEventListener('mousedown', touchStart);
-                dom.carousel.container.addEventListener('mousemove', touchMove);
-                dom.carousel.container.addEventListener('mouseup', touchEnd);
-                dom.carousel.container.addEventListener('mouseleave', touchEnd);
-                dom.carousel.container.addEventListener('dragstart', (e) => e.preventDefault());
-            }
+            
+            // Navegación principal
+            dom.sidebar.addEventListener('click', e => {
+                const navBtn = e.target.closest('.nav-btn');
+                if (navBtn) {
+                    const index = parseInt(navBtn.dataset.index, 10);
+                    goToPage(index);
+                }
+            });
 
-            // Ensure other elements exist too before adding listeners
+            // Calendario
             if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.addEventListener('click', handlePrevClick);
             if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.addEventListener('click', handleNextClick);
-            if (dom.calendar.grid) dom.calendar.grid.addEventListener('click', e => {
-                const dayElement = e.target.closest('.calendar-day:not(.empty)');
-                if (dayElement) openDayModal(dayElement.dataset.date);
+            if (dom.calendar.grid) dom.calendar.grid.addEventListener('click', e => { 
+                const dayElement = e.target.closest('.calendar-day:not(.empty)'); 
+                if (dayElement) openDayModal(dayElement.dataset.date); 
             });
+            
+            // Tareas
             if (dom.tasks.container) dom.tasks.container.addEventListener('click', handleTaskClick);
+            
+            // Ajustes
             if (dom.settings.themeCard) dom.settings.themeCard.addEventListener('click', openThemeModal);
-            if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', closeModal);
-            if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); });
             if (dom.settings.libraryCard) dom.settings.libraryCard.addEventListener('click', openLibraryModal);
+            
+            // Modal
+            if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', closeModal);
+            if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { 
+                if (e.target === dom.modal.overlay) closeModal(); 
+            }); 
+            
+            // Inputs de Archivos
             if (dom.audioFileInput) dom.audioFileInput.addEventListener('change', handleFileSelection);
             if (dom.bgImageInput) dom.bgImageInput.addEventListener('change', handleBgImageSelection);
             
-            if (dom.player.searchBar) dom.player.searchBar.addEventListener('input', renderPlayerPlaylist);
+            // Player
+            const debouncedRender = debounce(renderPlayerPlaylist, 300);
+            if (dom.player.searchBar) dom.player.searchBar.addEventListener('input', debouncedRender);
             if (dom.player.artistFilter) dom.player.artistFilter.addEventListener('change', renderPlayerPlaylist);
             if (dom.player.genreFilter) dom.player.genreFilter.addEventListener('change', renderPlayerPlaylist);
             if (dom.player.playlist) dom.player.playlist.addEventListener('click', handlePlaylistClick);
             if (dom.player.playPauseBtn) dom.player.playPauseBtn.addEventListener('click', togglePlayPause);
-            if (dom.player.audioElement) {
-                dom.player.audioElement.addEventListener('ended', updatePlayerUI);
-                dom.player.audioElement.addEventListener('pause', updatePlayerUI);
-                dom.player.audioElement.addEventListener('play', updatePlayerUI);
-            }
+            if (dom.player.prevBtn) dom.player.prevBtn.addEventListener('click', playPrevTrack);
+            if (dom.player.nextBtn) dom.player.nextBtn.addEventListener('click', playNextTrack);
+            if (dom.player.shuffleBtn) dom.player.shuffleBtn.addEventListener('click', toggleShuffle);
+            if (dom.player.repeatBtn) dom.player.repeatBtn.addEventListener('click', cycleRepeatMode);
         }
         
-        // --- Carousel & Navigation ---
-        function setupResizeObserver() {
-             const observer = new ResizeObserver(() => { updateCarouselUI(false); });
-            observer.observe(dom.carousel.container);
-        }
-
-        function handleNextSlide() {
-            state.carousel.currentSlideIndex = Math.min(state.carousel.currentSlideIndex + 1, dom.carousel.slides.length - 1);
-            updateCarouselUI();
-        }
-
-        function handlePrevSlide() {
-            state.carousel.currentSlideIndex = Math.max(state.carousel.currentSlideIndex - 1, 0);
-            updateCarouselUI();
-        }
-
-        function touchStart(event) {
-            state.carousel.isDragging = true;
-            state.carousel.startX = getPositionX(event);
-            dom.carousel.track.style.transition = 'none';
-        }
-
-        function touchMove(event) {
-            if (state.carousel.isDragging) {
-                const currentPosition = getPositionX(event);
-                state.carousel.currentTranslate = state.carousel.prevTranslate + currentPosition - state.carousel.startX;
-                setSliderPosition();
-            }
-        }
-
-        function touchEnd() {
-            if (!state.carousel.isDragging) return;
-            state.carousel.isDragging = false;
-            const movedBy = state.carousel.currentTranslate - state.carousel.prevTranslate;
-            if (movedBy < -100 && state.carousel.currentSlideIndex < dom.carousel.slides.length - 1) {
-                state.carousel.currentSlideIndex += 1;
-            }
-            if (movedBy > 100 && state.carousel.currentSlideIndex > 0) {
-                state.carousel.currentSlideIndex -= 1;
-            }
-            updateCarouselUI();
-        }
-
-        function getPositionX(event) { return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX; }
-        function setSliderPosition() { dom.carousel.track.style.transform = `translateX(${state.carousel.currentTranslate}px)`; }
-
-        function updateCarouselUI(animate = true) {
-            if (!dom.carousel.slides || dom.carousel.slides.length === 0) return; // Guard against empty slides
-            if (animate) { dom.carousel.track.style.transition = `transform 0.5s ease-out`; }
-            else { dom.carousel.track.style.transition = 'none'; }
-            const slideWidth = dom.carousel.slides[0].clientWidth;
-            if (slideWidth === 0) return;
-            const targetTranslate = state.carousel.currentSlideIndex * -slideWidth;
-            dom.carousel.track.style.transform = `translateX(${targetTranslate}px)`;
-            state.carousel.prevTranslate = targetTranslate;
-            state.carousel.currentTranslate = targetTranslate;
-            dom.carousel.slides.forEach((slide, index) => {
-                slide.classList.toggle('is-active', index === state.carousel.currentSlideIndex);
+        // --- Navegación de Página ---
+        function goToPage(index, isInitialLoad = false) {
+            if (index === state.currentPageIndex && !isInitialLoad) return;
+            
+            state.currentPageIndex = index;
+            
+            // Actualizar botones de navegación
+            dom.navButtons.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
             });
-            dom.mainPageTitle.textContent = dom.carousel.slides[state.carousel.currentSlideIndex].dataset.title || 'Calendario';
-            // Check if buttons exist before accessing disabled property
-            if (dom.carousel.prevBtn) dom.carousel.prevBtn.disabled = state.carousel.currentSlideIndex === 0;
-            if (dom.carousel.nextBtn) dom.carousel.nextBtn.disabled = state.carousel.currentSlideIndex === dom.carousel.slides.length - 1;
-            // Conditional rendering based on active slide title
-            const activeSlideTitle = dom.carousel.slides[state.carousel.currentSlideIndex]?.dataset.title;
-             if (activeSlideTitle === "Tareas") renderTasks();
-             if (activeSlideTitle === "Reproductor") renderPlayerPlaylist();
+            
+            // Actualizar páginas
+            dom.appPages.forEach((page, i) => {
+                page.classList.toggle('active', i === index);
+            });
+            
+            // Tareas especiales al cargar la página
+            if (index === 2) renderTasks(); // Página de Tareas
+            if (index === 3) renderStatsPage(); // Página de Estadísticas
         }
 
         // --- Calendar & Task ---
-        function handlePrevClick() { state.currentDate.setMonth(state.currentDate.getMonth() - 1); renderAll(); }
-        function handleNextClick() { state.currentDate.setMonth(state.currentDate.getMonth() + 1); renderAll(); }
+        function handlePrevClick() { state.currentDate = state.currentDate.subtract(1, 'month'); renderCalendar(); }
+        function handleNextClick() { state.currentDate = state.currentDate.add(1, 'month'); renderCalendar(); }
         
-        function handleTaskClick(e) {
-             const target = e.target;
-            const taskItem = target.closest('.task-item');
-            if (!taskItem) return;
-            const { date, index } = taskItem.dataset;
-            const taskIndex = parseInt(index, 10);
+        function handleTaskClick(e) { 
+            const target = e.target; 
+            const taskItem = target.closest('.task-item'); 
+            if (!taskItem) return; 
             
-            // Ensure date exists and has tasks
-            if (!state.dayDataMap[date] || !state.dayDataMap[date].tasks || taskIndex >= state.dayDataMap[date].tasks.length) {
-                 console.error("Task data mismatch:", date, index);
-                 return;
+            const { date, index } = taskItem.dataset; 
+            const taskIndex = parseInt(index, 10); 
+            
+            if (!state.dayDataMap[date] || !state.dayDataMap[date].tasks || !state.dayDataMap[date].tasks[taskIndex]) {
+                console.error("Task data not found for:", date, index);
+                return;
             }
-            const task = state.dayDataMap[date].tasks[taskIndex];
-
+            
+            const task = state.dayDataMap[date].tasks[taskIndex]; 
+            
             if (target.type === 'checkbox') {
-                task.completed = target.checked;
+                task.completed = target.checked; 
             } else if (target.closest('.play-task-btn')) {
-                playTaskAudio(task.audioId);
-            } else if (target.closest('.delete-btn')) {
-                state.dayDataMap[date].tasks.splice(taskIndex, 1);
+                playAudioClip(task.audioId); 
+            } else if (target.closest('.delete-btn')) { 
+                state.dayDataMap[date].tasks.splice(taskIndex, 1); 
                 if (state.dayDataMap[date].tasks.length === 0) {
-                    delete state.dayDataMap[date];
+                     // Opcional: eliminar el día si no tiene tareas
+                     // delete state.dayDataMap[date]; 
                 }
-            }
-            saveStateToLocalStorage();
-            renderAll();
+            } 
+            
+            saveStateToLocalStorage(); 
+            renderTasks(); // Re-renderizar lista de tareas
+            renderCalendar(); // Re-renderizar calendario (para puntos de 'has-task')
         }
         
         // --- Theme & Modal ---
+        
+        // Función de utilidad para mostrar alertas (redefinida para eliminar la anterior)
+        function showAppAlert(title, message) {
+            // Actualmente no hace nada, como se pidió
+            console.warn(`Alerta suprimida: ${title} - ${message}`);
+        }
+        
         function openThemeModal() {
             const savedTheme = localStorage.getItem('themeClass') || 'dark-theme';
             const savedColor = localStorage.getItem('customPrimaryColor') || (savedTheme === 'dark-theme' ? '#0A84FF' : '#007AFF');
             const savedBg = localStorage.getItem('customBackgroundImage') || '';
+            const isLocalFile = savedBg.startsWith('data:');
 
-            const body = createElement('div', {},
-                createElement('div', { class: 'theme-control-group' },
-                    createElement('label', {}, 'Modo de Interfaz'),
-                    createElement('div', { class: 'theme-toggle-btns' },
-                        createElement('button', { 'data-theme': '', class: savedTheme === '' ? 'active' : '' }, 'Claro'),
-                        createElement('button', { 'data-theme': 'dark-theme', class: savedTheme === 'dark-theme' ? 'active' : '' }, 'Oscuro')
-                    )
-                ),
-                createElement('div', { class: 'theme-control-group' },
-                    createElement('label', { for: 'color-picker' }, 'Color de Acento'),
-                    createElement('input', { type: 'color', id: 'color-picker', value: savedColor })
-                ),
-                createElement('div', { class: 'theme-control-group' },
-                    createElement('label', { for: 'bg-image-url' }, 'Imagen de Fondo'),
-                    createElement('div', {id: 'bg-image-controls'},
-                         createElement('input', { type: 'text', id: 'bg-image-url', placeholder: 'Pegar URL o subir archivo...', value: savedBg.startsWith('http') ? savedBg : (savedBg ? 'Archivo local cargado' : '') }),
-                         createElement('button', {id: 'upload-bg-btn'}, 'Subir'),
-                         createElement('button', {id: 'clear-bg-btn'}, 'Quitar')
-                    )
-                )
-            );
-            
+            const body = createElement('div');
+
+            // 1. Grupo de Modo de Interfaz
+            const themeToggleGroup = createElement('div', { class: 'theme-control-group' });
+            themeToggleGroup.appendChild(createElement('label', {}, 'Modo de Interfaz'));
+            const themeBtns = createElement('div', { class: 'theme-toggle-btns' });
+            themeBtns.appendChild(createElement('button', { 'data-theme': 'light-theme', class: savedTheme === 'light-theme' ? 'active' : '' }, 'Claro'));
+            themeBtns.appendChild(createElement('button', { 'data-theme': 'dark-theme', class: savedTheme === 'dark-theme' ? 'active' : '' }, 'Oscuro'));
+            themeToggleGroup.appendChild(themeBtns);
+            body.appendChild(themeToggleGroup);
+
+            // 2. Grupo de Color de Acento
+            const colorPickerGroup = createElement('div', { class: 'theme-control-group' });
+            colorPickerGroup.appendChild(createElement('label', { for: 'color-picker' }, 'Color de Acento'));
+            const colorPicker = createElement('input', { type: 'color', id: 'color-picker', value: savedColor });
+            colorPickerGroup.appendChild(colorPicker);
+            body.appendChild(colorPickerGroup);
+
+            // 3. Grupo de Imagen de Fondo
+            const bgImageGroup = createElement('div', { class: 'theme-control-group' });
+            bgImageGroup.appendChild(createElement('label', { for: 'bg-image-url' }, 'Imagen de Fondo (URL)'));
+            const bgImageControls = createElement('div', { id: 'bg-image-controls' });
+            bgImageControls.appendChild(createElement('input', { 
+                type: 'text', 
+                id: 'bg-image-url', 
+                placeholder: 'Pegar URL o subir archivo...', 
+                value: savedBg.startsWith('http') ? savedBg : (isLocalFile ? 'Archivo local cargado' : '') 
+            }));
+            bgImageControls.appendChild(createElement('button', { id: 'upload-bg-btn' }, 'Subir'));
+            bgImageControls.appendChild(createElement('button', { id: 'clear-bg-btn' }, 'Quitar'));
+            bgImageGroup.appendChild(bgImageControls);
+            body.appendChild(bgImageGroup);
+
+            // Acción: Botón de Guardar
             const actions = createElement('button', { class: 'modal-button primary' }, 'Guardar Cambios');
             
             openModal('Personalizar Tema', body, actions);
 
-            const themeBtns = body.querySelector('.theme-toggle-btns');
-            themeBtns.addEventListener('click', e => {
-                if (e.target.tagName === 'BUTTON') {
-                    themeBtns.querySelector('.active').classList.remove('active');
+            // --- Event Listeners para Vista Previa Dinámica ---
+            
+            // Cambiar tema (Claro/Oscuro) dinámicamente
+            themeBtns.addEventListener('click', e => { 
+                if (e.target.tagName === 'BUTTON') { 
+                    themeBtns.querySelector('.active')?.classList.remove('active'); 
                     e.target.classList.add('active');
-                }
+                    
+                    // Guardar y aplicar inmediatamente
+                    const settings = {
+                        themeClass: e.target.dataset.theme === 'light-theme' ? 'light-theme' : 'dark-theme',
+                        primaryColor: colorPicker.value,
+                        backgroundImage: localStorage.getItem('customBackgroundImage') || ''
+                    };
+                    saveThemeSettings(settings);
+                    applyTheme();
+                } 
             });
 
-            body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click();
-            body.querySelector('#clear-bg-btn').onclick = () => {
-                 body.querySelector('#bg-image-url').value = '';
-                 saveThemeSettings({
-                    themeClass: themeBtns.querySelector('.active').dataset.theme,
-                    primaryColor: body.querySelector('#color-picker').value,
-                    backgroundImage: '',
-                 });
-                 applyTheme();
-            };
-
-            actions.onclick = () => {
-                const imageUrlInput = body.querySelector('#bg-image-url').value.trim();
-                const currentBg = localStorage.getItem('customBackgroundImage') || '';
-                let finalBg = '';
-
-                if (imageUrlInput.startsWith('http')) {
-                    finalBg = imageUrlInput; // Use the new URL
-                } else if (imageUrlInput === 'Archivo local cargado' && currentBg.startsWith('data:')) {
-                    finalBg = currentBg; // Keep the existing local file data URL
-                } else if (imageUrlInput === '') {
-                     finalBg = ''; // Clear background
-                } else {
-                    // If input is neither URL nor "Archivo local cargado", assume it's cleared or invalid, clear bg
-                    finalBg = ''; 
-                }
-                
+            // Cambiar color de acento dinámicamente
+            colorPicker.addEventListener('input', e => {
+                // Guardar y aplicar inmediatamente
                 const settings = {
-                    themeClass: themeBtns.querySelector('.active').dataset.theme,
-                    primaryColor: body.querySelector('#color-picker').value,
-                    backgroundImage: finalBg,
+                    themeClass: themeBtns.querySelector('.active').dataset.theme === 'light-theme' ? 'light-theme' : 'dark-theme',
+                    primaryColor: e.target.value,
+                    backgroundImage: localStorage.getItem('customBackgroundImage') || ''
                 };
                 saveThemeSettings(settings);
                 applyTheme();
-                closeModal();
+            });
+
+            // --- Listeners para controles de imagen ---
+            body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click();
+            body.querySelector('#clear-bg-btn').onclick = () => { 
+                body.querySelector('#bg-image-url').value = ''; 
+                // Opcional: Limpiar inmediatamente al hacer clic en "Quitar"
+                // const settings = {
+                //     themeClass: themeBtns.querySelector('.active').dataset.theme,
+                //     primaryColor: colorPicker.value,
+                //     backgroundImage: ''
+                // };
+                // saveThemeSettings(settings);
+                // applyTheme();
+            };
+            
+            // Lógica del botón "Guardar Cambios" (solo para la imagen de fondo)
+            actions.onclick = () => { 
+                const imageUrlInput = body.querySelector('#bg-image-url').value.trim(); 
+                const currentBg = localStorage.getItem('customBackgroundImage') || ''; 
+                let finalBg = ''; 
+
+                // Lógica de validación de URL mejorada
+                if (imageUrlInput === '') {
+                    finalBg = ''; // 1. Limpiar el fondo
+                } else if (imageUrlInput === 'Archivo local cargado' && currentBg.startsWith('data:')) {
+                    finalBg = currentBg; // 2. Mantener el archivo local que ya estaba cargado
+                } else if (imageUrlInput.startsWith('http://') || imageUrlInput.startsWith('https://')) {
+                    finalBg = imageUrlInput; // 3. Es una URL válida
+                } else if (imageUrlInput.startsWith('www.')) {
+                    finalBg = 'https://' + imageUrlInput; // 4. Añadir 'https://' si falta
+                } else {
+                    // 5. URL inválida. Mostrar error y no cerrar el modal.
+                    // Eliminada la llamada a showAppAlert
+                    console.error("URL Inválida", "La URL de la imagen de fondo debe estar vacía o empezar con 'http://' o 'https://'.");
+                    return; // Abortar el guardado
+                }
+                
+                // Si llegamos aquí, finalBg es válido (o está vacío)
+                const settings = { 
+                    themeClass: themeBtns.querySelector('.active').dataset.theme, 
+                    primaryColor: colorPicker.value, 
+                    backgroundImage: finalBg, 
+                }; 
+                
+                saveThemeSettings(settings); // Guardar
+                applyTheme(); // Aplicar
+                closeModal(); // Cerrar
             };
         }
-
-        function handleBgImageSelection(e) {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const dataUrl = event.target.result;
-                    // Limit size to prevent localStorage issues (e.g., 2MB)
-                    if (dataUrl.length > 2 * 1024 * 1024) {
-                         alert("La imagen es demasiado grande. Por favor, elige una más pequeña (máx 2MB).");
-                         return;
-                    }
+        
+        function handleBgImageSelection(e) { 
+            const file = e.target.files[0]; 
+            if (file && file.type.startsWith('image/')) { 
+                const reader = new FileReader(); 
+                reader.onload = (event) => { 
+                    const dataUrl = event.target.result; 
+                    if (dataUrl.length > 2 * 1024 * 1024) { // Límite de 2MB
+                        // Eliminada la llamada a showAppAlert
+                        console.error("Imagen Grande", "La imagen es demasiado grande (máx 2MB).");
+                        return; 
+                    } 
                     localStorage.setItem('customBackgroundImage', dataUrl); 
-                    applyTheme();
-                    const urlInput = document.getElementById('bg-image-url');
-                    if(urlInput) {
-                        urlInput.value = 'Archivo local cargado';
-                    }
-                };
-                 // Reset input value so the same file can be selected again
-                e.target.value = null;
-                 reader.onerror = () => {
-                     console.error("Error reading image file.");
-                     alert("Error al cargar la imagen.");
-                 };
-                reader.readAsDataURL(file);
-            }
+                    applyTheme(); 
+                    const urlInput = document.getElementById('bg-image-url'); 
+                    if(urlInput) urlInput.value = 'Archivo local cargado'; 
+                }; 
+                e.target.value = null; 
+                reader.onerror = () => {
+                    // Eliminada la llamada a showAppAlert
+                    console.error("Error", "No se pudo cargar la imagen.");
+                }
+                reader.readAsDataURL(file); 
+            } 
         }
         
         function applyTheme() {
-             const themeClass = localStorage.getItem('themeClass') || 'dark-theme';
-             const primaryColor = localStorage.getItem('customPrimaryColor') || (themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF');
-            const backgroundImage = localStorage.getItem('customBackgroundImage') || ''; // Could be URL or Data URL
+            // 1. Obtener valores guardados o usar defaults
+            const themeClass = localStorage.getItem('themeClass') || 'dark-theme';
+            const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF';
+            const primaryColor = localStorage.getItem('customPrimaryColor') || defaultColor;
+            const backgroundImage = localStorage.getItem('customBackgroundImage') || '';
             
-            dom.body.className = themeClass; // Use dom.body
-             document.documentElement.style.setProperty('--primary-color', primaryColor);
+            // 2. Aplicar clase de tema al <html>
+            document.documentElement.className = themeClass; // Usar <html> en lugar de <body> para consistencia
             
-            // Use a more robust way to manage the dynamic style
+            // 3. Convertir color primario a RGB para translucidez
+            const primaryRGB = hexToRgb(primaryColor);
+            const primaryTranslucent = primaryRGB 
+                ? `rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, 0.3)` 
+                : 'rgba(0, 122, 255, 0.3)';
+            
+            // 4. Establecer variables CSS en :root (<html>)
+            document.documentElement.style.setProperty('--primary-color', primaryColor);
+            document.documentElement.style.setProperty('--primary-color-translucent', primaryTranslucent);
+
+            // 5. Aplicar imagen de fondo dinámicamente
             let styleSheet = document.getElementById('dynamic-bg-style');
-            if (!styleSheet) {
-                styleSheet = document.createElement('style');
-                styleSheet.id = 'dynamic-bg-style';
-                document.head.appendChild(styleSheet);
-            }
-            
             styleSheet.textContent = `
-                body::before {
-                    background-image: ${backgroundImage ? `url('${backgroundImage}')` : 'none'};
-                 }
-                 /* Add rules for primary color application */
-                 .top-nav-btn, 
-                 .calendar-header button, 
-                 .calendar-day.has-task::before, 
-                 .calendar-day::after,
-                 .task-item input[type="checkbox"]:checked,
-                 .modal-button.primary,
-                 .theme-toggle-btns button.active,
-                 .playlist-item.playing,
-                 #attach-audio-btn svg,
-                 .task-item .action-btn:hover svg {
-                     color: var(--primary-color);
-                     /* Use fill for SVG where appropriate */
-                     fill: var(--primary-color); 
-                 }
-                 .playlist-item.playing,
-                 .theme-toggle-btns button.active,
-                 .modal-button.primary {
-                     background-color: var(--primary-color);
-                     border-color: var(--primary-color); /* Ensure border color matches */
-                     color: white; /* Ensure text contrast */
-                 }
-                 /* Specific background color needed */
-                 .task-item input[type="checkbox"] { accent-color: var(--primary-color); } 
-                  /* Focus styles */
-                 .search-controls input:focus, .search-controls select:focus {
-                     border-color: var(--primary-color);
-                     /* Calculate translucent color based on primary */
-                     /* This is complex, simplified for now */
-                     box-shadow: 0 0 0 2px ${primaryColor}4D; /* Add alpha hex */
-                 }
-
+                body::before { 
+                    background-image: ${backgroundImage ? `url('${backgroundImage}')` : 'none'}; 
+                }
             `;
+            
+            // 6. Actualizar la gráfica si existe y está visible
+            if (state.currentPageIndex === 3) { // Solo si la página de stats está activa
+                 renderStatsPage(); // Volver a renderizar
+            }
         }
 
-        function openModal(title, bodyElement, actionsElement = null) {
-             dom.modal.title.textContent = title;
-            dom.modal.body.innerHTML = ''; // Clear previous content
-             dom.modal.body.appendChild(bodyElement);
-            dom.modal.actions.innerHTML = ''; // Clear previous actions
-             if (actionsElement) dom.modal.actions.appendChild(actionsElement);
-             dom.modal.overlay.classList.add('visible');
-        }
-        function closeModal() {
-             dom.modal.overlay.classList.remove('visible');
+        function hexToRgb(hex) { 
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); 
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; 
         }
         
-        function openDayModal(dateStr) {
-            state.modal.selectedAudioId = null; // Reset selection
-            const date = new Date(dateStr + 'T00:00:00');
-            const dayData = state.dayDataMap[dateStr] || { tasks: [] };
+        function openModal(title, bodyElement, actionsElement = null) { 
+            if (!dom.modal.overlay) return; 
+            dom.modal.title.textContent = title; 
+            dom.modal.body.innerHTML = ''; 
+            dom.modal.body.appendChild(bodyElement); 
+            dom.modal.actions.innerHTML = ''; 
+            if (actionsElement) dom.modal.actions.appendChild(actionsElement); 
+            dom.modal.overlay.classList.add('visible'); 
+        }
+        
+        function closeModal() { 
+            if (dom.modal.overlay) dom.modal.overlay.classList.remove('visible'); 
+        }
+        
+        function openDayModal(dateStr) { 
+            state.modal.selectedAudioId = null; 
+            const date = dayjs(dateStr); 
+            const dayData = state.dayDataMap[dateStr] || { tasks: [] }; 
             
-            const taskList = createElement('div', { id: 'task-list-modal' });
+            const taskList = createElement('div', { id: 'task-list-modal' }); 
             if (dayData.tasks.length > 0) {
                 dayData.tasks.forEach((task, index) => {
                     const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
                         createElement('input', { type: 'checkbox', id: `modal-task-${index}`, checked: task.completed }),
                         createElement('label', { for: `modal-task-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
                     );
+                    // Añadir lógica de clic para completado (ya que el `handleTaskClick` no está en el modal)
+                    taskEl.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                        const idx = parseInt(e.target.closest('.task-item').dataset.index, 10);
+                        state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked;
+                        e.target.nextElementSibling.classList.toggle('completed', e.target.checked);
+                        saveStateToLocalStorage();
+                        renderTasks();
+                        renderCalendar();
+                    });
                     taskList.appendChild(taskEl);
                 });
             } else {
-                taskList.appendChild(createElement('p', {}, 'No hay tareas para este día.'));
+                taskList.appendChild(createElement('p', {}, 'No hay tareas para este día.')); 
             }
-
-            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Añadir nueva tarea...' });
-            const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' });
-            attachBtn.innerHTML = ICONS.attach;
-            const audioInfo = createElement('div', { id: 'attached-audio-info' });
-            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn);
             
-            const body = createElement('div', {}, taskList, controls, audioInfo);
-            const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir Tarea');
+            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Añadir nueva tarea...' }); 
+            const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }); 
+            attachBtn.innerHTML = ICONS.attach; 
+            const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
+            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); 
+            const body = createElement('div', {}, taskList, controls, audioInfo); 
+            const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir Tarea'); 
             
-            openModal(date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }), body, actions);
+            openModal(date.format('dddd, D [de] MMMM'), body, actions); 
             
-            attachBtn.onclick = () => openSoundSelectorModal(dateStr);
-
-            actions.onclick = () => {
-                if (input.value.trim()) {
-                    if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] };
-                    state.dayDataMap[dateStr].tasks.push({ 
-                        text: input.value, 
-                        completed: false,
-                        audioId: state.modal.selectedAudioId
-                    });
-                    saveStateToLocalStorage();
-                    openDayModal(dateStr); // Refresh modal
-                    renderCalendar();
-                }
-            };
-             taskList.addEventListener('change', (e) => { // Added listener for checkboxes inside modal
-                if(e.target.type === 'checkbox') {
-                    const taskItem = e.target.closest('.task-item');
-                     if (!taskItem) return;
-                    const { index } = taskItem.dataset;
-                     // Ensure date exists and has tasks
-                    if (!state.dayDataMap[dateStr] || !state.dayDataMap[dateStr].tasks || index >= state.dayDataMap[dateStr].tasks.length) {
-                         console.error("Task data mismatch in modal:", dateStr, index);
-                         return;
-                    }
-                    state.dayDataMap[dateStr].tasks[parseInt(index, 10)].completed = e.target.checked;
-                    taskItem.querySelector('.task-title').classList.toggle('completed', e.target.checked);
-                    saveStateToLocalStorage();
-                    renderTasks(); // Update main task list
-                    renderCalendar(); // Update calendar indicator
-                }
-            });
+            attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
+            
+            actions.onclick = () => { 
+                if (input.value.trim()) { 
+                    if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; 
+                    state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); 
+                    saveStateToLocalStorage(); 
+                    openDayModal(dateStr); // Recargar modal
+                    renderCalendar(); 
+                    renderTasks();
+                } 
+            }; 
         }
         
-        function openSoundSelectorModal(dateStr) {
-            const body = createElement('div');
+        function openSoundSelectorModal(dateStr) { 
+            const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
             if (state.soundLibrary.length > 0) {
-                 state.soundLibrary.forEach(sound => {
-                    const item = createElement('div', { class: 'sound-selector-item' }, `${sound.name} (${sound.artist})`);
-                    item.onclick = () => {
-                        state.modal.selectedAudioId = sound.id;
-                        closeModal();
-                        openDayModal(dateStr); // Re-open day modal
-                        const audioInfoEl = document.getElementById('attached-audio-info');
-                         if(audioInfoEl) audioInfoEl.textContent = `Audio: ${sound.name}`;
-                    };
-                    body.appendChild(item);
+                state.soundLibrary.forEach(sound => { 
+                    const item = createElement('div', { class: 'playlist-item' }, `${sound.name} (${sound.artist})`); // Reutilizar estilo
+                    item.onclick = () => { 
+                        state.modal.selectedAudioId = sound.id; 
+                        closeModal(); 
+                        openDayModal(dateStr); 
+                        requestAnimationFrame(() => { 
+                            const infoEl = document.getElementById('attached-audio-info'); 
+                            if (infoEl) infoEl.textContent = `Audio: ${sound.name}`; 
+                        }); 
+                    }; 
+                    body.appendChild(item); 
                 });
             } else {
-                 body.textContent = "Tu biblioteca de sonidos está vacía.";
+                body.textContent = "Tu biblioteca de sonidos está vacía."; 
             }
-            openModal("Seleccionar Sonido", body);
+            openModal("Seleccionar Sonido", body); 
         }
         
-        // --- Sound Library & Player ---
-        async function loadSoundsFromDB() {
-             return new Promise((resolve, reject) => {
-                 if (!state.db) return reject("Database not initialized");
-                const transaction = state.db.transaction('sounds', 'readonly');
-                const store = transaction.objectStore('sounds');
-                const request = store.getAll();
-                request.onsuccess = () => { state.soundLibrary = request.result || []; resolve(); };
-                request.onerror = (e) => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); };
-            });
-        }
-
-        async function handleFileSelection(e) {
-            closeModal();
-            for (const file of e.target.files) { if (file.type.startsWith('audio/')) await saveSoundToDB(file); }
-            await loadSoundsFromDB();
-            openLibraryModal();
-            renderAll();
-        }
-
-        function saveSoundToDB(file) {
-            return new Promise(async (resolve, reject) => {
-                if (!state.db) return reject("Database not initialized");
-                try {
-                    const duration = await getAudioDuration(file);
-                    const newSound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Artista Desconocido', genre: 'Desconocido', duration, file };
-                    const transaction = state.db.transaction('sounds', 'readwrite');
-                    const store = transaction.objectStore('sounds');
-                    const request = store.add(newSound);
-                    request.onsuccess = resolve;
-                    request.onerror = (e) => { console.error("Error saving sound:", e.target.error); reject(e.target.error); };
-                } catch (error) {
-                    console.error("Error processing audio file:", error);
-                    reject(error);
-                }
-            });
+        // --- Sound Library ---
+        async function loadSoundsFromDB() { 
+            return new Promise((resolve, reject) => { 
+                if (!state.db) return reject("Database not initialized"); 
+                const tx = state.db.transaction('sounds', 'readonly'); 
+                const store = tx.objectStore('sounds'); 
+                const req = store.getAll(); 
+                req.onsuccess = () => { 
+                    state.soundLibrary = req.result || []; 
+                    resolve(); 
+                }; 
+                req.onerror = (e) => { 
+                    console.error("Error loading sounds:", e.target.error); 
+                    reject(e.target.error); 
+                }; 
+            }); 
         }
         
-        function updateSoundInDB(soundData) {
-             if (!state.db) return;
-            const transaction = state.db.transaction('sounds', 'readwrite');
-            const store = transaction.objectStore('sounds');
-             try {
-                 store.put(soundData);
-             } catch (error) {
-                 console.error("Error updating sound in DB:", error);
-             }
+        async function handleFileSelection(e) { 
+            closeModal(); // Cerrar modal de biblioteca
+            openModal('Cargando Audios...', createElement('p', {style:'text-align:center;'}, 'Por favor, espera...')); 
+            
+            try { 
+                for (const file of e.target.files) { 
+                    if (file.type.startsWith('audio/')) await saveSoundToDB(file); 
+                } 
+                await loadSoundsFromDB(); 
+                closeModal(); 
+                openLibraryModal(); // Volver a abrir biblioteca actualizada
+                renderAllTabs(); // Actualizar todo
+            } catch (error) { 
+                closeModal(); 
+                // Eliminada la llamada a showAppAlert
+                console.error('Error de Carga', 'No se pudieron guardar los archivos de audio.');
+            } finally { 
+                e.target.value = null; 
+            } 
         }
-
-        function getAudioDuration(file) {
-            return new Promise((resolve, reject) => {
-                const audio = document.createElement('audio');
-                audio.preload = 'metadata';
-                audio.onloadedmetadata = () => { window.URL.revokeObjectURL(audio.src); resolve(audio.duration); };
-                 audio.onerror = (e) => { 
-                     console.error("Error loading audio metadata:", e);
-                     window.URL.revokeObjectURL(audio.src);
-                     reject(new Error("Could not read audio duration")); 
-                 };
-                audio.src = window.URL.createObjectURL(file);
-            });
-        }
-
-        function openLibraryModal() {
-            const body = createElement('div', {id: 'library-list-container'});
-            const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir Sonidos');
-            actions.onclick = () => dom.audioFileInput.click();
-            openModal('Biblioteca de Sonidos', body, actions);
-            renderLibraryModalContent();
-        }
-
-        function renderLibraryModalContent() {
-            const container = document.getElementById('library-list-container');
-            if (!container) return;
-            container.innerHTML = '';
-            if (state.soundLibrary.length === 0) {
-                container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Tu biblioteca está vacía. Añade algunos sonidos para empezar.'));
-                return;
-            }
-            state.soundLibrary.forEach(sound => {
-                const artistInput = createElement('input', { type: 'text', value: sound.artist, 'data-field': 'artist' });
-                const genreInput = createElement('input', { type: 'text', value: sound.genre, 'data-field': 'genre' });
-                const item = createElement('div', { class: 'library-item', 'data-id': sound.id },
-                    createElement('div', {class: 'library-item-info'},
-                        createElement('div', { class: 'library-item-title' }, sound.name),
-                        artistInput, genreInput
-                    ),
-                    createElement('div', { class: 'library-item-duration' }, formatTime(sound.duration))
-                );
-                item.addEventListener('change', (e) => {
-                    if(e.target.tagName === 'INPUT') {
-                        const soundId = parseInt(item.dataset.id);
-                        const soundToUpdate = state.soundLibrary.find(s => s.id === soundId); 
-                        if (soundToUpdate) {
-                            const field = e.target.dataset.field;
-                            soundToUpdate[field] = e.target.value;
-                            updateSoundInDB(soundToUpdate);
-                            populateFilterDropdowns();
-                            renderPlayerPlaylist();
-                        } else {
-                            console.error("Sound not found in state for update:", soundId);
-                        }
+        
+        function saveSoundToDB(file) { 
+            return new Promise(async (resolve, reject) => { 
+                if (!state.db) return reject("Database not initialized"); 
+                try { 
+                    const duration = await getAudioDuration(file); 
+                    if (file.size > 50 * 1024 * 1024) { // Límite de 50MB
+                        throw new Error(`El archivo ${file.name} es demasiado grande (máx 50MB).`);
                     }
-                });
-                container.appendChild(item);
-            });
+                    const newSound = { 
+                        name: file.name.replace(/\.[^/.]+$/, ""), 
+                        artist: 'Artista Desconocido', 
+                        genre: 'Desconocido', 
+                        duration, 
+                        file 
+                    }; 
+                    const tx = state.db.transaction('sounds', 'readwrite'); 
+                    const store = tx.objectStore('sounds'); 
+                    const req = store.add(newSound); 
+                    req.onsuccess = resolve; 
+                    req.onerror = (e) => reject(e.target.error); 
+                } catch (error) { 
+                    console.error(error.message);
+                    // Eliminada la llamada a showAppAlert
+                    reject(error); 
+                } 
+            }); 
         }
         
-        function populateFilterDropdowns() {
-            const genres = ['Todos los Géneros', ...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean); // Filter out potential undefined/null
-            const artists = ['Todos los Artistas', ...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean);
-            const currentGenre = dom.player.genreFilter.value;
-            const currentArtist = dom.player.artistFilter.value;
-            dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join('');
-            dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join('');
-            dom.player.genreFilter.value = genres.includes(currentGenre) ? currentGenre : genres[0];
-            dom.player.artistFilter.value = artists.includes(currentArtist) ? currentArtist : artists[0];
+        function updateSoundInDB(soundData) { 
+            if (!state.db) return; 
+            const tx = state.db.transaction('sounds', 'readwrite'); 
+            const store = tx.objectStore('sounds'); 
+            store.put(soundData); 
         }
         
-        function renderPlayerPlaylist() {
-            dom.player.playlist.innerHTML = '';
-            const searchTerm = dom.player.searchBar.value.toLowerCase();
-            const selectedGenre = dom.player.genreFilter.value;
-            const selectedArtist = dom.player.artistFilter.value;
-
-            const filteredLibrary = state.soundLibrary.filter(sound => {
-                const nameMatch = sound.name?.toLowerCase().includes(searchTerm) ?? false;
-                const artistMatch = sound.artist?.toLowerCase().includes(searchTerm) ?? false;
-                const genreMatch = sound.genre?.toLowerCase().includes(searchTerm) ?? false;
-                const matchesSearch = searchTerm === '' || nameMatch || artistMatch || genreMatch;
-
-                const matchesGenre = selectedGenre === 'Todos los Géneros' || sound.genre === selectedGenre;
-                const matchesArtist = selectedArtist === 'Todos los Artistas' || sound.artist === selectedArtist;
-                return matchesSearch && matchesGenre && matchesArtist;
-            });
-
-            if (filteredLibrary.length === 0) {
-                 if (state.soundLibrary.length === 0) {
-                    dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, 'Tu biblioteca está vacía. Ve a Configuración para añadir sonidos.'));
-                } else {
-                    dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem;'}, 'No se encontraron resultados.'));
-                }
-                return;
+        function getAudioDuration(file) { 
+            return new Promise((resolve, reject) => { 
+                const audio = document.createElement('audio'); 
+                audio.preload = 'metadata'; 
+                audio.onloadedmetadata = () => { 
+                    window.URL.revokeObjectURL(audio.src); 
+                    resolve(audio.duration); 
+                }; 
+                audio.onerror = (e) => { 
+                    window.URL.revokeObjectURL(audio.src); 
+                    reject(new Error(`No se pudo leer la duración de ${file.name}`)); 
+                }; 
+                audio.src = window.URL.createObjectURL(file); 
+            }); 
+        }
+        
+        function openLibraryModal() { 
+            const body = createElement('div', {id: 'library-list-container'}); 
+            const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir Sonidos'); 
+            actions.onclick = () => dom.audioFileInput.click(); 
+            
+            openModal('Biblioteca de Sonidos', body, actions); 
+            renderLibraryModalContent(); 
+        }
+        
+        function renderLibraryModalContent() { 
+            const container = document.getElementById('library-list-container'); 
+            if (!container) return; 
+            container.innerHTML = ''; 
+            
+            if (state.soundLibrary.length === 0) { 
+                container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Tu biblioteca está vacía.')); 
+                return; 
+            } 
+            
+            state.soundLibrary.forEach(sound => { 
+                const artistInput = createElement('input', { type: 'text', value: sound.artist, 'data-field': 'artist', placeholder: 'Artista' }); 
+                const genreInput = createElement('input', { type: 'text', value: sound.genre, 'data-field': 'genre', placeholder: 'Género' }); 
+                
+                const item = createElement('div', { class: 'library-item', 'data-id': sound.id }, 
+                    createElement('div', {class: 'library-item-info'}, 
+                        createElement('div', { class: 'library-item-title' }, sound.name), 
+                        artistInput, 
+                        genreInput
+                    ), 
+                    createElement('div', { class: 'library-item-duration' }, formatTime(sound.duration))
+                ); 
+                
+                item.addEventListener('change', (e) => { 
+                    if (e.target.tagName === 'INPUT') { 
+                        const soundId = parseInt(item.dataset.id); 
+                        const soundToUpdate = state.soundLibrary.find(s => s.id === soundId); 
+                        if (soundToUpdate) { 
+                            const field = e.target.dataset.field; 
+                            soundToUpdate[field] = e.target.value; 
+                            updateSoundInDB(soundToUpdate); 
+                            populateFilterDropdowns(); 
+                            renderPlayerPlaylist(); 
+                        } 
+                    } 
+                }); 
+                container.appendChild(item); 
+            }); 
+        }
+        
+        function populateFilterDropdowns() { 
+            const genres = ['Todos los Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; 
+            const artists = ['Todos los Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; 
+            
+            const currentGenre = dom.player.genreFilter.value; 
+            const currentArtist = dom.player.artistFilter.value; 
+            
+            dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); 
+            dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); 
+            
+            dom.player.genreFilter.value = genres.includes(currentGenre) ? currentGenre : genres[0]; 
+            dom.player.artistFilter.value = artists.includes(currentArtist) ? currentArtist : artists[0]; 
+        }
+        
+        // --- Player Logic (Using Howler) ---
+        function renderPlayerPlaylist() { 
+            dom.player.playlist.innerHTML = ''; 
+            const searchTerm = dom.player.searchBar.value.toLowerCase(); 
+            const selectedGenre = dom.player.genreFilter.value; 
+            const selectedArtist = dom.player.artistFilter.value; 
+            
+            const filteredLibrary = state.soundLibrary.filter(sound => { 
+                const nameMatch = sound.name?.toLowerCase().includes(searchTerm) ?? false; 
+                const artistMatch = sound.artist?.toLowerCase().includes(searchTerm) ?? false; 
+                const genreMatch = sound.genre?.toLowerCase().includes(searchTerm) ?? false; 
+                
+                const matchesSearch = searchTerm === '' || nameMatch || artistMatch || genreMatch; 
+                const matchesGenre = selectedGenre === 'Todos los Géneros' || sound.genre === selectedGenre; 
+                const matchesArtist = selectedArtist === 'Todos los Artistas' || sound.artist === selectedArtist; 
+                
+                return matchesSearch && matchesGenre && matchesArtist; 
+            }); 
+            
+            if (state.isShuffling) {
+                state.currentPlaylist = shuffleArray([...filteredLibrary]); 
+            } else {
+                state.currentPlaylist = filteredLibrary; 
             }
-
-            filteredLibrary.forEach(sound => {
-                const item = createElement('div', { class: 'playlist-item', 'data-id': sound.id },
-                    createElement('div', {class: 'track-info-main'},
-                        createElement('div', {class: 'track-title'}, sound.name),
-                        createElement('div', {class: 'track-meta'}, `${sound.artist} - ${sound.genre}`)
-                    ),
+            
+            state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(track => track.id === state.currentTrackId); 
+            
+            if (state.currentPlaylist.length === 0) { 
+                dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Biblioteca vacía.' : 'No hay resultados.')); 
+                return; 
+            } 
+            
+            state.currentPlaylist.forEach(sound => { 
+                const item = createElement('div', { class: 'playlist-item', 'data-id': sound.id }, 
+                    createElement('div', {class: 'track-info-main'}, 
+                        createElement('div', {class: 'track-title'}, sound.name), 
+                        createElement('div', {class: 'track-meta'}, `${sound.artist || 'Desconocido'} - ${sound.genre || 'Desconocido'}`)
+                    ), 
                     createElement('div', {class: 'track-duration'}, formatTime(sound.duration))
-                );
-                if (sound.id === state.currentTrackId) item.classList.add('playing');
-                dom.player.playlist.appendChild(item);
-            });
+                ); 
+                if (sound.id === state.currentTrackId) item.classList.add('playing'); 
+                dom.player.playlist.appendChild(item); 
+            }); 
         }
         
-        function handlePlaylistClick(e) {
-            const item = e.target.closest('.playlist-item');
-            if (item) {
-                const trackId = parseInt(item.dataset.id, 10);
-                const sound = state.soundLibrary.find(s => s.id === trackId);
-                if (sound && sound.file) { // Check if file exists
-                     playTrack(sound);
-                 } else {
-                     console.error("Sound file not found for track:", trackId);
-                     alert("Error: No se pudo encontrar el archivo de audio para esta pista.");
-                 }
-            }
+        function handlePlaylistClick(e) { 
+            const item = e.target.closest('.playlist-item'); 
+            if (item) { 
+                const trackId = parseInt(item.dataset.id, 10); 
+                const indexInPlaylist = state.currentPlaylist.findIndex(track => track.id === trackId); 
+                
+                if (indexInPlaylist !== -1) {
+                    playTrackByIndex(indexInPlaylist); 
+                } else { 
+                    // Fallback: si no está en la lista filtrada, buscar en la biblioteca completa
+                    const sound = state.soundLibrary.find(s => s.id === trackId); 
+                    if (sound) playTrack(sound); 
+                } 
+            } 
         }
-
-        function playTrack(sound) {
-            try {
-                 const url = URL.createObjectURL(sound.file);
-                 state.currentTrackId = sound.id;
-                dom.player.audioElement.src = url;
-                dom.player.audioElement.play().catch(e => console.error("Error playing audio:", e)); // Catch potential play errors
-                dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`;
-                renderPlayerPlaylist();
-                 // Revoke previous object URL if any to free memory
-                 // Ideally, manage this more carefully, maybe on 'ended' or when changing tracks
-            } catch (error) {
-                 console.error("Error creating object URL:", error);
-                 alert("Error al intentar reproducir el archivo.");
-            }
+        
+        function playTrackByIndex(index) { 
+            if (index < 0 || index >= state.currentPlaylist.length) { 
+                if (state.repeatMode === 'all' && state.currentPlaylist.length > 0) {
+                    index = (index < 0) ? state.currentPlaylist.length - 1 : 0; 
+                } else {
+                    stopPlayback(); 
+                    return; 
+                }
+            } 
+            
+            state.currentTrackIndexInPlaylist = index; 
+            const sound = state.currentPlaylist[index]; 
+            playTrack(sound); 
         }
-
-        function playTaskAudio(audioId) {
+        
+        function playTrack(sound) { 
+            if (!sound || !sound.file) { 
+                // Eliminada la llamada a showAppAlert
+                console.error("Error", "No se pudo encontrar el archivo de audio."); 
+                return; 
+            } 
+            
+            // Detener y descargar la pista anterior
+            if (state.currentHowl) { 
+                state.currentHowl.stop(); 
+                state.currentHowl.unload(); // Libera la memoria
+                cancelAnimationFrame(state.playback.rafId); 
+                if(state.currentHowl._src && state.currentHowl._src.startsWith('blob:')) {
+                    URL.revokeObjectURL(state.currentHowl._src);
+                }
+            } 
+            
+            try { 
+                const url = URL.createObjectURL(sound.file); 
+                state.currentTrackId = sound.id; 
+                
+                state.currentHowl = new Howl({ 
+                    src: [url], 
+                    html5: true, // Usar HTML5 Audio para mejor manejo de archivos grandes
+                    format: [sound.file.type.split('/')[1] || 'mp3'], 
+                    loop: state.repeatMode === 'one', 
+                    onplay: () => { 
+                        updatePlayerUI(); 
+                        requestAnimationFrame(step); 
+                        startListeningSession(); // Iniciar registro de estadísticas
+                    }, 
+                    onpause: () => { 
+                        updatePlayerUI(); 
+                        cancelAnimationFrame(state.playback.rafId); 
+                        stopAndLogListeningSession(); // Detener y guardar registro
+                    }, 
+                    onstop: () => { 
+                        updatePlayerUI(); 
+                        cancelAnimationFrame(state.playback.rafId); 
+                        stopAndLogListeningSession(); // Detener y guardar registro
+                    }, 
+                    onend: () => { 
+                        cancelAnimationFrame(state.playback.rafId); 
+                        stopAndLogListeningSession(); // Guardar antes de pasar a la siguiente
+                        handleTrackEnd(); 
+                        URL.revokeObjectURL(url); // Revocar URL al terminar
+                    }, 
+                    onload: updatePlayerProgress, 
+                    onloaderror: (id, err) => { 
+                        console.error("Howler load error:", err); 
+                        // Eliminada la llamada a showAppAlert
+                        URL.revokeObjectURL(url); 
+                    }, 
+                    onplayerror: (id, err) => { 
+                        console.error("Howler play error:", err); 
+                        // Eliminada la llamada a showAppAlert
+                        URL.revokeObjectURL(url); 
+                    }, 
+                    onseek: () => requestAnimationFrame(step) 
+                }); 
+                
+                state.currentHowl.play(); 
+                dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; 
+                renderPlayerPlaylist(); // Actualizar UI de playlist
+                
+            } catch (error) { 
+                console.error("Error setting up Howl:", error); 
+                // Eliminada la llamada a showAppAlert
+            } 
+        }
+        
+        function playAudioClip(audioId, durationSeconds = 10) {
             if (!audioId) return;
             const sound = state.soundLibrary.find(s => s.id === audioId);
-            if (!sound || !sound.file) {
-                 console.error("Task audio file not found:", audioId);
-                 return;
-            }
+            if (!sound || !sound.file) return;
 
-             try {
-                 const url = URL.createObjectURL(sound.file);
-                 const taskAudio = new Audio(url);
+            try {
+                const url = URL.createObjectURL(sound.file);
+                const clipHowl = new Howl({
+                    src: [url],
+                    html5: true,
+                    format: [sound.file.type.split('/')[1] || 'mp3'],
+                    onend: () => { clipHowl.unload(); URL.revokeObjectURL(url); },
+                    onloaderror: () => URL.revokeObjectURL(url),
+                    onplayerror: () => URL.revokeObjectURL(url)
+                });
+
+                // Pausar la música principal si está sonando
+                if (state.currentHowl && state.currentHowl.playing()) {
+                    state.currentHowl.pause();
+                }
+
+                clipHowl.play();
                 
-                if (!dom.player.audioElement.paused) {
-                    dom.player.audioElement.pause();
+                setTimeout(() => {
+                    if (clipHowl.playing()) clipHowl.stop();
+                    clipHowl.unload();
+                    URL.revokeObjectURL(url);
+                }, durationSeconds * 1000); // Usar la duración pasada como argumento
+
+            } catch(error) {
+                console.error("Error playing clip:", error);
+            }
+        }
+        
+        function setupPlayerIcons() { 
+            dom.player.playPauseBtn.innerHTML = ICONS.play; 
+            dom.player.prevBtn.innerHTML = ICONS.prev; 
+            dom.player.nextBtn.innerHTML = ICONS.next; 
+            dom.player.shuffleBtn.innerHTML = ICONS.shuffle; 
+            dom.player.repeatBtn.innerHTML = ICONS.repeat; 
+        }
+        
+        function togglePlayPause() { 
+            if (!state.currentHowl) { 
+                if (state.currentPlaylist.length > 0) playTrackByIndex(0); 
+                return; 
+            } 
+            if (state.currentHowl.playing()) { 
+                state.currentHowl.pause(); 
+            } else { 
+                state.currentHowl.play(); 
+            } 
+        }
+        
+        function updatePlayerUI() { 
+            const isPlaying = state.currentHowl && state.currentHowl.playing(); 
+            
+            if (dom.player.playPauseBtn) dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play; 
+            if (dom.player.shuffleBtn) dom.player.shuffleBtn.classList.toggle('active', state.isShuffling); 
+            if (dom.player.repeatBtn) { 
+                dom.player.repeatBtn.classList.toggle('active', state.repeatMode !== 'none'); 
+                dom.player.repeatBtn.innerHTML = state.repeatMode === 'one' ? ICONS.repeatOne : ICONS.repeat; 
+            } 
+            
+            const canGoPrev = state.repeatMode !== 'none' || state.currentTrackIndexInPlaylist > 0;
+            const canGoNext = state.repeatMode !== 'none' || state.currentTrackIndexInPlaylist < state.currentPlaylist.length - 1;
+            
+            if(dom.player.prevBtn) dom.player.prevBtn.disabled = !(state.currentPlaylist.length > 0 && canGoPrev);
+            if(dom.player.nextBtn) dom.player.nextBtn.disabled = !(state.currentPlaylist.length > 0 && canGoNext);
+        }
+        
+        function step() { 
+            if (state.currentHowl && state.currentHowl.playing()) { 
+                const seek = state.currentHowl.seek() || 0; 
+                const duration = state.currentHowl.duration() || 0; 
+                
+                dom.player.currentTime.textContent = formatTime(seek); 
+                if (dom.player.totalTime.textContent === '0:00' && duration > 0) {
+                    dom.player.totalTime.textContent = formatTime(duration);
                 }
                 
-                taskAudio.play().catch(e => console.error("Error playing task audio:", e));
-
-                 const timeoutId = setTimeout(() => {
-                     taskAudio.pause();
-                     taskAudio.currentTime = 0;
-                     URL.revokeObjectURL(url); // Clean up object URL
-                }, 10000); 
-
-                taskAudio.onended = () => {
-                     clearTimeout(timeoutId);
-                     URL.revokeObjectURL(url); // Clean up object URL
-                 };
-                 taskAudio.onerror = () => { // Handle potential loading errors
-                     clearTimeout(timeoutId);
-                     URL.revokeObjectURL(url);
-                     console.error("Error loading/playing task audio");
-                 }
-            } catch (error) {
-                 console.error("Error creating object URL for task audio:", error);
+                state.playback.rafId = requestAnimationFrame(step); 
+            } else { 
+                cancelAnimationFrame(state.playback.rafId); 
+            } 
+        }
+        
+        function updatePlayerProgress() { 
+            const duration = state.currentHowl?.duration() || 0; 
+            const currentTime = state.currentHowl?.seek() || 0; 
+            
+            if (!isNaN(duration)) dom.player.totalTime.textContent = formatTime(duration); 
+            if (!isNaN(currentTime)) dom.player.currentTime.textContent = formatTime(currentTime); 
+        }
+        
+        function playNextTrack() { 
+            playTrackByIndex(state.currentTrackIndexInPlaylist + 1); 
+        }
+        
+        function playPrevTrack() { 
+            if (!state.currentHowl) return; 
+            if (state.currentHowl.seek() > 3) {
+                state.currentHowl.seek(0); 
+            } else {
+                playTrackByIndex(state.currentTrackIndexInPlaylist - 1); 
             }
         }
-
-        function setupPlayerIcons() {
-            dom.player.playPauseBtn.innerHTML = ICONS.play;
+        
+        function toggleShuffle() { 
+            state.isShuffling = !state.isShuffling; 
+            renderPlayerPlaylist(); // Re-renderizar playlist (barajada o no)
+            updatePlayerUI(); 
         }
-
-        function togglePlayPause() {
-            if (!state.currentTrackId || !dom.player.audioElement.src) return; // Check if src is set
-            if (dom.player.audioElement.paused) dom.player.audioElement.play().catch(e => console.error("Play error:", e)); 
-            else dom.player.audioElement.pause();
+        
+        function cycleRepeatMode() { 
+            if (state.repeatMode === 'none') state.repeatMode = 'all'; 
+            else if (state.repeatMode === 'all') state.repeatMode = 'one'; 
+            else state.repeatMode = 'none'; 
+            
+            if (state.currentHowl) state.currentHowl.loop(state.repeatMode === 'one'); 
+            updatePlayerUI(); 
         }
-
-        function updatePlayerUI() {
-            const isPlaying = state.currentTrackId && !dom.player.audioElement.paused;
-            dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play;
+        
+        function handleTrackEnd() { 
+            cancelAnimationFrame(state.playback.rafId); 
+            if (state.repeatMode !== 'one') { 
+                playNextTrack(); 
+            } else { 
+                // Howler maneja el loop 'one', pero si se detuvo, reiniciarlo
+                if(state.currentHowl && !state.currentHowl.playing()) state.currentHowl.play(); 
+            } 
+        }
+        
+        function stopPlayback() { 
+            if (state.currentHowl) { 
+                state.currentHowl.stop(); 
+                state.currentHowl.unload(); 
+                if(state.currentHowl._src && state.currentHowl._src.startsWith('blob:')) {
+                    URL.revokeObjectURL(state.currentHowl._src);
+                }
+            } 
+            
+            cancelAnimationFrame(state.playback.rafId); 
+            stopAndLogListeningSession(); // Asegurarse de guardar al detener
+            
+            state.currentTrackId = null; 
+            state.currentTrackIndexInPlaylist = -1; 
+            
+            dom.player.trackTitle.textContent = "Ningún sonido seleccionado"; 
+            dom.player.currentTime.textContent = "0:00"; 
+            dom.player.totalTime.textContent = "0:00"; 
+            
+            renderPlayerPlaylist(); 
+            updatePlayerUI(); 
         }
         
         // --- Utils ---
-        function createElement(tag, attributes = {}, ...children) {
-             const element = document.createElement(tag);
-             for (const [key, value] of Object.entries(attributes)) {
-                 if (key === 'class') element.className = value;
-                 else if (key.startsWith('data-')) element.dataset[key.substring(5)] = value;
-                 else if (typeof value === 'boolean') element[key] = value;
-                 // Handle null/undefined values safely
-                 else if (value !== null && value !== undefined) element.setAttribute(key, value);
-             }
-             for (const child of children) {
-                 if (child !== null && child !== undefined) { // Check for null/undefined children
-                     element.append(typeof child === 'string' ? document.createTextNode(child) : child);
-                 }
-             }
-             return element;
+        function createElement(tag, attributes = {}, ...children) { 
+            const element = document.createElement(tag); 
+            for (const [key, value] of Object.entries(attributes)) { 
+                if (key === 'class') element.className = value; 
+                else if (key.startsWith('data-')) element.dataset[key.substring(5)] = value; 
+                else if (typeof value === 'boolean') element[key] = value; 
+                else if (value !== null && value !== undefined) element.setAttribute(key, value); 
+            } 
+            for (const child of children) { 
+                if (child !== null && child !== undefined) 
+                    element.append(typeof child === 'string' ? document.createTextNode(child) : child); 
+            } 
+            return element; 
         }
-        function formatTime(seconds) {
-            if (isNaN(seconds) || seconds < 0) return '0:00'; // Added check for negative
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-            return `${mins}:${secs}`;
+        
+        function formatTime(seconds) { 
+            if (isNaN(seconds) || seconds < 0) return '0:00'; 
+            const mins = Math.floor(seconds / 60); 
+            const secs = Math.floor(seconds % 60).toString().padStart(2, '0'); 
+            return `${mins}:${secs}`; 
+        }
+        
+        function debounce(func, wait) { 
+            let timeout; 
+            return function executedFunction(...args) { 
+                const later = () => { 
+                    clearTimeout(timeout); 
+                    func.apply(this, args); 
+                }; 
+                clearTimeout(timeout); 
+                timeout = setTimeout(later, wait); 
+            }; 
+        }
+        
+        function shuffleArray(array) { 
+            for (let i = array.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [array[i], array[j]] = [array[j], array[i]]; 
+            } 
+            return array; 
         }
 
         // --- Render Views ---
-        function renderCalendar() {
-             if (!dom.calendar.grid) return; // Guard clause
-            dom.calendar.grid.innerHTML = '';
-            const today = new Date();
-            today.setHours(0,0,0,0);
-             if (!state.currentDate) state.currentDate = new Date(); // Ensure currentDate exists
-            const year = state.currentDate.getFullYear();
-            const month = state.currentDate.getMonth();
-             if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = `${state.currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}`;
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const startOffset = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+        function renderCalendar() { 
+            if (!dom.calendar.grid) return; 
+            dom.calendar.grid.innerHTML = ''; 
+            const today = dayjs().startOf('day'); 
+            
+            if (!state.currentDate) state.currentDate = dayjs(); 
+            
+            const year = state.currentDate.year(); 
+            const month = state.currentDate.month(); 
+            
+            if (dom.calendar.monthYearDisplay) 
+                dom.calendar.monthYearDisplay.textContent = state.currentDate.format('MMMM YYYY'); 
+                
+            const firstDayOfMonth = state.currentDate.startOf('month').day(); 
+            const daysInMonth = state.currentDate.daysInMonth(); 
+            
+            // 0 (Domingo) a 6 (Sábado) -> 1 (Lunes) a 0 (Domingo)
+            const startOffset = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1; 
+            
+            // Días vacíos al inicio
             for (let i = 0; i < startOffset; i++) {
-                dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' }));
+                dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' })); 
             }
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayDate = new Date(dateStr + 'T00:00:00');
-                const classes = ['calendar-day'];
-                if (dayDate.getTime() === today.getTime()) classes.push('today');
-                if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks?.some(t => !t.completed)) classes.push('has-task'); // Added optional chaining
-                const dayEl = createElement('div', { class: classes.join(' '), 'data-date': dateStr },
+            
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) { 
+                const currentDayObj = state.currentDate.date(day); 
+                const dateStr = currentDayObj.format('YYYY-MM-DD'); 
+                
+                const classes = ['calendar-day']; 
+                if (currentDayObj.isSame(today, 'day')) classes.push('today'); 
+                
+                // Comprobar si hay tareas *pendientes*
+                if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks && state.dayDataMap[dateStr].tasks.some(t => !t.completed)) {
+                    classes.push('has-task');
+                }
+                
+                const dayEl = createElement('div', { class: classes.join(' '), 'data-date': dateStr }, 
                     createElement('span', { class: 'day-number' }, day.toString())
-                );
-                dom.calendar.grid.appendChild(dayEl);
+                ); 
+                dom.calendar.grid.appendChild(dayEl); 
+            } 
+        }
+        
+        function renderTasks() { 
+            if (!dom.tasks.container) return; 
+            dom.tasks.container.innerHTML = ''; 
+            
+            const today = dayjs().startOf('day'); 
+            
+            const taskEntries = (typeof state.dayDataMap === 'object' && state.dayDataMap !== null) 
+                ? Object.entries(state.dayDataMap) 
+                : [];
+            
+            // Filtrar solo días con tareas, y que sean hoy o en el futuro
+            const upcomingTasks = taskEntries
+                .filter(([dateStr, data]) => 
+                    data && data.tasks && data.tasks.length > 0 && dayjs(dateStr).isSameOrAfter(today, 'day')
+                )
+                .sort(([dateA], [dateB]) => dayjs(dateA).unix() - dayjs(dateB).unix()); // Corregido: dayjs(B) -> dayjs(dateB)
+            
+            if (upcomingTasks.length === 0) { 
+                dom.tasks.container.appendChild(createElement('p', {style: "text-align: center; color: var(--secondary-text-color); padding: 1rem;"}, 'No tienes tareas pendientes.')); 
+                return; 
+            } 
+            
+            upcomingTasks.forEach(([dateStr, data]) => { 
+                const date = dayjs(dateStr); 
+                const dateTitle = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM');
+                
+                const group = createElement('div', { class: 'task-date-group' }); 
+                group.appendChild(createElement('h3', {}, dateTitle)); 
+                
+                data.tasks.forEach((task, index) => { 
+                    const playBtn = task.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; 
+                    if(playBtn) playBtn.innerHTML = ICONS.play_task; 
+                    
+                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index }, 
+                        createElement('div', {class: 'task-item-content'}, 
+                            createElement('input', { type: 'checkbox', id: `overview-task-${dateStr}-${index}`, checked: task.completed }), 
+                            createElement('label', { for: `overview-task-${dateStr}-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
+                        ), 
+                        playBtn, // Null se ignora al añadir
+                        createElement('button', { class: 'delete-btn action-btn' }, '×')
+                    ); 
+                    group.appendChild(taskEl); 
+                }); 
+                dom.tasks.container.appendChild(group); 
+            }); 
+        }
+
+        // --- Página de Estadísticas ---
+        function renderStatsPage() {
+            if (!dom.stats.chartCanvas) return;
+            const ctx = dom.stats.chartCanvas.getContext('2d');
+            
+            // *** CORRECCIÓN: Destrucción Robusta del Gráfico ***
+            // Usar Chart.getChart para asegurar que destruimos la instancia correcta
+            const existingChart = Chart.getChart(dom.stats.chartCanvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+            state.stats.chartInstance = null; // Limpiar nuestra referencia
+
+
+            // Preparar datos para la gráfica
+            const logEntries = Object.entries(state.stats.listeningLog);
+            // Ordenar por fecha
+            logEntries.sort(([dateA], [dateB]) => dayjs(dateA).unix() - dayjs(dateB).unix());
+
+            // *** CORRECCIÓN: Usar Timestamps Unix (milisegundos) para las labels ***
+            const labels = logEntries.map(([dateStr]) => dayjs(dateStr).valueOf()); // Milisegundos desde epoch
+            const dataInMinutes = logEntries.map(([_, seconds]) => Math.round(seconds / 60));
+            
+            // Obtener colores del tema actual
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+            const primaryTranslucent = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-translucent').trim();
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+
+            try { // Añadir try-catch alrededor de la creación del gráfico
+                state.stats.chartInstance = new Chart(ctx, {
+                    type: 'line', // Gráfico de curvas (líneas)
+                    data: {
+                        labels: labels, // Ahora son timestamps numéricos
+                        datasets: [{
+                            label: 'Minutos Escuchados',
+                            data: dataInMinutes,
+                            borderColor: primaryColor,
+                            backgroundColor: primaryTranslucent,
+                            fill: true, // Rellenar área bajo la curva
+                            tension: 0.3, // Curvas suaves
+                            pointBackgroundColor: primaryColor,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y} min`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'time', // La escala de tiempo entiende timestamps
+                                time: {
+                                    unit: 'day',
+                                    tooltipFormat: 'll', // ej: 23 de oct. de 2025
+                                    displayFormats: {
+                                        day: 'MMM D' // ej: Oct 23
+                                    },
+                                    // No se necesita parser explícito para timestamps
+                                },
+                                ticks: {
+                                    color: textColor,
+                                },
+                                grid: {
+                                    color: 'transparent',
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: textColor,
+                                    callback: function(value) {
+                                        return value + ' min';
+                                    }
+                                },
+                                grid: {
+                                    color: gridColor,
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (chartError) {
+                console.error("Error al crear el gráfico:", chartError);
+                // Opcional: Mostrar un mensaje de error en lugar de la gráfica
+                dom.stats.chartContainer.innerHTML = `<p style="color:var(--secondary-text-color); text-align:center;">Error al renderizar el gráfico.</p>`;
             }
         }
         
-        function renderTasks() {
-             if (!dom.tasks.container) return; // Guard clause
-            dom.tasks.container.innerHTML = '';
-            dom.tasks.container.appendChild(createElement('h2', {}, 'Próximas Tareas'));
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-             // Ensure dayDataMap is an object
-             const taskEntries = typeof state.dayDataMap === 'object' && state.dayDataMap !== null ? Object.entries(state.dayDataMap) : [];
-            const upcomingTasks = taskEntries
-                .filter(([dateStr, data]) => {
-                     // Add checks for data and tasks array
-                    return data && Array.isArray(data.tasks) && data.tasks.length > 0 && new Date(dateStr + 'T00:00:00') >= today;
-                 })
-                .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
-            if (upcomingTasks.length === 0) {
-                dom.tasks.container.appendChild(createElement('p', {}, 'No tienes tareas pendientes.'));
-                return;
-            }
-            upcomingTasks.forEach(([dateStr, data]) => {
-                const date = new Date(dateStr + 'T00:00:00');
-                const dateTitle = date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-                const group = createElement('div', { class: 'task-date-group' });
-                group.appendChild(createElement('h3', {}, dateTitle));
-                data.tasks.forEach((task, index) => {
-                    const playBtn = task.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; // Use null for clarity
-                    if(playBtn) playBtn.innerHTML = ICONS.play_task;
-
-                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
-                       createElement('div', {class: 'task-item-content'},
-                            createElement('input', { type: 'checkbox', id: `overview-task-${dateStr}-${index}`, checked: task.completed }),
-                            createElement('label', { for: `overview-task-${dateStr}-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
-                       ),
-                       playBtn, // createElement handles null children correctly
-                       createElement('button', { class: 'delete-btn action-btn' }, '×')
-                    );
-                    group.appendChild(taskEl);
-                });
-                dom.tasks.container.appendChild(group);
-            });
-        }
-        init();
+        init(); // Start the app
     });
     </script>
 </body>
