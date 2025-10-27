@@ -229,6 +229,43 @@
         .task-item .delete-btn { color: var(--danger-color); font-size: 1.5rem; line-height: 1; }
         .task-item .delete-btn:hover { color: var(--danger-color); /* Mantiene color rojo */}
         
+        /* Estilos para filtro de tareas */
+        .task-filter-controls {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .task-filter-controls label {
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        #task-date-filter {
+            background-color: var(--button-background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem; /* 8px */
+            padding: 0.6rem 0.8rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            outline: none;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        html.light-theme #task-date-filter { color-scheme: light; }
+        html.dark-theme #task-date-filter { color-scheme: dark; }
+        #task-date-filter:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-color-translucent);
+        }
+        #task-filter-clear-btn {
+            padding: 0.6rem 1rem; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 500; cursor: pointer;
+            background-color: var(--button-background-color);
+            color: var(--text-color);
+            transition: background-color 0.2s;
+        }
+        #task-filter-clear-btn:hover {
+            background-color: var(--border-color);
+        }
+
         .settings-card { background-color: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 0.75rem; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
         .settings-card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
@@ -295,7 +332,15 @@
             padding-top: 1.5rem;
         }
         #new-task-input { flex-grow: 1; padding: 0.7rem; border-radius: 0.5rem; border: 1px solid var(--border-color); background-color: var(--button-background-color); font-size: 1rem; color: var(--text-color); }
-        #attach-audio-btn svg { width: 1.5rem; height: 1.5rem; fill: var(--primary-color); }
+        /* Estilo para los botones de adjuntar en las tareas */
+        .attach-task-btn svg { 
+            width: 1.25rem; /* Ajustado al mismo tamaño que otros iconos de tarea */
+            height: 1.25rem; 
+            fill: var(--primary-color); 
+        }
+        .attach-task-btn:hover svg {
+            filter: brightness(1.2);
+        }
         
         /* Theme modal specific styles (used in custom modal now) */
         .theme-control-group { margin-bottom: 1.5rem; text-align: left;}
@@ -400,6 +445,7 @@
             .modal-content { width: 95%; max-height: 85vh; }
             #stats-chart-container { height: 20rem; }
             .stats-label { font-size: 0.65rem; }
+            .task-filter-controls { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -445,6 +491,12 @@
         </div>
         <div class="app-page" data-title="Tareas">
             <h1 class="page-title">Tareas</h1>
+            <!-- NUEVO FILTRO DE TAREAS -->
+             <div class="content-box task-filter-controls">
+                <label for="task-date-filter">Mostrar tareas para:</label>
+                <input type="date" id="task-date-filter">
+                <button id="task-filter-clear-btn" class="modal-button secondary" style="padding: 0.6rem 1rem;">Ver Todas</button>
+            </div>
             <div id="tasks-list-container" class="content-box"></div>
         </div>
         <div class="app-page" data-title="Estadísticas">
@@ -520,10 +572,7 @@
             play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
         };
 
-        // --- DOM Elements (se definen después de las funciones de utilidad) ---
-        // ...
-        
-        // --- Utils (Movidas Arriba) ---
+         // --- Utils --- Moved Up ---
         function hexToRgb(hex) { var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
         function openModal(title, bodyEl, actionsEl = null) { if (!dom.modal.overlay) return; dom.modal.title.textContent = title; dom.modal.body.innerHTML = ''; dom.modal.body.appendChild(bodyEl); dom.modal.actions.innerHTML = ''; if (actionsEl) dom.modal.actions.appendChild(actionsEl); dom.modal.overlay.classList.add('visible'); }
         function closeModal(force = false) { 
@@ -534,7 +583,9 @@
             }
         }
         async function forceCloseModal() { 
+            // CORRECCIÓN: Revertir tema solo si es el modal de tema
             if (dom.modal.title.textContent === 'Personalizar Tema') {
+                 // Si cerramos, revertimos a los ajustes guardados
                  await applyTheme(state.modal.initialThemeSettings); 
                  state.modal.themeChangesMade = false; 
                  state.modal.initialThemeSettings = null; 
@@ -543,7 +594,8 @@
                      delete urlInput.dataset.imageDataUrl;
                  }
             }
-            if (dom.modal.title.textContent !== 'Descartar Cambios') {
+            // CORRECCIÓN: Limpiar audio ID solo si NO estamos cerrando el selector de sonido
+            if (dom.modal.title.textContent !== 'Seleccionar Sonido') {
                  state.modal.selectedAudioId = null;
             }
             if (dom.modal.overlay) dom.modal.overlay.classList.remove('visible'); 
@@ -558,55 +610,62 @@
         function showAppAlert(title, message) { console.warn(`Alert suppressed: ${title} - ${message}`); }
 
         // --- DOM Elements ---
-        const dom = { /* ... dom elements ... */ 
+        const dom = { 
             body: document.body,
             sidebar: document.getElementById('sidebar-nav'),
             navButtons: document.querySelectorAll('.nav-btn'),
             appPages: document.querySelectorAll('.app-page'),
             calendar: { container: document.getElementById('calendar-container'), gridWrapper: document.getElementById('calendar-grid-wrapper'), monthSelectorWrapper: document.getElementById('month-selector-wrapper'), monthYearDisplay: document.getElementById('month-year-display'), prevMonthBtn: document.getElementById('prev-month-btn'), nextMonthBtn: document.getElementById('next-month-btn'), grid: document.getElementById('calendar-grid') },
             player: { trackTitle: document.getElementById('player-track-title'), currentTime: document.getElementById('player-current-time'), totalTime: document.getElementById('player-total-time'), playPauseBtn: document.getElementById('player-play-pause-btn'), prevBtn: document.getElementById('player-prev-btn'), nextBtn: document.getElementById('player-next-btn'), shuffleBtn: document.getElementById('player-shuffle-btn'), repeatBtn: document.getElementById('player-repeat-btn'), playlist: document.getElementById('player-playlist'), searchBar: document.getElementById('search-bar'), artistFilter: document.getElementById('artist-filter'), genreFilter: document.getElementById('genre-filter') },
-            tasks: { container: document.getElementById('tasks-list-container') },
-            stats: { chartContainer: document.getElementById('stats-chart-container') }, // Actualizado
+            tasks: { 
+                container: document.getElementById('tasks-list-container'),
+                dateFilter: document.getElementById('task-date-filter'), // Añadido
+                clearFilterBtn: document.getElementById('task-filter-clear-btn') // Añadido
+            },
+            stats: { chartContainer: document.getElementById('stats-chart-container') }, 
             settings: { themeCard: document.getElementById('theme-settings-card'), libraryCard: document.getElementById('library-settings-card') },
-            modal: { overlay: document.getElementById('modal-overlay'), title: document.getElementById('modal-title'), body: document.getElementById('modal-body'), actions: document.getElementById('modal-actions'), closeBtn: document.querySelector('#modal-overlay .modal-close-btn') }, // Target specific close button
-            confirmModal: { overlay: document.getElementById('confirm-modal-overlay'), discardBtn: document.getElementById('confirm-discard-btn'), cancelBtn: document.getElementById('confirm-cancel-btn') }, // Añadido
+            modal: { overlay: document.getElementById('modal-overlay'), title: document.getElementById('modal-title'), body: document.getElementById('modal-body'), actions: document.getElementById('modal-actions'), closeBtn: document.querySelector('#modal-overlay .modal-close-btn') }, 
+            confirmModal: { overlay: document.getElementById('confirm-modal-overlay'), discardBtn: document.getElementById('confirm-discard-btn'), cancelBtn: document.getElementById('confirm-cancel-btn') }, 
             audioFileInput: document.getElementById('audio-file-input'),
             bgImageInput: document.getElementById('bg-image-input'),
         };
 
         // --- Application State ---
-        const state = { /* ... state ... */ 
+        const state = { 
             db: null, dayDataMap: {}, soundLibrary: [], currentTrackId: null, currentHowl: null, currentPlaylist: [], currentTrackIndexInPlaylist: -1, isShuffling: false, repeatMode: 'none', currentDate: dayjs(), calendarViewMode: 'days', calendarYearInView: dayjs().year(), currentPageIndex: 0, 
             modal: { selectedAudioId: null, themeChangesMade: false, initialThemeSettings: null }, 
+            tasks: { // Convertido en objeto
+                filterDate: null // null = 'todo el tiempo', 'YYYY-MM-DD' = día específico
+            },
             playback: { rafId: null },
-            stats: { listeningLog: {}, sessionStartTime: 0 } // Eliminado chartInstance
+            stats: { listeningLog: {}, sessionStartTime: 0 } 
         };
         
         // --- App Initialization ---
-        async function init() { /* ... init logic ... */ 
+        async function init() { 
              try { state.db = await initDB(); if (!state.db) throw new Error("DB init failed."); await Promise.all([ loadTasksFromDB(), loadListeningLogFromDB(), loadSoundsFromDB() ]); const settings = await loadSettingsFromDB(); state.modal.initialThemeSettings = settings || {}; // Guardar estado inicial o vacío
                 await applyTheme(settings); setupEventListeners(); setupPlayerIcons(); goToPage(state.currentPageIndex, true); renderAllTabs(); } 
              catch (error) { console.error("Error fatal:", error); }
         }
         
         // Renderiza el contenido de todas las pestañas
-        function renderAllTabs() { /* ... renderAllTabs logic ... */ renderCalendar(); renderTasks(); renderStatsPage(); populateFilterDropdowns(); renderPlayerPlaylist(); updatePlayerUI(); }
+        function renderAllTabs() { renderCalendar(); renderTasks(); renderStatsPage(); populateFilterDropdowns(); renderPlayerPlaylist(); updatePlayerUI(); }
         
         // --- IndexedDB ---
-        function initDB() { /* ... initDB logic ... */ return new Promise((resolve, reject) => { if (!window.indexedDB) return reject(new Error("IndexedDB not supported")); const DB_NAME = 'AudioAppDB', DB_VERSION = 3; const request = indexedDB.open(DB_NAME, DB_VERSION); request.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('sounds')) db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'date' }); if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'id' }); if (!db.objectStoreNames.contains('listeningLog')) db.createObjectStore('listeningLog', { keyPath: 'date' }); }; request.onsuccess = e => resolve(e.target.result); request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); }; }); }
+        function initDB() { return new Promise((resolve, reject) => { if (!window.indexedDB) return reject(new Error("IndexedDB not supported")); const DB_NAME = 'AudioAppDB', DB_VERSION = 3; const request = indexedDB.open(DB_NAME, DB_VERSION); request.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('sounds')) db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'date' }); if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'id' }); if (!db.objectStoreNames.contains('listeningLog')) db.createObjectStore('listeningLog', { keyPath: 'date' }); }; request.onsuccess = e => resolve(e.target.result); request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); }; }); }
 
         // --- Persistencia Tareas (IndexedDB) ---
-        async function saveTasksToDB(dateStr, tasksArray) { /* ... saveTasksToDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['tasks'], 'readwrite'); const store = tx.objectStore('tasks'); let req; if (tasksArray?.length > 0) { req = store.put({ date: dateStr, tasks: tasksArray }); } else { req = store.delete(dateStr); } req.onsuccess = resolve; req.onerror = e => { console.error("Error saving tasks:", e.target.error); reject(e.target.error); }; }); }
-        async function loadTasksFromDB() { /* ... loadTasksFromDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { state.dayDataMap = {}; const tx = state.db.transaction(['tasks'], 'readonly'); const store = tx.objectStore('tasks'); const req = store.getAll(); req.onsuccess = e => { e.target.result?.forEach(item => { state.dayDataMap[item.date] = { tasks: item.tasks }; }); resolve(); }; req.onerror = e => { console.error("Error loading tasks:", e.target.error); state.dayDataMap = {}; reject(e.target.error); }; }); }
+        async function saveTasksToDB(dateStr, tasksArray) { if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['tasks'], 'readwrite'); const store = tx.objectStore('tasks'); let req; if (tasksArray?.length > 0) { req = store.put({ date: dateStr, tasks: tasksArray }); } else { req = store.delete(dateStr); } req.onsuccess = resolve; req.onerror = e => { console.error("Error saving tasks:", e.target.error); reject(e.target.error); }; }); }
+        async function loadTasksFromDB() { if (!state.db) return; return new Promise((resolve, reject) => { state.dayDataMap = {}; const tx = state.db.transaction(['tasks'], 'readonly'); const store = tx.objectStore('tasks'); const req = store.getAll(); req.onsuccess = e => { e.target.result?.forEach(item => { state.dayDataMap[item.date] = { tasks: item.tasks }; }); resolve(); }; req.onerror = e => { console.error("Error loading tasks:", e.target.error); state.dayDataMap = {}; reject(e.target.error); }; }); }
 
         // --- Persistencia Ajustes (IndexedDB) ---
-        async function saveSettingsToDB(settings) { /* ... saveSettingsToDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['settings'], 'readwrite'); const store = tx.objectStore('settings'); const data = { id: 'userSettings', ...settings }; const req = store.put(data); req.onsuccess = resolve; req.onerror = e => { console.error("Error saving settings:", e.target.error); reject(e.target.error); }; }); }
-        async function loadSettingsFromDB() { /* ... loadSettingsFromDB logic ... */ if (!state.db) return null; return new Promise(resolve => { const tx = state.db.transaction(['settings'], 'readonly'); const store = tx.objectStore('settings'); const req = store.get('userSettings'); req.onsuccess = e => resolve(e.target.result || null); req.onerror = e => { console.error("Error loading settings:", e.target.error); resolve(null); }; }); }
+        async function saveSettingsToDB(settings) { if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['settings'], 'readwrite'); const store = tx.objectStore('settings'); const data = { id: 'userSettings', ...settings }; const req = store.put(data); req.onsuccess = resolve; req.onerror = e => { console.error("Error saving settings:", e.target.error); reject(e.target.error); }; }); }
+        async function loadSettingsFromDB() { if (!state.db) return null; return new Promise(resolve => { const tx = state.db.transaction(['settings'], 'readonly'); const store = tx.objectStore('settings'); const req = store.get('userSettings'); req.onsuccess = e => resolve(e.target.result || null); req.onerror = e => { console.error("Error loading settings:", e.target.error); resolve(null); }; }); }
 
         // --- Persistencia Estadísticas (IndexedDB) ---
-        async function saveListeningLogToDB() { /* ... saveListeningLogToDB logic ... */ if (!state.db) return; return new Promise(async (resolve, reject) => { const tx = state.db.transaction(['listeningLog'], 'readwrite'); const store = tx.objectStore('listeningLog'); const entries = Object.entries(state.stats.listeningLog); if (entries.length === 0) { resolve(); return; } try { await Promise.all(entries.map(([date, seconds]) => new Promise((res, rej) => { const req = store.put({ date, seconds }); req.onsuccess = res; req.onerror = e => { console.error(`Error log save ${date}:`, e.target.error); rej(e.target.error); }; }) )); resolve(); } catch (err) { reject(err); } }); }
-       async function loadListeningLogFromDB() { /* ... loadListeningLogFromDB logic ... */ if (!state.db) return; return new Promise(async (resolve, reject) => { state.stats.listeningLog = {}; const tx = state.db.transaction(['listeningLog'], 'readonly'); const store = tx.objectStore('listeningLog'); const req = store.getAll(); req.onsuccess = async (e) => { const results = e.target.result; if (results?.length > 0) { results.forEach(item => { state.stats.listeningLog[item.date] = item.seconds; }); resolve(); } else { console.log("No log, simulating..."); simulateListeningData(); try { await saveListeningLogToDB(); console.log("Simulated saved."); resolve(); } catch (err) { console.error("Failed save simulated log:", err); reject(err); } } }; req.onerror = e => { console.error("Error loading log:", e.target.error); state.stats.listeningLog = {}; reject(e.target.error); }; }); }
-       function simulateListeningData() { /* ... simulateListeningData con patron semanal ... */ 
+        async function saveListeningLogToDB() { if (!state.db) return; return new Promise(async (resolve, reject) => { const tx = state.db.transaction(['listeningLog'], 'readwrite'); const store = tx.objectStore('listeningLog'); const entries = Object.entries(state.stats.listeningLog); if (entries.length === 0) { resolve(); return; } try { await Promise.all(entries.map(([date, seconds]) => new Promise((res, rej) => { const req = store.put({ date, seconds }); req.onsuccess = res; req.onerror = e => { console.error(`Error log save ${date}:`, e.target.error); rej(e.target.error); }; }) )); resolve(); } catch (err) { reject(err); } }); }
+       async function loadListeningLogFromDB() { if (!state.db) return; return new Promise(async (resolve, reject) => { state.stats.listeningLog = {}; const tx = state.db.transaction(['listeningLog'], 'readonly'); const store = tx.objectStore('listeningLog'); const req = store.getAll(); req.onsuccess = async (e) => { const results = e.target.result; if (results?.length > 0) { results.forEach(item => { state.stats.listeningLog[item.date] = item.seconds; }); resolve(); } else { console.log("No log, simulating..."); simulateListeningData(); try { await saveListeningLogToDB(); console.log("Simulated saved."); resolve(); } catch (err) { console.error("Failed save simulated log:", err); reject(err); } } }; req.onerror = e => { console.error("Error loading log:", e.target.error); state.stats.listeningLog = {}; reject(e.target.error); }; }); }
+       function simulateListeningData() { 
             state.stats.listeningLog = {}; const today = dayjs(); const days = 30; 
             for (let i = days; i > 0; i--) {
                 const date = today.subtract(i, 'day'); const ds = date.format('YYYY-MM-DD'); const dow = date.day(); 
@@ -617,28 +676,88 @@
         }
         
         // --- Registro de Estadísticas ---
-         function stopAndLogListeningSession() { /* ... stopAndLogListeningSession logic ... */ if (state.sessionStartTime > 0) { const elapsed = Math.floor((Date.now() - state.sessionStartTime) / 1000); if (elapsed > 1) { const today = dayjs().format('YYYY-MM-DD'); const current = state.stats.listeningLog[today] || 0; state.stats.listeningLog[today] = current + elapsed; saveListeningLogToDB(); if (state.currentPageIndex === 3) { renderStatsPage(); } } state.sessionStartTime = 0; } }
+         function stopAndLogListeningSession() { if (state.sessionStartTime > 0) { const elapsed = Math.floor((Date.now() - state.sessionStartTime) / 1000); if (elapsed > 1) { const today = dayjs().format('YYYY-MM-DD'); const current = state.stats.listeningLog[today] || 0; state.stats.listeningLog[today] = current + elapsed; saveListeningLogToDB(); if (state.currentPageIndex === 3) { renderStatsPage(); } } state.sessionStartTime = 0; } }
         
         // --- Sound Library ---
-        async function loadSoundsFromDB() { /* ... loadSoundsFromDB logic ... */ return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('sounds', 'readonly'); const store = tx.objectStore('sounds'); const req = store.getAll(); req.onsuccess = () => { state.soundLibrary = req.result || []; resolve(); }; req.onerror = e => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; }); }
-        async function handleFileSelection(e) { /* ... handleFileSelection logic ... */ closeModal(); openModal('Cargando...', createElement('p', {}, 'Espera...')); try { for (const f of e.target.files) { if (f.type.startsWith('audio/')) await saveSoundToDB(f); } await loadSoundsFromDB(); closeModal(); openLibraryModal(); renderAllTabs(); } catch (err) { closeModal(); console.error('Error carga archivos', err); } finally { e.target.value = null; } }
-        function saveSoundToDB(file) { /* ... saveSoundToDB logic ... */ return new Promise(async (resolve, reject) => { if (!state.db) return reject("DB missing"); try { const duration = await getAudioDuration(file); if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); const sound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Desconocido', genre: 'Desconocido', duration, file }; const tx = state.db.transaction('sounds', 'readwrite'); const store = tx.objectStore('sounds'); const req = store.add(sound); req.onsuccess = resolve; req.onerror = e => reject(e.target.error); } catch (err) { console.error(err.message); reject(err); } }); }
-        function updateSoundInDB(soundData) { /* ... updateSoundInDB logic ... */ if (!state.db) return; const tx = state.db.transaction('sounds', 'readwrite'); tx.objectStore('sounds').put(soundData); }
-        function getAudioDuration(file) { /* ... getAudioDuration logic ... */ return new Promise((resolve, reject) => { const audio = document.createElement('audio'); audio.preload = 'metadata'; audio.onloadedmetadata = () => { URL.revokeObjectURL(audio.src); resolve(audio.duration); }; audio.onerror = () => { URL.revokeObjectURL(audio.src); reject(new Error(`Duración no leída ${file.name}`)); }; audio.src = URL.createObjectURL(file); }); }
+        async function loadSoundsFromDB() { return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('sounds', 'readonly'); const store = tx.objectStore('sounds'); const req = store.getAll(); req.onsuccess = () => { state.soundLibrary = req.result || []; resolve(); }; req.onerror = e => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; }); }
+        async function handleFileSelection(e) { closeModal(); openModal('Cargando...', createElement('p', {}, 'Espera...')); try { for (const f of e.target.files) { if (f.type.startsWith('audio/')) await saveSoundToDB(f); } await loadSoundsFromDB(); closeModal(); openLibraryModal(); renderAllTabs(); } catch (err) { closeModal(); console.error('Error carga archivos', err); } finally { e.target.value = null; } }
+        function saveSoundToDB(file) { return new Promise(async (resolve, reject) => { if (!state.db) return reject("DB missing"); try { const duration = await getAudioDuration(file); if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); const sound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Desconocido', genre: 'Desconocido', duration, file }; const tx = state.db.transaction('sounds', 'readwrite'); const store = tx.objectStore('sounds'); const req = store.add(sound); req.onsuccess = resolve; req.onerror = e => reject(e.target.error); } catch (err) { console.error(err.message); reject(err); } }); }
+        function updateSoundInDB(soundData) { if (!state.db) return; const tx = state.db.transaction('sounds', 'readwrite'); tx.objectStore('sounds').put(soundData); }
+        function getAudioDuration(file) { return new Promise((resolve, reject) => { const audio = document.createElement('audio'); audio.preload = 'metadata'; audio.onloadedmetadata = () => { URL.revokeObjectURL(audio.src); resolve(audio.duration); }; audio.onerror = () => { URL.revokeObjectURL(audio.src); reject(new Error(`Duración no leída ${file.name}`)); }; audio.src = URL.createObjectURL(file); }); }
 
         // --- Event Listeners Setup ---
-        function setupEventListeners() { /* ... setupEventListeners logic ... */ dom.sidebar.addEventListener('click', e => { const btn = e.target.closest('.nav-btn'); if (btn) goToPage(parseInt(btn.dataset.index, 10)); }); if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.addEventListener('click', toggleCalendarView); if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.onclick = handlePrevClick; if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.onclick = handleNextClick; if (dom.calendar.grid) dom.calendar.grid.onclick = handleCalendarGridClick; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); if (dom.tasks.container) dom.tasks.container.onclick = handleTaskClick; if (dom.settings.themeCard) dom.settings.themeCard.onclick = openThemeModal; if (dom.settings.libraryCard) dom.settings.libraryCard.onclick = openLibraryModal; if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', () => closeModal()); if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); }); if (dom.confirmModal.discardBtn) dom.confirmModal.discardBtn.addEventListener('click', () => { closeConfirmModal(); forceCloseModal(); }); if (dom.confirmModal.cancelBtn) dom.confirmModal.cancelBtn.addEventListener('click', closeConfirmModal); if (dom.audioFileInput) dom.audioFileInput.onchange = handleFileSelection; if (dom.bgImageInput) dom.bgImageInput.onchange = handleBgImageSelection; const debouncedRender = debounce(renderPlayerPlaylist, 300); if (dom.player.searchBar) dom.player.searchBar.oninput = debouncedRender; if (dom.player.artistFilter) dom.player.artistFilter.onchange = renderPlayerPlaylist; if (dom.player.genreFilter) dom.player.genreFilter.onchange = renderPlayerPlaylist; if (dom.player.playlist) dom.player.playlist.onclick = handlePlaylistClick; if (dom.player.playPauseBtn) dom.player.playPauseBtn.onclick = togglePlayPause; if (dom.player.prevBtn) dom.player.prevBtn.onclick = playPrevTrack; if (dom.player.nextBtn) dom.player.nextBtn.onclick = playNextTrack; if (dom.player.shuffleBtn) dom.player.shuffleBtn.onclick = toggleShuffle; if (dom.player.repeatBtn) dom.player.repeatBtn.onclick = cycleRepeatMode; }
+        function setupEventListeners() { 
+             // Navegación principal
+            dom.sidebar.addEventListener('click', e => { const btn = e.target.closest('.nav-btn'); if (btn) goToPage(parseInt(btn.dataset.index, 10)); });
+            // Calendario
+            if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.addEventListener('click', toggleCalendarView); 
+            if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.onclick = handlePrevClick; 
+            if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.onclick = handleNextClick; 
+            if (dom.calendar.grid) dom.calendar.grid.onclick = handleCalendarGridClick; 
+            if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); 
+            // Tareas
+            if (dom.tasks.container) dom.tasks.container.onclick = handleTaskClick;
+            if (dom.tasks.dateFilter) dom.tasks.dateFilter.addEventListener('change', handleTaskFilterChange); // NUEVO
+            if (dom.tasks.clearFilterBtn) dom.tasks.clearFilterBtn.addEventListener('click', handleTaskFilterClear); // NUEVO
+            // Ajustes
+            if (dom.settings.themeCard) dom.settings.themeCard.onclick = openThemeModal; 
+            if (dom.settings.libraryCard) dom.settings.libraryCard.onclick = openLibraryModal;
+            // Modal principal
+            if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', () => closeModal()); 
+            if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); }); 
+             // Modal de confirmación
+            if (dom.confirmModal.discardBtn) dom.confirmModal.discardBtn.addEventListener('click', () => { closeConfirmModal(); forceCloseModal(); }); 
+            if (dom.confirmModal.cancelBtn) dom.confirmModal.cancelBtn.addEventListener('click', closeConfirmModal); 
+            // Inputs
+            if (dom.audioFileInput) dom.audioFileInput.onchange = handleFileSelection; 
+            if (dom.bgImageInput) dom.bgImageInput.onchange = handleBgImageSelection;
+            // Player
+            const debouncedRender = debounce(renderPlayerPlaylist, 300); 
+            if (dom.player.searchBar) dom.player.searchBar.oninput = debouncedRender; 
+            if (dom.player.artistFilter) dom.player.artistFilter.onchange = renderPlayerPlaylist; 
+            if (dom.player.genreFilter) dom.player.genreFilter.onchange = renderPlayerPlaylist; 
+            if (dom.player.playlist) dom.player.playlist.onclick = handlePlaylistClick; 
+            if (dom.player.playPauseBtn) dom.player.playPauseBtn.onclick = togglePlayPause; 
+            if (dom.player.prevBtn) dom.player.prevBtn.onclick = playPrevTrack; 
+            if (dom.player.nextBtn) dom.player.nextBtn.onclick = playNextTrack; 
+            if (dom.player.shuffleBtn) dom.player.shuffleBtn.onclick = toggleShuffle; 
+            if (dom.player.repeatBtn) dom.player.repeatBtn.onclick = cycleRepeatMode;
+        }
         
         // --- Navegación de Página ---
-        function goToPage(index, isInitialLoad = false) { /* ... goToPage logic ... */ if (index === state.currentPageIndex && !isInitialLoad) return; state.currentPageIndex = index; dom.navButtons.forEach((btn, i) => btn.classList.toggle('active', i === index)); dom.appPages.forEach((page, i) => page.classList.toggle('active', i === index)); if (index === 2) renderTasks(); if (index === 3) renderStatsPage(); }
+        function goToPage(index, isInitialLoad = false) { if (index === state.currentPageIndex && !isInitialLoad) return; state.currentPageIndex = index; dom.navButtons.forEach((btn, i) => btn.classList.toggle('active', i === index)); dom.appPages.forEach((page, i) => page.classList.toggle('active', i === index)); if (index === 2) renderTasks(); if (index === 3) renderStatsPage(); }
 
         // --- Calendar & Task ---
-        function toggleCalendarView() { /* ... toggleCalendarView logic ... */ state.calendarViewMode = (state.calendarViewMode === 'days') ? 'months' : 'days'; if (state.calendarViewMode === 'months') state.calendarYearInView = state.currentDate.year(); renderCalendar(); }
-        function handlePrevClick() { /* ... handlePrevClick logic ... */ if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.subtract(1, 'month'); else state.calendarYearInView--; renderCalendar(); }
-        function handleNextClick() { /* ... handleNextClick logic ... */ if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.add(1, 'month'); else state.calendarYearInView++; renderCalendar(); }
-        function handleCalendarGridClick(e) { /* ... handleCalendarGridClick logic ... */ if (state.calendarViewMode !== 'days') return; const dayEl = e.target.closest('.calendar-day:not(.empty)'); if (dayEl) openDayModal(dayEl.dataset.date); }
-        function handleMonthSelectorClick(e) { /* ... handleMonthSelectorClick logic ... */ if (state.calendarViewMode !== 'months') return; const monthItem = e.target.closest('.calendar-month-item'); if (monthItem) { const monthIdx = parseInt(monthItem.dataset.month, 10); state.currentDate = dayjs().year(state.calendarYearInView).month(monthIdx); state.calendarViewMode = 'days'; renderCalendar(); } }
-        async function handleTaskClick(e) { /* ... handleTaskClick logic ... */ const target = e.target; const taskItem = target.closest('.task-item'); if (!taskItem) return; const { date, index } = taskItem.dataset; const taskIndex = parseInt(index, 10); if (!state.dayDataMap[date]?.tasks?.[taskIndex]) { console.error("Task data missing:", date, index); return; } const task = state.dayDataMap[date].tasks[taskIndex]; let needsSave = false; if (target.type === 'checkbox') { task.completed = target.checked; needsSave = true; } else if (target.closest('.play-task-btn')) { playAudioClip(task.audioId); } else if (target.closest('.delete-btn')) { state.dayDataMap[date].tasks.splice(taskIndex, 1); needsSave = true; } if (needsSave) { try { await saveTasksToDB(date, state.dayDataMap[date].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); } } }
+        function toggleCalendarView() { state.calendarViewMode = (state.calendarViewMode === 'days') ? 'months' : 'days'; if (state.calendarViewMode === 'months') state.calendarYearInView = state.currentDate.year(); renderCalendar(); }
+        function handlePrevClick() { if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.subtract(1, 'month'); else state.calendarYearInView--; renderCalendar(); }
+        function handleNextClick() { if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.add(1, 'month'); else state.calendarYearInView++; renderCalendar(); }
+        function handleCalendarGridClick(e) { if (state.calendarViewMode !== 'days') return; const dayEl = e.target.closest('.calendar-day:not(.empty)'); if (dayEl) openDayModal(dayEl.dataset.date); }
+        function handleMonthSelectorClick(e) { if (state.calendarViewMode !== 'months') return; const monthItem = e.target.closest('.calendar-month-item'); if (monthItem) { const monthIdx = parseInt(monthItem.dataset.month, 10); state.currentDate = dayjs().year(state.calendarYearInView).month(monthIdx); state.calendarViewMode = 'days'; renderCalendar(); } }
+        
+        // --- Nuevos Handlers para Filtro de Tareas ---
+        function handleTaskFilterChange(e) {
+            state.tasks.filterDate = e.target.value; // 'YYYY-MM-DD'
+            renderTasks();
+        }
+        
+        function handleTaskFilterClear() {
+            state.tasks.filterDate = null;
+            if (dom.tasks.dateFilter) dom.tasks.dateFilter.value = ''; // Clear input
+            renderTasks();
+        }
+
+        async function handleTaskClick(e) { 
+            const target = e.target; const taskItem = target.closest('.task-item'); if (!taskItem) return; 
+            const { date, index } = taskItem.dataset; const taskIndex = parseInt(index, 10); 
+            if (!state.dayDataMap[date]?.tasks?.[taskIndex]) { console.error("Task data missing:", date, index); return; } 
+            const task = state.dayDataMap[date].tasks[taskIndex]; 
+            let needsSave = false; 
+            if (target.type === 'checkbox') { task.completed = target.checked; needsSave = true; } 
+            else if (target.closest('.attach-task-btn')) { openSoundSelectorModal(date, taskIndex); }
+            else if (target.closest('.play-task-btn')) { playAudioClip(task.audioId); } 
+            else if (target.closest('.delete-btn')) { state.dayDataMap[date].tasks.splice(taskIndex, 1); needsSave = true; } 
+            if (needsSave) { try { await saveTasksToDB(date, state.dayDataMap[date].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); } } 
+        }
         
         // --- Theme & Modal ---
         // showAppAlert ya definida arriba
@@ -649,56 +768,39 @@
             const body = createElement('div'); const themeToggleGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', {}, 'Modo')); const themeBtns = createElement('div', { class: 'theme-toggle-btns' }, createElement('button', { 'data-theme': 'light-theme', class: savedTheme === 'light-theme' ? 'active' : '' }, 'Claro'), createElement('button', { 'data-theme': 'dark-theme', class: savedTheme === 'dark-theme' ? 'active' : '' }, 'Oscuro') ); themeToggleGroup.appendChild(themeBtns); body.appendChild(themeToggleGroup); const colorPickerGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', { for: 'color-picker' }, 'Acento')); const colorPicker = createElement('input', { type: 'color', id: 'color-picker', value: savedColor }); colorPickerGroup.appendChild(colorPicker); body.appendChild(colorPickerGroup); const bgImageGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', { for: 'bg-image-url' }, 'Fondo (URL)')); const bgImageControls = createElement('div', { id: 'bg-image-controls' }, createElement('input', { type: 'text', id: 'bg-image-url', placeholder: 'URL o subir...', value: savedBg.startsWith('http') ? savedBg : (isLocalFile ? 'Local' : '') }), createElement('button', { id: 'upload-bg-btn' }, 'Subir'), createElement('button', { id: 'clear-bg-btn' }, 'Quitar') ); bgImageGroup.appendChild(bgImageControls); body.appendChild(bgImageGroup); const actions = createElement('button', { class: 'modal-button primary' }, 'Guardar'); 
             openModal('Personalizar Tema', body, actions);
             
-            // Listener para aplicar TEMA dinámicamente (solo visual)
-            themeBtns.onclick = e => { if (e.target.tagName !== 'BUTTON') return; themeBtns.querySelector('.active')?.classList.remove('active'); e.target.classList.add('active'); state.modal.themeChangesMade = true; applyThemePreview(); }; // Llama a preview
-            // Listener para aplicar COLOR dinámicamente (solo visual)
-            colorPicker.oninput = () => { state.modal.themeChangesMade = true; applyThemePreview(); }; // Llama a preview
-
+            themeBtns.onclick = e => { if (e.target.tagName !== 'BUTTON') return; themeBtns.querySelector('.active')?.classList.remove('active'); e.target.classList.add('active'); state.modal.themeChangesMade = true; applyThemePreview(); }; 
+            colorPicker.oninput = () => { state.modal.themeChangesMade = true; applyThemePreview(); }; 
             body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click(); 
             body.querySelector('#clear-bg-btn').onclick = () => { body.querySelector('#bg-image-url').value = ''; state.modal.themeChangesMade = true; }; 
             
-            // Botón GUARDAR - Guarda TODO y aplica
             actions.onclick = async () => { 
                 const urlInputEl = body.querySelector('#bg-image-url');
                 const imageUrlInput = urlInputEl.value.trim(); 
                 let finalBg = ''; 
-
                 if (imageUrlInput === '') { finalBg = ''; } 
-                else if (imageUrlInput === 'Local') {
-                    // Si dice 'Local', intentar obtener dataUrl del dataset (si se subió uno nuevo)
-                    // Si no hay, usar el que ya estaba guardado (initialThemeSettings)
-                    finalBg = urlInputEl.dataset.imageDataUrl || state.modal.initialThemeSettings.backgroundImage || ''; 
-                }
+                else if (imageUrlInput === 'Local') { finalBg = urlInputEl.dataset.imageDataUrl || state.modal.initialThemeSettings.backgroundImage || ''; }
                 else if (/^https?:\/\//i.test(imageUrlInput)) { finalBg = imageUrlInput; } 
                 else if (/^www\./i.test(imageUrlInput)) { finalBg = 'https://' + imageUrlInput; } 
                 else { console.error("URL Inválida..."); return; }
-                
-                const settings = { 
-                    themeClass: themeBtns.querySelector('.active').dataset.theme, 
-                    primaryColor: colorPicker.value, 
-                    backgroundImage: finalBg, 
-                }; 
+                const settings = { themeClass: themeBtns.querySelector('.active').dataset.theme, primaryColor: colorPicker.value, backgroundImage: finalBg, }; 
                 await saveSettingsToDB(settings); 
-                state.modal.initialThemeSettings = settings; // Actualizar estado inicial guardado
-                state.modal.themeChangesMade = false; // Resetear flag
-                await applyTheme(settings); // Aplicar tema FINAL
+                state.modal.initialThemeSettings = settings; 
+                state.modal.themeChangesMade = false; 
+                await applyTheme(settings); 
                 forceCloseModal(); 
             }; 
         }
 
-        // Función para aplicar tema temporalmente (preview)
         function applyThemePreview() {
              const themeBtns = document.querySelector('.theme-toggle-btns');
              const colorPicker = document.getElementById('color-picker');
-             if (!themeBtns || !colorPicker) return; // Salir si los elementos no están
-
+             if (!themeBtns || !colorPicker) return; 
              const tempSettings = {
                  themeClass: themeBtns.querySelector('.active')?.dataset.theme || state.modal.initialThemeSettings.themeClass || 'dark-theme',
                  primaryColor: colorPicker.value,
-                 // Usar la imagen de fondo guardada (la inicial) para la preview, no intentar previsualizar cambios de imagen
                  backgroundImage: state.modal.initialThemeSettings.backgroundImage || '' 
              };
-             applyTheme(tempSettings); // Llama a applyTheme con los valores TEMPORALES
+             applyTheme(tempSettings); 
         }
        
        async function handleBgImageSelection(e) { 
@@ -709,12 +811,8 @@
                     const dataUrl = event.target.result; 
                     if (dataUrl.length > 2*1024*1024) { console.error("Imagen > 2MB"); return; } 
                     const urlInput = document.getElementById('bg-image-url'); 
-                    if(urlInput) {
-                        urlInput.value = 'Local'; // Update visual cue
-                        urlInput.dataset.imageDataUrl = dataUrl; // Guardar dataUrl temporalmente en el dataset del input
-                    }
+                    if(urlInput) { urlInput.value = 'Local'; urlInput.dataset.imageDataUrl = dataUrl; }
                     state.modal.themeChangesMade = true; 
-                    // NO aplicar tema aquí
                 }; 
                 e.target.value = null; 
                 reader.onerror = () => console.error("Error carga imagen.");
@@ -722,23 +820,23 @@
             } 
         }
 
-       async function applyTheme(settings = null) { /* ... applyTheme logic (igual que antes) ... */ if (!settings) settings = await loadSettingsFromDB(); settings = settings || {}; const themeClass = settings.themeClass || 'dark-theme'; const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF'; const primaryColor = settings.primaryColor || defaultColor; const bgImg = settings.backgroundImage || ''; document.documentElement.className = themeClass; const rgb = hexToRgb(primaryColor); const transl = rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},0.3)` : 'rgba(0,122,255,0.3)'; document.documentElement.style.setProperty('--primary-color', primaryColor); document.documentElement.style.setProperty('--primary-color-translucent', transl); document.getElementById('dynamic-bg-style').textContent = `body::before{background-image:${bgImg?`url('${bgImg}')`:'none'};}`; if (state.currentPageIndex === 3) renderStatsPage(); }
+       async function applyTheme(settings = null) { if (!settings) settings = await loadSettingsFromDB(); settings = settings || {}; const themeClass = settings.themeClass || 'dark-theme'; const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF'; const primaryColor = settings.primaryColor || defaultColor; const bgImg = settings.backgroundImage || ''; document.documentElement.className = themeClass; const rgb = hexToRgb(primaryColor); const transl = rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},0.3)` : 'rgba(0,122,255,0.3)'; document.documentElement.style.setProperty('--primary-color', primaryColor); document.documentElement.style.setProperty('--primary-color-translucent', transl); document.getElementById('dynamic-bg-style').textContent = `body::before{background-image:${bgImg?`url('${bgImg}')`:'none'};}`; if (state.currentPageIndex === 3) renderStatsPage(); }
        
         // --- Modales ---
        async function openDayModal(dateStr) { 
-            // CORRECCIÓN: NO limpiar el audioId al abrir, solo al AÑADIR.
-            // state.modal.selectedAudioId = null; // <--- BUG 2 ELIMINADO
             const date = dayjs(dateStr); const dayData = state.dayDataMap[dateStr] || { tasks: [] }; const taskList = createElement('div', { id: 'task-list-modal' }); 
             if (dayData.tasks.length > 0) {
-                dayData.tasks.forEach((task, index) => {
-                    // CORRECCIÓN BUG 1: Usar 'index' para id/for, no 'i'
-                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
-                        createElement('input', { type: 'checkbox', id: `m-${index}`, checked: task.completed }), 
-                        createElement('label', { for: `m-${index}`, class: `task-title ${task.completed?'completed':''}` }, task.text) 
-                    );
-                    taskEl.querySelector('input').onchange = async (e) => { 
+                dayData.tasks.forEach((task, index) => { 
+                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index });
+                    const checkbox = createElement('input', { type: 'checkbox', id: `m-${index}`, checked: task.completed });
+                    const label = createElement('label', { for: `m-${index}`, class: `task-title ${task.completed?'completed':''}`, style: task.audioId ? 'color: var(--primary-color); font-weight: 600;' : null }, task.text);
+                    const attachBtnTask = createElement('button', { class: 'action-btn attach-task-btn' });
+                    attachBtnTask.innerHTML = ICONS.attach; 
+                    attachBtnTask.onclick = () => { openSoundSelectorModal(dateStr, index); };
+                    taskEl.appendChild(checkbox); taskEl.appendChild(label); taskEl.appendChild(attachBtnTask); 
+                    taskEl.querySelector('input[type="checkbox"]').onchange = async (e) => { 
                         const idx = parseInt(e.target.closest('.task-item').dataset.index, 10); 
-                        if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks[idx]) {
+                        if (state.dayDataMap[dateStr]?.tasks[idx]) {
                             state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked; 
                             e.target.nextElementSibling.classList.toggle('completed', e.target.checked);
                             try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); renderTasks(); renderCalendar(); } 
@@ -750,59 +848,78 @@
             } 
             else { taskList.appendChild(createElement('p', {}, 'No hay tareas.')); }
             const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Nueva tarea...' }); 
-            const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }); 
-            attachBtn.innerHTML = ICONS.attach; // CORRECCIÓN: Usar innerHTML para SVG
-            const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
-            
-            // CORRECCIÓN: Mostrar audio seleccionado si existe
-            if(state.modal.selectedAudioId) { 
-                const sound = state.soundLibrary.find(s => s.id === state.modal.selectedAudioId); 
-                if(sound) audioInfo.textContent = `Audio: ${sound.name}`; 
-            }
-            
-            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); 
-            const body = createElement('div', {}, taskList, controls, audioInfo); 
+            const controls = createElement('div', { class: 'new-task-controls' }, input); 
+            const body = createElement('div', {}, taskList, controls); 
             const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir'); 
-            
             openModal(date.format('dddd, D [de] MMMM'), body, actions); 
-            attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
             
             actions.onclick = async () => { 
-                if (!input.value.trim()) return; 
+                const taskText = input.value.trim();
+                if (!taskText) return; 
                 if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; 
-                
-                state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); 
-                
-                // Limpiar el ID DESPUÉS de usarlo
-                state.modal.selectedAudioId = null; 
-                
+                const newTask = { text: taskText, completed: false, audioId: null };
+                state.dayDataMap[dateStr].tasks.push(newTask);
+                const newIndex = state.dayDataMap[dateStr].tasks.length - 1; 
                 try { 
                     await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); 
-                    openDayModal(dateStr); // Recargar modal
+                    
+                    // --- Dynamic Append ---
+                    const placeholder = taskList.querySelector('p'); // Buscar placeholder
+                    if (placeholder) placeholder.remove(); // Quitar "No hay tareas"
+
+                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': newIndex });
+                    const checkbox = createElement('input', { type: 'checkbox', id: `m-${newIndex}`, checked: false });
+                    const label = createElement('label', { for: `m-${newIndex}`, class: 'task-title' }, taskText);
+                    const attachBtnTask = createElement('button', { class: 'action-btn attach-task-btn' });
+                    attachBtnTask.innerHTML = ICONS.attach; 
+                    attachBtnTask.onclick = () => { openSoundSelectorModal(dateStr, newIndex); };
+                    
+                    taskEl.appendChild(checkbox); taskEl.appendChild(label); taskEl.appendChild(attachBtnTask);
+
+                    checkbox.onchange = async (e) => {
+                        const idx = parseInt(e.target.closest('.task-item').dataset.index, 10);
+                        if (state.dayDataMap[dateStr]?.tasks[idx]) {
+                            state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked;
+                            e.target.nextElementSibling.classList.toggle('completed', e.target.checked);
+                            try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); renderTasks(); renderCalendar(); } 
+                            catch (err) { console.error("Failed task save:", err); e.target.checked = !e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); }
+                        }
+                    };
+                    
+                    taskList.appendChild(taskEl);
+                    input.value = '';
+                    // --- End Dynamic Append ---
+
                     renderCalendar(); 
                     renderTasks(); 
-                } catch (err) { 
-                    console.error("Failed new task save:", err); 
-                    state.dayDataMap[dateStr].tasks.pop(); // Revertir si falla
-                    state.modal.selectedAudioId = null; // Limpiar también en error
-                } 
+                } catch (err) { console.error("Failed new task save:", err); state.dayDataMap[dateStr].tasks.pop(); } 
             }; 
         }
-        function openSoundSelectorModal(dateStr) { 
+        
+        function openSoundSelectorModal(dateStr, taskIndex = null) { 
              const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
             if (state.soundLibrary.length > 0) { 
                 state.soundLibrary.forEach(s => { 
                     const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist})`); 
-                    item.onclick = () => { 
-                        state.modal.selectedAudioId = s.id; // Guardar ID
-                        closeModal(true); // Forzar cierre
-                        openDayModal(dateStr); // Reabrir modal de día (que ahora leerá el ID)
+                    item.onclick = async () => { 
+                        if (taskIndex !== null) { 
+                             if (state.dayDataMap[dateStr]?.tasks[taskIndex]) {
+                                state.dayDataMap[dateStr].tasks[taskIndex].audioId = s.id;
+                                try {
+                                    await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks);
+                                    renderTasks(); 
+                                } catch (err) { console.error("Error saving audioId:", err); }
+                             }
+                             closeModal(true); 
+                             openDayModal(dateStr); 
+                        }
                     }; 
                     body.appendChild(item); 
                 }); 
             } else { body.textContent = "Biblioteca vacía."; } 
             openModal("Seleccionar Sonido", body); 
         }
+
         function openLibraryModal() { /* ... */ const body = createElement('div', {id: 'library-list-container'}); const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir'); actions.onclick = () => dom.audioFileInput.click(); openModal('Biblioteca', body, actions); renderLibraryModalContent(); }
         function renderLibraryModalContent() { /* ... */ const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
             state.soundLibrary.forEach(s => { const artistInput = createElement('input', { type: 'text', value: s.artist, 'data-field': 'artist', placeholder: 'Artista' }); const genreInput = createElement('input', { type: 'text', value: s.genre, 'data-field': 'genre', placeholder: 'Género' }); const item = createElement('div', { class: 'library-item', 'data-id': s.id }, createElement('div', {class: 'library-item-info'}, createElement('div', { class: 'library-item-title' }, s.name), artistInput, genreInput ), createElement('div', { class: 'library-item-duration' }, formatTime(s.duration)) ); item.onchange = e => { if (e.target.tagName !== 'INPUT') return; const soundId = parseInt(item.dataset.id); const sound = state.soundLibrary.find(s => s.id === soundId); if (sound) { sound[e.target.dataset.field] = e.target.value; updateSoundInDB(sound); populateFilterDropdowns(); renderPlayerPlaylist(); } }; container.appendChild(item); }); 
@@ -816,7 +933,7 @@
         function playTrack(sound) { /* ... */ if (!sound?.file) { console.error("Error: Archivo missing."); return; } if (state.currentHowl) { state.currentHowl.stop(); state.currentHowl.unload(); cancelAnimationFrame(state.playback.rafId); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); } try { const url = URL.createObjectURL(sound.file); state.currentTrackId = sound.id; state.currentHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onend: () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); }, onload: updatePlayerProgress, onloaderror: (id, err) => { console.error("Load err:", err); URL.revokeObjectURL(url); }, onplayerror: (id, err) => { console.error("Play err:", err); URL.revokeObjectURL(url); }, onseek: () => requestAnimationFrame(step) }); state.currentHowl.play(); dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; renderPlayerPlaylist(); } catch (err) { console.error("Howl setup err:", err); } }
         function playAudioClip(id, secs = 10) { /* ... */ if (!id) return; const sound = state.soundLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
         function setupPlayerIcons() { /* ... */ dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; }
-        function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowL.play(); }
+        function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowl.play(); }
         function updatePlayerUI() { /* ... */ const isPlaying=state.currentHowl?.playing();if(dom.player.playPauseBtn)dom.player.playPauseBtn.innerHTML=isPlaying?ICONS.pause:ICONS.play;if(dom.player.shuffleBtn)dom.player.shuffleBtn.classList.toggle('active',state.isShuffling);if(dom.player.repeatBtn){dom.player.repeatBtn.classList.toggle('active',state.repeatMode!=='none');dom.player.repeatBtn.innerHTML=state.repeatMode==='one'?ICONS.repeatOne:ICONS.repeat;}const canPrev=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist>0;const canNext=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist<state.currentPlaylist.length-1;if(dom.player.prevBtn)dom.player.prevBtn.disabled=!(state.currentPlaylist.length>0&&canPrev);if(dom.player.nextBtn)dom.player.nextBtn.disabled=!(state.currentPlaylist.length>0&&canNext); }
         function step() { /* ... */ if(state.currentHowl?.playing()){const seek=state.currentHowl.seek()||0;const duration=state.currentHowl.duration()||0;dom.player.currentTime.textContent=formatTime(seek);if(dom.player.totalTime.textContent==='0:00'&&duration>0){dom.player.totalTime.textContent=formatTime(duration);}state.playback.rafId=requestAnimationFrame(step);}else{cancelAnimationFrame(state.playback.rafId);} }
         function updatePlayerProgress() { /* ... */ const duration=state.currentHowl?.duration()||0;const currentTime=state.currentHowl?.seek()||0;if(!isNaN(duration))dom.player.totalTime.textContent=formatTime(duration);if(!isNaN(currentTime))dom.player.currentTime.textContent=formatTime(currentTime); }
@@ -833,23 +950,69 @@
         function renderCalendar() { /* ... */ if (state.calendarViewMode === 'days') renderDayGrid(); else renderMonthSelector(); }
         function renderDayGrid() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'block'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'none'; if (!dom.calendar.grid) return; dom.calendar.grid.innerHTML = ''; const today = dayjs().startOf('day'); if (!state.currentDate) state.currentDate = dayjs(); if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.currentDate.format('MMMM YYYY'); const firstDay = state.currentDate.startOf('month').day(); const days = state.currentDate.daysInMonth(); const offset = (firstDay === 0) ? 6 : firstDay - 1; for (let i = 0; i < offset; i++) dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' })); for (let d = 1; d <= days; d++) { const dayObj = state.currentDate.date(d); const ds = dayObj.format('YYYY-MM-DD'); const classes = ['calendar-day']; if (dayObj.isSame(today, 'day')) classes.push('today'); if (state.dayDataMap[ds]?.tasks?.some(t => !t.completed)) classes.push('has-task'); const dayEl = createElement('div', { class: classes.join(' '), 'data-date': ds }, createElement('span', { class: 'day-number' }, d.toString())); dom.calendar.grid.appendChild(dayEl); } }
         function renderMonthSelector() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'none'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'block'; if (!dom.calendar.monthSelectorWrapper) return; dom.calendar.monthSelectorWrapper.innerHTML = ''; if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.calendarYearInView; const monthGrid = createElement('div', { class: 'calendar-month-selector' }); const currentMonth = dayjs().year() === state.calendarYearInView ? dayjs().month() : -1; dayjs.months().forEach((name, idx) => { const classes = ['calendar-month-item']; if (idx === currentMonth) classes.push('current'); const item = createElement('div', { class: classes.join(' '), 'data-month': idx }, name); monthGrid.appendChild(item); }); dom.calendar.monthSelectorWrapper.appendChild(monthGrid); dom.calendar.monthSelectorWrapper.removeEventListener('click', handleMonthSelectorClick); dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); }
+        
+        // --- Render Tareas (Modificado) ---
         function renderTasks() { 
-            if (!dom.tasks.container) return; dom.tasks.container.innerHTML = ''; 
-            const today = dayjs().startOf('day'); const entries = Object.entries(state.dayDataMap);
-            const upcoming = entries.filter(([ds, d]) => d?.tasks?.length > 0 && dayjs(ds).isSameOrAfter(today, 'day')).sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); 
-            if (upcoming.length === 0) { dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, 'No hay tareas.')); return; } 
-            upcoming.forEach(([ds, d]) => { 
-                const date = dayjs(ds); const title = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM'); 
+            if (!dom.tasks.container) return; 
+            dom.tasks.container.innerHTML = ''; 
+            
+            const taskEntries = Object.entries(state.dayDataMap);
+            let tasksToRender = [];
+            const today = dayjs().startOf('day'); 
+
+            if (state.tasks.filterDate) {
+                // --- MODO: DÍA ESPECÍFICO ---
+                const dateStr = state.tasks.filterDate;
+                const data = state.dayDataMap[dateStr];
+                if (data && data.tasks && data.tasks.length > 0) {
+                    tasksToRender.push([dateStr, data]);
+                }
+            } else {
+                // --- MODO: "TODO EL TIEMPO" (defecto) ---
+                tasksToRender = taskEntries
+                    .filter(([ds, d]) => d?.tasks?.length > 0) // <-- CORRECCIÓN: Quitado filtro de fecha y completado
+                    .sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); 
+            }
+
+            if (tasksToRender.length === 0) { 
+                const message = state.tasks.filterDate 
+                    ? `No hay tareas para ${dayjs(state.tasks.filterDate).format('ll')}.`
+                    : 'No hay tareas programadas.'; // Mensaje actualizado
+                dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, message)); 
+                return; 
+            } 
+            
+            tasksToRender.forEach(([ds, d]) => { 
+                const date = dayjs(ds); 
+                const title = (date.isSame(today, 'day')) ? 'Hoy' : date.format('dddd, D [de] MMMM');
+
                 const group = createElement('div', { class: 'task-date-group' }, createElement('h3', {}, title)); 
-                d.tasks.forEach((t, i) => { 
+                
+                // Mostrar TODAS las tareas para ese día
+                const tasksToShow = d.tasks; 
+
+                tasksToShow.forEach((t, i) => { 
+                    const originalIndex = i; 
+
                     const playBtn = t.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; 
-                    if(playBtn) playBtn.innerHTML = ICONS.play_task; // CORRECCIÓN: Usar innerHTML
-                    const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index':i }, 
+                    if(playBtn) playBtn.innerHTML = ICONS.play_task; 
+
+                    const attachBtnTask = createElement('button', { class: 'action-btn attach-task-btn' });
+                    attachBtnTask.innerHTML = ICONS.attach; 
+                    
+                    const label = createElement('label', { 
+                        for:`ot-${ds}-${originalIndex}`, 
+                        class:`task-title ${t.completed?'completed':''}`,
+                        style: t.audioId ? 'color: var(--primary-color); font-weight: 600;' : null 
+                    }, t.text);
+
+                    const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index': originalIndex }, 
                         createElement('div', {class:'task-item-content'}, 
-                            createElement('input', { type:'checkbox', id:`ot-${ds}-${i}`, checked:t.completed }), 
-                            createElement('label', { for:`ot-${ds}-${i}`, class:`task-title ${t.completed?'completed':''}` }, t.text)
+                            createElement('input', { type:'checkbox', id:`ot-${ds}-${originalIndex}`, checked:t.completed }), 
+                            label
                         ), 
                         playBtn, 
+                        attachBtnTask, 
                         createElement('button', { class:'delete-btn action-btn' }, '×')
                     ); 
                     group.appendChild(el); 
