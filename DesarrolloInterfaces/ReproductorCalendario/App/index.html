@@ -520,8 +520,10 @@
             play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
         };
 
-        // --- Utils --- Moved Up ---
-        // (Funciones de utilidad movidas aquí para asegurar que estén definidas)
+        // --- DOM Elements (se definen después de las funciones de utilidad) ---
+        // ...
+        
+        // --- Utils (Movidas Arriba) ---
         function hexToRgb(hex) { var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
         function openModal(title, bodyEl, actionsEl = null) { if (!dom.modal.overlay) return; dom.modal.title.textContent = title; dom.modal.body.innerHTML = ''; dom.modal.body.appendChild(bodyEl); dom.modal.actions.innerHTML = ''; if (actionsEl) dom.modal.actions.appendChild(actionsEl); dom.modal.overlay.classList.add('visible'); }
         function closeModal(force = false) { 
@@ -532,19 +534,23 @@
             }
         }
         async function forceCloseModal() { 
-            await applyTheme(state.modal.initialThemeSettings); 
+            if (dom.modal.title.textContent === 'Personalizar Tema') {
+                 await applyTheme(state.modal.initialThemeSettings); 
+                 state.modal.themeChangesMade = false; 
+                 state.modal.initialThemeSettings = null; 
+                 const urlInput = document.getElementById('bg-image-url');
+                 if(urlInput?.dataset.imageDataUrl) {
+                     delete urlInput.dataset.imageDataUrl;
+                 }
+            }
+            if (dom.modal.title.textContent !== 'Descartar Cambios') {
+                 state.modal.selectedAudioId = null;
+            }
             if (dom.modal.overlay) dom.modal.overlay.classList.remove('visible'); 
-            state.modal.themeChangesMade = false; 
-            state.modal.initialThemeSettings = null; 
-             const urlInput = document.getElementById('bg-image-url');
-             if(urlInput?.dataset.imageDataUrl) {
-                 delete urlInput.dataset.imageDataUrl;
-             }
         } 
         function openConfirmModal() { if (dom.confirmModal.overlay) dom.confirmModal.overlay.classList.add('visible'); }
         function closeConfirmModal() { if (dom.confirmModal.overlay) dom.confirmModal.overlay.classList.remove('visible'); }
         function createElement(tag, attrs = {}, ...children) { const el = document.createElement(tag); Object.entries(attrs).forEach(([k, v]) => { if (k === 'class') el.className = v; else if (k.startsWith('data-')) el.dataset[k.substring(5)] = v; else if (typeof v === 'boolean') el[k] = v; else if (v != null) el.setAttribute(k, v); }); children.forEach(c => c != null && el.append(typeof c === 'string' ? document.createTextNode(c) : c)); return el; }
-        // Se necesita crear el namespace de SVG
         function createElementNS(ns, tag, attrs = {}, ...children) { const el = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => { if (v != null) el.setAttribute(k, v); }); children.forEach(c => c != null && el.append(typeof c === 'string' ? document.createTextNode(c) : c)); return el; }
         function formatTime(secs) { if(isNaN(secs)||secs<0)return '0:00'; const m=Math.floor(secs/60); const s=Math.floor(secs%60).toString().padStart(2,'0'); return `${m}:${s}`; }
         function debounce(fn, wait) { let t; return function(...a){ const later=()=>{clearTimeout(t); fn.apply(this,a);}; clearTimeout(t); t=setTimeout(later, wait);}; }
@@ -719,27 +725,89 @@
        async function applyTheme(settings = null) { /* ... applyTheme logic (igual que antes) ... */ if (!settings) settings = await loadSettingsFromDB(); settings = settings || {}; const themeClass = settings.themeClass || 'dark-theme'; const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF'; const primaryColor = settings.primaryColor || defaultColor; const bgImg = settings.backgroundImage || ''; document.documentElement.className = themeClass; const rgb = hexToRgb(primaryColor); const transl = rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},0.3)` : 'rgba(0,122,255,0.3)'; document.documentElement.style.setProperty('--primary-color', primaryColor); document.documentElement.style.setProperty('--primary-color-translucent', transl); document.getElementById('dynamic-bg-style').textContent = `body::before{background-image:${bgImg?`url('${bgImg}')`:'none'};}`; if (state.currentPageIndex === 3) renderStatsPage(); }
        
         // --- Modales ---
-       async function openDayModal(dateStr) { /* ... openDayModal logic ... */ 
-            state.modal.selectedAudioId = null; const date = dayjs(dateStr); const dayData = state.dayDataMap[dateStr] || { tasks: [] }; const taskList = createElement('div', { id: 'task-list-modal' }); 
-            if (dayData.tasks.length > 0) { dayData.tasks.forEach((t, i) => { const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': i }, createElement('input', { type: 'checkbox', id: `m-${i}`, checked: t.completed }), createElement('label', { for: `m-${i}`, class: `task-title ${t.completed?'completed':''}` }, t.text) ); taskEl.querySelector('input').onchange = async (e) => { const idx = parseInt(e.target.closest('.task-item').dataset.index, 10); state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); e.target.checked = !e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); } }; taskList.appendChild(taskEl); }); } 
+       async function openDayModal(dateStr) { 
+            // CORRECCIÓN: NO limpiar el audioId al abrir, solo al AÑADIR.
+            // state.modal.selectedAudioId = null; // <--- BUG 2 ELIMINADO
+            const date = dayjs(dateStr); const dayData = state.dayDataMap[dateStr] || { tasks: [] }; const taskList = createElement('div', { id: 'task-list-modal' }); 
+            if (dayData.tasks.length > 0) {
+                dayData.tasks.forEach((task, index) => {
+                    // CORRECCIÓN BUG 1: Usar 'index' para id/for, no 'i'
+                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
+                        createElement('input', { type: 'checkbox', id: `m-${index}`, checked: task.completed }), 
+                        createElement('label', { for: `m-${index}`, class: `task-title ${task.completed?'completed':''}` }, task.text) 
+                    );
+                    taskEl.querySelector('input').onchange = async (e) => { 
+                        const idx = parseInt(e.target.closest('.task-item').dataset.index, 10); 
+                        if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks[idx]) {
+                            state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked; 
+                            e.target.nextElementSibling.classList.toggle('completed', e.target.checked);
+                            try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); renderTasks(); renderCalendar(); } 
+                            catch (err) { console.error("Failed task save:", err); e.target.checked = !e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); }
+                        }
+                    }; 
+                    taskList.appendChild(taskEl); 
+                }); 
+            } 
             else { taskList.appendChild(createElement('p', {}, 'No hay tareas.')); }
-            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Nueva tarea...' }); const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }, ICONS.attach); const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
-            if(state.modal.selectedAudioId) { const sound = state.soundLibrary.find(s => s.id === state.modal.selectedAudioId); if(sound) audioInfo.textContent = `Audio: ${sound.name}`; }
-            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); const body = createElement('div', {}, taskList, controls, audioInfo); const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir'); 
-            openModal(date.format('dddd, D [de] MMMM'), body, actions); attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
-            actions.onclick = async () => { if (!input.value.trim()) return; if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); openDayModal(dateStr); renderCalendar(); renderTasks(); } catch (err) { console.error("Failed new task save:", err); state.dayDataMap[dateStr].tasks.pop(); } }; 
+            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Nueva tarea...' }); 
+            const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }); 
+            attachBtn.innerHTML = ICONS.attach; // CORRECCIÓN: Usar innerHTML para SVG
+            const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
+            
+            // CORRECCIÓN: Mostrar audio seleccionado si existe
+            if(state.modal.selectedAudioId) { 
+                const sound = state.soundLibrary.find(s => s.id === state.modal.selectedAudioId); 
+                if(sound) audioInfo.textContent = `Audio: ${sound.name}`; 
+            }
+            
+            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); 
+            const body = createElement('div', {}, taskList, controls, audioInfo); 
+            const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir'); 
+            
+            openModal(date.format('dddd, D [de] MMMM'), body, actions); 
+            attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
+            
+            actions.onclick = async () => { 
+                if (!input.value.trim()) return; 
+                if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; 
+                
+                state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); 
+                
+                // Limpiar el ID DESPUÉS de usarlo
+                state.modal.selectedAudioId = null; 
+                
+                try { 
+                    await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); 
+                    openDayModal(dateStr); // Recargar modal
+                    renderCalendar(); 
+                    renderTasks(); 
+                } catch (err) { 
+                    console.error("Failed new task save:", err); 
+                    state.dayDataMap[dateStr].tasks.pop(); // Revertir si falla
+                    state.modal.selectedAudioId = null; // Limpiar también en error
+                } 
+            }; 
         }
-        function openSoundSelectorModal(dateStr) { /* ... openSoundSelectorModal logic ... */ 
-            const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
-            if (state.soundLibrary.length > 0) { state.soundLibrary.forEach(s => { const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist})`); item.onclick = () => { state.modal.selectedAudioId = s.id; closeModal(true); openDayModal(dateStr); requestAnimationFrame(() => { const el = document.getElementById('attached-audio-info'); if (el) el.textContent = `Audio: ${s.name}`; }); }; body.appendChild(item); }); } 
-            else { body.textContent = "Biblioteca vacía."; } openModal("Seleccionar Sonido", body); 
+        function openSoundSelectorModal(dateStr) { 
+             const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
+            if (state.soundLibrary.length > 0) { 
+                state.soundLibrary.forEach(s => { 
+                    const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist})`); 
+                    item.onclick = () => { 
+                        state.modal.selectedAudioId = s.id; // Guardar ID
+                        closeModal(true); // Forzar cierre
+                        openDayModal(dateStr); // Reabrir modal de día (que ahora leerá el ID)
+                    }; 
+                    body.appendChild(item); 
+                }); 
+            } else { body.textContent = "Biblioteca vacía."; } 
+            openModal("Seleccionar Sonido", body); 
         }
-        function openLibraryModal() { /* ... openLibraryModal logic ... */ const body = createElement('div', {id: 'library-list-container'}); const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir'); actions.onclick = () => dom.audioFileInput.click(); openModal('Biblioteca', body, actions); renderLibraryModalContent(); }
-        function renderLibraryModalContent() { /* ... renderLibraryModalContent logic ... */ 
-             const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
+        function openLibraryModal() { /* ... */ const body = createElement('div', {id: 'library-list-container'}); const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir'); actions.onclick = () => dom.audioFileInput.click(); openModal('Biblioteca', body, actions); renderLibraryModalContent(); }
+        function renderLibraryModalContent() { /* ... */ const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
             state.soundLibrary.forEach(s => { const artistInput = createElement('input', { type: 'text', value: s.artist, 'data-field': 'artist', placeholder: 'Artista' }); const genreInput = createElement('input', { type: 'text', value: s.genre, 'data-field': 'genre', placeholder: 'Género' }); const item = createElement('div', { class: 'library-item', 'data-id': s.id }, createElement('div', {class: 'library-item-info'}, createElement('div', { class: 'library-item-title' }, s.name), artistInput, genreInput ), createElement('div', { class: 'library-item-duration' }, formatTime(s.duration)) ); item.onchange = e => { if (e.target.tagName !== 'INPUT') return; const soundId = parseInt(item.dataset.id); const sound = state.soundLibrary.find(s => s.id === soundId); if (sound) { sound[e.target.dataset.field] = e.target.value; updateSoundInDB(sound); populateFilterDropdowns(); renderPlayerPlaylist(); } }; container.appendChild(item); }); 
         }
-        function populateFilterDropdowns() { /* ... populateFilterDropdowns logic ... */ const genres = ['Todos Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; const artists = ['Todos Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; const curGenre = dom.player.genreFilter.value; const curArtist = dom.player.artistFilter.value; dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); dom.player.genreFilter.value = genres.includes(curGenre) ? curGenre : genres[0]; dom.player.artistFilter.value = artists.includes(curArtist) ? curArtist : artists[0]; }
+        function populateFilterDropdowns() { /* ... */ const genres = ['Todos Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; const artists = ['Todos Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; const curGenre = dom.player.genreFilter.value; const curArtist = dom.player.artistFilter.value; dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); dom.player.genreFilter.value = genres.includes(curGenre) ? curGenre : genres[0]; dom.player.artistFilter.value = artists.includes(curArtist) ? curArtist : artists[0]; }
         
         // --- Player Logic ---
         function renderPlayerPlaylist() { /* ... */ dom.player.playlist.innerHTML = ''; const st = dom.player.searchBar.value.toLowerCase(); const sg = dom.player.genreFilter.value; const sa = dom.player.artistFilter.value; const filtLib = state.soundLibrary.filter(s => (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && (sg === 'Todos Géneros' || s.genre === sg) && (sa === 'Todos Artistas' || s.artist === sa) ); state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib; state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId); if (state.currentPlaylist.length === 0) { dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Vacía.' : 'No resultados.')); return; } state.currentPlaylist.forEach(s => { const item = createElement('div', { class: 'playlist-item', 'data-id': s.id }, createElement('div', {}, createElement('div', {}, s.name), createElement('div', {class:'track-meta'}, `${s.artist||'N/A'} - ${s.genre||'N/A'}`) ), createElement('div', {}, formatTime(s.duration)) ); if (s.id === state.currentTrackId) item.classList.add('playing'); dom.player.playlist.appendChild(item); }); }
@@ -748,7 +816,7 @@
         function playTrack(sound) { /* ... */ if (!sound?.file) { console.error("Error: Archivo missing."); return; } if (state.currentHowl) { state.currentHowl.stop(); state.currentHowl.unload(); cancelAnimationFrame(state.playback.rafId); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); } try { const url = URL.createObjectURL(sound.file); state.currentTrackId = sound.id; state.currentHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onend: () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); }, onload: updatePlayerProgress, onloaderror: (id, err) => { console.error("Load err:", err); URL.revokeObjectURL(url); }, onplayerror: (id, err) => { console.error("Play err:", err); URL.revokeObjectURL(url); }, onseek: () => requestAnimationFrame(step) }); state.currentHowl.play(); dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; renderPlayerPlaylist(); } catch (err) { console.error("Howl setup err:", err); } }
         function playAudioClip(id, secs = 10) { /* ... */ if (!id) return; const sound = state.soundLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
         function setupPlayerIcons() { /* ... */ dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; }
-        function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowl.play(); }
+        function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowL.play(); }
         function updatePlayerUI() { /* ... */ const isPlaying=state.currentHowl?.playing();if(dom.player.playPauseBtn)dom.player.playPauseBtn.innerHTML=isPlaying?ICONS.pause:ICONS.play;if(dom.player.shuffleBtn)dom.player.shuffleBtn.classList.toggle('active',state.isShuffling);if(dom.player.repeatBtn){dom.player.repeatBtn.classList.toggle('active',state.repeatMode!=='none');dom.player.repeatBtn.innerHTML=state.repeatMode==='one'?ICONS.repeatOne:ICONS.repeat;}const canPrev=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist>0;const canNext=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist<state.currentPlaylist.length-1;if(dom.player.prevBtn)dom.player.prevBtn.disabled=!(state.currentPlaylist.length>0&&canPrev);if(dom.player.nextBtn)dom.player.nextBtn.disabled=!(state.currentPlaylist.length>0&&canNext); }
         function step() { /* ... */ if(state.currentHowl?.playing()){const seek=state.currentHowl.seek()||0;const duration=state.currentHowl.duration()||0;dom.player.currentTime.textContent=formatTime(seek);if(dom.player.totalTime.textContent==='0:00'&&duration>0){dom.player.totalTime.textContent=formatTime(duration);}state.playback.rafId=requestAnimationFrame(step);}else{cancelAnimationFrame(state.playback.rafId);} }
         function updatePlayerProgress() { /* ... */ const duration=state.currentHowl?.duration()||0;const currentTime=state.currentHowl?.seek()||0;if(!isNaN(duration))dom.player.totalTime.textContent=formatTime(duration);if(!isNaN(currentTime))dom.player.currentTime.textContent=formatTime(currentTime); }
@@ -765,7 +833,30 @@
         function renderCalendar() { /* ... */ if (state.calendarViewMode === 'days') renderDayGrid(); else renderMonthSelector(); }
         function renderDayGrid() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'block'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'none'; if (!dom.calendar.grid) return; dom.calendar.grid.innerHTML = ''; const today = dayjs().startOf('day'); if (!state.currentDate) state.currentDate = dayjs(); if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.currentDate.format('MMMM YYYY'); const firstDay = state.currentDate.startOf('month').day(); const days = state.currentDate.daysInMonth(); const offset = (firstDay === 0) ? 6 : firstDay - 1; for (let i = 0; i < offset; i++) dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' })); for (let d = 1; d <= days; d++) { const dayObj = state.currentDate.date(d); const ds = dayObj.format('YYYY-MM-DD'); const classes = ['calendar-day']; if (dayObj.isSame(today, 'day')) classes.push('today'); if (state.dayDataMap[ds]?.tasks?.some(t => !t.completed)) classes.push('has-task'); const dayEl = createElement('div', { class: classes.join(' '), 'data-date': ds }, createElement('span', { class: 'day-number' }, d.toString())); dom.calendar.grid.appendChild(dayEl); } }
         function renderMonthSelector() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'none'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'block'; if (!dom.calendar.monthSelectorWrapper) return; dom.calendar.monthSelectorWrapper.innerHTML = ''; if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.calendarYearInView; const monthGrid = createElement('div', { class: 'calendar-month-selector' }); const currentMonth = dayjs().year() === state.calendarYearInView ? dayjs().month() : -1; dayjs.months().forEach((name, idx) => { const classes = ['calendar-month-item']; if (idx === currentMonth) classes.push('current'); const item = createElement('div', { class: classes.join(' '), 'data-month': idx }, name); monthGrid.appendChild(item); }); dom.calendar.monthSelectorWrapper.appendChild(monthGrid); dom.calendar.monthSelectorWrapper.removeEventListener('click', handleMonthSelectorClick); dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); }
-        function renderTasks() { /* ... */ if (!dom.tasks.container) return; dom.tasks.container.innerHTML = ''; const today = dayjs().startOf('day'); const entries = Object.entries(state.dayDataMap); const upcoming = entries.filter(([ds, d]) => d?.tasks?.length > 0 && dayjs(ds).isSameOrAfter(today, 'day')).sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); if (upcoming.length === 0) { dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, 'No hay tareas.')); return; } upcoming.forEach(([ds, d]) => { const date = dayjs(ds); const title = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM'); const group = createElement('div', { class: 'task-date-group' }, createElement('h3', {}, title)); d.tasks.forEach((t, i) => { const pb = t.audioId ? createElement('button', { class: 'action-btn play-task-btn' }, ICONS.play_task) : null; const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index':i }, createElement('div', {class:'task-item-content'}, createElement('input', { type:'checkbox', id:`ot-${ds}-${i}`, checked:t.completed }), createElement('label', { for:`ot-${ds}-${i}`, class:`task-title ${t.completed?'completed':''}` }, t.text)), pb, createElement('button', { class:'delete-btn action-btn' }, '×')); group.appendChild(el); }); dom.tasks.container.appendChild(group); }); }
+        function renderTasks() { 
+            if (!dom.tasks.container) return; dom.tasks.container.innerHTML = ''; 
+            const today = dayjs().startOf('day'); const entries = Object.entries(state.dayDataMap);
+            const upcoming = entries.filter(([ds, d]) => d?.tasks?.length > 0 && dayjs(ds).isSameOrAfter(today, 'day')).sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); 
+            if (upcoming.length === 0) { dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, 'No hay tareas.')); return; } 
+            upcoming.forEach(([ds, d]) => { 
+                const date = dayjs(ds); const title = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM'); 
+                const group = createElement('div', { class: 'task-date-group' }, createElement('h3', {}, title)); 
+                d.tasks.forEach((t, i) => { 
+                    const playBtn = t.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; 
+                    if(playBtn) playBtn.innerHTML = ICONS.play_task; // CORRECCIÓN: Usar innerHTML
+                    const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index':i }, 
+                        createElement('div', {class:'task-item-content'}, 
+                            createElement('input', { type:'checkbox', id:`ot-${ds}-${i}`, checked:t.completed }), 
+                            createElement('label', { for:`ot-${ds}-${i}`, class:`task-title ${t.completed?'completed':''}` }, t.text)
+                        ), 
+                        playBtn, 
+                        createElement('button', { class:'delete-btn action-btn' }, '×')
+                    ); 
+                    group.appendChild(el); 
+                }); 
+                dom.tasks.container.appendChild(group); 
+            }); 
+        }
 
         // --- Página de Estadísticas (Vanilla JS SVG) ---
         function renderStatsPage() {
