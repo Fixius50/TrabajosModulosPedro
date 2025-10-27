@@ -173,7 +173,9 @@
 
         /* --- Calendario --- */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .calendar-header h2 { font-weight: 600; color: var(--text-color); margin: 0 1rem; font-size: 1.25rem; }
+        /* Añadido cursor pointer al h2 */
+        .calendar-header h2 { font-weight: 600; color: var(--text-color); margin: 0 1rem; font-size: 1.25rem; cursor: pointer; transition: color 0.2s; }
+        .calendar-header h2:hover { color: var(--primary-color); }
         .calendar-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; flex-shrink: 0; }
         .calendar-header button:hover { background-color: var(--button-background-color); }
         .calendar-grid, .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; /* 8px */ }
@@ -187,6 +189,31 @@
         .calendar-day::after { content: '+'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.8rem; font-weight: 300; color: var(--primary-color); opacity: 0; transition: opacity 0.2s ease-in-out; z-index: 3; }
         .calendar-day:not(.empty):hover .day-number { opacity: 0; }
         .calendar-day:not(.empty):hover::after { opacity: 1; }
+
+        /* Estilos para el selector de meses */
+        .calendar-month-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+            gap: 1rem;
+            padding: 1rem 0; /* Espaciado vertical */
+        }
+        .calendar-month-item {
+            padding: 1rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        .calendar-month-item:hover {
+            background-color: var(--button-background-color);
+        }
+        .calendar-month-item.current { /* Estilo para el mes actual */
+             background-color: var(--primary-color-translucent);
+             font-weight: 700;
+             color: var(--primary-color);
+        }
+
 
         /* --- Tareas y Reproductor --- */
         .task-date-group { margin-bottom: 1.5rem; }
@@ -255,6 +282,9 @@
         .modal-close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--secondary-text-color); line-height: 1; }
         .modal-button { padding: 0.6rem 1rem; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; }
         .modal-button.primary { background-color: var(--primary-color); color: white; }
+        .modal-button.danger { background-color: var(--danger-color); color: white; } /* Para botón Descartar */
+        .modal-button.secondary { background-color: var(--button-background-color); color: var(--text-color); border: 1px solid var(--border-color); }
+
 
         .new-task-controls {
             display: flex;
@@ -291,12 +321,66 @@
         .library-item-duration { justify-self: end; font-family: 'SF Mono', monospace; }
         #library-placeholder { text-align: center; padding: 2rem; color: var(--secondary-text-color); }
 
-        /* Estilos para la página de estadísticas */
+        /* Estilos para la página de estadísticas con SVG */
         #stats-chart-container {
             width: 100%;
-            max-width: 60rem; /* 960px */
+            max-width: 60rem; 
             margin: 0 auto;
-            height: 25rem; /* 400px */
+            height: 25rem; 
+            /* Quitamos borde y padding, el SVG manejará su espacio */
+            position: relative; 
+        }
+        #stats-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible; /* Para ver etiquetas fuera del viewbox */
+        }
+        .stats-area {
+            fill: var(--primary-color-translucent);
+            stroke: none;
+            opacity: 0.8;
+        }
+        .stats-line {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 2.5px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .stats-point {
+            fill: var(--primary-color);
+            stroke: var(--background-color);
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: r 0.2s;
+        }
+        .stats-point:hover {
+            r: 6px; /* Agrandar punto en hover */
+        }
+        .svg-tooltip {
+            position: absolute;
+            background: var(--button-background-color);
+            color: var(--text-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            /* Se posicionará con JS */
+        }
+        .stats-axis {
+            stroke: var(--border-color);
+            stroke-width: 1px;
+            stroke-dasharray: 2 3; /* Línea punteada */
+        }
+        .stats-label {
+            fill: var(--secondary-text-color);
+            font-size: 0.75rem; /* 12px */
+            font-family: 'Inter', sans-serif;
         }
 
 
@@ -304,109 +388,39 @@
         
         /* Media query para pantallas más pequeñas (móviles) */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column; /* Cambia a layout de columna */
-                height: auto;
-                min-height: 100vh;
-            }
-            
-            #sidebar-nav {
-                width: 100%;
-                height: auto;
-                padding: 0.5rem;
-                flex-direction: row; /* Botones en fila */
-                justify-content: space-around; /* Espaciado uniforme */
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-            
-            .nav-btn {
-                flex-direction: column; /* Ícono arriba, texto abajo */
-                gap: 0.2rem;
-                font-size: 0.75rem; /* Texto más pequeño */
-                padding: 0.5rem;
-                flex-grow: 1; /* Ocupar espacio equitativo */
-            }
-            
-            .nav-btn span {
-                display: block; /* Asegurar que el span esté visible */
-            }
-            
-            .main-content {
-                height: auto;
-                overflow-y: visible;
-                flex-grow: 1;
-            }
-            
-            .app-page {
-                padding: 1rem; /* Menos padding */
-            }
-            
-            .page-title {
-                font-size: 1.75rem;
-                margin-bottom: 1rem;
-            }
-            
-            .search-controls {
-                flex-direction: column;
-            }
-            .search-controls select {
-                width: 100%;
-                max-width: none;
-            }
-            
-            .modal-content {
-                width: 95%;
-                max-height: 85vh;
-            }
+            body { flex-direction: column; height: auto; min-height: 100vh; }
+            #sidebar-nav { width: 100%; height: auto; padding: 0.5rem; flex-direction: row; justify-content: space-around; border-right: none; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+            .nav-btn { flex-direction: column; gap: 0.2rem; font-size: 0.75rem; padding: 0.5rem; flex-grow: 1; }
+            .nav-btn span { display: block; }
+            .main-content { height: auto; overflow-y: visible; flex-grow: 1; }
+            .app-page { padding: 1rem; }
+            .page-title { font-size: 1.75rem; margin-bottom: 1rem; }
+            .search-controls { flex-direction: column; }
+            .search-controls select { width: 100%; max-width: none; }
+            .modal-content { width: 95%; max-height: 85vh; }
+            #stats-chart-container { height: 20rem; }
+            .stats-label { font-size: 0.65rem; }
         }
     </style>
 </head>
 <body class="dark-theme"> <!-- Default to dark -->
 
-    <!-- Hoja de estilos dinámica para el fondo (usada por JS) -->
     <style id="dynamic-bg-style"></style>
 
-    <!-- Barra Lateral -->
     <nav id="sidebar-nav">
-        <!-- Los data-index coinciden con el orden de las páginas -->
-        <button class="nav-btn active" data-index="0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z" /></svg>
-            <span>Música</span>
-        </button>
-        <button class="nav-btn" data-index="1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z" /></svg>
-            <span>Calendario</span>
-        </button>
-        <button class="nav-btn" data-index="2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.54,5.23C20.83,5.57 21,6 21,6.5C21,7.28 20.5,8.14 19.83,8.71L18.71,7.59C19.05,7.25 19.23,6.9 19.23,6.5C19.23,6.3 19.16,6.11 19.04,5.96L17.5,3.54C17.21,3 16.68,2.65 16,2.5C15.32,2.35 14.63,2.5 14.11,3L12,4.4L9.89,3C9.37,2.5 8.68,2.35 8,2.5C7.32,2.65 6.79,3 6.5,3.54L5,5.96C4.84,6.11 4.77,6.3 4.77,6.5C4.77,6.9 4.95,7.25 5.29,7.59L4.17,8.71C3.5,8.14 3,7.28 3,6.5C3,6 3.17,5.57 3.46,5.23L5.34,2.77C5.8,2.16 6.5,1.74 7.28,1.58C8.06,1.42 8.88,1.58 9.54,2.11L12,4L14.46,2.11C15.12,1.58 15.94,1.42 16.72,1.58C17.5,1.74 18.2,2.16 18.66,2.77L20.54,5.23M19.83,15.29L18.71,16.41C19.05,16.75 19.23,17.1 19.23,17.5C19.23,17.7 19.16,17.89 19.04,18.04L17.5,20.46C17.21,21 16.68,21.35 16,21.5C15.32,21.65 14.63,21.5 14.11,21L12,19.6L9.89,21C9.37,21.5 8.68,21.65 8,21.5C7.32,21.35 6.79,21 6.5,20.46L5,18.04C4.84,17.89 4.77,17.7 4.77,17.5C4.77,17.1 4.95,16.75 5.29,16.41L4.17,15.29C3.5,15.86 3,16.72 3,17.5C3,18 3.17,18.43 3.46,18.77L5.34,21.23C5.8,21.84 6.5,22.26 7.28,22.42C8.06,22.58 8.88,22.42 9.54,21.89L12,20L14.46,21.89C15.12,22.42 15.94,22.58 16.72,22.42C17.5,22.26 18.2,21.84 18.66,21.23L20.54,18.77C20.83,18.43 21,18 21,17.5C21,16.72 20.5,15.86 19.83,15.29M12,8C10.9,8 10,8.9 10,10C10,11.1 10.9,12 12,12C13.1,12 14,11.1 14,10C14,8.9 13.1,8 12,8Z" /></svg>
-            <span>Tareas</span>
-        </button>
-        <button class="nav-btn" data-index="3">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.5,20.5L9.5,14.5L13.5,18.5L19.5,12.5L20.91,13.91L13.5,21.31L9.5,17.31L3.5,23.31L2.09,21.9L3.5,20.5M3.5,12.5L9.5,6.5L13.5,10.5L20.91,3.09L19.5,1.68L13.5,7.68L9.5,3.68L3.5,9.68L2.09,8.27L3.5,6.86L3.5,12.5Z" /></svg>
-            <span>Estadísticas</span>
-        </button>
-        <button class="nav-btn" data-index="4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94C19.03,11.93 18.69,10.96 18.13,10.06C17.56,9.15 16.74,8.4 15.77,7.85L16.7,6.93C17.09,6.54 17.09,5.91 16.7,5.5L15.28,4.09C14.89,3.7 14.26,3.7 13.87,4.09L12.95,5.02C12.04,4.5 11.07,4.2 10.06,4.1C9.04,4 8,4.16 7.03,4.6L6.11,3.68C5.72,3.29 5.09,3.29 4.7,3.68L3.28,5.09C2.89,5.48 2.89,6.11 3.28,6.5L4.2,7.42C3.66,8.39 3.31,9.45 3.19,10.56C3.07,11.67 3.25,12.8 3.7,13.82L2.78,14.74C2.39,15.13 2.39,15.76 2.78,16.15L4.2,17.56C4.59,17.95 5.22,17.95 5.61,17.56L6.53,16.64C7.44,17.16 8.4,17.47 9.4,17.57C10.4,17.67 11.42,17.5 12.37,17.07L13.29,18C13.68,18.39 14.31,18.39 14.7,18L16.12,16.59C16.5,16.2 16.5,15.57 16.12,15.18L15.2,14.26C15.73,13.35 16.03,12.38 16.04,11.37C16.05,10.36 15.8,9.35 15.3,8.46L17.75,6C18.69,6.94 19.38,8.12 19.75,9.45C20.11,10.78 20.12,12.17 19.77,13.5C19.42,14.82 18.73,16.03 17.79,16.97L19.21,18.38C19.6,18.77 20.23,18.77 20.62,18.38L22,17C22.39,16.61 22.39,15.97 22,15.58C21.39,14.64 20.47,13.9 19.34,13.42C19.24,13.26 19.16,13.1 19.14,12.94M12,9.5A2.5,2.5 0 0,1 14.5,12A2.5,2.5 0 0,1 12,14.5A2.5,2.5 0 0,1 9.5,12A2.5,2.5 0 0,1 12,9.5Z" /></svg>
-            <span>Ajustes</span>
-        </button>
+        <button class="nav-btn active" data-index="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z" /></svg><span>Música</span></button>
+        <button class="nav-btn" data-index="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z" /></svg><span>Calendario</span></button>
+        <button class="nav-btn" data-index="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.54,5.23C20.83,5.57 21,6 21,6.5C21,7.28 20.5,8.14 19.83,8.71L18.71,7.59C19.05,7.25 19.23,6.9 19.23,6.5C19.23,6.3 19.16,6.11 19.04,5.96L17.5,3.54C17.21,3 16.68,2.65 16,2.5C15.32,2.35 14.63,2.5 14.11,3L12,4.4L9.89,3C9.37,2.5 8.68,2.35 8,2.5C7.32,2.65 6.79,3 6.5,3.54L5,5.96C4.84,6.11 4.77,6.3 4.77,6.5C4.77,6.9 4.95,7.25 5.29,7.59L4.17,8.71C3.5,8.14 3,7.28 3,6.5C3,6 3.17,5.57 3.46,5.23L5.34,2.77C5.8,2.16 6.5,1.74 7.28,1.58C8.06,1.42 8.88,1.58 9.54,2.11L12,4L14.46,2.11C15.12,1.58 15.94,1.42 16.72,1.58C17.5,1.74 18.2,2.16 18.66,2.77L20.54,5.23M19.83,15.29L18.71,16.41C19.05,16.75 19.23,17.1 19.23,17.5C19.23,17.7 19.16,17.89 19.04,18.04L17.5,20.46C17.21,21 16.68,21.35 16,21.5C15.32,21.65 14.63,21.5 14.11,21L12,19.6L9.89,21C9.37,21.5 8.68,21.65 8,21.5C7.32,21.35 6.79,21 6.5,20.46L5,18.04C4.84,17.89 4.77,17.7 4.77,17.5C4.77,17.1 4.95,16.75 5.29,16.41L4.17,15.29C3.5,15.86 3,16.72 3,17.5C3,18 3.17,18.43 3.46,18.77L5.34,21.23C5.8,21.84 6.5,22.26 7.28,22.42C8.06,22.58 8.88,22.42 9.54,21.89L12,20L14.46,21.89C15.12,22.42 15.94,22.58 16.72,22.42C17.5,22.26 18.2,21.84 18.66,21.23L20.54,18.77C20.83,18.43 21,18 21,17.5C21,16.72 20.5,15.86 19.83,15.29M12,8C10.9,8 10,8.9 10,10C10,11.1 10.9,12 12,12C13.1,12 14,11.1 14,10C14,8.9 13.1,8 12,8Z" /></svg><span>Tareas</span></button>
+        <button class="nav-btn" data-index="3"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3.5,20.5L9.5,14.5L13.5,18.5L19.5,12.5L20.91,13.91L13.5,21.31L9.5,17.31L3.5,23.31L2.09,21.9L3.5,20.5M3.5,12.5L9.5,6.5L13.5,10.5L20.91,3.09L19.5,1.68L13.5,7.68L9.5,3.68L3.5,9.68L2.09,8.27L3.5,6.86L3.5,12.5Z" /></svg><span>Estadísticas</span></button>
+        <button class="nav-btn" data-index="4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94C19.03,11.93 18.69,10.96 18.13,10.06C17.56,9.15 16.74,8.4 15.77,7.85L16.7,6.93C17.09,6.54 17.09,5.91 16.7,5.5L15.28,4.09C14.89,3.7 14.26,3.7 13.87,4.09L12.95,5.02C12.04,4.5 11.07,4.2 10.06,4.1C9.04,4 8,4.16 7.03,4.6L6.11,3.68C5.72,3.29 5.09,3.29 4.7,3.68L3.28,5.09C2.89,5.48 2.89,6.11 3.28,6.5L4.2,7.42C3.66,8.39 3.31,9.45 3.19,10.56C3.07,11.67 3.25,12.8 3.7,13.82L2.78,14.74C2.39,15.13 2.39,15.76 2.78,16.15L4.2,17.56C4.59,17.95 5.22,17.95 5.61,17.56L6.53,16.64C7.44,17.16 8.4,17.47 9.4,17.57C10.4,17.67 11.42,17.5 12.37,17.07L13.29,18C13.68,18.39 14.31,18.39 14.7,18L16.12,16.59C16.5,16.2 16.5,15.57 16.12,15.18L15.2,14.26C15.73,13.35 16.03,12.38 16.04,11.37C16.05,10.36 15.8,9.35 15.3,8.46L17.75,6C18.69,6.94 19.38,8.12 19.75,9.45C20.11,10.78 20.12,12.17 19.77,13.5C19.42,14.82 18.73,16.03 17.79,16.97L19.21,18.38C19.6,18.77 20.23,18.77 20.62,18.38L22,17C22.39,16.61 22.39,15.97 22,15.58C21.39,14.64 20.47,13.9 19.34,13.42C19.24,13.26 19.16,13.1 19.14,12.94M12,9.5A2.5,2.5 0 0,1 14.5,12A2.5,2.5 0 0,1 12,14.5A2.5,2.5 0 0,1 9.5,12A2.5,2.5 0 0,1 12,9.5Z" /></svg><span>Ajustes</span></button>
     </nav>
 
-    <!-- Contenido Principal -->
     <main class="main-content">
-
-        <!-- Página 0: Música (Activa por defecto) -->
         <div class="app-page active" data-title="Reproductor">
             <h1 class="page-title">Música</h1>
             <div class="content-box player-container">
                 <p id="player-track-title">Ningún sonido seleccionado</p>
-                <div class="time-display">
-                    <span id="player-current-time">0:00</span>
-                    <span id="player-total-time">0:00</span>
-                </div>
+                <div class="time-display"><span id="player-current-time">0:00</span><span id="player-total-time">0:00</span></div>
                 <div class="player-controls">
                     <button id="player-shuffle-btn" aria-label="Aleatorio"></button>
                     <button id="player-prev-btn" aria-label="Anterior"></button>
@@ -416,81 +430,66 @@
                 </div>
             </div>
             <div class="content-box">
-                <div class="search-controls">
-                    <input type="search" id="search-bar" placeholder="Buscar en la biblioteca...">
-                    <select id="artist-filter"></select>
-                    <select id="genre-filter"></select>
-                </div>
+                <div class="search-controls"><input type="search" id="search-bar" placeholder="Buscar en la biblioteca..."><select id="artist-filter"></select><select id="genre-filter"></select></div>
                 <div id="player-playlist"></div>
             </div>
         </div>
-
-        <!-- Página 1: Calendario -->
         <div class="app-page" data-title="Calendario">
             <h1 class="page-title">Calendario</h1>
             <div id="calendar-container" class="content-box">
-                <div class="calendar-header">
-                    <button id="prev-month-btn" aria-label="Mes anterior">&lt;</button>
-                    <h2 id="month-year-display"></h2>
-                    <button id="next-month-btn" aria-label="Mes siguiente">&gt;</button>
-                </div>
-                <div id="calendar-grid-wrapper" class="calendar-grid-wrapper">
-                    <div class="calendar-weekdays">
-                        <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
-                    </div>
-                    <div id="calendar-grid" class="calendar-grid"></div>
-                </div>
+                <div class="calendar-header"><button id="prev-month-btn" aria-label="Mes anterior">&lt;</button><h2 id="month-year-display"></h2><button id="next-month-btn" aria-label="Mes siguiente">&gt;</button></div>
+                <div id="calendar-grid-wrapper"><div class="calendar-weekdays"><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div></div><div id="calendar-grid" class="calendar-grid"></div></div>
+                 <!-- Contenedor para selector de mes (oculto inicialmente si se necesita) -->
+                 <div id="month-selector-wrapper" style="display: none;"></div>
             </div>
         </div>
-        
-        <!-- Página 2: Tareas -->
         <div class="app-page" data-title="Tareas">
             <h1 class="page-title">Tareas</h1>
-            <div id="tasks-list-container" class="content-box">
-                <!-- El contenido se renderiza con JS -->
-            </div>
+            <div id="tasks-list-container" class="content-box"></div>
         </div>
-
-        <!-- Página 3: Estadísticas -->
         <div class="app-page" data-title="Estadísticas">
             <h1 class="page-title">Estadísticas</h1>
             <div class="content-box">
-                <div id="stats-chart-container">
-                    <canvas id="stats-chart"></canvas>
+                <!-- Contenedor relativo para el tooltip del SVG -->
+                <div id="stats-chart-container" style="position: relative;">
+                    <!-- El SVG se creará aquí -->
+                     <div class="svg-tooltip" style="display: none;"></div>
                 </div>
             </div>
         </div>
-        
-        <!-- Página 4: Ajustes -->
         <div class="app-page" data-title="Ajustes">
             <h1 class="page-title">Ajustes</h1>
             <div style="display: grid; gap: 1rem; max-width: 60rem; margin: 0 auto;">
-                <div id="theme-settings-card" class="settings-card">
-                    <h3>Tema de la Aplicación</h3>
-                    <p>Personaliza la apariencia.</p>
-                </div>
-                <div id="library-settings-card" class="settings-card">
-                    <h3>Biblioteca de Sonidos</h3>
-                    <p>Gestiona tus archivos de audio.</p>
-                </div>
+                <div id="theme-settings-card" class="settings-card"><h3>Tema de la Aplicación</h3><p>Personaliza la apariencia.</p></div>
+                <div id="library-settings-card" class="settings-card"><h3>Biblioteca de Sonidos</h3><p>Gestiona tus archivos de audio.</p></div>
             </div>
         </div>
-
     </main>
 
-    <!-- Inputs de archivos ocultos -->
     <input type="file" id="audio-file-input" multiple accept="audio/*" style="display: none;">
     <input type="file" id="bg-image-input" accept="image/*" style="display: none;">
 
-    <!-- Estructura del Modal -->
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title"></h3>
-                <button class="modal-close-btn" aria-label="Cerrar">&times;</button>
-            </div>
+            <div class="modal-header"><h3 id="modal-title"></h3><button class="modal-close-btn" aria-label="Cerrar">&times;</button></div>
             <div id="modal-body" class="modal-body"></div>
             <div id="modal-actions" class="modal-actions"></div>
+        </div>
+    </div>
+     <!-- Modal de Confirmación (oculto) -->
+    <div id="confirm-modal-overlay" class="modal-overlay">
+        <div class="modal-content" style="max-width: 25rem;"> <!-- Más pequeño -->
+            <div class="modal-header">
+                <h3 id="confirm-modal-title">Descartar Cambios</h3>
+                <!-- Sin botón X aquí -->
+            </div>
+            <div id="confirm-modal-body" class="modal-body">
+                <p>¿Seguro que quieres cerrar sin guardar los cambios en el tema?</p>
+            </div>
+            <div id="confirm-modal-actions" class="modal-actions" style="justify-content: space-between;">
+                 <button id="confirm-discard-btn" class="modal-button danger">Descartar</button>
+                 <button id="confirm-cancel-btn" class="modal-button secondary">Cancelar</button>
+            </div>
         </div>
     </div>
 
@@ -499,23 +498,17 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js"></script>
-    <!-- Chart.js PRIMERO -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Adaptador DESPUÉS -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-dayjs@1.0.0/dist/chartjs-adapter-dayjs.min.js"></script>
-
+    <!-- ELIMINADAS LIBRERÍAS DE CHART.JS -->
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        
         // --- Setup Day.js ---
         dayjs.extend(window.dayjs_plugin_isSameOrAfter);
         dayjs.locale('es');
-
-        // --- ELIMINADO Registro explícito del adaptador ---
-        // El script del adaptador debería registrarse automáticamente si se carga DESPUÉS de Chart.js
         
-        // --- ICONS (Usados en JS) ---
-        const ICONS = {
+        // --- ICONS ---
+        const ICONS = { /* ... */ 
             play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>`,
             pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
             prev: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"></path></svg>`,
@@ -526,1311 +519,369 @@
             attach: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16,12A2,2 0 0,0 18,10A2,2 0 0,0 16,8A2,2 0 0,0 14,10A2,2 0 0,0 16,12M16,4.05C18.37,4.05 20.44,5.38 21.32,7.34L22.21,9.23L19.75,10.15L19.34,9.31C18.78,8.16 17.5,7.39 16,7.39C14.5,7.39 13.22,8.16 12.66,9.31L12.25,10.15L9.79,9.23L10.68,7.34C11.56,5.38 13.63,4.05 16,4.05M8,12A2,2 0 0,0 10,10A2,2 0 0,0 8,8A2,2 0 0,0 6,10A2,2 0 0,0 8,12M8,4.05C10.37,4.05 12.44,5.38 13.32,7.34L14.21,9.23L11.75,10.15L11.34,9.31C10.78,8.16 9.5,7.39 8,7.39C6.5,7.39 5.22,8.16 4.66,9.31L4.25,10.15L1.79,9.23L2.68,7.34C3.56,5.38 5.63,4.05 8,4.05M16,14C13.63,14 11.56,15.33 10.68,17.28L9.79,19.17L12.25,18.25L12.66,17.41C13.22,16.26 14.5,15.5 16,15.5C17.5,15.5 18.78,16.26 19.34,17.41L19.75,18.25L22.21,19.17L21.32,17.28C20.44,15.33 18.37,14 16,14M8,14C5.63,14 3.56,15.33 2.68,17.28L1.79,19.17L4.25,18.25L4.66,17.41C5.22,16.26 6.5,15.5 8,15.5C9.5,15.5 10.78,16.26 11.34,17.41L11.75,18.25L14.21,19.17L13.32,17.28C12.44,15.33 10.37,14 8,14Z" /></svg>`,
             play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`
         };
-        
+
+        // --- Utils --- Moved Up ---
+        // (Funciones de utilidad movidas aquí para asegurar que estén definidas)
+        function hexToRgb(hex) { var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; }
+        function openModal(title, bodyEl, actionsEl = null) { if (!dom.modal.overlay) return; dom.modal.title.textContent = title; dom.modal.body.innerHTML = ''; dom.modal.body.appendChild(bodyEl); dom.modal.actions.innerHTML = ''; if (actionsEl) dom.modal.actions.appendChild(actionsEl); dom.modal.overlay.classList.add('visible'); }
+        function closeModal(force = false) { 
+            if (!force && dom.modal.title.textContent === 'Personalizar Tema' && state.modal.themeChangesMade) {
+                openConfirmModal(); 
+            } else {
+                forceCloseModal(); 
+            }
+        }
+        async function forceCloseModal() { 
+            await applyTheme(state.modal.initialThemeSettings); 
+            if (dom.modal.overlay) dom.modal.overlay.classList.remove('visible'); 
+            state.modal.themeChangesMade = false; 
+            state.modal.initialThemeSettings = null; 
+             const urlInput = document.getElementById('bg-image-url');
+             if(urlInput?.dataset.imageDataUrl) {
+                 delete urlInput.dataset.imageDataUrl;
+             }
+        } 
+        function openConfirmModal() { if (dom.confirmModal.overlay) dom.confirmModal.overlay.classList.add('visible'); }
+        function closeConfirmModal() { if (dom.confirmModal.overlay) dom.confirmModal.overlay.classList.remove('visible'); }
+        function createElement(tag, attrs = {}, ...children) { const el = document.createElement(tag); Object.entries(attrs).forEach(([k, v]) => { if (k === 'class') el.className = v; else if (k.startsWith('data-')) el.dataset[k.substring(5)] = v; else if (typeof v === 'boolean') el[k] = v; else if (v != null) el.setAttribute(k, v); }); children.forEach(c => c != null && el.append(typeof c === 'string' ? document.createTextNode(c) : c)); return el; }
+        // Se necesita crear el namespace de SVG
+        function createElementNS(ns, tag, attrs = {}, ...children) { const el = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => { if (v != null) el.setAttribute(k, v); }); children.forEach(c => c != null && el.append(typeof c === 'string' ? document.createTextNode(c) : c)); return el; }
+        function formatTime(secs) { if(isNaN(secs)||secs<0)return '0:00'; const m=Math.floor(secs/60); const s=Math.floor(secs%60).toString().padStart(2,'0'); return `${m}:${s}`; }
+        function debounce(fn, wait) { let t; return function(...a){ const later=()=>{clearTimeout(t); fn.apply(this,a);}; clearTimeout(t); t=setTimeout(later, wait);}; }
+        function shuffleArray(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+        function showAppAlert(title, message) { console.warn(`Alert suppressed: ${title} - ${message}`); }
+
         // --- DOM Elements ---
-        const dom = {
+        const dom = { /* ... dom elements ... */ 
             body: document.body,
-            // Navegación
             sidebar: document.getElementById('sidebar-nav'),
             navButtons: document.querySelectorAll('.nav-btn'),
             appPages: document.querySelectorAll('.app-page'),
-            
-            calendar: {
-                monthYearDisplay: document.getElementById('month-year-display'),
-                prevMonthBtn: document.getElementById('prev-month-btn'),
-                nextMonthBtn: document.getElementById('next-month-btn'),
-                grid: document.getElementById('calendar-grid'),
-            },
-            player: {
-                trackTitle: document.getElementById('player-track-title'),
-                currentTime: document.getElementById('player-current-time'),
-                totalTime: document.getElementById('player-total-time'),
-                playPauseBtn: document.getElementById('player-play-pause-btn'),
-                prevBtn: document.getElementById('player-prev-btn'),
-                nextBtn: document.getElementById('player-next-btn'),
-                shuffleBtn: document.getElementById('player-shuffle-btn'),
-                repeatBtn: document.getElementById('player-repeat-btn'),
-                playlist: document.getElementById('player-playlist'),
-                searchBar: document.getElementById('search-bar'),
-                artistFilter: document.getElementById('artist-filter'),
-                genreFilter: document.getElementById('genre-filter'),
-            },
+            calendar: { container: document.getElementById('calendar-container'), gridWrapper: document.getElementById('calendar-grid-wrapper'), monthSelectorWrapper: document.getElementById('month-selector-wrapper'), monthYearDisplay: document.getElementById('month-year-display'), prevMonthBtn: document.getElementById('prev-month-btn'), nextMonthBtn: document.getElementById('next-month-btn'), grid: document.getElementById('calendar-grid') },
+            player: { trackTitle: document.getElementById('player-track-title'), currentTime: document.getElementById('player-current-time'), totalTime: document.getElementById('player-total-time'), playPauseBtn: document.getElementById('player-play-pause-btn'), prevBtn: document.getElementById('player-prev-btn'), nextBtn: document.getElementById('player-next-btn'), shuffleBtn: document.getElementById('player-shuffle-btn'), repeatBtn: document.getElementById('player-repeat-btn'), playlist: document.getElementById('player-playlist'), searchBar: document.getElementById('search-bar'), artistFilter: document.getElementById('artist-filter'), genreFilter: document.getElementById('genre-filter') },
             tasks: { container: document.getElementById('tasks-list-container') },
-            stats: {
-                chartContainer: document.getElementById('stats-chart-container'),
-                chartCanvas: document.getElementById('stats-chart'),
-            },
-            settings: {
-                themeCard: document.getElementById('theme-settings-card'),
-                libraryCard: document.getElementById('library-settings-card'),
-            },
-            modal: {
-                overlay: document.getElementById('modal-overlay'),
-                title: document.getElementById('modal-title'),
-                body: document.getElementById('modal-body'),
-                actions: document.getElementById('modal-actions'),
-                closeBtn: document.querySelector('.modal-close-btn'),
-            },
+            stats: { chartContainer: document.getElementById('stats-chart-container') }, // Actualizado
+            settings: { themeCard: document.getElementById('theme-settings-card'), libraryCard: document.getElementById('library-settings-card') },
+            modal: { overlay: document.getElementById('modal-overlay'), title: document.getElementById('modal-title'), body: document.getElementById('modal-body'), actions: document.getElementById('modal-actions'), closeBtn: document.querySelector('#modal-overlay .modal-close-btn') }, // Target specific close button
+            confirmModal: { overlay: document.getElementById('confirm-modal-overlay'), discardBtn: document.getElementById('confirm-discard-btn'), cancelBtn: document.getElementById('confirm-cancel-btn') }, // Añadido
             audioFileInput: document.getElementById('audio-file-input'),
             bgImageInput: document.getElementById('bg-image-input'),
         };
 
         // --- Application State ---
-        const state = {
-            db: null,
-            dayDataMap: {}, // Para tareas
-            soundLibrary: [],
-            currentTrackId: null,
-            currentHowl: null,
-            currentPlaylist: [],  
-            currentTrackIndexInPlaylist: -1,
-            isShuffling: false,
-            repeatMode: 'none', // 'none', 'all', 'one'
-            currentDate: dayjs(),  
-            currentPageIndex: 0, // Iniciar en Música (índice 0)
-            modal: { selectedAudioId: null },
+        const state = { /* ... state ... */ 
+            db: null, dayDataMap: {}, soundLibrary: [], currentTrackId: null, currentHowl: null, currentPlaylist: [], currentTrackIndexInPlaylist: -1, isShuffling: false, repeatMode: 'none', currentDate: dayjs(), calendarViewMode: 'days', calendarYearInView: dayjs().year(), currentPageIndex: 0, 
+            modal: { selectedAudioId: null, themeChangesMade: false, initialThemeSettings: null }, 
             playback: { rafId: null },
-            stats: {
-                chartInstance: null,
-                listeningLog: {}, // { 'YYYY-MM-DD': 120 (seconds) }
-                sessionStartTime: 0, // Epoch para registrar tiempo de escucha
-            }
+            stats: { listeningLog: {}, sessionStartTime: 0 } // Eliminado chartInstance
         };
         
         // --- App Initialization ---
-        async function init() {
-            try {
-                loadStateFromLocalStorage();
-                loadListeningLog(); // Cargar (o simular) log de escucha
-                applyTheme();  
-                state.db = await initDB();
-                if (!state.db) throw new Error("Failed to initialize database.");
-                
-                await loadSoundsFromDB();
-                
-                setupEventListeners();
-                setupPlayerIcons();
-                
-                // Ir a la página por defecto (Música, índice 0)
-                goToPage(state.currentPageIndex, true); 
-                
-                renderAllTabs();
-                
-            } catch (error) {
-                console.error("Error fatal al inicializar la aplicación:", error);
-                // Eliminada la llamada a showAppAlert
-            }
+        async function init() { /* ... init logic ... */ 
+             try { state.db = await initDB(); if (!state.db) throw new Error("DB init failed."); await Promise.all([ loadTasksFromDB(), loadListeningLogFromDB(), loadSoundsFromDB() ]); const settings = await loadSettingsFromDB(); state.modal.initialThemeSettings = settings || {}; // Guardar estado inicial o vacío
+                await applyTheme(settings); setupEventListeners(); setupPlayerIcons(); goToPage(state.currentPageIndex, true); renderAllTabs(); } 
+             catch (error) { console.error("Error fatal:", error); }
         }
         
         // Renderiza el contenido de todas las pestañas
-        function renderAllTabs() {
-            renderCalendar();
-            renderTasks();
-            renderStatsPage(); // Renderizar gráfica
-            populateFilterDropdowns();
-            renderPlayerPlaylist(); // This also builds state.currentPlaylist
-            updatePlayerUI();
-        }
+        function renderAllTabs() { /* ... renderAllTabs logic ... */ renderCalendar(); renderTasks(); renderStatsPage(); populateFilterDropdowns(); renderPlayerPlaylist(); updatePlayerUI(); }
         
-        // --- Persistence (LocalStorage & IndexedDB) ---
-        
-        // Guardar tareas
-        function saveStateToLocalStorage() {
-            try {
-                localStorage.setItem('dayDataMap', JSON.stringify(state.dayDataMap));
-            } catch (e) {
-                console.error("Error saving state to localStorage:", e);
-                // Eliminada la llamada a showAppAlert
+        // --- IndexedDB ---
+        function initDB() { /* ... initDB logic ... */ return new Promise((resolve, reject) => { if (!window.indexedDB) return reject(new Error("IndexedDB not supported")); const DB_NAME = 'AudioAppDB', DB_VERSION = 3; const request = indexedDB.open(DB_NAME, DB_VERSION); request.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('sounds')) db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'date' }); if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'id' }); if (!db.objectStoreNames.contains('listeningLog')) db.createObjectStore('listeningLog', { keyPath: 'date' }); }; request.onsuccess = e => resolve(e.target.result); request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); }; }); }
+
+        // --- Persistencia Tareas (IndexedDB) ---
+        async function saveTasksToDB(dateStr, tasksArray) { /* ... saveTasksToDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['tasks'], 'readwrite'); const store = tx.objectStore('tasks'); let req; if (tasksArray?.length > 0) { req = store.put({ date: dateStr, tasks: tasksArray }); } else { req = store.delete(dateStr); } req.onsuccess = resolve; req.onerror = e => { console.error("Error saving tasks:", e.target.error); reject(e.target.error); }; }); }
+        async function loadTasksFromDB() { /* ... loadTasksFromDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { state.dayDataMap = {}; const tx = state.db.transaction(['tasks'], 'readonly'); const store = tx.objectStore('tasks'); const req = store.getAll(); req.onsuccess = e => { e.target.result?.forEach(item => { state.dayDataMap[item.date] = { tasks: item.tasks }; }); resolve(); }; req.onerror = e => { console.error("Error loading tasks:", e.target.error); state.dayDataMap = {}; reject(e.target.error); }; }); }
+
+        // --- Persistencia Ajustes (IndexedDB) ---
+        async function saveSettingsToDB(settings) { /* ... saveSettingsToDB logic ... */ if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['settings'], 'readwrite'); const store = tx.objectStore('settings'); const data = { id: 'userSettings', ...settings }; const req = store.put(data); req.onsuccess = resolve; req.onerror = e => { console.error("Error saving settings:", e.target.error); reject(e.target.error); }; }); }
+        async function loadSettingsFromDB() { /* ... loadSettingsFromDB logic ... */ if (!state.db) return null; return new Promise(resolve => { const tx = state.db.transaction(['settings'], 'readonly'); const store = tx.objectStore('settings'); const req = store.get('userSettings'); req.onsuccess = e => resolve(e.target.result || null); req.onerror = e => { console.error("Error loading settings:", e.target.error); resolve(null); }; }); }
+
+        // --- Persistencia Estadísticas (IndexedDB) ---
+        async function saveListeningLogToDB() { /* ... saveListeningLogToDB logic ... */ if (!state.db) return; return new Promise(async (resolve, reject) => { const tx = state.db.transaction(['listeningLog'], 'readwrite'); const store = tx.objectStore('listeningLog'); const entries = Object.entries(state.stats.listeningLog); if (entries.length === 0) { resolve(); return; } try { await Promise.all(entries.map(([date, seconds]) => new Promise((res, rej) => { const req = store.put({ date, seconds }); req.onsuccess = res; req.onerror = e => { console.error(`Error log save ${date}:`, e.target.error); rej(e.target.error); }; }) )); resolve(); } catch (err) { reject(err); } }); }
+       async function loadListeningLogFromDB() { /* ... loadListeningLogFromDB logic ... */ if (!state.db) return; return new Promise(async (resolve, reject) => { state.stats.listeningLog = {}; const tx = state.db.transaction(['listeningLog'], 'readonly'); const store = tx.objectStore('listeningLog'); const req = store.getAll(); req.onsuccess = async (e) => { const results = e.target.result; if (results?.length > 0) { results.forEach(item => { state.stats.listeningLog[item.date] = item.seconds; }); resolve(); } else { console.log("No log, simulating..."); simulateListeningData(); try { await saveListeningLogToDB(); console.log("Simulated saved."); resolve(); } catch (err) { console.error("Failed save simulated log:", err); reject(err); } } }; req.onerror = e => { console.error("Error loading log:", e.target.error); state.stats.listeningLog = {}; reject(e.target.error); }; }); }
+       function simulateListeningData() { /* ... simulateListeningData con patron semanal ... */ 
+            state.stats.listeningLog = {}; const today = dayjs(); const days = 30; 
+            for (let i = days; i > 0; i--) {
+                const date = today.subtract(i, 'day'); const ds = date.format('YYYY-MM-DD'); const dow = date.day(); 
+                let min = (dow === 0 || dow === 6) ? 30 : 5; let max = (dow === 0 || dow === 6) ? 180 : 90;
+                const mins = Math.floor(Math.random() * (max - min + 1)) + min; state.stats.listeningLog[ds] = mins * 60; 
             }
-        }
-        
-        // Cargar tareas
-        function loadStateFromLocalStorage() {
-            const savedData = localStorage.getItem('dayDataMap');
-            if (savedData) {
-                try {
-                    state.dayDataMap = JSON.parse(savedData);
-                } catch (e) {
-                    console.error("Error parsing dayDataMap:", e);
-                    state.dayDataMap = {};
-                }
-            } else {
-                state.dayDataMap = {};
-            }
-        }
-        
-        // Guardar configuración de tema
-        function saveThemeSettings(settings) { 
-            localStorage.setItem('themeClass', settings.themeClass); 
-            localStorage.setItem('customPrimaryColor', settings.primaryColor); 
-            localStorage.setItem('customBackgroundImage', settings.backgroundImage); 
+             const ts = today.format('YYYY-MM-DD'); if (!state.stats.listeningLog[ts]) { state.stats.listeningLog[ts] = 0; }
         }
         
         // --- Registro de Estadísticas ---
-        function loadListeningLog() {
-            const savedLog = localStorage.getItem('listeningLog');
-            if (savedLog) {
-                try {
-                    state.stats.listeningLog = JSON.parse(savedLog);
-                } catch (e) { state.stats.listeningLog = {}; }
-            } else {
-                // *** Revertido: Simular datos usando Date nativo para aislar el problema ***
-                state.stats.listeningLog = {};
-                const today = new Date(); // Usar Date nativo
-                today.setHours(0, 0, 0, 0); // Establecer al inicio del día
-
-                for (let i = 8; i > 0; i--) {
-                    const date = new Date(today); // Crear copia para no modificar 'today'
-                    date.setDate(date.getDate() - i); // Restar días
-                    
-                    // Obtener YYYY-MM-DD
-                    const year = date.getFullYear();
-                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                    const day = date.getDate().toString().padStart(2, '0');
-                    const dateStr = `${year}-${month}-${day}`;
-                    
-                    // Simular entre 5 y 120 minutos (en segundos)
-                    state.stats.listeningLog[dateStr] = Math.floor(Math.random() * (120 - 5 + 1) + 5) * 60;
-                }
-            }
-        }
-
-
-        function saveListeningLog() {
-            try {
-                localStorage.setItem('listeningLog', JSON.stringify(state.stats.listeningLog));
-            } catch (e) {
-                console.error("Error saving listening log:", e);
-            }
-        }
+         function stopAndLogListeningSession() { /* ... stopAndLogListeningSession logic ... */ if (state.sessionStartTime > 0) { const elapsed = Math.floor((Date.now() - state.sessionStartTime) / 1000); if (elapsed > 1) { const today = dayjs().format('YYYY-MM-DD'); const current = state.stats.listeningLog[today] || 0; state.stats.listeningLog[today] = current + elapsed; saveListeningLogToDB(); if (state.currentPageIndex === 3) { renderStatsPage(); } } state.sessionStartTime = 0; } }
         
-        // Inicia el contador de sesión cuando empieza la reproducción
-        function startListeningSession() {
-            if (state.sessionStartTime === 0) { // Solo si no está ya contando
-                state.sessionStartTime = Date.now();
-            }
-        }
-        
-        // Detiene el contador, suma el tiempo al log y guarda
-        function stopAndLogListeningSession() {
-            if (state.sessionStartTime > 0) {
-                const elapsedSeconds = Math.floor((Date.now() - state.sessionStartTime) / 1000);
-                
-                if (elapsedSeconds > 1) { // Solo registrar si es más de 1 segundo
-                    const todayStr = dayjs().format('YYYY-MM-DD');
-                    const currentTodaySeconds = state.stats.listeningLog[todayStr] || 0;
-                    state.stats.listeningLog[todayStr] = currentTodaySeconds + elapsedSeconds;
-                    
-                    saveListeningLog(); // Guardar en localStorage
-                    
-                    // Actualizar la gráfica si la página está activa
-                    if (state.currentPageIndex === 3) {
-                        renderStatsPage();
-                    }
-                }
-                state.sessionStartTime = 0; // Reiniciar contador
-            }
-        }
+        // --- Sound Library ---
+        async function loadSoundsFromDB() { /* ... loadSoundsFromDB logic ... */ return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('sounds', 'readonly'); const store = tx.objectStore('sounds'); const req = store.getAll(); req.onsuccess = () => { state.soundLibrary = req.result || []; resolve(); }; req.onerror = e => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; }); }
+        async function handleFileSelection(e) { /* ... handleFileSelection logic ... */ closeModal(); openModal('Cargando...', createElement('p', {}, 'Espera...')); try { for (const f of e.target.files) { if (f.type.startsWith('audio/')) await saveSoundToDB(f); } await loadSoundsFromDB(); closeModal(); openLibraryModal(); renderAllTabs(); } catch (err) { closeModal(); console.error('Error carga archivos', err); } finally { e.target.value = null; } }
+        function saveSoundToDB(file) { /* ... saveSoundToDB logic ... */ return new Promise(async (resolve, reject) => { if (!state.db) return reject("DB missing"); try { const duration = await getAudioDuration(file); if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); const sound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Desconocido', genre: 'Desconocido', duration, file }; const tx = state.db.transaction('sounds', 'readwrite'); const store = tx.objectStore('sounds'); const req = store.add(sound); req.onsuccess = resolve; req.onerror = e => reject(e.target.error); } catch (err) { console.error(err.message); reject(err); } }); }
+        function updateSoundInDB(soundData) { /* ... updateSoundInDB logic ... */ if (!state.db) return; const tx = state.db.transaction('sounds', 'readwrite'); tx.objectStore('sounds').put(soundData); }
+        function getAudioDuration(file) { /* ... getAudioDuration logic ... */ return new Promise((resolve, reject) => { const audio = document.createElement('audio'); audio.preload = 'metadata'; audio.onloadedmetadata = () => { URL.revokeObjectURL(audio.src); resolve(audio.duration); }; audio.onerror = () => { URL.revokeObjectURL(audio.src); reject(new Error(`Duración no leída ${file.name}`)); }; audio.src = URL.createObjectURL(file); }); }
 
-
-        // --- IndexedDB ---
-        function initDB() { 
-            return new Promise((resolve, reject) => { 
-                if (!window.indexedDB) return reject(new Error("IndexedDB no soportado")); 
-                const request = indexedDB.open('AudioAppDB', 2); 
-                request.onupgradeneeded = e => { 
-                    const db = e.target.result; 
-                    if (!db.objectStoreNames.contains('sounds')) 
-                        db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); 
-                }; 
-                request.onsuccess = e => resolve(e.target.result); 
-                request.onerror = e => { 
-                    console.error("IndexedDB error:", e.target.error); 
-                    reject(e.target.error); 
-                }; 
-            }); 
-        }
-        
         // --- Event Listeners Setup ---
-        function setupEventListeners() {
-            
-            // Navegación principal
-            dom.sidebar.addEventListener('click', e => {
-                const navBtn = e.target.closest('.nav-btn');
-                if (navBtn) {
-                    const index = parseInt(navBtn.dataset.index, 10);
-                    goToPage(index);
-                }
-            });
-
-            // Calendario
-            if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.addEventListener('click', handlePrevClick);
-            if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.addEventListener('click', handleNextClick);
-            if (dom.calendar.grid) dom.calendar.grid.addEventListener('click', e => { 
-                const dayElement = e.target.closest('.calendar-day:not(.empty)'); 
-                if (dayElement) openDayModal(dayElement.dataset.date); 
-            });
-            
-            // Tareas
-            if (dom.tasks.container) dom.tasks.container.addEventListener('click', handleTaskClick);
-            
-            // Ajustes
-            if (dom.settings.themeCard) dom.settings.themeCard.addEventListener('click', openThemeModal);
-            if (dom.settings.libraryCard) dom.settings.libraryCard.addEventListener('click', openLibraryModal);
-            
-            // Modal
-            if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', closeModal);
-            if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { 
-                if (e.target === dom.modal.overlay) closeModal(); 
-            }); 
-            
-            // Inputs de Archivos
-            if (dom.audioFileInput) dom.audioFileInput.addEventListener('change', handleFileSelection);
-            if (dom.bgImageInput) dom.bgImageInput.addEventListener('change', handleBgImageSelection);
-            
-            // Player
-            const debouncedRender = debounce(renderPlayerPlaylist, 300);
-            if (dom.player.searchBar) dom.player.searchBar.addEventListener('input', debouncedRender);
-            if (dom.player.artistFilter) dom.player.artistFilter.addEventListener('change', renderPlayerPlaylist);
-            if (dom.player.genreFilter) dom.player.genreFilter.addEventListener('change', renderPlayerPlaylist);
-            if (dom.player.playlist) dom.player.playlist.addEventListener('click', handlePlaylistClick);
-            if (dom.player.playPauseBtn) dom.player.playPauseBtn.addEventListener('click', togglePlayPause);
-            if (dom.player.prevBtn) dom.player.prevBtn.addEventListener('click', playPrevTrack);
-            if (dom.player.nextBtn) dom.player.nextBtn.addEventListener('click', playNextTrack);
-            if (dom.player.shuffleBtn) dom.player.shuffleBtn.addEventListener('click', toggleShuffle);
-            if (dom.player.repeatBtn) dom.player.repeatBtn.addEventListener('click', cycleRepeatMode);
-        }
+        function setupEventListeners() { /* ... setupEventListeners logic ... */ dom.sidebar.addEventListener('click', e => { const btn = e.target.closest('.nav-btn'); if (btn) goToPage(parseInt(btn.dataset.index, 10)); }); if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.addEventListener('click', toggleCalendarView); if (dom.calendar.prevMonthBtn) dom.calendar.prevMonthBtn.onclick = handlePrevClick; if (dom.calendar.nextMonthBtn) dom.calendar.nextMonthBtn.onclick = handleNextClick; if (dom.calendar.grid) dom.calendar.grid.onclick = handleCalendarGridClick; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); if (dom.tasks.container) dom.tasks.container.onclick = handleTaskClick; if (dom.settings.themeCard) dom.settings.themeCard.onclick = openThemeModal; if (dom.settings.libraryCard) dom.settings.libraryCard.onclick = openLibraryModal; if (dom.modal.closeBtn) dom.modal.closeBtn.addEventListener('click', () => closeModal()); if (dom.modal.overlay) dom.modal.overlay.addEventListener('click', e => { if (e.target === dom.modal.overlay) closeModal(); }); if (dom.confirmModal.discardBtn) dom.confirmModal.discardBtn.addEventListener('click', () => { closeConfirmModal(); forceCloseModal(); }); if (dom.confirmModal.cancelBtn) dom.confirmModal.cancelBtn.addEventListener('click', closeConfirmModal); if (dom.audioFileInput) dom.audioFileInput.onchange = handleFileSelection; if (dom.bgImageInput) dom.bgImageInput.onchange = handleBgImageSelection; const debouncedRender = debounce(renderPlayerPlaylist, 300); if (dom.player.searchBar) dom.player.searchBar.oninput = debouncedRender; if (dom.player.artistFilter) dom.player.artistFilter.onchange = renderPlayerPlaylist; if (dom.player.genreFilter) dom.player.genreFilter.onchange = renderPlayerPlaylist; if (dom.player.playlist) dom.player.playlist.onclick = handlePlaylistClick; if (dom.player.playPauseBtn) dom.player.playPauseBtn.onclick = togglePlayPause; if (dom.player.prevBtn) dom.player.prevBtn.onclick = playPrevTrack; if (dom.player.nextBtn) dom.player.nextBtn.onclick = playNextTrack; if (dom.player.shuffleBtn) dom.player.shuffleBtn.onclick = toggleShuffle; if (dom.player.repeatBtn) dom.player.repeatBtn.onclick = cycleRepeatMode; }
         
         // --- Navegación de Página ---
-        function goToPage(index, isInitialLoad = false) {
-            if (index === state.currentPageIndex && !isInitialLoad) return;
-            
-            state.currentPageIndex = index;
-            
-            // Actualizar botones de navegación
-            dom.navButtons.forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-            });
-            
-            // Actualizar páginas
-            dom.appPages.forEach((page, i) => {
-                page.classList.toggle('active', i === index);
-            });
-            
-            // Tareas especiales al cargar la página
-            if (index === 2) renderTasks(); // Página de Tareas
-            if (index === 3) renderStatsPage(); // Página de Estadísticas
-        }
+        function goToPage(index, isInitialLoad = false) { /* ... goToPage logic ... */ if (index === state.currentPageIndex && !isInitialLoad) return; state.currentPageIndex = index; dom.navButtons.forEach((btn, i) => btn.classList.toggle('active', i === index)); dom.appPages.forEach((page, i) => page.classList.toggle('active', i === index)); if (index === 2) renderTasks(); if (index === 3) renderStatsPage(); }
 
         // --- Calendar & Task ---
-        function handlePrevClick() { state.currentDate = state.currentDate.subtract(1, 'month'); renderCalendar(); }
-        function handleNextClick() { state.currentDate = state.currentDate.add(1, 'month'); renderCalendar(); }
-        
-        function handleTaskClick(e) { 
-            const target = e.target; 
-            const taskItem = target.closest('.task-item'); 
-            if (!taskItem) return; 
-            
-            const { date, index } = taskItem.dataset; 
-            const taskIndex = parseInt(index, 10); 
-            
-            if (!state.dayDataMap[date] || !state.dayDataMap[date].tasks || !state.dayDataMap[date].tasks[taskIndex]) {
-                console.error("Task data not found for:", date, index);
-                return;
-            }
-            
-            const task = state.dayDataMap[date].tasks[taskIndex]; 
-            
-            if (target.type === 'checkbox') {
-                task.completed = target.checked; 
-            } else if (target.closest('.play-task-btn')) {
-                playAudioClip(task.audioId); 
-            } else if (target.closest('.delete-btn')) { 
-                state.dayDataMap[date].tasks.splice(taskIndex, 1); 
-                if (state.dayDataMap[date].tasks.length === 0) {
-                     // Opcional: eliminar el día si no tiene tareas
-                     // delete state.dayDataMap[date]; 
-                }
-            } 
-            
-            saveStateToLocalStorage(); 
-            renderTasks(); // Re-renderizar lista de tareas
-            renderCalendar(); // Re-renderizar calendario (para puntos de 'has-task')
-        }
+        function toggleCalendarView() { /* ... toggleCalendarView logic ... */ state.calendarViewMode = (state.calendarViewMode === 'days') ? 'months' : 'days'; if (state.calendarViewMode === 'months') state.calendarYearInView = state.currentDate.year(); renderCalendar(); }
+        function handlePrevClick() { /* ... handlePrevClick logic ... */ if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.subtract(1, 'month'); else state.calendarYearInView--; renderCalendar(); }
+        function handleNextClick() { /* ... handleNextClick logic ... */ if (state.calendarViewMode === 'days') state.currentDate = state.currentDate.add(1, 'month'); else state.calendarYearInView++; renderCalendar(); }
+        function handleCalendarGridClick(e) { /* ... handleCalendarGridClick logic ... */ if (state.calendarViewMode !== 'days') return; const dayEl = e.target.closest('.calendar-day:not(.empty)'); if (dayEl) openDayModal(dayEl.dataset.date); }
+        function handleMonthSelectorClick(e) { /* ... handleMonthSelectorClick logic ... */ if (state.calendarViewMode !== 'months') return; const monthItem = e.target.closest('.calendar-month-item'); if (monthItem) { const monthIdx = parseInt(monthItem.dataset.month, 10); state.currentDate = dayjs().year(state.calendarYearInView).month(monthIdx); state.calendarViewMode = 'days'; renderCalendar(); } }
+        async function handleTaskClick(e) { /* ... handleTaskClick logic ... */ const target = e.target; const taskItem = target.closest('.task-item'); if (!taskItem) return; const { date, index } = taskItem.dataset; const taskIndex = parseInt(index, 10); if (!state.dayDataMap[date]?.tasks?.[taskIndex]) { console.error("Task data missing:", date, index); return; } const task = state.dayDataMap[date].tasks[taskIndex]; let needsSave = false; if (target.type === 'checkbox') { task.completed = target.checked; needsSave = true; } else if (target.closest('.play-task-btn')) { playAudioClip(task.audioId); } else if (target.closest('.delete-btn')) { state.dayDataMap[date].tasks.splice(taskIndex, 1); needsSave = true; } if (needsSave) { try { await saveTasksToDB(date, state.dayDataMap[date].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); } } }
         
         // --- Theme & Modal ---
+        // showAppAlert ya definida arriba
         
-        // Función de utilidad para mostrar alertas (redefinida para eliminar la anterior)
-        function showAppAlert(title, message) {
-            // Actualmente no hace nada, como se pidió
-            console.warn(`Alerta suprimida: ${title} - ${message}`);
-        }
-        
-        function openThemeModal() {
-            const savedTheme = localStorage.getItem('themeClass') || 'dark-theme';
-            const savedColor = localStorage.getItem('customPrimaryColor') || (savedTheme === 'dark-theme' ? '#0A84FF' : '#007AFF');
-            const savedBg = localStorage.getItem('customBackgroundImage') || '';
-            const isLocalFile = savedBg.startsWith('data:');
-
-            const body = createElement('div');
-
-            // 1. Grupo de Modo de Interfaz
-            const themeToggleGroup = createElement('div', { class: 'theme-control-group' });
-            themeToggleGroup.appendChild(createElement('label', {}, 'Modo de Interfaz'));
-            const themeBtns = createElement('div', { class: 'theme-toggle-btns' });
-            themeBtns.appendChild(createElement('button', { 'data-theme': 'light-theme', class: savedTheme === 'light-theme' ? 'active' : '' }, 'Claro'));
-            themeBtns.appendChild(createElement('button', { 'data-theme': 'dark-theme', class: savedTheme === 'dark-theme' ? 'active' : '' }, 'Oscuro'));
-            themeToggleGroup.appendChild(themeBtns);
-            body.appendChild(themeToggleGroup);
-
-            // 2. Grupo de Color de Acento
-            const colorPickerGroup = createElement('div', { class: 'theme-control-group' });
-            colorPickerGroup.appendChild(createElement('label', { for: 'color-picker' }, 'Color de Acento'));
-            const colorPicker = createElement('input', { type: 'color', id: 'color-picker', value: savedColor });
-            colorPickerGroup.appendChild(colorPicker);
-            body.appendChild(colorPickerGroup);
-
-            // 3. Grupo de Imagen de Fondo
-            const bgImageGroup = createElement('div', { class: 'theme-control-group' });
-            bgImageGroup.appendChild(createElement('label', { for: 'bg-image-url' }, 'Imagen de Fondo (URL)'));
-            const bgImageControls = createElement('div', { id: 'bg-image-controls' });
-            bgImageControls.appendChild(createElement('input', { 
-                type: 'text', 
-                id: 'bg-image-url', 
-                placeholder: 'Pegar URL o subir archivo...', 
-                value: savedBg.startsWith('http') ? savedBg : (isLocalFile ? 'Archivo local cargado' : '') 
-            }));
-            bgImageControls.appendChild(createElement('button', { id: 'upload-bg-btn' }, 'Subir'));
-            bgImageControls.appendChild(createElement('button', { id: 'clear-bg-btn' }, 'Quitar'));
-            bgImageGroup.appendChild(bgImageControls);
-            body.appendChild(bgImageGroup);
-
-            // Acción: Botón de Guardar
-            const actions = createElement('button', { class: 'modal-button primary' }, 'Guardar Cambios');
-            
+        async function openThemeModal() { 
+            state.modal.initialThemeSettings = await loadSettingsFromDB() || {}; state.modal.themeChangesMade = false; 
+            const savedTheme = state.modal.initialThemeSettings.themeClass || 'dark-theme'; const defaultColor = savedTheme === 'dark-theme' ? '#0A84FF' : '#007AFF'; const savedColor = state.modal.initialThemeSettings.primaryColor || defaultColor; const savedBg = state.modal.initialThemeSettings.backgroundImage || ''; const isLocalFile = savedBg.startsWith('data:');
+            const body = createElement('div'); const themeToggleGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', {}, 'Modo')); const themeBtns = createElement('div', { class: 'theme-toggle-btns' }, createElement('button', { 'data-theme': 'light-theme', class: savedTheme === 'light-theme' ? 'active' : '' }, 'Claro'), createElement('button', { 'data-theme': 'dark-theme', class: savedTheme === 'dark-theme' ? 'active' : '' }, 'Oscuro') ); themeToggleGroup.appendChild(themeBtns); body.appendChild(themeToggleGroup); const colorPickerGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', { for: 'color-picker' }, 'Acento')); const colorPicker = createElement('input', { type: 'color', id: 'color-picker', value: savedColor }); colorPickerGroup.appendChild(colorPicker); body.appendChild(colorPickerGroup); const bgImageGroup = createElement('div', { class: 'theme-control-group' }, createElement('label', { for: 'bg-image-url' }, 'Fondo (URL)')); const bgImageControls = createElement('div', { id: 'bg-image-controls' }, createElement('input', { type: 'text', id: 'bg-image-url', placeholder: 'URL o subir...', value: savedBg.startsWith('http') ? savedBg : (isLocalFile ? 'Local' : '') }), createElement('button', { id: 'upload-bg-btn' }, 'Subir'), createElement('button', { id: 'clear-bg-btn' }, 'Quitar') ); bgImageGroup.appendChild(bgImageControls); body.appendChild(bgImageGroup); const actions = createElement('button', { class: 'modal-button primary' }, 'Guardar'); 
             openModal('Personalizar Tema', body, actions);
-
-            // --- Event Listeners para Vista Previa Dinámica ---
             
-            // Cambiar tema (Claro/Oscuro) dinámicamente
-            themeBtns.addEventListener('click', e => { 
-                if (e.target.tagName === 'BUTTON') { 
-                    themeBtns.querySelector('.active')?.classList.remove('active'); 
-                    e.target.classList.add('active');
-                    
-                    // Guardar y aplicar inmediatamente
-                    const settings = {
-                        themeClass: e.target.dataset.theme === 'light-theme' ? 'light-theme' : 'dark-theme',
-                        primaryColor: colorPicker.value,
-                        backgroundImage: localStorage.getItem('customBackgroundImage') || ''
-                    };
-                    saveThemeSettings(settings);
-                    applyTheme();
-                } 
-            });
+            // Listener para aplicar TEMA dinámicamente (solo visual)
+            themeBtns.onclick = e => { if (e.target.tagName !== 'BUTTON') return; themeBtns.querySelector('.active')?.classList.remove('active'); e.target.classList.add('active'); state.modal.themeChangesMade = true; applyThemePreview(); }; // Llama a preview
+            // Listener para aplicar COLOR dinámicamente (solo visual)
+            colorPicker.oninput = () => { state.modal.themeChangesMade = true; applyThemePreview(); }; // Llama a preview
 
-            // Cambiar color de acento dinámicamente
-            colorPicker.addEventListener('input', e => {
-                // Guardar y aplicar inmediatamente
-                const settings = {
-                    themeClass: themeBtns.querySelector('.active').dataset.theme === 'light-theme' ? 'light-theme' : 'dark-theme',
-                    primaryColor: e.target.value,
-                    backgroundImage: localStorage.getItem('customBackgroundImage') || ''
-                };
-                saveThemeSettings(settings);
-                applyTheme();
-            });
-
-            // --- Listeners para controles de imagen ---
-            body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click();
-            body.querySelector('#clear-bg-btn').onclick = () => { 
-                body.querySelector('#bg-image-url').value = ''; 
-                // Opcional: Limpiar inmediatamente al hacer clic en "Quitar"
-                // const settings = {
-                //     themeClass: themeBtns.querySelector('.active').dataset.theme,
-                //     primaryColor: colorPicker.value,
-                //     backgroundImage: ''
-                // };
-                // saveThemeSettings(settings);
-                // applyTheme();
-            };
+            body.querySelector('#upload-bg-btn').onclick = () => dom.bgImageInput.click(); 
+            body.querySelector('#clear-bg-btn').onclick = () => { body.querySelector('#bg-image-url').value = ''; state.modal.themeChangesMade = true; }; 
             
-            // Lógica del botón "Guardar Cambios" (solo para la imagen de fondo)
-            actions.onclick = () => { 
-                const imageUrlInput = body.querySelector('#bg-image-url').value.trim(); 
-                const currentBg = localStorage.getItem('customBackgroundImage') || ''; 
+            // Botón GUARDAR - Guarda TODO y aplica
+            actions.onclick = async () => { 
+                const urlInputEl = body.querySelector('#bg-image-url');
+                const imageUrlInput = urlInputEl.value.trim(); 
                 let finalBg = ''; 
 
-                // Lógica de validación de URL mejorada
-                if (imageUrlInput === '') {
-                    finalBg = ''; // 1. Limpiar el fondo
-                } else if (imageUrlInput === 'Archivo local cargado' && currentBg.startsWith('data:')) {
-                    finalBg = currentBg; // 2. Mantener el archivo local que ya estaba cargado
-                } else if (imageUrlInput.startsWith('http://') || imageUrlInput.startsWith('https://')) {
-                    finalBg = imageUrlInput; // 3. Es una URL válida
-                } else if (imageUrlInput.startsWith('www.')) {
-                    finalBg = 'https://' + imageUrlInput; // 4. Añadir 'https://' si falta
-                } else {
-                    // 5. URL inválida. Mostrar error y no cerrar el modal.
-                    // Eliminada la llamada a showAppAlert
-                    console.error("URL Inválida", "La URL de la imagen de fondo debe estar vacía o empezar con 'http://' o 'https://'.");
-                    return; // Abortar el guardado
+                if (imageUrlInput === '') { finalBg = ''; } 
+                else if (imageUrlInput === 'Local') {
+                    // Si dice 'Local', intentar obtener dataUrl del dataset (si se subió uno nuevo)
+                    // Si no hay, usar el que ya estaba guardado (initialThemeSettings)
+                    finalBg = urlInputEl.dataset.imageDataUrl || state.modal.initialThemeSettings.backgroundImage || ''; 
                 }
+                else if (/^https?:\/\//i.test(imageUrlInput)) { finalBg = imageUrlInput; } 
+                else if (/^www\./i.test(imageUrlInput)) { finalBg = 'https://' + imageUrlInput; } 
+                else { console.error("URL Inválida..."); return; }
                 
-                // Si llegamos aquí, finalBg es válido (o está vacío)
                 const settings = { 
                     themeClass: themeBtns.querySelector('.active').dataset.theme, 
                     primaryColor: colorPicker.value, 
                     backgroundImage: finalBg, 
                 }; 
-                
-                saveThemeSettings(settings); // Guardar
-                applyTheme(); // Aplicar
-                closeModal(); // Cerrar
-            };
+                await saveSettingsToDB(settings); 
+                state.modal.initialThemeSettings = settings; // Actualizar estado inicial guardado
+                state.modal.themeChangesMade = false; // Resetear flag
+                await applyTheme(settings); // Aplicar tema FINAL
+                forceCloseModal(); 
+            }; 
         }
-        
-        function handleBgImageSelection(e) { 
+
+        // Función para aplicar tema temporalmente (preview)
+        function applyThemePreview() {
+             const themeBtns = document.querySelector('.theme-toggle-btns');
+             const colorPicker = document.getElementById('color-picker');
+             if (!themeBtns || !colorPicker) return; // Salir si los elementos no están
+
+             const tempSettings = {
+                 themeClass: themeBtns.querySelector('.active')?.dataset.theme || state.modal.initialThemeSettings.themeClass || 'dark-theme',
+                 primaryColor: colorPicker.value,
+                 // Usar la imagen de fondo guardada (la inicial) para la preview, no intentar previsualizar cambios de imagen
+                 backgroundImage: state.modal.initialThemeSettings.backgroundImage || '' 
+             };
+             applyTheme(tempSettings); // Llama a applyTheme con los valores TEMPORALES
+        }
+       
+       async function handleBgImageSelection(e) { 
             const file = e.target.files[0]; 
-            if (file && file.type.startsWith('image/')) { 
+            if (file?.type.startsWith('image/')) { 
                 const reader = new FileReader(); 
-                reader.onload = (event) => { 
+                reader.onload = async (event) => { 
                     const dataUrl = event.target.result; 
-                    if (dataUrl.length > 2 * 1024 * 1024) { // Límite de 2MB
-                        // Eliminada la llamada a showAppAlert
-                        console.error("Imagen Grande", "La imagen es demasiado grande (máx 2MB).");
-                        return; 
-                    } 
-                    localStorage.setItem('customBackgroundImage', dataUrl); 
-                    applyTheme(); 
+                    if (dataUrl.length > 2*1024*1024) { console.error("Imagen > 2MB"); return; } 
                     const urlInput = document.getElementById('bg-image-url'); 
-                    if(urlInput) urlInput.value = 'Archivo local cargado'; 
+                    if(urlInput) {
+                        urlInput.value = 'Local'; // Update visual cue
+                        urlInput.dataset.imageDataUrl = dataUrl; // Guardar dataUrl temporalmente en el dataset del input
+                    }
+                    state.modal.themeChangesMade = true; 
+                    // NO aplicar tema aquí
                 }; 
                 e.target.value = null; 
-                reader.onerror = () => {
-                    // Eliminada la llamada a showAppAlert
-                    console.error("Error", "No se pudo cargar la imagen.");
-                }
+                reader.onerror = () => console.error("Error carga imagen.");
                 reader.readAsDataURL(file); 
             } 
         }
-        
-        function applyTheme() {
-            // 1. Obtener valores guardados o usar defaults
-            const themeClass = localStorage.getItem('themeClass') || 'dark-theme';
-            const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF';
-            const primaryColor = localStorage.getItem('customPrimaryColor') || defaultColor;
-            const backgroundImage = localStorage.getItem('customBackgroundImage') || '';
-            
-            // 2. Aplicar clase de tema al <html>
-            document.documentElement.className = themeClass; // Usar <html> en lugar de <body> para consistencia
-            
-            // 3. Convertir color primario a RGB para translucidez
-            const primaryRGB = hexToRgb(primaryColor);
-            const primaryTranslucent = primaryRGB 
-                ? `rgba(${primaryRGB.r}, ${primaryRGB.g}, ${primaryRGB.b}, 0.3)` 
-                : 'rgba(0, 122, 255, 0.3)';
-            
-            // 4. Establecer variables CSS en :root (<html>)
-            document.documentElement.style.setProperty('--primary-color', primaryColor);
-            document.documentElement.style.setProperty('--primary-color-translucent', primaryTranslucent);
 
-            // 5. Aplicar imagen de fondo dinámicamente
-            let styleSheet = document.getElementById('dynamic-bg-style');
-            styleSheet.textContent = `
-                body::before { 
-                    background-image: ${backgroundImage ? `url('${backgroundImage}')` : 'none'}; 
-                }
-            `;
-            
-            // 6. Actualizar la gráfica si existe y está visible
-            if (state.currentPageIndex === 3) { // Solo si la página de stats está activa
-                 renderStatsPage(); // Volver a renderizar
-            }
+       async function applyTheme(settings = null) { /* ... applyTheme logic (igual que antes) ... */ if (!settings) settings = await loadSettingsFromDB(); settings = settings || {}; const themeClass = settings.themeClass || 'dark-theme'; const defaultColor = themeClass === 'dark-theme' ? '#0A84FF' : '#007AFF'; const primaryColor = settings.primaryColor || defaultColor; const bgImg = settings.backgroundImage || ''; document.documentElement.className = themeClass; const rgb = hexToRgb(primaryColor); const transl = rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},0.3)` : 'rgba(0,122,255,0.3)'; document.documentElement.style.setProperty('--primary-color', primaryColor); document.documentElement.style.setProperty('--primary-color-translucent', transl); document.getElementById('dynamic-bg-style').textContent = `body::before{background-image:${bgImg?`url('${bgImg}')`:'none'};}`; if (state.currentPageIndex === 3) renderStatsPage(); }
+       
+        // --- Modales ---
+       async function openDayModal(dateStr) { /* ... openDayModal logic ... */ 
+            state.modal.selectedAudioId = null; const date = dayjs(dateStr); const dayData = state.dayDataMap[dateStr] || { tasks: [] }; const taskList = createElement('div', { id: 'task-list-modal' }); 
+            if (dayData.tasks.length > 0) { dayData.tasks.forEach((t, i) => { const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': i }, createElement('input', { type: 'checkbox', id: `m-${i}`, checked: t.completed }), createElement('label', { for: `m-${i}`, class: `task-title ${t.completed?'completed':''}` }, t.text) ); taskEl.querySelector('input').onchange = async (e) => { const idx = parseInt(e.target.closest('.task-item').dataset.index, 10); state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); e.target.checked = !e.target.checked; e.target.nextElementSibling.classList.toggle('completed', e.target.checked); } }; taskList.appendChild(taskEl); }); } 
+            else { taskList.appendChild(createElement('p', {}, 'No hay tareas.')); }
+            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Nueva tarea...' }); const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }, ICONS.attach); const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
+            if(state.modal.selectedAudioId) { const sound = state.soundLibrary.find(s => s.id === state.modal.selectedAudioId); if(sound) audioInfo.textContent = `Audio: ${sound.name}`; }
+            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); const body = createElement('div', {}, taskList, controls, audioInfo); const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir'); 
+            openModal(date.format('dddd, D [de] MMMM'), body, actions); attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
+            actions.onclick = async () => { if (!input.value.trim()) return; if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); try { await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); openDayModal(dateStr); renderCalendar(); renderTasks(); } catch (err) { console.error("Failed new task save:", err); state.dayDataMap[dateStr].tasks.pop(); } }; 
         }
-
-        function hexToRgb(hex) { 
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); 
-            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null; 
-        }
-        
-        function openModal(title, bodyElement, actionsElement = null) { 
-            if (!dom.modal.overlay) return; 
-            dom.modal.title.textContent = title; 
-            dom.modal.body.innerHTML = ''; 
-            dom.modal.body.appendChild(bodyElement); 
-            dom.modal.actions.innerHTML = ''; 
-            if (actionsElement) dom.modal.actions.appendChild(actionsElement); 
-            dom.modal.overlay.classList.add('visible'); 
-        }
-        
-        function closeModal() { 
-            if (dom.modal.overlay) dom.modal.overlay.classList.remove('visible'); 
-        }
-        
-        function openDayModal(dateStr) { 
-            state.modal.selectedAudioId = null; 
-            const date = dayjs(dateStr); 
-            const dayData = state.dayDataMap[dateStr] || { tasks: [] }; 
-            
-            const taskList = createElement('div', { id: 'task-list-modal' }); 
-            if (dayData.tasks.length > 0) {
-                dayData.tasks.forEach((task, index) => {
-                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index },
-                        createElement('input', { type: 'checkbox', id: `modal-task-${index}`, checked: task.completed }),
-                        createElement('label', { for: `modal-task-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
-                    );
-                    // Añadir lógica de clic para completado (ya que el `handleTaskClick` no está en el modal)
-                    taskEl.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-                        const idx = parseInt(e.target.closest('.task-item').dataset.index, 10);
-                        state.dayDataMap[dateStr].tasks[idx].completed = e.target.checked;
-                        e.target.nextElementSibling.classList.toggle('completed', e.target.checked);
-                        saveStateToLocalStorage();
-                        renderTasks();
-                        renderCalendar();
-                    });
-                    taskList.appendChild(taskEl);
-                });
-            } else {
-                taskList.appendChild(createElement('p', {}, 'No hay tareas para este día.')); 
-            }
-            
-            const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Añadir nueva tarea...' }); 
-            const attachBtn = createElement('button', { id: 'attach-audio-btn', class: 'action-btn' }); 
-            attachBtn.innerHTML = ICONS.attach; 
-            const audioInfo = createElement('div', { id: 'attached-audio-info' }); 
-            const controls = createElement('div', { class: 'new-task-controls' }, input, attachBtn); 
-            const body = createElement('div', {}, taskList, controls, audioInfo); 
-            const actions = createElement('button', { id: 'add-task-btn', class: 'modal-button primary' }, 'Añadir Tarea'); 
-            
-            openModal(date.format('dddd, D [de] MMMM'), body, actions); 
-            
-            attachBtn.onclick = () => openSoundSelectorModal(dateStr); 
-            
-            actions.onclick = () => { 
-                if (input.value.trim()) { 
-                    if (!state.dayDataMap[dateStr]) state.dayDataMap[dateStr] = { tasks: [] }; 
-                    state.dayDataMap[dateStr].tasks.push({ text: input.value, completed: false, audioId: state.modal.selectedAudioId }); 
-                    saveStateToLocalStorage(); 
-                    openDayModal(dateStr); // Recargar modal
-                    renderCalendar(); 
-                    renderTasks();
-                } 
-            }; 
-        }
-        
-        function openSoundSelectorModal(dateStr) { 
+        function openSoundSelectorModal(dateStr) { /* ... openSoundSelectorModal logic ... */ 
             const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
-            if (state.soundLibrary.length > 0) {
-                state.soundLibrary.forEach(sound => { 
-                    const item = createElement('div', { class: 'playlist-item' }, `${sound.name} (${sound.artist})`); // Reutilizar estilo
-                    item.onclick = () => { 
-                        state.modal.selectedAudioId = sound.id; 
-                        closeModal(); 
-                        openDayModal(dateStr); 
-                        requestAnimationFrame(() => { 
-                            const infoEl = document.getElementById('attached-audio-info'); 
-                            if (infoEl) infoEl.textContent = `Audio: ${sound.name}`; 
-                        }); 
-                    }; 
-                    body.appendChild(item); 
-                });
-            } else {
-                body.textContent = "Tu biblioteca de sonidos está vacía."; 
-            }
-            openModal("Seleccionar Sonido", body); 
+            if (state.soundLibrary.length > 0) { state.soundLibrary.forEach(s => { const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist})`); item.onclick = () => { state.modal.selectedAudioId = s.id; closeModal(true); openDayModal(dateStr); requestAnimationFrame(() => { const el = document.getElementById('attached-audio-info'); if (el) el.textContent = `Audio: ${s.name}`; }); }; body.appendChild(item); }); } 
+            else { body.textContent = "Biblioteca vacía."; } openModal("Seleccionar Sonido", body); 
         }
+        function openLibraryModal() { /* ... openLibraryModal logic ... */ const body = createElement('div', {id: 'library-list-container'}); const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir'); actions.onclick = () => dom.audioFileInput.click(); openModal('Biblioteca', body, actions); renderLibraryModalContent(); }
+        function renderLibraryModalContent() { /* ... renderLibraryModalContent logic ... */ 
+             const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
+            state.soundLibrary.forEach(s => { const artistInput = createElement('input', { type: 'text', value: s.artist, 'data-field': 'artist', placeholder: 'Artista' }); const genreInput = createElement('input', { type: 'text', value: s.genre, 'data-field': 'genre', placeholder: 'Género' }); const item = createElement('div', { class: 'library-item', 'data-id': s.id }, createElement('div', {class: 'library-item-info'}, createElement('div', { class: 'library-item-title' }, s.name), artistInput, genreInput ), createElement('div', { class: 'library-item-duration' }, formatTime(s.duration)) ); item.onchange = e => { if (e.target.tagName !== 'INPUT') return; const soundId = parseInt(item.dataset.id); const sound = state.soundLibrary.find(s => s.id === soundId); if (sound) { sound[e.target.dataset.field] = e.target.value; updateSoundInDB(sound); populateFilterDropdowns(); renderPlayerPlaylist(); } }; container.appendChild(item); }); 
+        }
+        function populateFilterDropdowns() { /* ... populateFilterDropdowns logic ... */ const genres = ['Todos Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; const artists = ['Todos Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; const curGenre = dom.player.genreFilter.value; const curArtist = dom.player.artistFilter.value; dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); dom.player.genreFilter.value = genres.includes(curGenre) ? curGenre : genres[0]; dom.player.artistFilter.value = artists.includes(curArtist) ? curArtist : artists[0]; }
         
-        // --- Sound Library ---
-        async function loadSoundsFromDB() { 
-            return new Promise((resolve, reject) => { 
-                if (!state.db) return reject("Database not initialized"); 
-                const tx = state.db.transaction('sounds', 'readonly'); 
-                const store = tx.objectStore('sounds'); 
-                const req = store.getAll(); 
-                req.onsuccess = () => { 
-                    state.soundLibrary = req.result || []; 
-                    resolve(); 
-                }; 
-                req.onerror = (e) => { 
-                    console.error("Error loading sounds:", e.target.error); 
-                    reject(e.target.error); 
-                }; 
-            }); 
-        }
+        // --- Player Logic ---
+        function renderPlayerPlaylist() { /* ... */ dom.player.playlist.innerHTML = ''; const st = dom.player.searchBar.value.toLowerCase(); const sg = dom.player.genreFilter.value; const sa = dom.player.artistFilter.value; const filtLib = state.soundLibrary.filter(s => (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && (sg === 'Todos Géneros' || s.genre === sg) && (sa === 'Todos Artistas' || s.artist === sa) ); state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib; state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId); if (state.currentPlaylist.length === 0) { dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Vacía.' : 'No resultados.')); return; } state.currentPlaylist.forEach(s => { const item = createElement('div', { class: 'playlist-item', 'data-id': s.id }, createElement('div', {}, createElement('div', {}, s.name), createElement('div', {class:'track-meta'}, `${s.artist||'N/A'} - ${s.genre||'N/A'}`) ), createElement('div', {}, formatTime(s.duration)) ); if (s.id === state.currentTrackId) item.classList.add('playing'); dom.player.playlist.appendChild(item); }); }
+        function handlePlaylistClick(e) { /* ... */ const item = e.target.closest('.playlist-item'); if (!item) return; const id = parseInt(item.dataset.id, 10); const idx = state.currentPlaylist.findIndex(t => t.id === id); if (idx !== -1) playTrackByIndex(idx); else { const sound = state.soundLibrary.find(s => s.id === id); if (sound) playTrack(sound); } }
+        function playTrackByIndex(idx) { /* ... */ if (idx < 0 || idx >= state.currentPlaylist.length) { if (state.repeatMode === 'all' && state.currentPlaylist.length > 0) idx = (idx < 0) ? state.currentPlaylist.length - 1 : 0; else { stopPlayback(); return; } } state.currentTrackIndexInPlaylist = idx; playTrack(state.currentPlaylist[idx]); }
+        function playTrack(sound) { /* ... */ if (!sound?.file) { console.error("Error: Archivo missing."); return; } if (state.currentHowl) { state.currentHowl.stop(); state.currentHowl.unload(); cancelAnimationFrame(state.playback.rafId); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); } try { const url = URL.createObjectURL(sound.file); state.currentTrackId = sound.id; state.currentHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onend: () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); }, onload: updatePlayerProgress, onloaderror: (id, err) => { console.error("Load err:", err); URL.revokeObjectURL(url); }, onplayerror: (id, err) => { console.error("Play err:", err); URL.revokeObjectURL(url); }, onseek: () => requestAnimationFrame(step) }); state.currentHowl.play(); dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; renderPlayerPlaylist(); } catch (err) { console.error("Howl setup err:", err); } }
+        function playAudioClip(id, secs = 10) { /* ... */ if (!id) return; const sound = state.soundLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
+        function setupPlayerIcons() { /* ... */ dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; }
+        function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowl.play(); }
+        function updatePlayerUI() { /* ... */ const isPlaying=state.currentHowl?.playing();if(dom.player.playPauseBtn)dom.player.playPauseBtn.innerHTML=isPlaying?ICONS.pause:ICONS.play;if(dom.player.shuffleBtn)dom.player.shuffleBtn.classList.toggle('active',state.isShuffling);if(dom.player.repeatBtn){dom.player.repeatBtn.classList.toggle('active',state.repeatMode!=='none');dom.player.repeatBtn.innerHTML=state.repeatMode==='one'?ICONS.repeatOne:ICONS.repeat;}const canPrev=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist>0;const canNext=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist<state.currentPlaylist.length-1;if(dom.player.prevBtn)dom.player.prevBtn.disabled=!(state.currentPlaylist.length>0&&canPrev);if(dom.player.nextBtn)dom.player.nextBtn.disabled=!(state.currentPlaylist.length>0&&canNext); }
+        function step() { /* ... */ if(state.currentHowl?.playing()){const seek=state.currentHowl.seek()||0;const duration=state.currentHowl.duration()||0;dom.player.currentTime.textContent=formatTime(seek);if(dom.player.totalTime.textContent==='0:00'&&duration>0){dom.player.totalTime.textContent=formatTime(duration);}state.playback.rafId=requestAnimationFrame(step);}else{cancelAnimationFrame(state.playback.rafId);} }
+        function updatePlayerProgress() { /* ... */ const duration=state.currentHowl?.duration()||0;const currentTime=state.currentHowl?.seek()||0;if(!isNaN(duration))dom.player.totalTime.textContent=formatTime(duration);if(!isNaN(currentTime))dom.player.currentTime.textContent=formatTime(currentTime); }
+        function playNextTrack() { /* ... */ playTrackByIndex(state.currentTrackIndexInPlaylist+1); }
+        function playPrevTrack() { /* ... */ if(!state.currentHowl)return;state.currentHowl.seek()>3?state.currentHowl.seek(0):playTrackByIndex(state.currentTrackIndexInPlaylist-1); }
+        function toggleShuffle() { /* ... */ state.isShuffling=!state.isShuffling;renderPlayerPlaylist();updatePlayerUI(); }
+        function cycleRepeatMode() { /* ... */ if(state.repeatMode==='none')state.repeatMode='all';else if(state.repeatMode==='all')state.repeatMode='one';else state.repeatMode='none';if(state.currentHowl)state.currentHowl.loop(state.repeatMode==='one');updatePlayerUI(); }
+        function handleTrackEnd() { /* ... */ cancelAnimationFrame(state.playback.rafId);if(state.repeatMode!=='one')playNextTrack();else{if(state.currentHowl&&!state.currentHowl.playing())state.currentHowl.play();} }
+        function stopPlayback() { /* ... */ if(state.currentHowl){state.currentHowl.stop();state.currentHowl.unload();if(state.currentHowl._src?.startsWith('blob:'))URL.revokeObjectURL(state.currentHowl._src);}cancelAnimationFrame(state.playback.rafId);stopAndLogListeningSession();state.currentTrackId=null;state.currentTrackIndexInPlaylist=-1;dom.player.trackTitle.textContent="Nada seleccionado";dom.player.currentTime.textContent="0:00";dom.player.totalTime.textContent="0:00";renderPlayerPlaylist();updatePlayerUI(); }
         
-        async function handleFileSelection(e) { 
-            closeModal(); // Cerrar modal de biblioteca
-            openModal('Cargando Audios...', createElement('p', {style:'text-align:center;'}, 'Por favor, espera...')); 
-            
-            try { 
-                for (const file of e.target.files) { 
-                    if (file.type.startsWith('audio/')) await saveSoundToDB(file); 
-                } 
-                await loadSoundsFromDB(); 
-                closeModal(); 
-                openLibraryModal(); // Volver a abrir biblioteca actualizada
-                renderAllTabs(); // Actualizar todo
-            } catch (error) { 
-                closeModal(); 
-                // Eliminada la llamada a showAppAlert
-                console.error('Error de Carga', 'No se pudieron guardar los archivos de audio.');
-            } finally { 
-                e.target.value = null; 
-            } 
-        }
-        
-        function saveSoundToDB(file) { 
-            return new Promise(async (resolve, reject) => { 
-                if (!state.db) return reject("Database not initialized"); 
-                try { 
-                    const duration = await getAudioDuration(file); 
-                    if (file.size > 50 * 1024 * 1024) { // Límite de 50MB
-                        throw new Error(`El archivo ${file.name} es demasiado grande (máx 50MB).`);
-                    }
-                    const newSound = { 
-                        name: file.name.replace(/\.[^/.]+$/, ""), 
-                        artist: 'Artista Desconocido', 
-                        genre: 'Desconocido', 
-                        duration, 
-                        file 
-                    }; 
-                    const tx = state.db.transaction('sounds', 'readwrite'); 
-                    const store = tx.objectStore('sounds'); 
-                    const req = store.add(newSound); 
-                    req.onsuccess = resolve; 
-                    req.onerror = (e) => reject(e.target.error); 
-                } catch (error) { 
-                    console.error(error.message);
-                    // Eliminada la llamada a showAppAlert
-                    reject(error); 
-                } 
-            }); 
-        }
-        
-        function updateSoundInDB(soundData) { 
-            if (!state.db) return; 
-            const tx = state.db.transaction('sounds', 'readwrite'); 
-            const store = tx.objectStore('sounds'); 
-            store.put(soundData); 
-        }
-        
-        function getAudioDuration(file) { 
-            return new Promise((resolve, reject) => { 
-                const audio = document.createElement('audio'); 
-                audio.preload = 'metadata'; 
-                audio.onloadedmetadata = () => { 
-                    window.URL.revokeObjectURL(audio.src); 
-                    resolve(audio.duration); 
-                }; 
-                audio.onerror = (e) => { 
-                    window.URL.revokeObjectURL(audio.src); 
-                    reject(new Error(`No se pudo leer la duración de ${file.name}`)); 
-                }; 
-                audio.src = window.URL.createObjectURL(file); 
-            }); 
-        }
-        
-        function openLibraryModal() { 
-            const body = createElement('div', {id: 'library-list-container'}); 
-            const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir Sonidos'); 
-            actions.onclick = () => dom.audioFileInput.click(); 
-            
-            openModal('Biblioteca de Sonidos', body, actions); 
-            renderLibraryModalContent(); 
-        }
-        
-        function renderLibraryModalContent() { 
-            const container = document.getElementById('library-list-container'); 
-            if (!container) return; 
-            container.innerHTML = ''; 
-            
-            if (state.soundLibrary.length === 0) { 
-                container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Tu biblioteca está vacía.')); 
-                return; 
-            } 
-            
-            state.soundLibrary.forEach(sound => { 
-                const artistInput = createElement('input', { type: 'text', value: sound.artist, 'data-field': 'artist', placeholder: 'Artista' }); 
-                const genreInput = createElement('input', { type: 'text', value: sound.genre, 'data-field': 'genre', placeholder: 'Género' }); 
-                
-                const item = createElement('div', { class: 'library-item', 'data-id': sound.id }, 
-                    createElement('div', {class: 'library-item-info'}, 
-                        createElement('div', { class: 'library-item-title' }, sound.name), 
-                        artistInput, 
-                        genreInput
-                    ), 
-                    createElement('div', { class: 'library-item-duration' }, formatTime(sound.duration))
-                ); 
-                
-                item.addEventListener('change', (e) => { 
-                    if (e.target.tagName === 'INPUT') { 
-                        const soundId = parseInt(item.dataset.id); 
-                        const soundToUpdate = state.soundLibrary.find(s => s.id === soundId); 
-                        if (soundToUpdate) { 
-                            const field = e.target.dataset.field; 
-                            soundToUpdate[field] = e.target.value; 
-                            updateSoundInDB(soundToUpdate); 
-                            populateFilterDropdowns(); 
-                            renderPlayerPlaylist(); 
-                        } 
-                    } 
-                }); 
-                container.appendChild(item); 
-            }); 
-        }
-        
-        function populateFilterDropdowns() { 
-            const genres = ['Todos los Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; 
-            const artists = ['Todos los Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; 
-            
-            const currentGenre = dom.player.genreFilter.value; 
-            const currentArtist = dom.player.artistFilter.value; 
-            
-            dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); 
-            dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); 
-            
-            dom.player.genreFilter.value = genres.includes(currentGenre) ? currentGenre : genres[0]; 
-            dom.player.artistFilter.value = artists.includes(currentArtist) ? currentArtist : artists[0]; 
-        }
-        
-        // --- Player Logic (Using Howler) ---
-        function renderPlayerPlaylist() { 
-            dom.player.playlist.innerHTML = ''; 
-            const searchTerm = dom.player.searchBar.value.toLowerCase(); 
-            const selectedGenre = dom.player.genreFilter.value; 
-            const selectedArtist = dom.player.artistFilter.value; 
-            
-            const filteredLibrary = state.soundLibrary.filter(sound => { 
-                const nameMatch = sound.name?.toLowerCase().includes(searchTerm) ?? false; 
-                const artistMatch = sound.artist?.toLowerCase().includes(searchTerm) ?? false; 
-                const genreMatch = sound.genre?.toLowerCase().includes(searchTerm) ?? false; 
-                
-                const matchesSearch = searchTerm === '' || nameMatch || artistMatch || genreMatch; 
-                const matchesGenre = selectedGenre === 'Todos los Géneros' || sound.genre === selectedGenre; 
-                const matchesArtist = selectedArtist === 'Todos los Artistas' || sound.artist === selectedArtist; 
-                
-                return matchesSearch && matchesGenre && matchesArtist; 
-            }); 
-            
-            if (state.isShuffling) {
-                state.currentPlaylist = shuffleArray([...filteredLibrary]); 
-            } else {
-                state.currentPlaylist = filteredLibrary; 
-            }
-            
-            state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(track => track.id === state.currentTrackId); 
-            
-            if (state.currentPlaylist.length === 0) { 
-                dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Biblioteca vacía.' : 'No hay resultados.')); 
-                return; 
-            } 
-            
-            state.currentPlaylist.forEach(sound => { 
-                const item = createElement('div', { class: 'playlist-item', 'data-id': sound.id }, 
-                    createElement('div', {class: 'track-info-main'}, 
-                        createElement('div', {class: 'track-title'}, sound.name), 
-                        createElement('div', {class: 'track-meta'}, `${sound.artist || 'Desconocido'} - ${sound.genre || 'Desconocido'}`)
-                    ), 
-                    createElement('div', {class: 'track-duration'}, formatTime(sound.duration))
-                ); 
-                if (sound.id === state.currentTrackId) item.classList.add('playing'); 
-                dom.player.playlist.appendChild(item); 
-            }); 
-        }
-        
-        function handlePlaylistClick(e) { 
-            const item = e.target.closest('.playlist-item'); 
-            if (item) { 
-                const trackId = parseInt(item.dataset.id, 10); 
-                const indexInPlaylist = state.currentPlaylist.findIndex(track => track.id === trackId); 
-                
-                if (indexInPlaylist !== -1) {
-                    playTrackByIndex(indexInPlaylist); 
-                } else { 
-                    // Fallback: si no está en la lista filtrada, buscar en la biblioteca completa
-                    const sound = state.soundLibrary.find(s => s.id === trackId); 
-                    if (sound) playTrack(sound); 
-                } 
-            } 
-        }
-        
-        function playTrackByIndex(index) { 
-            if (index < 0 || index >= state.currentPlaylist.length) { 
-                if (state.repeatMode === 'all' && state.currentPlaylist.length > 0) {
-                    index = (index < 0) ? state.currentPlaylist.length - 1 : 0; 
-                } else {
-                    stopPlayback(); 
-                    return; 
-                }
-            } 
-            
-            state.currentTrackIndexInPlaylist = index; 
-            const sound = state.currentPlaylist[index]; 
-            playTrack(sound); 
-        }
-        
-        function playTrack(sound) { 
-            if (!sound || !sound.file) { 
-                // Eliminada la llamada a showAppAlert
-                console.error("Error", "No se pudo encontrar el archivo de audio."); 
-                return; 
-            } 
-            
-            // Detener y descargar la pista anterior
-            if (state.currentHowl) { 
-                state.currentHowl.stop(); 
-                state.currentHowl.unload(); // Libera la memoria
-                cancelAnimationFrame(state.playback.rafId); 
-                if(state.currentHowl._src && state.currentHowl._src.startsWith('blob:')) {
-                    URL.revokeObjectURL(state.currentHowl._src);
-                }
-            } 
-            
-            try { 
-                const url = URL.createObjectURL(sound.file); 
-                state.currentTrackId = sound.id; 
-                
-                state.currentHowl = new Howl({ 
-                    src: [url], 
-                    html5: true, // Usar HTML5 Audio para mejor manejo de archivos grandes
-                    format: [sound.file.type.split('/')[1] || 'mp3'], 
-                    loop: state.repeatMode === 'one', 
-                    onplay: () => { 
-                        updatePlayerUI(); 
-                        requestAnimationFrame(step); 
-                        startListeningSession(); // Iniciar registro de estadísticas
-                    }, 
-                    onpause: () => { 
-                        updatePlayerUI(); 
-                        cancelAnimationFrame(state.playback.rafId); 
-                        stopAndLogListeningSession(); // Detener y guardar registro
-                    }, 
-                    onstop: () => { 
-                        updatePlayerUI(); 
-                        cancelAnimationFrame(state.playback.rafId); 
-                        stopAndLogListeningSession(); // Detener y guardar registro
-                    }, 
-                    onend: () => { 
-                        cancelAnimationFrame(state.playback.rafId); 
-                        stopAndLogListeningSession(); // Guardar antes de pasar a la siguiente
-                        handleTrackEnd(); 
-                        URL.revokeObjectURL(url); // Revocar URL al terminar
-                    }, 
-                    onload: updatePlayerProgress, 
-                    onloaderror: (id, err) => { 
-                        console.error("Howler load error:", err); 
-                        // Eliminada la llamada a showAppAlert
-                        URL.revokeObjectURL(url); 
-                    }, 
-                    onplayerror: (id, err) => { 
-                        console.error("Howler play error:", err); 
-                        // Eliminada la llamada a showAppAlert
-                        URL.revokeObjectURL(url); 
-                    }, 
-                    onseek: () => requestAnimationFrame(step) 
-                }); 
-                
-                state.currentHowl.play(); 
-                dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; 
-                renderPlayerPlaylist(); // Actualizar UI de playlist
-                
-            } catch (error) { 
-                console.error("Error setting up Howl:", error); 
-                // Eliminada la llamada a showAppAlert
-            } 
-        }
-        
-        function playAudioClip(audioId, durationSeconds = 10) {
-            if (!audioId) return;
-            const sound = state.soundLibrary.find(s => s.id === audioId);
-            if (!sound || !sound.file) return;
-
-            try {
-                const url = URL.createObjectURL(sound.file);
-                const clipHowl = new Howl({
-                    src: [url],
-                    html5: true,
-                    format: [sound.file.type.split('/')[1] || 'mp3'],
-                    onend: () => { clipHowl.unload(); URL.revokeObjectURL(url); },
-                    onloaderror: () => URL.revokeObjectURL(url),
-                    onplayerror: () => URL.revokeObjectURL(url)
-                });
-
-                // Pausar la música principal si está sonando
-                if (state.currentHowl && state.currentHowl.playing()) {
-                    state.currentHowl.pause();
-                }
-
-                clipHowl.play();
-                
-                setTimeout(() => {
-                    if (clipHowl.playing()) clipHowl.stop();
-                    clipHowl.unload();
-                    URL.revokeObjectURL(url);
-                }, durationSeconds * 1000); // Usar la duración pasada como argumento
-
-            } catch(error) {
-                console.error("Error playing clip:", error);
-            }
-        }
-        
-        function setupPlayerIcons() { 
-            dom.player.playPauseBtn.innerHTML = ICONS.play; 
-            dom.player.prevBtn.innerHTML = ICONS.prev; 
-            dom.player.nextBtn.innerHTML = ICONS.next; 
-            dom.player.shuffleBtn.innerHTML = ICONS.shuffle; 
-            dom.player.repeatBtn.innerHTML = ICONS.repeat; 
-        }
-        
-        function togglePlayPause() { 
-            if (!state.currentHowl) { 
-                if (state.currentPlaylist.length > 0) playTrackByIndex(0); 
-                return; 
-            } 
-            if (state.currentHowl.playing()) { 
-                state.currentHowl.pause(); 
-            } else { 
-                state.currentHowl.play(); 
-            } 
-        }
-        
-        function updatePlayerUI() { 
-            const isPlaying = state.currentHowl && state.currentHowl.playing(); 
-            
-            if (dom.player.playPauseBtn) dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play; 
-            if (dom.player.shuffleBtn) dom.player.shuffleBtn.classList.toggle('active', state.isShuffling); 
-            if (dom.player.repeatBtn) { 
-                dom.player.repeatBtn.classList.toggle('active', state.repeatMode !== 'none'); 
-                dom.player.repeatBtn.innerHTML = state.repeatMode === 'one' ? ICONS.repeatOne : ICONS.repeat; 
-            } 
-            
-            const canGoPrev = state.repeatMode !== 'none' || state.currentTrackIndexInPlaylist > 0;
-            const canGoNext = state.repeatMode !== 'none' || state.currentTrackIndexInPlaylist < state.currentPlaylist.length - 1;
-            
-            if(dom.player.prevBtn) dom.player.prevBtn.disabled = !(state.currentPlaylist.length > 0 && canGoPrev);
-            if(dom.player.nextBtn) dom.player.nextBtn.disabled = !(state.currentPlaylist.length > 0 && canGoNext);
-        }
-        
-        function step() { 
-            if (state.currentHowl && state.currentHowl.playing()) { 
-                const seek = state.currentHowl.seek() || 0; 
-                const duration = state.currentHowl.duration() || 0; 
-                
-                dom.player.currentTime.textContent = formatTime(seek); 
-                if (dom.player.totalTime.textContent === '0:00' && duration > 0) {
-                    dom.player.totalTime.textContent = formatTime(duration);
-                }
-                
-                state.playback.rafId = requestAnimationFrame(step); 
-            } else { 
-                cancelAnimationFrame(state.playback.rafId); 
-            } 
-        }
-        
-        function updatePlayerProgress() { 
-            const duration = state.currentHowl?.duration() || 0; 
-            const currentTime = state.currentHowl?.seek() || 0; 
-            
-            if (!isNaN(duration)) dom.player.totalTime.textContent = formatTime(duration); 
-            if (!isNaN(currentTime)) dom.player.currentTime.textContent = formatTime(currentTime); 
-        }
-        
-        function playNextTrack() { 
-            playTrackByIndex(state.currentTrackIndexInPlaylist + 1); 
-        }
-        
-        function playPrevTrack() { 
-            if (!state.currentHowl) return; 
-            if (state.currentHowl.seek() > 3) {
-                state.currentHowl.seek(0); 
-            } else {
-                playTrackByIndex(state.currentTrackIndexInPlaylist - 1); 
-            }
-        }
-        
-        function toggleShuffle() { 
-            state.isShuffling = !state.isShuffling; 
-            renderPlayerPlaylist(); // Re-renderizar playlist (barajada o no)
-            updatePlayerUI(); 
-        }
-        
-        function cycleRepeatMode() { 
-            if (state.repeatMode === 'none') state.repeatMode = 'all'; 
-            else if (state.repeatMode === 'all') state.repeatMode = 'one'; 
-            else state.repeatMode = 'none'; 
-            
-            if (state.currentHowl) state.currentHowl.loop(state.repeatMode === 'one'); 
-            updatePlayerUI(); 
-        }
-        
-        function handleTrackEnd() { 
-            cancelAnimationFrame(state.playback.rafId); 
-            if (state.repeatMode !== 'one') { 
-                playNextTrack(); 
-            } else { 
-                // Howler maneja el loop 'one', pero si se detuvo, reiniciarlo
-                if(state.currentHowl && !state.currentHowl.playing()) state.currentHowl.play(); 
-            } 
-        }
-        
-        function stopPlayback() { 
-            if (state.currentHowl) { 
-                state.currentHowl.stop(); 
-                state.currentHowl.unload(); 
-                if(state.currentHowl._src && state.currentHowl._src.startsWith('blob:')) {
-                    URL.revokeObjectURL(state.currentHowl._src);
-                }
-            } 
-            
-            cancelAnimationFrame(state.playback.rafId); 
-            stopAndLogListeningSession(); // Asegurarse de guardar al detener
-            
-            state.currentTrackId = null; 
-            state.currentTrackIndexInPlaylist = -1; 
-            
-            dom.player.trackTitle.textContent = "Ningún sonido seleccionado"; 
-            dom.player.currentTime.textContent = "0:00"; 
-            dom.player.totalTime.textContent = "0:00"; 
-            
-            renderPlayerPlaylist(); 
-            updatePlayerUI(); 
-        }
-        
-        // --- Utils ---
-        function createElement(tag, attributes = {}, ...children) { 
-            const element = document.createElement(tag); 
-            for (const [key, value] of Object.entries(attributes)) { 
-                if (key === 'class') element.className = value; 
-                else if (key.startsWith('data-')) element.dataset[key.substring(5)] = value; 
-                else if (typeof value === 'boolean') element[key] = value; 
-                else if (value !== null && value !== undefined) element.setAttribute(key, value); 
-            } 
-            for (const child of children) { 
-                if (child !== null && child !== undefined) 
-                    element.append(typeof child === 'string' ? document.createTextNode(child) : child); 
-            } 
-            return element; 
-        }
-        
-        function formatTime(seconds) { 
-            if (isNaN(seconds) || seconds < 0) return '0:00'; 
-            const mins = Math.floor(seconds / 60); 
-            const secs = Math.floor(seconds % 60).toString().padStart(2, '0'); 
-            return `${mins}:${secs}`; 
-        }
-        
-        function debounce(func, wait) { 
-            let timeout; 
-            return function executedFunction(...args) { 
-                const later = () => { 
-                    clearTimeout(timeout); 
-                    func.apply(this, args); 
-                }; 
-                clearTimeout(timeout); 
-                timeout = setTimeout(later, wait); 
-            }; 
-        }
-        
-        function shuffleArray(array) { 
-            for (let i = array.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [array[i], array[j]] = [array[j], array[i]]; 
-            } 
-            return array; 
-        }
+       
 
         // --- Render Views ---
-        function renderCalendar() { 
-            if (!dom.calendar.grid) return; 
-            dom.calendar.grid.innerHTML = ''; 
-            const today = dayjs().startOf('day'); 
-            
-            if (!state.currentDate) state.currentDate = dayjs(); 
-            
-            const year = state.currentDate.year(); 
-            const month = state.currentDate.month(); 
-            
-            if (dom.calendar.monthYearDisplay) 
-                dom.calendar.monthYearDisplay.textContent = state.currentDate.format('MMMM YYYY'); 
-                
-            const firstDayOfMonth = state.currentDate.startOf('month').day(); 
-            const daysInMonth = state.currentDate.daysInMonth(); 
-            
-            // 0 (Domingo) a 6 (Sábado) -> 1 (Lunes) a 0 (Domingo)
-            const startOffset = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1; 
-            
-            // Días vacíos al inicio
-            for (let i = 0; i < startOffset; i++) {
-                dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' })); 
-            }
-            
-            // Días del mes
-            for (let day = 1; day <= daysInMonth; day++) { 
-                const currentDayObj = state.currentDate.date(day); 
-                const dateStr = currentDayObj.format('YYYY-MM-DD'); 
-                
-                const classes = ['calendar-day']; 
-                if (currentDayObj.isSame(today, 'day')) classes.push('today'); 
-                
-                // Comprobar si hay tareas *pendientes*
-                if (state.dayDataMap[dateStr] && state.dayDataMap[dateStr].tasks && state.dayDataMap[dateStr].tasks.some(t => !t.completed)) {
-                    classes.push('has-task');
-                }
-                
-                const dayEl = createElement('div', { class: classes.join(' '), 'data-date': dateStr }, 
-                    createElement('span', { class: 'day-number' }, day.toString())
-                ); 
-                dom.calendar.grid.appendChild(dayEl); 
-            } 
-        }
-        
-        function renderTasks() { 
-            if (!dom.tasks.container) return; 
-            dom.tasks.container.innerHTML = ''; 
-            
-            const today = dayjs().startOf('day'); 
-            
-            const taskEntries = (typeof state.dayDataMap === 'object' && state.dayDataMap !== null) 
-                ? Object.entries(state.dayDataMap) 
-                : [];
-            
-            // Filtrar solo días con tareas, y que sean hoy o en el futuro
-            const upcomingTasks = taskEntries
-                .filter(([dateStr, data]) => 
-                    data && data.tasks && data.tasks.length > 0 && dayjs(dateStr).isSameOrAfter(today, 'day')
-                )
-                .sort(([dateA], [dateB]) => dayjs(dateA).unix() - dayjs(dateB).unix()); // Corregido: dayjs(B) -> dayjs(dateB)
-            
-            if (upcomingTasks.length === 0) { 
-                dom.tasks.container.appendChild(createElement('p', {style: "text-align: center; color: var(--secondary-text-color); padding: 1rem;"}, 'No tienes tareas pendientes.')); 
-                return; 
-            } 
-            
-            upcomingTasks.forEach(([dateStr, data]) => { 
-                const date = dayjs(dateStr); 
-                const dateTitle = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM');
-                
-                const group = createElement('div', { class: 'task-date-group' }); 
-                group.appendChild(createElement('h3', {}, dateTitle)); 
-                
-                data.tasks.forEach((task, index) => { 
-                    const playBtn = task.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; 
-                    if(playBtn) playBtn.innerHTML = ICONS.play_task; 
-                    
-                    const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': index }, 
-                        createElement('div', {class: 'task-item-content'}, 
-                            createElement('input', { type: 'checkbox', id: `overview-task-${dateStr}-${index}`, checked: task.completed }), 
-                            createElement('label', { for: `overview-task-${dateStr}-${index}`, class: `task-title ${task.completed ? 'completed' : ''}` }, task.text)
-                        ), 
-                        playBtn, // Null se ignora al añadir
-                        createElement('button', { class: 'delete-btn action-btn' }, '×')
-                    ); 
-                    group.appendChild(taskEl); 
-                }); 
-                dom.tasks.container.appendChild(group); 
-            }); 
-        }
+        function renderCalendar() { /* ... */ if (state.calendarViewMode === 'days') renderDayGrid(); else renderMonthSelector(); }
+        function renderDayGrid() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'block'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'none'; if (!dom.calendar.grid) return; dom.calendar.grid.innerHTML = ''; const today = dayjs().startOf('day'); if (!state.currentDate) state.currentDate = dayjs(); if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.currentDate.format('MMMM YYYY'); const firstDay = state.currentDate.startOf('month').day(); const days = state.currentDate.daysInMonth(); const offset = (firstDay === 0) ? 6 : firstDay - 1; for (let i = 0; i < offset; i++) dom.calendar.grid.appendChild(createElement('div', { class: 'calendar-day empty' })); for (let d = 1; d <= days; d++) { const dayObj = state.currentDate.date(d); const ds = dayObj.format('YYYY-MM-DD'); const classes = ['calendar-day']; if (dayObj.isSame(today, 'day')) classes.push('today'); if (state.dayDataMap[ds]?.tasks?.some(t => !t.completed)) classes.push('has-task'); const dayEl = createElement('div', { class: classes.join(' '), 'data-date': ds }, createElement('span', { class: 'day-number' }, d.toString())); dom.calendar.grid.appendChild(dayEl); } }
+        function renderMonthSelector() { /* ... */ if (dom.calendar.gridWrapper) dom.calendar.gridWrapper.style.display = 'none'; if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.style.display = 'block'; if (!dom.calendar.monthSelectorWrapper) return; dom.calendar.monthSelectorWrapper.innerHTML = ''; if (dom.calendar.monthYearDisplay) dom.calendar.monthYearDisplay.textContent = state.calendarYearInView; const monthGrid = createElement('div', { class: 'calendar-month-selector' }); const currentMonth = dayjs().year() === state.calendarYearInView ? dayjs().month() : -1; dayjs.months().forEach((name, idx) => { const classes = ['calendar-month-item']; if (idx === currentMonth) classes.push('current'); const item = createElement('div', { class: classes.join(' '), 'data-month': idx }, name); monthGrid.appendChild(item); }); dom.calendar.monthSelectorWrapper.appendChild(monthGrid); dom.calendar.monthSelectorWrapper.removeEventListener('click', handleMonthSelectorClick); dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); }
+        function renderTasks() { /* ... */ if (!dom.tasks.container) return; dom.tasks.container.innerHTML = ''; const today = dayjs().startOf('day'); const entries = Object.entries(state.dayDataMap); const upcoming = entries.filter(([ds, d]) => d?.tasks?.length > 0 && dayjs(ds).isSameOrAfter(today, 'day')).sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); if (upcoming.length === 0) { dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, 'No hay tareas.')); return; } upcoming.forEach(([ds, d]) => { const date = dayjs(ds); const title = date.isSame(today, 'day') ? 'Hoy' : date.format('dddd, D [de] MMMM'); const group = createElement('div', { class: 'task-date-group' }, createElement('h3', {}, title)); d.tasks.forEach((t, i) => { const pb = t.audioId ? createElement('button', { class: 'action-btn play-task-btn' }, ICONS.play_task) : null; const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index':i }, createElement('div', {class:'task-item-content'}, createElement('input', { type:'checkbox', id:`ot-${ds}-${i}`, checked:t.completed }), createElement('label', { for:`ot-${ds}-${i}`, class:`task-title ${t.completed?'completed':''}` }, t.text)), pb, createElement('button', { class:'delete-btn action-btn' }, '×')); group.appendChild(el); }); dom.tasks.container.appendChild(group); }); }
 
-        // --- Página de Estadísticas ---
+        // --- Página de Estadísticas (Vanilla JS SVG) ---
         function renderStatsPage() {
-            if (!dom.stats.chartCanvas) return;
-            const ctx = dom.stats.chartCanvas.getContext('2d');
-            
-            // *** CORRECCIÓN: Destrucción Robusta del Gráfico ***
-            // Usar Chart.getChart para asegurar que destruimos la instancia correcta
-            const existingChart = Chart.getChart(dom.stats.chartCanvas);
-            if (existingChart) {
-                existingChart.destroy();
+            const container = dom.stats.chartContainer;
+            if (!container) return;
+            container.innerHTML = ''; // Limpiar contenedor
+
+            // Crear tooltip
+            const tooltip = createElement('div', { class: 'svg-tooltip', style: 'display: none;' });
+            container.appendChild(tooltip);
+
+            // Filtrar datos: solo días con escucha
+            const logEntries = Object.entries(state.stats.listeningLog)
+                                     .filter(([_, seconds]) => seconds > 0);
+
+            if (logEntries.length < 2) { // Necesitamos al menos 2 puntos para una línea
+                container.appendChild(createElement('p', { style: "text-align: center; color: var(--secondary-text-color); padding: 1rem;" }, 'No hay suficientes datos de escucha para mostrar una curva.'));
+                return;
             }
-            state.stats.chartInstance = null; // Limpiar nuestra referencia
 
-
-            // Preparar datos para la gráfica
-            const logEntries = Object.entries(state.stats.listeningLog);
-            // Ordenar por fecha
             logEntries.sort(([dateA], [dateB]) => dayjs(dateA).unix() - dayjs(dateB).unix());
 
-            // *** CORRECCIÓN: Usar Timestamps Unix (milisegundos) para las labels ***
-            const labels = logEntries.map(([dateStr]) => dayjs(dateStr).valueOf()); // Milisegundos desde epoch
-            const dataInMinutes = logEntries.map(([_, seconds]) => Math.round(seconds / 60));
+            const maxMinutes = Math.ceil(Math.max(1, ...logEntries.map(([_, s]) => s / 60))); // Max minutos, al menos 1
+            const minTimestamp = dayjs(logEntries[0][0]).valueOf();
+            const maxTimestamp = dayjs(logEntries[logEntries.length - 1][0]).valueOf();
             
-            // Obtener colores del tema actual
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-            const primaryTranslucent = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-translucent').trim();
-            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
-            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            const svgWidth = 500; // Ancho base del viewBox
+            const svgHeight = 250; // Alto base del viewBox
+            const padding = { top: 20, right: 20, bottom: 40, left: 40 }; // Padding para etiquetas
 
-            try { // Añadir try-catch alrededor de la creación del gráfico
-                state.stats.chartInstance = new Chart(ctx, {
-                    type: 'line', // Gráfico de curvas (líneas)
-                    data: {
-                        labels: labels, // Ahora son timestamps numéricos
-                        datasets: [{
-                            label: 'Minutos Escuchados',
-                            data: dataInMinutes,
-                            borderColor: primaryColor,
-                            backgroundColor: primaryTranslucent,
-                            fill: true, // Rellenar área bajo la curva
-                            tension: 0.3, // Curvas suaves
-                            pointBackgroundColor: primaryColor,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ${context.parsed.y} min`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: 'time', // La escala de tiempo entiende timestamps
-                                time: {
-                                    unit: 'day',
-                                    tooltipFormat: 'll', // ej: 23 de oct. de 2025
-                                    displayFormats: {
-                                        day: 'MMM D' // ej: Oct 23
-                                    },
-                                    // No se necesita parser explícito para timestamps
-                                },
-                                ticks: {
-                                    color: textColor,
-                                },
-                                grid: {
-                                    color: 'transparent',
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    color: textColor,
-                                    callback: function(value) {
-                                        return value + ' min';
-                                    }
-                                },
-                                grid: {
-                                    color: gridColor,
-                                }
-                            }
-                        }
-                    }
+            const mapX = (timestamp) => {
+                const range = maxTimestamp - minTimestamp;
+                if (range === 0) return padding.left; // Solo un punto
+                return padding.left + ((timestamp - minTimestamp) / range) * (svgWidth - padding.left - padding.right);
+            };
+            const mapY = (minutes) => {
+                return (svgHeight - padding.bottom) - ((minutes / maxMinutes) * (svgHeight - padding.top - padding.bottom));
+            };
+
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = createElementNS(svgNS, 'svg', {
+                id: 'stats-svg',
+                viewBox: `0 0 ${svgWidth} ${svgHeight}`,
+                preserveAspectRatio: 'xMidYMid meet'
+            });
+
+            // --- 1. Ejes (Líneas simples) ---
+            const xAxis = createElementNS(svgNS, 'line', { class: 'stats-axis', x1: padding.left, y1: svgHeight - padding.bottom, x2: svgWidth - padding.right, y2: svgHeight - padding.bottom });
+            const yAxis = createElementNS(svgNS, 'line', { class: 'stats-axis', x1: padding.left, y1: padding.top, x2: padding.left, y2: svgHeight - padding.bottom });
+            svg.appendChild(xAxis);
+            svg.appendChild(yAxis);
+
+            // --- 2. Etiquetas de Ejes ---
+            const yLabelMax = createElementNS(svgNS, 'text', { class: 'stats-label', x: padding.left - 8, y: padding.top + 4, 'text-anchor': 'end' }, `${maxMinutes} min`);
+            const yLabelMin = createElementNS(svgNS, 'text', { class: 'stats-label', x: padding.left - 8, y: svgHeight - padding.bottom, 'text-anchor': 'end' }, '0 min');
+            const xLabelStart = createElementNS(svgNS, 'text', { class: 'stats-label', x: padding.left, y: svgHeight - padding.bottom + 15, 'text-anchor': 'start' }, dayjs(minTimestamp).format('MMM D'));
+            const xLabelEnd = createElementNS(svgNS, 'text', { class: 'stats-label', x: svgWidth - padding.right, y: svgHeight - padding.bottom + 15, 'text-anchor': 'end' }, dayjs(maxTimestamp).format('MMM D'));
+            svg.appendChild(yLabelMax); svg.appendChild(yLabelMin); svg.appendChild(xLabelStart); svg.appendChild(xLabelEnd);
+
+
+            const points = [];
+            logEntries.forEach(([dateStr, seconds]) => {
+                const minutes = Math.round(seconds / 60);
+                const timestamp = dayjs(dateStr).valueOf();
+                points.push({ x: mapX(timestamp), y: mapY(minutes), minutes, date: dayjs(dateStr).format('ll') });
+            });
+
+            const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
+
+            // --- 3. Área de Relleno ---
+            const areaPathData = `M ${padding.left},${svgHeight - padding.bottom} L ${pointsString} L ${points[points.length - 1].x},${svgHeight - padding.bottom} Z`;
+            const areaPath = createElementNS(svgNS, 'path', { class: 'stats-area', d: areaPathData });
+            svg.appendChild(areaPath);
+
+            // --- 4. Línea (Curva) ---
+            const line = createElementNS(svgNS, 'polyline', { class: 'stats-line', points: pointsString });
+            svg.appendChild(line);
+
+            // --- 5. Puntos (Círculos con Tooltip) ---
+            points.forEach(p => {
+                const circle = createElementNS(svgNS, 'circle', {
+                    class: 'stats-point',
+                    cx: p.x,
+                    cy: p.y,
+                    r: 4
                 });
-            } catch (chartError) {
-                console.error("Error al crear el gráfico:", chartError);
-                // Opcional: Mostrar un mensaje de error en lugar de la gráfica
-                dom.stats.chartContainer.innerHTML = `<p style="color:var(--secondary-text-color); text-align:center;">Error al renderizar el gráfico.</p>`;
-            }
+
+                circle.addEventListener('mouseover', (e) => {
+                    tooltip.innerHTML = `<strong>${p.date}</strong><br>${p.minutes} min`;
+                    tooltip.style.display = 'block';
+                    // Posicionar tooltip - se necesita calcular relativo al contenedor
+                    const containerRect = container.getBoundingClientRect();
+                    const svgRect = svg.getBoundingClientRect(); // Coords del SVG relativas al viewport
+                    // Calcular la escala del SVG
+                    const scaleX = svgRect.width / svgWidth;
+                    const scaleY = svgRect.height / svgHeight;
+
+                    // Posición del punto (cx, cy) escalada y relativa al contenedor del gráfico
+                    const tipX = (p.x * scaleX) + svgRect.left - containerRect.left;
+                    const tipY = (p.y * scaleY) + svgRect.top - containerRect.top;
+                    
+                    tooltip.style.left = `${tipX}px`;
+                    tooltip.style.top = `${tipY}px`;
+                    // Centrar tooltip sobre el punto
+                    tooltip.style.transform = 'translate(-50%, -120%)'; 
+                    tooltip.style.opacity = '1';
+                });
+                circle.addEventListener('mouseout', () => {
+                    tooltip.style.opacity = '0';
+                    tooltip.style.display = 'none';
+                });
+
+                svg.appendChild(circle);
+            });
+
+            container.appendChild(svg); // Añadir el SVG al contenedor
         }
         
         init(); // Start the app
