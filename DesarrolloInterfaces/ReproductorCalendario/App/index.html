@@ -548,6 +548,7 @@
     <!-- Librerías Externas -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/localeData.js"></script> <!-- AÑADIDO PLUGIN FALTANTE -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js"></script>
     <!-- ELIMINADAS LIBRERÍAS DE CHART.JS -->
@@ -557,6 +558,7 @@
         
         // --- Setup Day.js ---
         dayjs.extend(window.dayjs_plugin_isSameOrAfter);
+        dayjs.extend(window.dayjs_plugin_localeData); // AÑADIDO EXTEND
         dayjs.locale('es');
         
         // --- ICONS ---
@@ -846,7 +848,7 @@
                     taskList.appendChild(taskEl); 
                 }); 
             } 
-            else { taskList.appendChild(createElement('p', {}, 'No hay tareas.')); }
+            else { taskList.appendChild(createElement('p', { class: 'empty-task-placeholder' }, 'No hay tareas.')); } // Añadida clase
             const input = createElement('input', { id: 'new-task-input', type: 'text', placeholder: 'Nueva tarea...' }); 
             const controls = createElement('div', { class: 'new-task-controls' }, input); 
             const body = createElement('div', {}, taskList, controls); 
@@ -864,7 +866,7 @@
                     await saveTasksToDB(dateStr, state.dayDataMap[dateStr].tasks); 
                     
                     // --- Dynamic Append ---
-                    const placeholder = taskList.querySelector('p'); // Buscar placeholder
+                    const placeholder = taskList.querySelector('.empty-task-placeholder'); // Buscar placeholder
                     if (placeholder) placeholder.remove(); // Quitar "No hay tareas"
 
                     const taskEl = createElement('div', { class: 'task-item', 'data-date': dateStr, 'data-index': newIndex });
