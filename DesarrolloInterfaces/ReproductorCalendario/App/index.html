@@ -312,7 +312,19 @@
         /* --- Modal (Custom for tasks/sound selector/theme/library) --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px); }
         .modal-overlay.visible { display: flex; }
-        .modal-content { background: rgba(var(--container-rgb), 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 1.5rem; border-radius: 0.75rem; width: 90%; max-width: 37.5rem; /* 600px */ animation: slideIn 0.3s ease-out; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-content { 
+            background: rgba(var(--container-rgb), 0.75); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            padding: 1.5rem; 
+            border-radius: 0.75rem; 
+            width: 90%; 
+            max-width: 50rem; /* 800px - CORRECCIÓN */
+            animation: slideIn 0.3s ease-out; 
+            max-height: 90vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
         .modal-body { overflow-y: auto; flex-grow: 1; }
         .modal-actions { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 0.625rem; /* 10px */ }
@@ -427,6 +439,58 @@
             font-size: 0.75rem; /* 12px */
             font-family: 'Inter', sans-serif;
         }
+        
+        /* --- Barra de Progreso --- */
+        .progress-bar {
+            width: 100%;
+            max-width: 25rem; /* 400px */
+            height: 0.5rem; /* 8px */
+            margin-top: 0.75rem;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--button-background-color); /* Fondo del track */
+            border-radius: 99px;
+            outline: none;
+             /* Color del track rellenado */
+            accent-color: var(--primary-color);
+        }
+
+        .progress-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white; /* Borde blanco para destacar */
+            cursor: pointer;
+            margin-top: -0.25rem; /* Centrar el pulgar en el track */
+            box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar::-moz-range-thumb {
+            width: 1rem; /* 16px */
+            height: 1rem; /* 16px */
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+
+        .progress-bar::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 0.5rem;
+            background: var(--button-background-color);
+            border-radius: 99px;
+        }
+
+         .progress-bar::-moz-range-track {
+            width: 100%;
+            height: 0.5rem;
+            background: var(--button-background-color);
+            border-radius: 99px;
+        }
 
 
         @keyframes slideIn { from { transform: translateY(1.25rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -467,6 +531,8 @@
             <div class="content-box player-container">
                 <p id="player-track-title">Ningún sonido seleccionado</p>
                 <div class="time-display"><span id="player-current-time">0:00</span><span id="player-total-time">0:00</span></div>
+                <!-- BARRA DE PROGRESO AÑADIDA -->
+                <input type="range" id="player-progress-bar" class="progress-bar" value="0" step="0.1" max="100">
                 <div class="player-controls">
                     <button id="player-shuffle-btn" aria-label="Aleatorio"></button>
                     <button id="player-prev-btn" aria-label="Anterior"></button>
@@ -548,7 +614,7 @@
     <!-- Librerías Externas -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/localeData.js"></script> <!-- AÑADIDO PLUGIN FALTANTE -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/localeData.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.core.min.js"></script>
     <!-- ELIMINADAS LIBRERÍAS DE CHART.JS -->
@@ -558,11 +624,11 @@
         
         // --- Setup Day.js ---
         dayjs.extend(window.dayjs_plugin_isSameOrAfter);
-        dayjs.extend(window.dayjs_plugin_localeData); // AÑADIDO EXTEND
+        dayjs.extend(window.dayjs_plugin_localeData); 
         dayjs.locale('es');
         
         // --- ICONS ---
-        const ICONS = { /* ... */ 
+        const ICONS = { 
             play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>`,
             pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>`,
             prev: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"></path></svg>`,
@@ -618,11 +684,25 @@
             navButtons: document.querySelectorAll('.nav-btn'),
             appPages: document.querySelectorAll('.app-page'),
             calendar: { container: document.getElementById('calendar-container'), gridWrapper: document.getElementById('calendar-grid-wrapper'), monthSelectorWrapper: document.getElementById('month-selector-wrapper'), monthYearDisplay: document.getElementById('month-year-display'), prevMonthBtn: document.getElementById('prev-month-btn'), nextMonthBtn: document.getElementById('next-month-btn'), grid: document.getElementById('calendar-grid') },
-            player: { trackTitle: document.getElementById('player-track-title'), currentTime: document.getElementById('player-current-time'), totalTime: document.getElementById('player-total-time'), playPauseBtn: document.getElementById('player-play-pause-btn'), prevBtn: document.getElementById('player-prev-btn'), nextBtn: document.getElementById('player-next-btn'), shuffleBtn: document.getElementById('player-shuffle-btn'), repeatBtn: document.getElementById('player-repeat-btn'), playlist: document.getElementById('player-playlist'), searchBar: document.getElementById('search-bar'), artistFilter: document.getElementById('artist-filter'), genreFilter: document.getElementById('genre-filter') },
+            player: { 
+                trackTitle: document.getElementById('player-track-title'), 
+                currentTime: document.getElementById('player-current-time'), 
+                totalTime: document.getElementById('player-total-time'), 
+                progressBar: document.getElementById('player-progress-bar'), // AÑADIDO
+                playPauseBtn: document.getElementById('player-play-pause-btn'), 
+                prevBtn: document.getElementById('player-prev-btn'), 
+                nextBtn: document.getElementById('player-next-btn'), 
+                shuffleBtn: document.getElementById('player-shuffle-btn'), 
+                repeatBtn: document.getElementById('player-repeat-btn'), 
+                playlist: document.getElementById('player-playlist'), 
+                searchBar: document.getElementById('search-bar'), 
+                artistFilter: document.getElementById('artist-filter'), 
+                genreFilter: document.getElementById('genre-filter') 
+            },
             tasks: { 
                 container: document.getElementById('tasks-list-container'),
-                dateFilter: document.getElementById('task-date-filter'), // Añadido
-                clearFilterBtn: document.getElementById('task-filter-clear-btn') // Añadido
+                dateFilter: document.getElementById('task-date-filter'), 
+                clearFilterBtn: document.getElementById('task-filter-clear-btn') 
             },
             stats: { chartContainer: document.getElementById('stats-chart-container') }, 
             settings: { themeCard: document.getElementById('theme-settings-card'), libraryCard: document.getElementById('library-settings-card') },
@@ -636,9 +716,7 @@
         const state = { 
             db: null, dayDataMap: {}, soundLibrary: [], currentTrackId: null, currentHowl: null, currentPlaylist: [], currentTrackIndexInPlaylist: -1, isShuffling: false, repeatMode: 'none', currentDate: dayjs(), calendarViewMode: 'days', calendarYearInView: dayjs().year(), currentPageIndex: 0, 
             modal: { selectedAudioId: null, themeChangesMade: false, initialThemeSettings: null }, 
-            tasks: { // Convertido en objeto
-                filterDate: null // null = 'todo el tiempo', 'YYYY-MM-DD' = día específico
-            },
+            tasks: { filterDate: null },
             playback: { rafId: null },
             stats: { listeningLog: {}, sessionStartTime: 0 } 
         };
@@ -678,12 +756,32 @@
         }
         
         // --- Registro de Estadísticas ---
+        // *** AÑADIDA LA FUNCIÓN QUE FALTABA ***
+        function startListeningSession() {
+            if (state.sessionStartTime === 0) { // Solo si no está ya contando
+                state.sessionStartTime = Date.now();
+            }
+        }
          function stopAndLogListeningSession() { if (state.sessionStartTime > 0) { const elapsed = Math.floor((Date.now() - state.sessionStartTime) / 1000); if (elapsed > 1) { const today = dayjs().format('YYYY-MM-DD'); const current = state.stats.listeningLog[today] || 0; state.stats.listeningLog[today] = current + elapsed; saveListeningLogToDB(); if (state.currentPageIndex === 3) { renderStatsPage(); } } state.sessionStartTime = 0; } }
         
         // --- Sound Library ---
         async function loadSoundsFromDB() { return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('sounds', 'readonly'); const store = tx.objectStore('sounds'); const req = store.getAll(); req.onsuccess = () => { state.soundLibrary = req.result || []; resolve(); }; req.onerror = e => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; }); }
         async function handleFileSelection(e) { closeModal(); openModal('Cargando...', createElement('p', {}, 'Espera...')); try { for (const f of e.target.files) { if (f.type.startsWith('audio/')) await saveSoundToDB(f); } await loadSoundsFromDB(); closeModal(); openLibraryModal(); renderAllTabs(); } catch (err) { closeModal(); console.error('Error carga archivos', err); } finally { e.target.value = null; } }
-        function saveSoundToDB(file) { return new Promise(async (resolve, reject) => { if (!state.db) return reject("DB missing"); try { const duration = await getAudioDuration(file); if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); const sound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: 'Desconocido', genre: 'Desconocido', duration, file }; const tx = state.db.transaction('sounds', 'readwrite'); const store = tx.objectStore('sounds'); const req = store.add(sound); req.onsuccess = resolve; req.onerror = e => reject(e.target.error); } catch (err) { console.error(err.message); reject(err); } }); }
+        function saveSoundToDB(file) { 
+             return new Promise(async (resolve, reject) => { 
+                if (!state.db) return reject("DB missing"); 
+                try { 
+                    const duration = await getAudioDuration(file); 
+                    if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); 
+                    const newSound = { name: file.name.replace(/\.[^/.]+$/, ""), artist: '', genre: '', duration, file }; 
+                    const tx = state.db.transaction('sounds', 'readwrite'); 
+                    const store = tx.objectStore('sounds'); 
+                    const req = store.add(newSound); 
+                    req.onsuccess = resolve; 
+                    req.onerror = e => reject(e.target.error); 
+                } catch (err) { console.error(err.message); reject(err); } 
+            }); 
+        }
         function updateSoundInDB(soundData) { if (!state.db) return; const tx = state.db.transaction('sounds', 'readwrite'); tx.objectStore('sounds').put(soundData); }
         function getAudioDuration(file) { return new Promise((resolve, reject) => { const audio = document.createElement('audio'); audio.preload = 'metadata'; audio.onloadedmetadata = () => { URL.revokeObjectURL(audio.src); resolve(audio.duration); }; audio.onerror = () => { URL.revokeObjectURL(audio.src); reject(new Error(`Duración no leída ${file.name}`)); }; audio.src = URL.createObjectURL(file); }); }
 
@@ -699,8 +797,8 @@
             if (dom.calendar.monthSelectorWrapper) dom.calendar.monthSelectorWrapper.addEventListener('click', handleMonthSelectorClick); 
             // Tareas
             if (dom.tasks.container) dom.tasks.container.onclick = handleTaskClick;
-            if (dom.tasks.dateFilter) dom.tasks.dateFilter.addEventListener('change', handleTaskFilterChange); // NUEVO
-            if (dom.tasks.clearFilterBtn) dom.tasks.clearFilterBtn.addEventListener('click', handleTaskFilterClear); // NUEVO
+            if (dom.tasks.dateFilter) dom.tasks.dateFilter.addEventListener('change', handleTaskFilterChange); 
+            if (dom.tasks.clearFilterBtn) dom.tasks.clearFilterBtn.addEventListener('click', handleTaskFilterClear); 
             // Ajustes
             if (dom.settings.themeCard) dom.settings.themeCard.onclick = openThemeModal; 
             if (dom.settings.libraryCard) dom.settings.libraryCard.onclick = openLibraryModal;
@@ -724,6 +822,7 @@
             if (dom.player.nextBtn) dom.player.nextBtn.onclick = playNextTrack; 
             if (dom.player.shuffleBtn) dom.player.shuffleBtn.onclick = toggleShuffle; 
             if (dom.player.repeatBtn) dom.player.repeatBtn.onclick = cycleRepeatMode;
+            if (dom.player.progressBar) dom.player.progressBar.addEventListener('input', handleProgressScrub); // AÑADIDO
         }
         
         // --- Navegación de Página ---
@@ -736,18 +835,16 @@
         function handleCalendarGridClick(e) { if (state.calendarViewMode !== 'days') return; const dayEl = e.target.closest('.calendar-day:not(.empty)'); if (dayEl) openDayModal(dayEl.dataset.date); }
         function handleMonthSelectorClick(e) { if (state.calendarViewMode !== 'months') return; const monthItem = e.target.closest('.calendar-month-item'); if (monthItem) { const monthIdx = parseInt(monthItem.dataset.month, 10); state.currentDate = dayjs().year(state.calendarYearInView).month(monthIdx); state.calendarViewMode = 'days'; renderCalendar(); } }
         
-        // --- Nuevos Handlers para Filtro de Tareas ---
+        // --- Handlers Filtro Tareas ---
         function handleTaskFilterChange(e) {
             state.tasks.filterDate = e.target.value; // 'YYYY-MM-DD'
             renderTasks();
         }
-        
         function handleTaskFilterClear() {
             state.tasks.filterDate = null;
             if (dom.tasks.dateFilter) dom.tasks.dateFilter.value = ''; // Clear input
             renderTasks();
         }
-
         async function handleTaskClick(e) { 
             const target = e.target; const taskItem = target.closest('.task-item'); if (!taskItem) return; 
             const { date, index } = taskItem.dataset; const taskIndex = parseInt(index, 10); 
@@ -923,28 +1020,155 @@
         }
 
         function openLibraryModal() { /* ... */ const body = createElement('div', {id: 'library-list-container'}); const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir'); actions.onclick = () => dom.audioFileInput.click(); openModal('Biblioteca', body, actions); renderLibraryModalContent(); }
-        function renderLibraryModalContent() { /* ... */ const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
-            state.soundLibrary.forEach(s => { const artistInput = createElement('input', { type: 'text', value: s.artist, 'data-field': 'artist', placeholder: 'Artista' }); const genreInput = createElement('input', { type: 'text', value: s.genre, 'data-field': 'genre', placeholder: 'Género' }); const item = createElement('div', { class: 'library-item', 'data-id': s.id }, createElement('div', {class: 'library-item-info'}, createElement('div', { class: 'library-item-title' }, s.name), artistInput, genreInput ), createElement('div', { class: 'library-item-duration' }, formatTime(s.duration)) ); item.onchange = e => { if (e.target.tagName !== 'INPUT') return; const soundId = parseInt(item.dataset.id); const sound = state.soundLibrary.find(s => s.id === soundId); if (sound) { sound[e.target.dataset.field] = e.target.value; updateSoundInDB(sound); populateFilterDropdowns(); renderPlayerPlaylist(); } }; container.appendChild(item); }); 
+        
+        function renderLibraryModalContent() { 
+             const container = document.getElementById('library-list-container'); if (!container) return; container.innerHTML = ''; 
+             if (state.soundLibrary.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Vacía.')); return; } 
+             
+             state.soundLibrary.forEach(sound => { 
+                // *** CORRECCIÓN: Lógica de Placeholder ***
+                const artistValue = (sound.artist === 'Artista Desconocido' || !sound.artist) ? '' : sound.artist;
+                const genreValue = (sound.genre === 'Desconocido' || !sound.genre) ? '' : sound.genre;
+
+                const artistInput = createElement('input', { type: 'text', value: artistValue, 'data-field': 'artist', placeholder: 'Artista' }); 
+                const genreInput = createElement('input', { type: 'text', value: genreValue, 'data-field': 'genre', placeholder: 'Género' }); 
+                // *** FIN CORRECCIÓN ***
+
+                const item = createElement('div', { class: 'library-item', 'data-id': sound.id }, 
+                    createElement('div', {class: 'library-item-info'}, 
+                        createElement('div', { class: 'library-item-title' }, sound.name), 
+                        artistInput, genreInput 
+                    ), 
+                    createElement('div', { class: 'library-item-duration' }, formatTime(sound.duration)) 
+                ); 
+                
+                item.onchange = e => { 
+                    if (e.target.tagName !== 'INPUT') return; 
+                    const soundId = parseInt(item.dataset.id); 
+                    const soundToUpdate = state.soundLibrary.find(s => s.id === soundId); 
+                    if (soundToUpdate) { 
+                        soundToUpdate[e.target.dataset.field] = e.target.value; 
+                        updateSoundInDB(soundToUpdate); 
+                        populateFilterDropdowns(); 
+                        renderPlayerPlaylist(); 
+                    } 
+                }; 
+                container.appendChild(item); 
+            }); 
         }
+
         function populateFilterDropdowns() { /* ... */ const genres = ['Todos Géneros', ...[...new Set(state.soundLibrary.map(s => s.genre))].filter(Boolean).sort()]; const artists = ['Todos Artistas', ...[...new Set(state.soundLibrary.map(s => s.artist))].filter(Boolean).sort()]; const curGenre = dom.player.genreFilter.value; const curArtist = dom.player.artistFilter.value; dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); dom.player.genreFilter.value = genres.includes(curGenre) ? curGenre : genres[0]; dom.player.artistFilter.value = artists.includes(curArtist) ? curArtist : artists[0]; }
         
         // --- Player Logic ---
-        function renderPlayerPlaylist() { /* ... */ dom.player.playlist.innerHTML = ''; const st = dom.player.searchBar.value.toLowerCase(); const sg = dom.player.genreFilter.value; const sa = dom.player.artistFilter.value; const filtLib = state.soundLibrary.filter(s => (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && (sg === 'Todos Géneros' || s.genre === sg) && (sa === 'Todos Artistas' || s.artist === sa) ); state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib; state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId); if (state.currentPlaylist.length === 0) { dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Vacía.' : 'No resultados.')); return; } state.currentPlaylist.forEach(s => { const item = createElement('div', { class: 'playlist-item', 'data-id': s.id }, createElement('div', {}, createElement('div', {}, s.name), createElement('div', {class:'track-meta'}, `${s.artist||'N/A'} - ${s.genre||'N/A'}`) ), createElement('div', {}, formatTime(s.duration)) ); if (s.id === state.currentTrackId) item.classList.add('playing'); dom.player.playlist.appendChild(item); }); }
+        function renderPlayerPlaylist() { 
+            dom.player.playlist.innerHTML = ''; const st = dom.player.searchBar.value.toLowerCase(); const sg = dom.player.genreFilter.value; const sa = dom.player.artistFilter.value; 
+            const filtLib = state.soundLibrary.filter(s => (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && (sg === 'Todos Géneros' || s.genre === sg) && (sa === 'Todos Artistas' || s.artist === sa) ); 
+            state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib; 
+            state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId); 
+            if (state.currentPlaylist.length === 0) { dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, state.soundLibrary.length === 0 ? 'Vacía.' : 'No resultados.')); return; } 
+            
+            state.currentPlaylist.forEach(s => { 
+                // *** CORRECCIÓN: Lógica de metadatos ***
+                const metaParts = [];
+                if (s.artist) metaParts.push(s.artist);
+                if (s.genre) metaParts.push(s.genre);
+                const metaText = metaParts.join(' - ');
+
+                const item = createElement('div', { class: 'playlist-item', 'data-id': s.id }, 
+                    createElement('div', {}, 
+                        createElement('div', {}, s.name), 
+                        createElement('div', {class:'track-meta'}, metaText) // Usar metaText
+                    ), 
+                    createElement('div', {}, formatTime(s.duration)) 
+                ); 
+                if (s.id === state.currentTrackId) item.classList.add('playing'); 
+                dom.player.playlist.appendChild(item); 
+            }); 
+         }
         function handlePlaylistClick(e) { /* ... */ const item = e.target.closest('.playlist-item'); if (!item) return; const id = parseInt(item.dataset.id, 10); const idx = state.currentPlaylist.findIndex(t => t.id === id); if (idx !== -1) playTrackByIndex(idx); else { const sound = state.soundLibrary.find(s => s.id === id); if (sound) playTrack(sound); } }
         function playTrackByIndex(idx) { /* ... */ if (idx < 0 || idx >= state.currentPlaylist.length) { if (state.repeatMode === 'all' && state.currentPlaylist.length > 0) idx = (idx < 0) ? state.currentPlaylist.length - 1 : 0; else { stopPlayback(); return; } } state.currentTrackIndexInPlaylist = idx; playTrack(state.currentPlaylist[idx]); }
-        function playTrack(sound) { /* ... */ if (!sound?.file) { console.error("Error: Archivo missing."); return; } if (state.currentHowl) { state.currentHowl.stop(); state.currentHowl.unload(); cancelAnimationFrame(state.playback.rafId); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); } try { const url = URL.createObjectURL(sound.file); state.currentTrackId = sound.id; state.currentHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, onend: () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); }, onload: updatePlayerProgress, onloaderror: (id, err) => { console.error("Load err:", err); URL.revokeObjectURL(url); }, onplayerror: (id, err) => { console.error("Play err:", err); URL.revokeObjectURL(url); }, onseek: () => requestAnimationFrame(step) }); state.currentHowl.play(); dom.player.trackTitle.textContent = `${sound.name} - ${sound.artist}`; renderPlayerPlaylist(); } catch (err) { console.error("Howl setup err:", err); } }
+        
+        function playTrack(sound) { 
+            if (dom.player.progressBar) dom.player.progressBar.value = 0; // Resetear barra
+            if (!sound?.file) { console.error("Error: Archivo missing."); return; } 
+            if (state.currentHowl) { state.currentHowl.stop(); state.currentHowl.unload(); cancelAnimationFrame(state.playback.rafId); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); } 
+            try { 
+                const url = URL.createObjectURL(sound.file); 
+                state.currentTrackId = sound.id; 
+                state.currentHowl = new Howl({ 
+                    src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', 
+                    onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, 
+                    onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, 
+                    onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, 
+                    onend: () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); }, 
+                    onload: updatePlayerProgress, 
+                    onloaderror: (id, err) => { console.error("Load err:", err); URL.revokeObjectURL(url); }, 
+                    onplayerror: (id, err) => { console.error("Play err:", err); URL.revokeObjectURL(url); }, 
+                    onseek: () => requestAnimationFrame(step) 
+                }); 
+                state.currentHowl.play(); 
+                
+                // *** CORRECCIÓN: Título del reproductor ***
+                dom.player.trackTitle.textContent = sound.artist 
+                    ? `${sound.name} - ${sound.artist}` 
+                    : sound.name; 
+                    
+                renderPlayerPlaylist(); 
+            } catch (err) { console.error("Howl setup err:", err); } 
+        }
+        
+        // AÑADIDO: Handler para la barra de progreso
+        function handleProgressScrub(e) {
+            if (!state.currentHowl || !state.currentHowl.duration()) return;
+            const newTime = (e.target.value / 100) * state.currentHowl.duration();
+            state.currentHowl.seek(newTime);
+        }
+
         function playAudioClip(id, secs = 10) { /* ... */ if (!id) return; const sound = state.soundLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
         function setupPlayerIcons() { /* ... */ dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; }
         function togglePlayPause() { /* ... */ if(!state.currentHowl){if(state.currentPlaylist.length>0)playTrackByIndex(0);return;}state.currentHowl.playing()?state.currentHowl.pause():state.currentHowl.play(); }
         function updatePlayerUI() { /* ... */ const isPlaying=state.currentHowl?.playing();if(dom.player.playPauseBtn)dom.player.playPauseBtn.innerHTML=isPlaying?ICONS.pause:ICONS.play;if(dom.player.shuffleBtn)dom.player.shuffleBtn.classList.toggle('active',state.isShuffling);if(dom.player.repeatBtn){dom.player.repeatBtn.classList.toggle('active',state.repeatMode!=='none');dom.player.repeatBtn.innerHTML=state.repeatMode==='one'?ICONS.repeatOne:ICONS.repeat;}const canPrev=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist>0;const canNext=state.repeatMode!=='none'||state.currentTrackIndexInPlaylist<state.currentPlaylist.length-1;if(dom.player.prevBtn)dom.player.prevBtn.disabled=!(state.currentPlaylist.length>0&&canPrev);if(dom.player.nextBtn)dom.player.nextBtn.disabled=!(state.currentPlaylist.length>0&&canNext); }
-        function step() { /* ... */ if(state.currentHowl?.playing()){const seek=state.currentHowl.seek()||0;const duration=state.currentHowl.duration()||0;dom.player.currentTime.textContent=formatTime(seek);if(dom.player.totalTime.textContent==='0:00'&&duration>0){dom.player.totalTime.textContent=formatTime(duration);}state.playback.rafId=requestAnimationFrame(step);}else{cancelAnimationFrame(state.playback.rafId);} }
+        
+        function step() { 
+            if(state.currentHowl?.playing()){
+                const seek = state.currentHowl.seek() || 0; 
+                const duration = state.currentHowl.duration() || 0; 
+                
+                dom.player.currentTime.textContent = formatTime(seek); 
+                if (dom.player.totalTime.textContent === '0:00' && duration > 0) {
+                    dom.player.totalTime.textContent = formatTime(duration);
+                }
+                
+                // --- ACTUALIZAR BARRA DE PROGRESO ---
+                if (dom.player.progressBar && duration > 0) {
+                     if (!dom.player.progressBar.matches(':active')) { // No actualizar si el usuario la está arrastrando
+                        dom.player.progressBar.value = (seek / duration) * 100;
+                     }
+                }
+                
+                state.playback.rafId = requestAnimationFrame(step);
+            } else {
+                cancelAnimationFrame(state.playback.rafId);
+            } 
+        }
         function updatePlayerProgress() { /* ... */ const duration=state.currentHowl?.duration()||0;const currentTime=state.currentHowl?.seek()||0;if(!isNaN(duration))dom.player.totalTime.textContent=formatTime(duration);if(!isNaN(currentTime))dom.player.currentTime.textContent=formatTime(currentTime); }
         function playNextTrack() { /* ... */ playTrackByIndex(state.currentTrackIndexInPlaylist+1); }
         function playPrevTrack() { /* ... */ if(!state.currentHowl)return;state.currentHowl.seek()>3?state.currentHowl.seek(0):playTrackByIndex(state.currentTrackIndexInPlaylist-1); }
         function toggleShuffle() { /* ... */ state.isShuffling=!state.isShuffling;renderPlayerPlaylist();updatePlayerUI(); }
         function cycleRepeatMode() { /* ... */ if(state.repeatMode==='none')state.repeatMode='all';else if(state.repeatMode==='all')state.repeatMode='one';else state.repeatMode='none';if(state.currentHowl)state.currentHowl.loop(state.repeatMode==='one');updatePlayerUI(); }
         function handleTrackEnd() { /* ... */ cancelAnimationFrame(state.playback.rafId);if(state.repeatMode!=='one')playNextTrack();else{if(state.currentHowl&&!state.currentHowl.playing())state.currentHowl.play();} }
-        function stopPlayback() { /* ... */ if(state.currentHowl){state.currentHowl.stop();state.currentHowl.unload();if(state.currentHowl._src?.startsWith('blob:'))URL.revokeObjectURL(state.currentHowl._src);}cancelAnimationFrame(state.playback.rafId);stopAndLogListeningSession();state.currentTrackId=null;state.currentTrackIndexInPlaylist=-1;dom.player.trackTitle.textContent="Nada seleccionado";dom.player.currentTime.textContent="0:00";dom.player.totalTime.textContent="0:00";renderPlayerPlaylist();updatePlayerUI(); }
+        function stopPlayback() { 
+            if(state.currentHowl){state.currentHowl.stop();state.currentHowl.unload();if(state.currentHowl._src?.startsWith('blob:'))URL.revokeObjectURL(state.currentHowl._src);}
+            cancelAnimationFrame(state.playback.rafId);
+            stopAndLogListeningSession();
+            state.currentTrackId=null; state.currentTrackIndexInPlaylist=-1;
+            dom.player.trackTitle.textContent="Nada seleccionado";
+            dom.player.currentTime.textContent="0:00";
+            dom.player.totalTime.textContent="0:00";
+            if (dom.player.progressBar) dom.player.progressBar.value = 0; // Resetear barra
+            renderPlayerPlaylist();
+            updatePlayerUI(); 
+        }
         
        
 
@@ -957,66 +1181,35 @@
         function renderTasks() { 
             if (!dom.tasks.container) return; 
             dom.tasks.container.innerHTML = ''; 
-            
             const taskEntries = Object.entries(state.dayDataMap);
             let tasksToRender = [];
             const today = dayjs().startOf('day'); 
-
             if (state.tasks.filterDate) {
-                // --- MODO: DÍA ESPECÍFICO ---
-                const dateStr = state.tasks.filterDate;
-                const data = state.dayDataMap[dateStr];
-                if (data && data.tasks && data.tasks.length > 0) {
-                    tasksToRender.push([dateStr, data]);
-                }
+                const dateStr = state.tasks.filterDate; const data = state.dayDataMap[dateStr];
+                if (data?.tasks?.length > 0) { tasksToRender.push([dateStr, data]); }
             } else {
-                // --- MODO: "TODO EL TIEMPO" (defecto) ---
-                tasksToRender = taskEntries
-                    .filter(([ds, d]) => d?.tasks?.length > 0) // <-- CORRECCIÓN: Quitado filtro de fecha y completado
-                    .sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); 
+                tasksToRender = taskEntries.filter(([ds, d]) => d?.tasks?.length > 0).sort(([dA], [dB]) => dayjs(dA).unix() - dayjs(dB).unix()); 
             }
-
             if (tasksToRender.length === 0) { 
-                const message = state.tasks.filterDate 
-                    ? `No hay tareas para ${dayjs(state.tasks.filterDate).format('ll')}.`
-                    : 'No hay tareas programadas.'; // Mensaje actualizado
+                const message = state.tasks.filterDate ? `No hay tareas para ${dayjs(state.tasks.filterDate).format('ll')}.` : 'No hay tareas programadas.';
                 dom.tasks.container.appendChild(createElement('p', {style:"text-align:center;color:var(--secondary-text-color);padding:1rem;"}, message)); 
                 return; 
             } 
-            
             tasksToRender.forEach(([ds, d]) => { 
                 const date = dayjs(ds); 
                 const title = (date.isSame(today, 'day')) ? 'Hoy' : date.format('dddd, D [de] MMMM');
-
                 const group = createElement('div', { class: 'task-date-group' }, createElement('h3', {}, title)); 
-                
-                // Mostrar TODAS las tareas para ese día
                 const tasksToShow = d.tasks; 
-
                 tasksToShow.forEach((t, i) => { 
                     const originalIndex = i; 
-
                     const playBtn = t.audioId ? createElement('button', { class: 'action-btn play-task-btn' }) : null; 
                     if(playBtn) playBtn.innerHTML = ICONS.play_task; 
-
                     const attachBtnTask = createElement('button', { class: 'action-btn attach-task-btn' });
                     attachBtnTask.innerHTML = ICONS.attach; 
-                    
-                    const label = createElement('label', { 
-                        for:`ot-${ds}-${originalIndex}`, 
-                        class:`task-title ${t.completed?'completed':''}`,
-                        style: t.audioId ? 'color: var(--primary-color); font-weight: 600;' : null 
-                    }, t.text);
-
+                    const label = createElement('label', { for:`ot-${ds}-${originalIndex}`, class:`task-title ${t.completed?'completed':''}`, style: t.audioId ? 'color: var(--primary-color); font-weight: 600;' : null }, t.text);
                     const el = createElement('div', { class:'task-item', 'data-date':ds, 'data-index': originalIndex }, 
-                        createElement('div', {class:'task-item-content'}, 
-                            createElement('input', { type:'checkbox', id:`ot-${ds}-${originalIndex}`, checked:t.completed }), 
-                            label
-                        ), 
-                        playBtn, 
-                        attachBtnTask, 
-                        createElement('button', { class:'delete-btn action-btn' }, '×')
-                    ); 
+                        createElement('div', {class:'task-item-content'}, createElement('input', { type:'checkbox', id:`ot-${ds}-${originalIndex}`, checked:t.completed }), label), 
+                        playBtn, attachBtnTask, createElement('button', { class:'delete-btn action-btn' }, '×') ); 
                     group.appendChild(el); 
                 }); 
                 dom.tasks.container.appendChild(group); 
