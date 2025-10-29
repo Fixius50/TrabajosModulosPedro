@@ -294,7 +294,16 @@
         /* --- FIN ESTILOS VIDEO --- */
 
         .time-display { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--secondary-text-color); font-family: 'SF Mono', monospace; width: 100%; /* max-width: 25rem; */ margin-top: 0.3rem;}
-        .player-controls { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+        
+        .player-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; /* Reducido gap */
+            margin-top: 1rem; 
+            width: 100%;
+            max-width: 28rem; /* Ancho máximo para controles + volumen */
+            justify-content: center;
+        }
         .player-controls button { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 50%; transition: background-color 0.2s; }
         .player-controls button:hover:not(:disabled) { background-color: var(--button-background-color); }
         .player-controls button svg { fill: currentColor; width: 1.5rem; height: 1.5rem; }
@@ -303,6 +312,21 @@
         #player-play-pause-btn { background-color: var(--primary-color); color: white; width: 3.75rem; height: 3.75rem; border-radius: 50%; }
         #player-play-pause-btn:hover { background-color: var(--primary-color); filter: brightness(1.1); } /* Ligero brillo */
         #player-play-pause-btn svg { width: 1.875rem; height: 1.875rem; }
+        
+        /* Contenedor para barra de volumen */
+        .volume-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 8rem; /* Ancho del control de volumen */
+            margin-left: 0.5rem;
+        }
+         .volume-bar-container svg {
+             width: 1.25rem;
+             height: 1.25rem;
+             fill: var(--secondary-text-color);
+             flex-shrink: 0;
+         }
 
         .search-controls { display: flex; gap: 0.75rem; margin-bottom: 1rem; width: 100%; }
         .search-controls input, .search-controls select {
@@ -492,22 +516,29 @@
         }
         
         /* --- Barra de Progreso --- */
-        .progress-bar {
+        /* Reutilizamos .progress-bar para el volumen */
+        .progress-bar, .volume-bar {
             width: 100%;
-            /* max-width: 25rem; */ /* Ocupa todo el ancho del .media-controls */
             height: 0.5rem; /* 8px */
-            margin-top: 0.75rem;
             cursor: pointer;
             -webkit-appearance: none;
             appearance: none;
             background: var(--button-background-color); /* Fondo del track */
             border-radius: 99px;
             outline: none;
-             /* Color del track rellenado */
             accent-color: var(--primary-color);
         }
+        .progress-bar {
+             margin-top: 0.75rem;
+        }
+         .volume-bar {
+            width: 100%; /* Ocupa el 100% de .volume-bar-container */
+             height: 0.35rem; /* Ligeramente más delgada */
+         }
 
-        .progress-bar::-webkit-slider-thumb {
+
+        .progress-bar::-webkit-slider-thumb,
+        .volume-bar::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 1rem; /* 16px */
@@ -516,11 +547,19 @@
             border-radius: 50%;
             border: 2px solid white; /* Borde blanco para destacar */
             cursor: pointer;
-            margin-top: -0.25rem; /* Centrar el pulgar en el track */
-            box-shadow: 0 0 4px rgba(0,0,0,0.3);
+             box-shadow: 0 0 4px rgba(0,0,0,0.3);
         }
+         .progress-bar::-webkit-slider-thumb {
+             margin-top: -0.25rem; /* Centrar el pulgar en el track */
+         }
+         .volume-bar::-webkit-slider-thumb {
+             width: 0.85rem; /* 14px */
+             height: 0.85rem; /* 14px */
+             margin-top: -0.25rem;
+         }
 
-        .progress-bar::-moz-range-thumb {
+        .progress-bar::-moz-range-thumb,
+        .volume-bar::-moz-range-thumb {
             width: 1rem; /* 16px */
             height: 1rem; /* 16px */
             background: var(--primary-color);
@@ -528,20 +567,32 @@
             border: 2px solid white;
             cursor: pointer;
         }
+         .volume-bar::-moz-range-thumb {
+             width: 0.85rem;
+             height: 0.85rem;
+         }
 
         .progress-bar::-webkit-slider-runnable-track {
-            width: 100%;
             height: 0.5rem;
             background: var(--button-background-color);
             border-radius: 99px;
         }
+         .volume-bar::-webkit-slider-runnable-track {
+             height: 0.35rem;
+             background: var(--button-background-color);
+            border-radius: 99px;
+         }
 
          .progress-bar::-moz-range-track {
-            width: 100%;
             height: 0.5rem;
             background: var(--button-background-color);
             border-radius: 99px;
         }
+         .volume-bar::-moz-range-track {
+             height: 0.35rem;
+             background: var(--button-background-color);
+             border-radius: 99px;
+         }
 
 
         @keyframes slideIn { from { transform: translateY(1.25rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -561,6 +612,8 @@
             #stats-chart-container { height: 20rem; }
             .stats-label { font-size: 0.65rem; }
             .task-filter-controls { flex-direction: column; align-items: stretch; }
+            .player-controls { flex-wrap: wrap; /* Permitir que el volumen salte abajo */ }
+            .volume-bar-container { width: 100%; margin-left: 0; }
         }
     </style>
 </head>
@@ -594,6 +647,11 @@
                     <button id="player-play-pause-btn" aria-label="Reproducir/Pausar"></button>
                     <button id="player-next-btn" aria-label="Siguiente"></button>
                     <button id="player-repeat-btn" aria-label="Repetir"></button>
+                     <!-- --- BARRA DE VOLUMEN AÑADIDA --- -->
+                    <div class="volume-bar-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" /></svg>
+                        <input type="range" id="player-volume-bar" class="volume-bar" value="100" step="1" min="0" max="100">
+                    </div>
                 </div>
             </div>
             <div class="content-box">
@@ -622,7 +680,9 @@
         <div class="app-page" data-title="Estadísticas">
             <h1 class="page-title">Estadísticas</h1>
             <div class="content-box">
+                <!-- Contenedor relativo para el tooltip del SVG -->
                 <div id="stats-chart-container" style="position: relative;">
+                    <!-- El SVG se creará aquí -->
                      <div class="svg-tooltip" style="display: none;"></div>
                 </div>
             </div>
@@ -639,6 +699,8 @@
 
     <input type="file" id="audio-file-input" multiple accept="audio/*" style="display: none;">
     <input type="file" id="video-file-input" multiple accept="video/*" style="display: none;"> <!-- Video Input Added -->
+    <input type="file" id="bg-image-input" accept="image/*" style="display: none;">
+
 
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
@@ -692,7 +754,8 @@
             play_task: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z" /></svg>`,
             // --- NUEVOS ÍCONOS ---
             music: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12,3V13.55C11.41,13.21 10.73,13 10,13C7.79,13 6,14.79 6,17C6,19.21 7.79,21 10,21C12.21,21 14,19.21 14,17V7H18V3H12Z" /></svg>`,
-            video: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z" /></svg>`
+            video: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z" /></svg>`,
+            volumeHigh: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" /></svg>`
         };
 
          // --- Utils --- Moved Up ---
@@ -738,11 +801,13 @@
             calendar: { container: document.getElementById('calendar-container'), gridWrapper: document.getElementById('calendar-grid-wrapper'), monthSelectorWrapper: document.getElementById('month-selector-wrapper'), monthYearDisplay: document.getElementById('month-year-display'), prevMonthBtn: document.getElementById('prev-month-btn'), nextMonthBtn: document.getElementById('next-month-btn'), grid: document.getElementById('calendar-grid') },
             player: { 
                 trackTitle: document.getElementById('player-track-title'), 
-                videoPlayer: document.getElementById('video-player'), // AÑADIDO
-                mediaControls: document.querySelector('.media-controls'), // AÑADIDO
+                videoPlayer: document.getElementById('video-player'), 
+                mediaControls: document.querySelector('.media-controls'), 
                 currentTime: document.getElementById('player-current-time'), 
                 totalTime: document.getElementById('player-total-time'), 
                 progressBar: document.getElementById('player-progress-bar'), 
+                volumeBar: document.getElementById('player-volume-bar'), // AÑADIDO
+                volumeIcon: document.querySelector('.volume-bar-container svg'), // AÑADIDO
                 playPauseBtn: document.getElementById('player-play-pause-btn'), 
                 prevBtn: document.getElementById('player-prev-btn'), 
                 nextBtn: document.getElementById('player-next-btn'), 
@@ -767,7 +832,7 @@
             modal: { overlay: document.getElementById('modal-overlay'), title: document.getElementById('modal-title'), body: document.getElementById('modal-body'), actions: document.getElementById('modal-actions'), closeBtn: document.querySelector('#modal-overlay .modal-close-btn') }, 
             confirmModal: { overlay: document.getElementById('confirm-modal-overlay'), discardBtn: document.getElementById('confirm-discard-btn'), cancelBtn: document.getElementById('confirm-cancel-btn') }, 
             audioFileInput: document.getElementById('audio-file-input'),
-            videoFileInput: document.getElementById('video-file-input'), // AÑADIDO
+            videoFileInput: document.getElementById('video-file-input'), 
             bgImageInput: document.getElementById('bg-image-input'),
         };
 
@@ -775,11 +840,11 @@
         const state = { 
             db: null, 
             dayDataMap: {}, 
-            audioLibrary: [], // Renombrado
-            videoLibrary: [], // AÑADIDO
+            audioLibrary: [], 
+            videoLibrary: [], 
             currentTrackId: null, 
             currentHowl: null, 
-            currentVideoElement: null, // AÑADIDO
+            currentVideoElement: null, 
             currentPlaylist: [],  
             currentTrackIndexInPlaylist: -1, 
             isShuffling: false, 
@@ -790,7 +855,10 @@
             currentPageIndex: 0, 
             modal: { selectedAudioId: null, themeChangesMade: false, initialThemeSettings: null }, 
             tasks: { filterDate: null },
-            playback: { rafId: null },
+            playback: { 
+                rafId: null,
+                currentVolume: 1 // AÑADIDO (1 = 100%)
+            },
             stats: { listeningLog: {}, sessionStartTime: 0 } 
         };
         
@@ -800,16 +868,21 @@
                 state.db = await initDB(); 
                 if (!state.db) throw new Error("DB init failed."); 
                 
-                // Cargar todas las bibliotecas y datos
                 await Promise.all([ 
                     loadTasksFromDB(), 
                     loadListeningLogFromDB(), 
-                    loadAudioFromDB(), // Renombrado
-                    loadVideosFromDB()  // AÑADIDO
+                    loadAudioFromDB(), 
+                    loadVideosFromDB()
                 ]); 
                 
                 const settings = await loadSettingsFromDB(); 
                 state.modal.initialThemeSettings = settings || {};
+                
+                // Aplicar volumen guardado (o default)
+                state.playback.currentVolume = state.modal.initialThemeSettings.volume || 1;
+                Howler.volume(state.playback.currentVolume);
+                if(dom.player.volumeBar) dom.player.volumeBar.value = state.playback.currentVolume * 100;
+                
                 await applyTheme(settings); 
                 setupEventListeners(); 
                 setupPlayerIcons(); 
@@ -823,36 +896,29 @@
         function renderAllTabs() { renderCalendar(); renderTasks(); renderStatsPage(); populateFilterDropdowns(); renderPlayerPlaylist(); updatePlayerUI(); }
         
         // --- IndexedDB ---
-        function initDB() { 
-            return new Promise((resolve, reject) => { 
-                if (!window.indexedDB) return reject(new Error("IndexedDB not supported")); 
-                
-                const DB_NAME = 'AudioAppDB';
-                const DB_VERSION = 4; // *** Versión incrementada a 4 ***
-                const request = indexedDB.open(DB_NAME, DB_VERSION); 
-                
-                request.onupgradeneeded = e => { 
-                    const db = e.target.result; 
-                    if (!db.objectStoreNames.contains('sounds')) db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); 
-                    if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'date' }); 
-                    if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'id' }); 
-                    if (!db.objectStoreNames.contains('listeningLog')) db.createObjectStore('listeningLog', { keyPath: 'date' }); 
-                    // *** AÑADIDO NUEVO ALMACÉN ***
-                    if (!db.objectStoreNames.contains('videos')) {
-                        db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true }); 
-                    }
-                }; 
-                request.onsuccess = e => resolve(e.target.result); 
-                request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); }; 
-            }); 
-        }
+        function initDB() { return new Promise((resolve, reject) => { if (!window.indexedDB) return reject(new Error("IndexedDB not supported")); const DB_NAME = 'AudioAppDB', DB_VERSION = 4; const request = indexedDB.open(DB_NAME, DB_VERSION); request.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('sounds')) db.createObjectStore('sounds', { keyPath: 'id', autoIncrement: true }); if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'date' }); if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'id' }); if (!db.objectStoreNames.contains('listeningLog')) db.createObjectStore('listeningLog', { keyPath: 'date' }); if (!db.objectStoreNames.contains('videos')) db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true }); }; request.onsuccess = e => resolve(e.target.result); request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); }; }); }
 
         // --- Persistencia Tareas (IndexedDB) ---
         async function saveTasksToDB(dateStr, tasksArray) { if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['tasks'], 'readwrite'); const store = tx.objectStore('tasks'); let req; if (tasksArray?.length > 0) { req = store.put({ date: dateStr, tasks: tasksArray }); } else { req = store.delete(dateStr); } req.onsuccess = resolve; req.onerror = e => { console.error("Error saving tasks:", e.target.error); reject(e.target.error); }; }); }
         async function loadTasksFromDB() { if (!state.db) return; return new Promise((resolve, reject) => { state.dayDataMap = {}; const tx = state.db.transaction(['tasks'], 'readonly'); const store = tx.objectStore('tasks'); const req = store.getAll(); req.onsuccess = e => { e.target.result?.forEach(item => { state.dayDataMap[item.date] = { tasks: item.tasks }; }); resolve(); }; req.onerror = e => { console.error("Error loading tasks:", e.target.error); state.dayDataMap = {}; reject(e.target.error); }; }); }
 
         // --- Persistencia Ajustes (IndexedDB) ---
-        async function saveSettingsToDB(settings) { if (!state.db) return; return new Promise((resolve, reject) => { const tx = state.db.transaction(['settings'], 'readwrite'); const store = tx.objectStore('settings'); const data = { id: 'userSettings', ...settings }; const req = store.put(data); req.onsuccess = resolve; req.onerror = e => { console.error("Error saving settings:", e.target.error); reject(e.target.error); }; }); }
+        async function saveSettingsToDB(settings) { 
+            if (!state.db) return; 
+            // Guardar también el volumen
+            const settingsToSave = { 
+                ...settings,
+                volume: state.playback.currentVolume,
+                id: 'userSettings' 
+            };
+            return new Promise((resolve, reject) => { 
+                const tx = state.db.transaction(['settings'], 'readwrite'); 
+                const store = tx.objectStore('settings'); 
+                const req = store.put(settingsToSave); 
+                req.onsuccess = resolve; 
+                req.onerror = e => { console.error("Error saving settings:", e.target.error); reject(e.target.error); }; 
+            }); 
+        }
         async function loadSettingsFromDB() { if (!state.db) return null; return new Promise(resolve => { const tx = state.db.transaction(['settings'], 'readonly'); const store = tx.objectStore('settings'); const req = store.get('userSettings'); req.onsuccess = e => resolve(e.target.result || null); req.onerror = e => { console.error("Error loading settings:", e.target.error); resolve(null); }; }); }
 
         // --- Persistencia Estadísticas (IndexedDB) ---
@@ -874,25 +940,10 @@
         
         // --- Media Libraries (Audio & Video) ---
         async function loadAudioFromDB() { 
-             return new Promise((resolve, reject) => { 
-                if (!state.db) return reject("DB missing"); 
-                const tx = state.db.transaction('sounds', 'readonly'); 
-                const store = tx.objectStore('sounds'); 
-                const req = store.getAll(); 
-                req.onsuccess = () => { state.audioLibrary = req.result || []; resolve(); }; 
-                req.onerror = (e) => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; 
-            }); 
+             return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('sounds', 'readonly'); const store = tx.objectStore('sounds'); const req = store.getAll(); req.onsuccess = () => { state.audioLibrary = req.result || []; resolve(); }; req.onerror = (e) => { console.error("Error loading sounds:", e.target.error); reject(e.target.error); }; }); 
         }
-         // NUEVA FUNCIÓN
         async function loadVideosFromDB() { 
-             return new Promise((resolve, reject) => { 
-                if (!state.db) return reject("DB missing"); 
-                const tx = state.db.transaction('videos', 'readonly'); 
-                const store = tx.objectStore('videos'); 
-                const req = store.getAll(); 
-                req.onsuccess = () => { state.videoLibrary = req.result || []; resolve(); }; 
-                req.onerror = (e) => { console.error("Error loading videos:", e.target.error); reject(e.target.error); }; 
-            }); 
+             return new Promise((resolve, reject) => { if (!state.db) return reject("DB missing"); const tx = state.db.transaction('videos', 'readonly'); const store = tx.objectStore('videos'); const req = store.getAll(); req.onsuccess = () => { state.videoLibrary = req.result || []; resolve(); }; req.onerror = (e) => { console.error("Error loading videos:", e.target.error); reject(e.target.error); }; }); 
         }
 
         async function handleAudioFileSelection(e) { 
@@ -902,7 +953,6 @@
              catch (err) { closeModal(); console.error('Error carga audios', err); } 
              finally { e.target.value = null; } 
         }
-        // NUEVA FUNCIÓN
          async function handleVideoFileSelection(e) { 
              closeModal(); openModal('Cargando Videos...', createElement('p', {}, 'Espera...')); 
              try { for (const f of e.target.files) { if (f.type.startsWith('video/')) await saveMediaToDB(f, 'video'); } 
@@ -911,16 +961,13 @@
              finally { e.target.value = null; } 
         }
         
-        // Función genérica para guardar
         function saveMediaToDB(file, mediaType = 'audio') { 
              return new Promise(async (resolve, reject) => { 
                 if (!state.db) return reject("DB missing"); 
                 try { 
                     const duration = await getMediaDuration(file); 
                     if (file.size > 50*1024*1024) throw new Error(`${file.name} > 50MB`); 
-                    
                     const newMedia = { name: file.name.replace(/\.[^/.]+$/, ""), artist: '', genre: '', duration, file, type: mediaType }; 
-                    
                     const storeName = mediaType === 'video' ? 'videos' : 'sounds';
                     const tx = state.db.transaction([storeName], 'readwrite'); 
                     const store = tx.objectStore(storeName); 
@@ -931,7 +978,6 @@
             }); 
         }
         
-        // Funciones genéricas para actualizar
         function updateAudioInDB(mediaData) { if (!state.db) return; const tx = state.db.transaction('sounds', 'readwrite'); tx.objectStore('sounds').put(mediaData); }
         function updateVideoInDB(mediaData) { if (!state.db) return; const tx = state.db.transaction('videos', 'readwrite'); tx.objectStore('videos').put(mediaData); }
         
@@ -985,6 +1031,7 @@
             if (dom.player.shuffleBtn) dom.player.shuffleBtn.onclick = toggleShuffle; 
             if (dom.player.repeatBtn) dom.player.repeatBtn.onclick = cycleRepeatMode;
             if (dom.player.progressBar) dom.player.progressBar.addEventListener('input', handleProgressScrub); 
+            if (dom.player.volumeBar) dom.player.volumeBar.addEventListener('input', handleVolumeChange); // AÑADIDO
         }
         
         // --- Navegación de Página ---
@@ -1007,8 +1054,8 @@
             const task = state.dayDataMap[date].tasks[taskIndex]; 
             let needsSave = false; 
             if (target.type === 'checkbox') { task.completed = target.checked; needsSave = true; } 
-            else if (target.closest('.attach-task-btn')) { openSoundSelectorModal(date, taskIndex); } // Solo audio para tareas
-            else if (target.closest('.play-task-btn')) { playAudioClip(task.audioId); } // Solo audio
+            else if (target.closest('.attach-task-btn')) { openSoundSelectorModal(date, taskIndex); }
+            else if (target.closest('.play-task-btn')) { playAudioClip(task.audioId); } 
             else if (target.closest('.delete-btn')) { state.dayDataMap[date].tasks.splice(taskIndex, 1); needsSave = true; } 
             if (needsSave) { try { await saveTasksToDB(date, state.dayDataMap[date].tasks); renderTasks(); renderCalendar(); } catch (err) { console.error("Failed task save:", err); } } 
         }
@@ -1146,7 +1193,7 @@
              const body = createElement('div', { style: 'max-height: 300px; overflow-y: auto; text-align: left;' }); 
             if (state.audioLibrary.length > 0) { // Solo mostrar audios
                 state.audioLibrary.forEach(s => { 
-                    const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist})`); 
+                    const item = createElement('div', { class: 'playlist-item' }, `${s.name} (${s.artist || ''})`); 
                     item.onclick = async () => { 
                         if (taskIndex !== null) { 
                              if (state.dayDataMap[dateStr]?.tasks[taskIndex]) {
@@ -1174,7 +1221,6 @@
             openModal('Biblioteca de Sonidos', body, actions); 
             renderMediaLibraryContent('audio'); 
         }
-        // NUEVA FUNCIÓN
         function openVideoLibraryModal() { 
             const body = createElement('div', {id: 'library-list-container'}); 
             const actions = createElement('button', {class: 'modal-button primary'}, 'Añadir Videos'); 
@@ -1188,15 +1234,9 @@
              const container = document.getElementById('library-list-container'); 
              if (!container) return; 
              container.innerHTML = ''; 
-             
              const library = (mediaType === 'video') ? state.videoLibrary : state.audioLibrary;
              const updateFunction = (mediaType === 'video') ? updateVideoInDB : updateAudioInDB;
-             
-             if (library.length === 0) { 
-                 container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Biblioteca vacía.')); 
-                 return; 
-             } 
-             
+             if (library.length === 0) { container.appendChild(createElement('div', {id: 'library-placeholder'}, 'Biblioteca vacía.')); return; } 
              library.forEach(media => { 
                 const artistValue = (media.artist === 'Artista Desconocido' || !media.artist) ? '' : media.artist;
                 const genreValue = (media.genre === 'Desconocido' || !media.genre) ? '' : media.genre;
@@ -1209,28 +1249,15 @@
                     ), 
                     createElement('div', { class: 'library-item-duration' }, formatTime(media.duration)) 
                 ); 
-                
-                item.onchange = e => { 
-                    if (e.target.tagName !== 'INPUT') return; 
-                    const mediaId = parseInt(item.dataset.id); 
-                    const mediaToUpdate = library.find(m => m.id === mediaId); 
-                    if (mediaToUpdate) { 
-                        mediaToUpdate[e.target.dataset.field] = e.target.value; 
-                        updateFunction(mediaToUpdate); // Usar la función correcta
-                        populateFilterDropdowns(); 
-                        renderPlayerPlaylist(); 
-                    } 
-                }; 
+                item.onchange = e => { if (e.target.tagName !== 'INPUT') return; const mediaId = parseInt(item.dataset.id); const mediaToUpdate = library.find(m => m.id === mediaId); if (mediaToUpdate) { mediaToUpdate[e.target.dataset.field] = e.target.value; updateFunction(mediaToUpdate); populateFilterDropdowns(); renderPlayerPlaylist(); } }; 
                 container.appendChild(item); 
             }); 
         }
 
         function populateFilterDropdowns() { 
-            // Fusionar ambas bibliotecas para los filtros
             const allMedia = [...state.audioLibrary, ...state.videoLibrary];
             const genres = ['Todos Géneros', ...[...new Set(allMedia.map(s => s.genre))].filter(Boolean).sort()]; 
             const artists = ['Todos Artistas', ...[...new Set(allMedia.map(s => s.artist))].filter(Boolean).sort()]; 
-            
             const curGenre = dom.player.genreFilter.value; const curArtist = dom.player.artistFilter.value; 
             dom.player.genreFilter.innerHTML = genres.map(g => `<option value="${g}">${g}</option>`).join(''); 
             dom.player.artistFilter.innerHTML = artists.map(a => `<option value="${a}">${a}</option>`).join(''); 
@@ -1240,98 +1267,52 @@
         
         // --- Player Logic (Modificado para Audio/Video) ---
         function renderPlayerPlaylist() { 
-            dom.player.playlist.innerHTML = ''; 
-            const st = dom.player.searchBar.value.toLowerCase(); 
-            const sg = dom.player.genreFilter.value; 
-            const sa = dom.player.artistFilter.value; 
-            
-            // Fusionar y filtrar
+            dom.player.playlist.innerHTML = ''; const st = dom.player.searchBar.value.toLowerCase(); const sg = dom.player.genreFilter.value; const sa = dom.player.artistFilter.value; 
             const allMedia = [...state.audioLibrary, ...state.videoLibrary];
-            const filtLib = allMedia.filter(s => 
-                (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && 
-                (sg === 'Todos Géneros' || s.genre === sg) && 
-                (sa === 'Todos Artistas' || s.artist === sa) 
-            ); 
-            
-            state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib.sort((a,b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
-            state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId && t.type === (state.currentVideoElement ? 'video' : 'audio')); // Comprobar tipo
-            
+            const filtLib = allMedia.filter(s => (st === '' || s.name?.toLowerCase().includes(st) || s.artist?.toLowerCase().includes(st) || s.genre?.toLowerCase().includes(st)) && (sg === 'Todos Géneros' || s.genre === sg) && (sa === 'Todos Artistas' || s.artist === sa) ); 
+            state.currentPlaylist = state.isShuffling ? shuffleArray([...filtLib]) : filtLib.sort((a,b) => a.name.localeCompare(b.name)); 
+            state.currentTrackIndexInPlaylist = state.currentPlaylist.findIndex(t => t.id === state.currentTrackId && t.type === (state.currentVideoElement ? 'video' : 'audio')); 
             if (state.currentPlaylist.length === 0) { dom.player.playlist.appendChild(createElement('p', {style: 'text-align:center; padding: 1rem; color: var(--secondary-text-color)'}, (state.audioLibrary.length === 0 && state.videoLibrary.length === 0) ? 'Bibliotecas vacías.' : 'No resultados.')); return; } 
-            
             state.currentPlaylist.forEach(s => { 
-                const metaParts = [];
-                if (s.artist) metaParts.push(s.artist);
-                if (s.genre) metaParts.push(s.genre);
-                const metaText = metaParts.join(' - ');
-                
-                // Icono de tipo de medio
-                const icon = createElement('span', { class: 'playlist-item-icon' });
-                icon.innerHTML = s.type === 'video' ? ICONS.video : ICONS.music;
-
+                const metaParts = []; if (s.artist) metaParts.push(s.artist); if (s.genre) metaParts.push(s.genre); const metaText = metaParts.join(' - ');
+                const icon = createElement('span', { class: 'playlist-item-icon' }); icon.innerHTML = s.type === 'video' ? ICONS.video : ICONS.music;
                 const item = createElement('div', { class: 'playlist-item', 'data-id': s.id, 'data-type': s.type }, 
-                    createElement('div', { class: 'track-info-main' }, 
-                        icon,
-                        createElement('div', { class: 'track-info-details' },
-                            createElement('div', { class: 'track-title' }, s.name), 
-                            createElement('div', { class:'track-meta' }, metaText) 
-                        )
-                    ), 
+                    createElement('div', { class: 'track-info-main' }, icon, createElement('div', { class: 'track-info-details' }, createElement('div', { class: 'track-title' }, s.name), createElement('div', { class:'track-meta' }, metaText) ) ), 
                     createElement('div', {}, formatTime(s.duration)) 
                 ); 
                 if (s.id === state.currentTrackId && s.type === (state.currentVideoElement ? 'video' : 'audio')) item.classList.add('playing'); 
                 dom.player.playlist.appendChild(item); 
             }); 
          }
-        function handlePlaylistClick(e) { 
-            const item = e.target.closest('.playlist-item'); if (!item) return; 
-            const id = parseInt(item.dataset.id, 10); 
-            const type = item.dataset.type; // 'audio' or 'video'
-            const idx = state.currentPlaylist.findIndex(t => t.id === id && t.type === type); 
-            if (idx !== -1) playTrackByIndex(idx); 
-            else { 
-                // Fallback si no está en la lista (raro)
-                const library = type === 'video' ? state.videoLibrary : state.audioLibrary;
-                const media = library.find(s => s.id === id); 
-                if (media) playTrack(media); 
-            } 
-        }
+        function handlePlaylistClick(e) { const item = e.target.closest('.playlist-item'); if (!item) return; const id = parseInt(item.dataset.id, 10); const type = item.dataset.type; const idx = state.currentPlaylist.findIndex(t => t.id === id && t.type === type); if (idx !== -1) playTrackByIndex(idx); else { const library = type === 'video' ? state.videoLibrary : state.audioLibrary; const media = library.find(s => s.id === id); if (media) playTrack(media); } }
         function playTrackByIndex(idx) { if (idx < 0 || idx >= state.currentPlaylist.length) { if (state.repeatMode === 'all' && state.currentPlaylist.length > 0) idx = (idx < 0) ? state.currentPlaylist.length - 1 : 0; else { stopPlayback(); return; } } state.currentTrackIndexInPlaylist = idx; playTrack(state.currentPlaylist[idx]); }
         
         function playTrack(media) { 
-            stopPlayback(); // Detener todo antes de empezar
-            
+            stopPlayback(); 
             if (!media?.file) { console.error("Error: Archivo missing."); return; } 
-            
             state.currentTrackId = media.id;
             dom.player.trackTitle.textContent = media.artist ? `${media.name} - ${media.artist}` : media.name; 
             renderPlayerPlaylist();
-
             try { 
                 const url = URL.createObjectURL(media.file); 
-
                 if (media.type === 'video') {
-                    // --- LÓGICA DE VIDEO ---
                     state.currentVideoElement = dom.player.videoPlayer;
                     dom.player.videoPlayer.style.display = 'block';
                     dom.player.videoPlayer.src = url;
                     dom.player.videoPlayer.loop = state.repeatMode === 'one';
-                    
-                    // Sincronizar controles
+                    dom.player.videoPlayer.volume = state.playback.currentVolume; // Aplicar volumen
                     dom.player.videoPlayer.onplay = () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); };
                     dom.player.videoPlayer.onpause = () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); };
                     dom.player.videoPlayer.onended = () => { cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); handleTrackEnd(); URL.revokeObjectURL(url); };
-                    dom.player.videoPlayer.ontimeupdate = () => requestAnimationFrame(step); // Llama a step para actualizar UI
+                    dom.player.videoPlayer.ontimeupdate = () => requestAnimationFrame(step); 
                     dom.player.videoPlayer.onloadedmetadata = updatePlayerProgress;
-                    
                     dom.player.videoPlayer.play();
-
                 } else {
-                    // --- LÓGICA DE AUDIO (HOWLER) ---
-                    state.currentVideoElement = null; // Asegurarse que el video esté nulo
+                    state.currentVideoElement = null; 
                     dom.player.videoPlayer.style.display = 'none';
-
                     state.currentHowl = new Howl({ 
                         src: [url], html5: true, format: [media.file.type.split('/')[1] || 'mp3'], loop: state.repeatMode === 'one', 
+                        volume: state.playback.currentVolume, // Howler ya usa el global
                         onplay: () => { updatePlayerUI(); requestAnimationFrame(step); startListeningSession(); }, 
                         onpause: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, 
                         onstop: () => { updatePlayerUI(); cancelAnimationFrame(state.playback.rafId); stopAndLogListeningSession(); }, 
@@ -1356,84 +1337,66 @@
                 state.currentHowl.seek(percentage * state.currentHowl.duration());
             }
         }
+        
+        // AÑADIDO: Handler para barra de volumen
+        function handleVolumeChange(e) {
+            const volume = e.target.value / 100;
+            state.playback.currentVolume = volume;
+            Howler.volume(volume); // Controla todo Howler
+            if (state.currentVideoElement) {
+                state.currentVideoElement.volume = volume;
+            }
+            // Guardar volumen en ajustes
+            saveSettingsToDB(state.modal.initialThemeSettings || {});
+        }
 
-        function playAudioClip(id, secs = 10) { /* ... (Sin cambios, solo reproduce audio) ... */ if (!id) return; const sound = state.audioLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); if (state.currentVideoElement && !state.currentVideoElement.paused) state.currentVideoElement.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
-        function setupPlayerIcons() { /* ... */ dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; }
+        function playAudioClip(id, secs = 10) { if (!id) return; const sound = state.audioLibrary.find(s => s.id === id); if (!sound?.file) return; let url = null; let clipHowl = null; let isRevoked = false; const cleanup = () => { if (isRevoked) return; isRevoked = true; if (clipHowl) clipHowl.unload(); if (url) URL.revokeObjectURL(url); }; try { url = URL.createObjectURL(sound.file); clipHowl = new Howl({ src: [url], html5: true, format: [sound.file.type.split('/')[1] || 'mp3'], onend: cleanup, onloaderror: cleanup, onplayerror: cleanup }); if (state.currentHowl?.playing()) state.currentHowl.pause(); if (state.currentVideoElement && !state.currentVideoElement.paused) state.currentVideoElement.pause(); clipHowl.play(); setTimeout(() => { if (clipHowl?.playing()) clipHowl.stop(); cleanup(); }, secs * 1000); } catch(err) { console.error("Clip err:", err); cleanup(); } }
+        function setupPlayerIcons() { dom.player.playPauseBtn.innerHTML=ICONS.play;dom.player.prevBtn.innerHTML=ICONS.prev;dom.player.nextBtn.innerHTML=ICONS.next;dom.player.shuffleBtn.innerHTML=ICONS.shuffle;dom.player.repeatBtn.innerHTML=ICONS.repeat; if (dom.player.volumeIcon) dom.player.volumeIcon.innerHTML = ICONS.volumeHigh; }
         
         function togglePlayPause() { 
-            if (state.currentVideoElement) {
-                 if (state.currentVideoElement.paused) state.currentVideoElement.play();
-                 else state.currentVideoElement.pause();
-            }
-            else if(state.currentHowl){ 
-                state.currentHowl.playing() ? state.currentHowl.pause() : state.currentHowl.play(); 
-            }
-            else if(state.currentPlaylist.length > 0) {
-                playTrackByIndex(0);
-            }
+            if (state.currentVideoElement) { (state.currentVideoElement.paused) ? state.currentVideoElement.play() : state.currentVideoElement.pause(); }
+            else if(state.currentHowl){ state.currentHowl.playing() ? state.currentHowl.pause() : state.currentHowl.play(); }
+            else if(state.currentPlaylist.length > 0) { playTrackByIndex(0); }
         }
 
-        function updatePlayerUI() { 
-            const isPlaying = (state.currentHowl && state.currentHowl.playing()) || (state.currentVideoElement && !state.currentVideoElement.paused);
-            
-            if(dom.player.playPauseBtn) dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play; 
-            if(dom.player.shuffleBtn) dom.player.shuffleBtn.classList.toggle('active', state.isShuffling); 
-            if(dom.player.repeatBtn){ dom.player.repeatBtn.classList.toggle('active', state.repeatMode !== 'none'); dom.player.repeatBtn.innerHTML = state.repeatMode === 'one' ? ICONS.repeatOne : ICONS.repeat; }
-            
-            const canPrev = state.repeatMode!=='none' || state.currentTrackIndexInPlaylist > 0;
-            const canNext = state.repeatMode!=='none' || state.currentTrackIndexInPlaylist < state.currentPlaylist.length - 1;
-            
-            if(dom.player.prevBtn) dom.player.prevBtn.disabled = !(state.currentPlaylist.length > 0 && canPrev);
-            if(dom.player.nextBtn) dom.player.nextBtn.disabled = !(state.currentPlaylist.length > 0 && canNext); 
-        }
+        function updatePlayerUI() { const isPlaying = (state.currentHowl && state.currentHowl.playing()) || (state.currentVideoElement && !state.currentVideoElement.paused); if(dom.player.playPauseBtn) dom.player.playPauseBtn.innerHTML = isPlaying ? ICONS.pause : ICONS.play; if(dom.player.shuffleBtn) dom.player.shuffleBtn.classList.toggle('active', state.isShuffling); if(dom.player.repeatBtn){ dom.player.repeatBtn.classList.toggle('active', state.repeatMode !== 'none'); dom.player.repeatBtn.innerHTML = state.repeatMode === 'one' ? ICONS.repeatOne : ICONS.repeat; } const canPrev = state.repeatMode!=='none' || state.currentTrackIndexInPlaylist > 0; const canNext = state.repeatMode!=='none' || state.currentTrackIndexInPlaylist < state.currentPlaylist.length - 1; if(dom.player.prevBtn) dom.player.prevBtn.disabled = !(state.currentPlaylist.length > 0 && canPrev); if(dom.player.nextBtn) dom.player.nextBtn.disabled = !(state.currentPlaylist.length > 0 && canNext); }
         
         function step() { 
             let seek = 0, duration = 0;
-
             if (state.currentVideoElement && !state.currentVideoElement.paused) {
-                seek = state.currentVideoElement.currentTime || 0;
-                duration = state.currentVideoElement.duration || 0;
+                seek = state.currentVideoElement.currentTime || 0; duration = state.currentVideoElement.duration || 0;
                 state.playback.rafId = requestAnimationFrame(step);
             } else if(state.currentHowl?.playing()){
-                seek = state.currentHowl.seek() || 0; 
-                duration = state.currentHowl.duration() || 0; 
+                seek = state.currentHowl.seek() || 0; duration = state.currentHowl.duration() || 0; 
                 state.playback.rafId = requestAnimationFrame(step);
-            } else {
-                 cancelAnimationFrame(state.playback.rafId);
-                 return;
-            }
-
+            } else { cancelAnimationFrame(state.playback.rafId); return; }
             dom.player.currentTime.textContent = formatTime(seek); 
             if (dom.player.totalTime.textContent === '0:00' && duration > 0) { dom.player.totalTime.textContent = formatTime(duration); }
-            if (dom.player.progressBar && duration > 0) {
-                 if (!dom.player.progressBar.matches(':active')) { 
-                    dom.player.progressBar.value = (seek / duration) * 100;
-                 }
-            }
+            if (dom.player.progressBar && duration > 0) { if (!dom.player.progressBar.matches(':active')) { dom.player.progressBar.value = (seek / duration) * 100; } }
         }
-        
         function updatePlayerProgress() { 
             let duration = 0;
-            if (state.currentVideoElement) {
-                duration = state.currentVideoElement.duration || 0;
-            } else if (state.currentHowl) {
-                 duration = state.currentHowl.duration() || 0;
-            }
-            if(!isNaN(duration)) dom.player.totalTime.textContent = formatTime(duration);
+            if (state.currentVideoElement && state.currentVideoElement.duration) { duration = state.currentVideoElement.duration; } 
+            else if (state.currentHowl?.duration()) { duration = state.currentHowl.duration(); }
+            if(!isNaN(duration) && duration > 0) dom.player.totalTime.textContent = formatTime(duration);
+            else dom.player.totalTime.textContent = "0:00";
             dom.player.currentTime.textContent = formatTime(0);
             if (dom.player.progressBar) dom.player.progressBar.value = 0;
         }
 
-        function playNextTrack() { playTrackByIndex(state.currentTrackIndexInPlaylist+1); }
+        // --- CORRECCIÓN LÓGICA DE BOTONES ---
+        function playNextTrack() { 
+            playTrackByIndex(state.currentTrackIndexInPlaylist + 1); 
+        }
         function playPrevTrack() { 
             let currentTime = 0;
             if (state.currentVideoElement) currentTime = state.currentVideoElement.currentTime;
             else if (state.currentHowl) currentTime = state.currentHowl.seek();
-
-            if(currentTime > 3) {
+            
+            if(currentTime > 3) { // Si > 3 segundos, reiniciar
                  if (state.currentVideoElement) state.currentVideoElement.currentTime = 0;
                  if (state.currentHowl) state.currentHowl.seek(0);
-            } else {
+            } else { // Si no, ir al anterior
                 playTrackByIndex(state.currentTrackIndexInPlaylist - 1);
             }
         }
@@ -1442,37 +1405,35 @@
             if(state.repeatMode==='none') state.repeatMode='all'; 
             else if(state.repeatMode==='all') state.repeatMode='one'; 
             else state.repeatMode='none'; 
-            
             if(state.currentHowl) state.currentHowl.loop(state.repeatMode==='one'); 
             if(state.currentVideoElement) state.currentVideoElement.loop = state.repeatMode === 'one';
-            
             updatePlayerUI(); 
         }
+        
+        // --- CORRECCIÓN LÓGICA FIN DE PISTA ---
         function handleTrackEnd() { 
             cancelAnimationFrame(state.playback.rafId);
             if(state.repeatMode !== 'one') {
-                playNextTrack();
+                playNextTrack(); // <-- LLAMAR A LA FUNCIÓN CORRECTA
             } else {
-                // El loop ya está manejado por Howler/Video, solo reiniciar UI
                  if (dom.player.progressBar) dom.player.progressBar.value = 0;
                  dom.player.currentTime.textContent = formatTime(0);
                  if (state.currentVideoElement) state.currentVideoElement.play();
                  if (state.currentHowl && !state.currentHowl.playing()) state.currentHowl.play();
             }
         }
+        
         function stopPlayback() { 
             if(state.currentHowl){ state.currentHowl.stop(); state.currentHowl.unload(); if(state.currentHowl._src?.startsWith('blob:')) URL.revokeObjectURL(state.currentHowl._src); }
             if(state.currentVideoElement) { 
                 state.currentVideoElement.pause(); 
-                URL.revokeObjectURL(state.currentVideoElement.src);
-                state.currentVideoElement.removeAttribute('src'); // Limpiar
+                if(state.currentVideoElement.src?.startsWith('blob:')) URL.revokeObjectURL(state.currentVideoElement.src);
+                state.currentVideoElement.removeAttribute('src'); 
                 state.currentVideoElement.load();
                 state.currentVideoElement.style.display = 'none'; 
             }
-            
             cancelAnimationFrame(state.playback.rafId);
             stopAndLogListeningSession();
-            
             state.currentTrackId=null; state.currentHowl = null; state.currentVideoElement = null; state.currentTrackIndexInPlaylist=-1;
             dom.player.trackTitle.textContent="Nada seleccionado";
             dom.player.currentTime.textContent="0:00";
