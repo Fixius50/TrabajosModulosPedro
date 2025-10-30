@@ -106,7 +106,9 @@
             <p>Se implementó la navegación principal como una Aplicación de Página Única (SPA). Se añadió un botón "hamburguesa" (<code>#menu-toggle-btn</code>) fijo en la esquina superior izquierda. Al hacer clic, este botón utiliza JavaScript para mostrar u ocultar el panel de navegación (<code>#sidebar-nav</code>) y un fondo superpuesto (<code>#menu-overlay</code>). El panel de navegación aparece desde debajo del botón con una animación de fundido y traslación.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código CSS de #sidebar-nav, .open, y el HTML del #menu-toggle-btn]</p>
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 164905.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 165105.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 165145.png" alt="" srcset="">
           </div>
         </li>
 
@@ -116,7 +118,7 @@
             <p>Para guardar los datos del usuario (música, tareas, ajustes) de forma permanente en el navegador, se utilizó IndexedDB. La función <code>initDB</code> se encarga de crear la base de datos y los "almacenes" (object stores) necesarios: <code>sounds</code>, <code>tasks</code>, <code>settings</code> y <code>listeningLog</code>.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de la función initDB() mostrando la creación de los object stores]</p>
+            <img src="./imagenesDesarrollo/2/Captura de pantalla 2025-10-30 165429.png" alt="" srcset="">
           </div>
         </li>
         
@@ -126,7 +128,8 @@
             <p>Se desarrolló la pestaña "Música". La función <code>handleFileSelection</code> permite subir audios, que se guardan en IndexedDB usando <code>saveSoundToDB</code>. Al crear el sonido, los campos <code>artist</code> y <code>genre</code> se guardan como <code>''</code> (cadenas vacías). Luego, <code>renderLibraryModalContent</code> usa el atributo <code>placeholder</code> de HTML para mostrar "Artista" y "Género" como "letras fantasma" en los campos vacíos.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de saveSoundToDB() y renderLibraryModalContent() mostrando los placeholders]</p>
+            <img src="./imagenesDesarrollo/3/Captura de pantalla 2025-10-30 165522.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/3/Captura de pantalla 2025-10-30 165640.png" alt="" srcset="">
           </div>
         </li>
 
@@ -136,7 +139,8 @@
             <p>El calendario se hizo interactivo. Al hacer clic en el título del mes (<code>#month-year-display</code>), <code>toggleCalendarView</code> cambia a la vista <code>renderMonthSelector</code>. Al hacer clic en un día, <code>openDayModal</code> permite añadir tareas. Las nuevas tareas se añaden dinámicamente al DOM sin recargar el modal. Cada tarea existente (<code>.task-item</code>) tiene su propio botón de adjuntar (<code>.attach-task-btn</code>) que asigna un sonido a esa tarea específica.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de openDayModal() mostrando la creación dinámica de tareas y el botón .attach-task-btn]</p>
+            <img src="./imagenesDesarrollo/4/Captura de pantalla 2025-10-30 170007.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/4/Captura de pantalla 2025-10-30 170024.png" alt="" srcset="">
           </div>
         </li>
 
@@ -146,7 +150,7 @@
             <p>La pestaña "Tareas" se hizo dinámica. Por defecto (<code>state.tasks.filterDate === null</code>), muestra todas las tareas (pasadas, presentes y futuras) agrupadas por día. Se añadieron controles (un <code>&lt;input type="date"&gt;</code> y un botón "Ver Todas") que permiten al usuario filtrar la vista para mostrar solo las tareas de un día específico. La función <code>renderTasks</code> comprueba este estado para decidir qué conjunto de tareas mostrar.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de la función renderTasks() mostrando la lógica de if (state.tasks.filterDate)]</p>
+            <img src="./imagenesDesarrollo/5/Captura de pantalla 2025-10-30 170217.png" alt="" srcset="">
           </div>
         </li>
 
@@ -160,7 +164,10 @@
             <br>4. Dibuja un segmento de línea y área separado, usando el color <code>--danger-color</code>, para resaltar la actividad del día de hoy.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de renderStatsPage() mostrando el filtro y la creación del segmento de "hoy" (todaySegmentString)]</p>
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170526.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170755.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170805.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170816.png" alt="" srcset="">
           </div>
         </li>
 
@@ -170,7 +177,9 @@
             <p>El modal de "Ajustes" permite una previsualización dinámica. Al cambiar el color o el modo, <code>applyThemePreview()</code> aplica los cambios visualmente sin guardar. Si el usuario intenta cerrar (<code>closeModal()</code>) tras hacer cambios (<code>state.modal.themeChangesMade === true</code>), se activa <code>openConfirmModal()</code>. Si descarta, <code>forceCloseModal()</code> revierte los cambios visuales volviendo a aplicar el tema guardado en <code>initialThemeSettings</code>.</p>
           </div>
           <div class="step-image">
-            <p>[IMAGEN AQUÍ: Código de las funciones closeModal(), forceCloseModal() y applyThemePreview()]</p>
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170914.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170928.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170948.png" alt="" srcset="">
           </div>
         </li>
         

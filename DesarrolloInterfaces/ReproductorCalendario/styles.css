@@ -141,7 +141,8 @@ nav a:hover {
 
 .step {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  /* CORRECCIÓN: Dar más espacio al texto (60% / 40%) */
+  grid-template-columns: 3fr 2fr; 
   gap: 2rem;
   margin-bottom: 3rem;
   padding-bottom: 2rem;
@@ -159,15 +160,31 @@ nav a:hover {
   color: #a7a7a7;
   padding: 1rem;
   border-radius: 0.5rem;
-  text-align: center;
   font-style: italic;
   font-size: 0.9rem;
-  min-height: 10rem;
-  display: flex;
+  border: 2px dashed var(--primary);
+  
+  /* CORRECCIÓN: Usar grid para auto-ajustar imágenes */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.5rem;
   align-items: center;
   justify-content: center;
-  border: 2px dashed var(--primary);
 }
+
+/* CORRECCIÓN: Asegurar que las imágenes sean responsivas */
+.step-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
+  width: 100%; /* Asegura que la imagen llene el espacio de la cuadrícula */
+}
+
+/* CORRECCIÓN: Ocultar placeholder si hay una imagen */
+.step-image:has(img) > p {
+  display: none;
+}
+
 
 /* --- Footer --- */
 footer {
