@@ -48,17 +48,34 @@
       <div class="tech-grid">
         <div class="tech-card">
           <h3>HTML5</h3>
-          <p>Estructura semántica de la página, permitiendo una base clara y escalable.</p>
+          <p>Estructura semántica de la página, incluyendo el uso de <code>&lt;svg&gt;</code> para gráficos dinámicos.</p>
         </div>
         <div class="tech-card">
           <h3>CSS3</h3>
-          <p>Diseño moderno, adaptable y limpio. Se usaron variables, flexbox y animaciones suaves.</p>
+          <p>Diseño moderno y adaptable (responsive) usando Flexbox, Grid, variables CSS (Custom Properties) para temas, y animaciones <code>transition</code> y <code>transform</code>.</p>
         </div>
         <div class="tech-card">
-          <h3>JavaScript</h3>
-          <p>Interactividad en los componentes y simulación básica del comportamiento del reproductor y calendario.</p>
+          <h3>JavaScript (ES6+)</h3>
+          <p>Toda la lógica de la aplicación, manipulación del DOM, gestión de eventos y estado, y renderizado de componentes sin frameworks.</p>
         </div>
       </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="tech-grid">
+            <div class="tech-card">
+                <h3>IndexedDB</h3>
+                <p>Utilizado como base de datos del navegador para almacenar de forma persistente la biblioteca de sonidos, tareas, ajustes y estadísticas de escucha.</p>
+            </div>
+            <div class="tech-card">
+                <h3>Howler.js</h3>
+                <p>Librería de audio para una reproducción de sonido fiable, gestión de la pausa, reproducción, bucles y control de volumen.</p>
+            </div>
+            <div class="tech-card">
+                <h3>Day.js</h3>
+                <p>Librería ligera para la manipulación y el formato de fechas, usada para construir el calendario y el selector de meses.</p>
+            </div>
+        </div>
     </div>
     <br>
     <div class="container">
@@ -79,67 +96,87 @@
   <section id="proceso" class="section">
     <div class="container" id="contenido">
       <h2>Proceso de desarrollo</h2>
-        <li><h3>Paso 1: Prototipo Inicial del Calendario</h3><p>Comenzamos con un prototipo de calendario. La primera tarea consistió en organizar la estructura visual:
 
-Se ajustó el tamaño de los números para que tuvieran una apariencia uniforme.
+      <!-- Contenido de documentación rediseñado -->
+      <ol class="step-list">
 
-Se utilizó CSS Grid para alinear perfectamente los días bajo las cabeceras de la semana (L, M, X, J, V, S, D).
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 1: Navegación por Menú Desplegable</h3>
+            <p>Se implementó la navegación principal como una Aplicación de Página Única (SPA). Se añadió un botón "hamburguesa" (<code>#menu-toggle-btn</code>) fijo en la esquina superior izquierda. Al hacer clic, este botón utiliza JavaScript para mostrar u ocultar el panel de navegación (<code>#sidebar-nav</code>) y un fondo superpuesto (<code>#menu-overlay</code>). El panel de navegación aparece desde debajo del botón con una animación de fundido y traslación.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código CSS de #sidebar-nav, .open, y el HTML del #menu-toggle-btn]</p>
+          </div>
+        </li>
 
-Se implementó la navegación básica entre meses mediante botones de "anterior" y "siguiente".</p></li>
-        <li><h3>Paso 2: Implementación de Navegación por Pestañas</h3><p>Para organizar las futuras funcionalidades, se transformó la estructura de una sola vista a una aplicación multi-pestaña:
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 2: Almacenamiento Persistente con IndexedDB</h3>
+            <p>Para guardar los datos del usuario (música, tareas, ajustes) de forma permanente en el navegador, se utilizó IndexedDB. La función <code>initDB</code> se encarga de crear la base de datos y los "almacenes" (object stores) necesarios: <code>sounds</code>, <code>tasks</code>, <code>settings</code> y <code>listeningLog</code>.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de la función initDB() mostrando la creación de los object stores]</p>
+          </div>
+        </li>
+        
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 3: Biblioteca de Sonidos y Placeholders</h3>
+            <p>Se desarrolló la pestaña "Música". La función <code>handleFileSelection</code> permite subir audios, que se guardan en IndexedDB usando <code>saveSoundToDB</code>. Al crear el sonido, los campos <code>artist</code> y <code>genre</code> se guardan como <code>''</code> (cadenas vacías). Luego, <code>renderLibraryModalContent</code> usa el atributo <code>placeholder</code> de HTML para mostrar "Artista" y "Género" como "letras fantasma" en los campos vacíos.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de saveSoundToDB() y renderLibraryModalContent() mostrando los placeholders]</p>
+          </div>
+        </li>
 
-Se crearon las secciones para Calendario, Eventos, Tareas y Ajustes.
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 4: Calendario Avanzado y Tareas</h3>
+            <p>El calendario se hizo interactivo. Al hacer clic en el título del mes (<code>#month-year-display</code>), <code>toggleCalendarView</code> cambia a la vista <code>renderMonthSelector</code>. Al hacer clic en un día, <code>openDayModal</code> permite añadir tareas. Las nuevas tareas se añaden dinámicamente al DOM sin recargar el modal. Cada tarea existente (<code>.task-item</code>) tiene su propio botón de adjuntar (<code>.attach-task-btn</code>) que asigna un sonido a esa tarea específica.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de openDayModal() mostrando la creación dinámica de tareas y el botón .attach-task-btn]</p>
+          </div>
+        </li>
 
-Se diseñó una cabecera con un menú desplegable que permite al usuario navegar de forma cómoda e intuitiva entre las diferentes secciones de la aplicación.</p></li>
-        <li><h3>Paso 3: Funcionalidades Básicas de las Pestañas</h3><p>Se dotó de vida a las secciones recién creadas, implementando sus características principales:
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 5: Filtro de Tareas (Todas / Por Día)</h3>
+            <p>La pestaña "Tareas" se hizo dinámica. Por defecto (<code>state.tasks.filterDate === null</code>), muestra todas las tareas (pasadas, presentes y futuras) agrupadas por día. Se añadieron controles (un <code>&lt;input type="date"&gt;</code> y un botón "Ver Todas") que permiten al usuario filtrar la vista para mostrar solo las tareas de un día específico. La función <code>renderTasks</code> comprueba este estado para decidir qué conjunto de tareas mostrar.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de la función renderTasks() mostrando la lógica de if (state.tasks.filterDate)]</p>
+          </div>
+        </li>
 
-Eventos: Se añadió la capacidad de crear eventos. Para visualizarlos, un punto de color aparece en el día correspondiente del calendario.
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 6: Gráfica de Estadísticas Dinámica (Vanilla SVG)</h3>
+            <p>Se creó una gráfica de curvas usando solo JavaScript y SVG, sin librerías. La función <code>renderStatsPage</code>:
+            <br>1. Filtra los datos para mostrar solo días con tiempo de escucha (<code>seconds > 0</code>).
+            <br>2. Añade dinámicamente el tiempo de la sesión actual (<code>state.sessionStartTime</code>) a los datos de "hoy".
+            <br>3. Dibuja un <code>&lt;svg&gt;</code> con <code>&lt;polyline&gt;</code> (la curva) y <code>&lt;path&gt;</code> (el área).
+            <br>4. Dibuja un segmento de línea y área separado, usando el color <code>--danger-color</code>, para resaltar la actividad del día de hoy.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de renderStatsPage() mostrando el filtro y la creación del segmento de "hoy" (todaySegmentString)]</p>
+          </div>
+        </li>
 
-Tareas: Se implementó una lista de tareas pendientes, permitiendo al usuario añadir nuevas tareas y marcarlas como completadas.
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 7: Personalización de Tema con Previsualización y Advertencia</h3>
+            <p>El modal de "Ajustes" permite una previsualización dinámica. Al cambiar el color o el modo, <code>applyThemePreview()</code> aplica los cambios visualmente sin guardar. Si el usuario intenta cerrar (<code>closeModal()</code>) tras hacer cambios (<code>state.modal.themeChangesMade === true</code>), se activa <code>openConfirmModal()</code>. Si descarta, <code>forceCloseModal()</code> revierte los cambios visuales volviendo a aplicar el tema guardado en <code>initialThemeSettings</code>.</p>
+          </div>
+          <div class="step-image">
+            <p>[IMAGEN AQUÍ: Código de las funciones closeModal(), forceCloseModal() y applyThemePreview()]</p>
+          </div>
+        </li>
+        
+      </ol>
+      <!-- FIN DEL CONTENIDO -->
 
-Ajustes: Se introdujo la opción de Modo Oscuro mediante un interruptor, permitiendo adaptar la apariencia de la aplicación a las preferencias del usuario.</p></li>
-        <li><h3>Paso 4: Fusión con el Prototipo del Reproductor de Audio</h3><p>Este fue un paso crucial. Adoptamos un nuevo diseño basado en el código que proporcionaste ("ProMinimal Calendar of Sounds") y fusionamos sus funcionalidades de audio con nuestra aplicación:
-
-Nuevo Diseño: Se adoptó una estética minimalista inspirada en iOS, con una paleta de colores y tipografías definidas.
-
-Reproductor de Audio: Se integró un reproductor completo en una nueva pestaña, incluyendo controles de reproducción, barra de progreso y visualizador de audio.
-
-Biblioteca de Sonidos: Se añadió la capacidad de cargar archivos de audio desde el dispositivo del usuario, creando una biblioteca personal.
-
-Calendario de Sonidos: Se conectó el calendario con la biblioteca, permitiendo asignar sonidos a días específicos.</p></li>
-        <li><h3>Paso 5: Integración Profunda de Tareas y Calendario</h3><p>Se rediseñó por completo la gestión de tareas para integrarla directamente con el calendario:
-
-Creación de Tareas por Día: Al hacer clic en el botón + de un día, la ventana emergente ahora permite añadir tareas directamente a esa fecha.
-
-Pestaña de Tareas por Fecha: La pestaña "Tareas" se transformó para mostrar las tareas agrupadas por su fecha correspondiente, ofreciendo una vista organizada de las actividades pendientes.
-
-Notas por Tarea: Dentro de la pestaña "Tareas", cada tarea individual recibió un botón para añadir o editar notas, permitiendo una descripción más detallada de cada pendiente.</p></li>
-        <li><h3>Paso 6: Selector de Año en el Calendario</h3><p>Para mejorar la navegación a largo plazo, se añadió una nueva funcionalidad:
-
-Al hacer clic en el título del mes y año, la vista del calendario cambia a un selector de años.
-
-Esta nueva vista permite navegar por décadas y seleccionar un año específico para visualizarlo rápidamente.</p></li>
-        <li><h3>Paso 7: Rediseño Total de la Pestaña de Configuración</h3><p>La sección de "Configuración" fue completamente reinventada para ofrecer una personalización avanzada:
-
-Menú de Tarjetas: Se reemplazó la lista de opciones por dos tarjetas interactivas: "Tema de la Aplicación" y "Biblioteca de Sonidos".
-
-Personalización de Tema con Rueda de Color: Al hacer clic en la tarjeta de tema, se abre una ventana con una rueda de color maestra. Al elegir un color base, la aplicación genera y aplica una paleta de colores armónica para toda la interfaz (fondos, texto, acentos).
-
-Biblioteca Detallada: La tarjeta de biblioteca ahora abre una ventana que muestra una lista completa de los sonidos cargados, especificando su nombre, duración y clasificación (para Calendario si dura menos de 11 segundos, o para Reproductor si dura más).</p></li>
-        <li><h3>Paso 8: Tema Dinámico Basado en la Música</h3><p>Se implementó una de las características más innovadoras de la aplicación:
-
-Se añadió la opción "Color dinámico con música".
-
-Cuando esta opción está activa, el tema de la aplicación cambia en tiempo real según la energía de la canción que se está reproduciendo, utilizando la Web Audio API para analizar las frecuencias:
-
-Música tranquila: La interfaz adopta tonos fríos (azules, cianes).
-
-Música animada: La interfaz cambia a colores cálidos (rojos, naranjas).</p></li>
-        <li><h3>Paso 9: Migración a IndexedDB para Almacenamiento Ilimitado</h3><p>Para resolver el problema de límite de almacenamiento del <b>LocalStorage</b> , se realizó una mejora técnica fundamental:
-
-Se reemplazó el sistema de almacenamiento <b>LocalStorage</b> por <b>IndexedDB</b> .
-
-Este cambio permite a la aplicación manejar una cantidad mucho mayor de datos, solucionando el error de "cuota excedida" y permitiendo al usuario guardar una biblioteca de sonidos tan grande como desee.</p></li>  
     </div>
   </section>
 

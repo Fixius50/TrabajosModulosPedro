@@ -1,6 +1,7 @@
 // Animación sencilla al hacer scroll
 window.addEventListener("scroll", () => {
   const sections = document.querySelectorAll(".section");
+  // Activa la animación cuando la sección está al 85% de la altura de la ventana
   const trigger = window.innerHeight * 0.85;
 
   sections.forEach(section => {
@@ -11,15 +12,9 @@ window.addEventListener("scroll", () => {
   });
 });
 
-// Simulación básica de botones del mockup
-document.querySelectorAll(".controls button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    alert(`Botón ${btn.textContent.trim()} presionado (simulación).`);
-  });
-});
-
-document.querySelectorAll(".calendar-mockup .cell").forEach(cell => {
-  cell.addEventListener("click", () => {
-    alert(`Día ${cell.textContent} seleccionado (simulación).`);
-  });
-});
+/*
+  NOTA: Se ha omitido la lógica de los botones del mockup 
+  ('.controls button', '.calendar-mockup .cell') 
+  porque esos elementos no existen en el archivo index.html
+  de la documentación y causarían errores en la consola.
+*/
