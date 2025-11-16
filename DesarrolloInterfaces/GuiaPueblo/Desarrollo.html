@@ -3,9 +3,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Documentación - Guía del Pueblo</title>
+
+    <!-- 
+      Directriz Library-First:
+      1. Importar Material Icons (requerido por Materialize).
+      2. Importar Materialize CSS (Framework ligero de UI basado en Material Design).
+    -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <style>
+        /* Directriz de CSS Responsivo:
+          - Se usan unidades relativas (rem, em, %).
+          - Se evita 'px' para layouts y tipografía.
+        */
+
+        /* Estilos generales del cuerpo */
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f4f4f4; /* Un fondo suave */
+        }
+
+        /* Contenedor principal de la aplicación */
+        main {
+            flex: 1 0 auto;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Títulos de las secciones */
+        h2 {
+            font-size: 2.5rem; /* Tipografía relativa */
+            font-weight: 300;
+            color: #424242; /* Grey darken-3 */
+            border-bottom: 1px solid #e0e0e0; /* Único uso permitido de 'px' para bordes finos */
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Contenedor para las tarjetas de tecnología */
+        .tech-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem; /* Espaciado relativo */
+        }
+
+        /* Estilo de las tarjetas de tecnología */
+        .tech-card {
+            width: 12rem; /* Ancho relativo */
+            min-height: 15rem; /* Altura mínima relativa */
+            transition: box-shadow 0.3s ease-out;
+            border-radius: 0.5rem;
+        }
+
+        .tech-card:hover {
+            box-shadow: 0 0.5rem 1rem 0 rgba(0,0,0,0.2); /* Sombra elevada */
+        }
+
+        .tech-card .card-image img {
+            border-radius: 0.5rem 0.5rem 0 0;
+            background-color: #eee;
+        }
+        
+        .tech-card .card-content {
+            padding: 1.5rem; /* Padding relativo */
+        }
+
+        /* Estilos para la sección de versiones */
+        .collapsible-header {
+            font-size: 1.25rem; /* Tipografía relativa */
+            font-weight: 500;
+        }
+
+        .collapsible-body {
+            background-color: #ffffff;
+            padding: 2rem; /* Padding relativo */
+        }
+        
+        .collapsible-body p {
+            font-size: 1.1rem; /* Tipografía relativa */
+            line-height: 1.6;
+        }
+
+        /* --- NUEVO: Estilos para Galería de Capturas --- */
+        .screenshot-gallery {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-gallery h4 {
+            font-size: 1.5rem; /* Tipografía relativa */
+            font-weight: 400;
+            color: #616161; /* grey darken-1 */
+            margin-bottom: 1.5rem;
+        }
+
+        /* Contenedor del carousel */
+        .carousel {
+            height: 25rem; /* Altura fija relativa para el carousel */
+            margin-bottom: 1.5rem;
+        }
+
+        /* Estilo de las imágenes dentro del carousel */
+        .carousel .carousel-item img {
+            width: auto;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+        }
+
+        /* Ocultar la sombra por defecto de Materialize */
+        .carousel .carousel-item {
+            box-shadow: none;
+        }
+        /* --- FIN: Estilos Galería --- */
+
+        /* Estilo para los bloques de 'prompt' */
+        .prompt-code {
+            background-color: #263238; /* Blue Grey darken-4 */
+            color: #eceff1;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap; /* Mantiene el formato del texto */
+            word-wrap: break-word; /* Evita desbordamiento */
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Imágenes de captura de pantalla */
+        .version-screenshot {
+            max-width: 100%; /* Imagen fluida */
+            height: auto;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+        }
+
+    </style>
 </head>
 <body>
+
+    <!-- 1. Barra de Navegación (Materialize) -->
+    <nav>
+        <div class="nav-wrapper deep-purple darken-2">
+            <div class="container">
+                <a href="#" class="brand-logo">Documentación: Guía del Pueblo</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Contenido Principal -->
+    <main>
+        <div class="container">
+
+            <!-- 2.1. Sección de Tecnologías -->
+            <section id="tecnologias">
+                <h2><i class="material-icons" style="font-size: 2.5rem; margin-right: 1rem;">memory</i>Tecnologías Utilizadas</h2>
+                <p>Tecnologías, librerías y herramientas usadas en el código de la aplicación "Guía Interactiva".</p>
+
+                <!-- Usamos el componente 'Card' de Materialize -->
+                <div class="tech-card-container">
+                    
+                    <!-- Tarjeta HTML5 -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/E44D26/FFFFFF?text=HTML5&font=roboto" alt="Logo HTML5">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">HTML5</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta CSS3 -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/264DE4/FFFFFF?text=CSS3&font=roboto" alt="Logo CSS3">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">CSS3</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta JavaScript -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/F0DB4F/000000?text=Vanilla+JS&font=roboto" alt="Logo JavaScript">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">Vanilla JS</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta Tailwind CSS -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/38BDF8/FFFFFF?text=Tailwind+CSS&font=roboto" alt="Logo Tailwind CSS">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">Tailwind CSS</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Feather Icons -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/000000/FFFFFF?text=Feather+Icons&font=roboto" alt="Logo Feather Icons">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">Feather Icons</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta TMDb API -->
+                    <div class="card tech-card">
+                        <div class="card-image">
+                            <img src="https://placehold.co/200x150/01D277/FFFFFF?text=TMDb+API&font=roboto" alt="Logo TMDb API">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title">TMDb API</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <div class="divider" style="margin: 3rem 0;"></div>
+
+            <!-- 2.2. Historial de Versiones -->
+            <section id="versiones">
+                <h2><i class="material-icons" style="font-size: 2.5rem; margin-right: 1rem;">history</i>Historial de Versiones (Prompts)</h2>
+                <p>Documentación del proceso de desarrollo iterativo, detallando las IAs, los prompts y los resultados de cada versión.</p>
+
+                <!-- 
+                  Usamos el componente 'Collapsible' (Acordeón) de Materialize.
+                  Es ideal para organizar las versiones V1, V2, V3...
+                -->
+                <ul class="collapsible expandable">
+                    
+                    <!-- INICIO: Plantilla de Versión (copia y pega para añadir más) -->
+                    <li class="active"> <!-- 'active' la deja abierta por defecto -->
+                        <div class="collapsible-header">
+                            <i class="material-icons">filter_1</i>V1: Creación de la Estructura Base
+                        </div>
+                        <div class="collapsible-body">
+                            <p><strong>IA Utilizada:</strong> Google Gemini</p>
+                            <p><strong>Explicación:</strong> En esta fase inicial, el objetivo era generar el HTML semántico y una hoja de estilos básica para el layout principal de la guía del pueblo.</p>
+                            
+                            <strong>Prompt Utilizado:</strong>
+                            <div class="prompt-code">
+<i> 
+**Rol y Experiencia:**
+Actúa como un desarrollador web *frontend* senior experto, con al menos 15 años de experiencia, especializado en la creación de aplicaciones web robustas, eficientes y mantenibles.
+
+**Filosofía de Desarrollo (Vanilla-First):**
+Tu enfoque principal es **"vanilla-first"**. Priorizas el uso de HTML5 semántico, CSS3 moderno (Flexbox, Grid, Custom Properties) y JavaScript (ES6+). Evitas por completo el uso de *frameworks* pesados (como React, Angular, Vue, Svelte, etc.).
+
+**Uso de Librerías (Restringido):**
+1.  **Permitido:** Puedes usar librerías externas de terceros *solo* para tareas muy específicas que serían demasiado complejas o tediosas de implementar desde cero (por ejemplo, `date-fns` para manipulación avanzada de fechas, `chart.js` para gráficos complejos, o `anime.js` para animaciones de alto rendimiento).
+2.  **Contingencia:** Si una librería sugerida introduce *bugs*, tiene dependencias conflictivas o resulta ser inestable, tu deber es:
+    * Primero, intentar sustituirla por una alternativa ligera y fiable.
+    * Si no existe una alternativa viable, implementar la funcionalidad necesaria directamente en vanilla JavaScript.
+
+**Formato de Entrega (Requisito Estricto):**
+El producto final debe ser **un único archivo `index.html`**.
+* Todo el código HTML debe estar en el cuerpo del archivo.
+* Todo el código CSS debe estar autocontenido dentro de etiquetas style en el head.
+* Todo el código JavaScript debe estar autocontenido dentro de etiquetas script al final del body (justo antes de body).
+
+**Refactorización y Revisión:**
+Además de generar código nuevo, también estás capacitado para revisar y refactorizar código existente. Puedo proporcionarte bloques de código (incluso si son repetitivos o parecen "copia y pega") y tu tarea será analizarlos, limpiarlos, eliminar redundancias y optimizarlos, siempre adhiriéndote a los principios "vanilla-first" y manteniendo la funcionalidad intacta.
+
+---
+
+**Mi Solicitud:**
+
+Hacer una aplicación que muestre información sobre:
+
+Mi pueblo
+Mi barrio
+Mi Instituto
+Guía de coches
+Películas o series
+Mi país
+...
+Una especie de guía de viaje, sitios turísticos, restaurantes, deportes, …
+Tiene que tener cambio entre modo claro y oscuro.
+Se trata de practicar maquetación, apps multipantalla, cards, transiciones, ...
+</i>
+                            </div>
+                            
+                            <!-- 
+                              NUEVO: Galería de Capturas (Materialize Carousel)
+                              Reemplaza la <img> "version-screenshot"
+                            -->
+                            <div class="screenshot-gallery">
+                                <h4>Capturas de Pantalla (V1)</h4>
+                                <div class="carousel">
+                                    <!-- Añade un item <a> por cada captura de V1 -->
+                                    <!-- Los enlaces (href) son necesarios para el carrusel, aunque no lleven a ningún sitio -->
+                                    <a class="carousel-item" href="#v1-1">
+                                        <img src="" alt="" srcset="">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210056.png" alt="Captura de pantalla 1 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-2">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210124.png" alt="Captura de pantalla 2 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-3">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210135.png" alt="Captura de pantalla 3 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-4">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210144.png" alt="Captura de pantalla 4 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-5">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210153.png" alt="Captura de pantalla 1 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-6">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210201.png" alt="Captura de pantalla 2 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-7">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210221.png" alt="Captura de pantalla 3 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-8">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210236.png" alt="Captura de pantalla 4 de V1">
+                                    </a>
+                                    <a class="carousel-item" href="#v1-8">
+                                        <img src="App/v1/Captura de pantalla 2025-11-11 210241.png" alt="Captura de pantalla 4 de V1">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- FIN: Plantilla de Versión -->
+
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="material-icons">filter_2</i>V2: Implementación de Interactivity
+                        </div>
+                        <div class="collapsible-body">
+                            <p><strong>IA Utilizada:</strong> [Nombre de la IA]</p>
+                            <p><strong>Explicación:</strong> Aquí se añadió el JavaScript para [describe la funcionalidad]. Se pidió a la IA que refactorizara el código anterior y añadiera [X cosa].</p>
+
+                            <strong>Prompt Utilizado:</strong>
+                            <div class="prompt-code">
+(Pega aquí el prompt exacto que usaste para la V2)
+...
+</div>
+
+                            <!-- Galería de Capturas V2 -->
+                            <div class="screenshot-gallery">
+                                <h4>Capturas de Pantalla (V2)</h4>
+                                <div class="carousel">
+                                    <a class="carousel-item" href="#v2-1">
+                                        <img src="https://placehold.co/400x300/EEEEEE/999999?text=V2+Captura+1" alt="Captura de pantalla 1 de V2">
+                                    </a>
+                                    <a class="carousel-item" href="#v2-2">
+                                        <img src="https://placehold.co/400x300/EEEEEE/999999?text=V2+Captura+2" alt="Captura de pantalla 2 de V2">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="collapsible-header">
+                            <i class="material-icons">filter_3</i>V3: [Tu siguiente versión]
+                        </div>
+                        <div class="collapsible-body">
+                            <p>... (Contenido de la V3)</p>
+                            
+                            <!-- Galería de Capturas V3 -->
+                            <div class="screenshot-gallery">
+                                <h4>Capturas de Pantalla (V3)</h4>
+                                <div class="carousel">
+                                    <a class="carousel-item" href="#v3-1">
+                                        <img src="https://placehold.co/400x300/EEEEEE/999999?text=V3+Captura+1" alt="Captura de pantalla 1 de V3">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- 3. Footer (Materialize) -->
+    <footer class="page-footer deep-purple darken-3">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <p class="grey-text text-lighten-4">Proyecto de documentación de la "Guía del Pueblo".</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2025
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+      Directriz Library-First:
+      Importar el JS de Materialize al final del body.
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     
+    <!-- 
+      Directriz de Implementación:
+      Script Vanilla JS mínimo, solo para inicializar las librerías (Materialize).
+    -->
+    <script type_text="javascript">
+        //<![CDATA[
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Inicializar el componente Collapsible de Materialize
+            var collapsibles = document.querySelectorAll('.collapsible');
+            M.Collapsible.init(collapsibles, {
+                accordion: false // false = modo 'expandable', varios abiertos a la vez.
+                                 // true = modo 'accordion', solo uno abierto.
+            });
+
+            // NUEVO: Inicializar TODOS los componentes Carousel
+            // Esto buscará todos los div con class="carousel" y los activará.
+            var carousels = document.querySelectorAll('.carousel');
+            M.Carousel.init(carousels, {
+                fullWidth: false, // false = muestra items adyacentes (efecto scroll)
+                indicators: true, // true = muestra los puntos de navegación
+                padding: 10 // (Opcional) Espaciado relativo entre imágenes
+            });
+            
+        });
+        //]]>
+    </script>
 </body>
 </html>
