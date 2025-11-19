@@ -374,17 +374,40 @@
             updateIcons(dark);
             toggle.onclick = () => { const d = html.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light'); updateIcons(d); };
 
-            // Inicializar Carrusel
+            // Inicializar Carrusel al cargar
             document.addEventListener('DOMContentLoaded', function() {
                 M.Carousel.init(document.querySelectorAll('.sections-carousel'), { fullWidth: false, indicators: false, padding: 10 });
             });
 
             document.querySelectorAll('[data-target]').forEach(l => l.onclick = e => {
                 e.preventDefault();
+                const targetId = l.dataset.target;
+                
+                // Ocultar todas y mostrar la nueva
                 document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-                document.getElementById(l.dataset.target).classList.add('active');
+                const targetScreen = document.getElementById(targetId);
+                if (targetScreen) targetScreen.classList.add('active');
+                
                 window.scrollTo(0,0);
-                document.body.dispatchEvent(new CustomEvent('screenchange', {detail:{screenId:l.dataset.target}}));
+                
+                // *** CORRECCIÓN DEL BUG DEL CARRUSEL ***
+                // Si volvemos a home, forzamos la reinicialización del carrusel
+                // con un pequeño retardo para asegurar que el contenedor ya tiene dimensiones.
+                if (targetId === 'screen-home') {
+                    setTimeout(() => {
+                        const carouselEl = document.querySelector('.sections-carousel');
+                        if (carouselEl && window.M) {
+                            // Destruir instancia anterior si existe para evitar duplicados
+                            const instance = M.Carousel.getInstance(carouselEl);
+                            if (instance) instance.destroy();
+                            
+                            // Re-inicializar limpio
+                            M.Carousel.init(carouselEl, { fullWidth: false, indicators: false, padding: 10 });
+                        }
+                    }, 50); // 50ms es suficiente para que el DOM se pinte
+                }
+
+                document.body.dispatchEvent(new CustomEvent('screenchange', {detail:{screenId:targetId}}));
             });
         })();
 
