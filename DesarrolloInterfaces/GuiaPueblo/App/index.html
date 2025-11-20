@@ -60,11 +60,8 @@
 
         /* Header Romano */
         .header-roman {
-            background-color: #2C3E50 !important;
-            border-bottom: 4px solid #C5A059;
-        }
-        .dark .header-roman {
-            background-color: #111827 !important; 
+            background-color: #16202c !important; /* Azul casi negro */
+            border-bottom: 2px solid #C5A059;
         }
 
         /* Fondo Estrellas */
@@ -103,21 +100,106 @@
         .dark .select-input-style { border-color: #4B5563; background-color: #1F2937; color: #F3F4F6; }
         option { color: #333; background-color: #fff; }
 
-        .tab-button.active-tab { border-bottom-width: 3px; border-bottom-color: #3b82f6; color: #3b82f6; }
-        .dark .tab-button.active-tab { color: #60a5fa; border-bottom-color: #60a5fa; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         nav { background-color: transparent !important; box-shadow: none !important; height: auto !important; line-height: inherit !important; }
         
-        /* Estilos Buscador Global */
-        #global-search-results { position: absolute; top: 100%; left: 0; right: 0; background-color: #2C3E50; border: 2px solid #C5A059; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; z-index: 60; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; }
-        .search-result-item { padding: 12px 16px; border-bottom: 1px solid rgba(197, 160, 89, 0.2); cursor: pointer; display: flex; align-items: center; color: white; transition: background 0.2s; }
-        .search-result-item:hover { background-color: rgba(197, 160, 89, 0.2); }
+        /* --- ESTILOS BUSCADOR GLOBAL (Diseño Solicitado) --- */
+        #global-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #1e293b; /* Fondo azul oscuro sólido */
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            display: none;
+        }
+        
+        /* Item del buscador */
+        .search-result-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #334155; /* Separador sutil */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #f1f5f9; /* Texto claro */
+            transition: background 0.2s ease;
+            font-family: 'Lato', sans-serif;
+        }
+        .search-result-item:hover {
+            background-color: #0f172a; /* Más oscuro al pasar el ratón */
+            padding-left: 20px; /* Efecto de desplazamiento */
+        }
         .search-result-item:last-child { border-bottom: none; }
-        .search-result-icon { margin-right: 10px; color: #C5A059; }
-        #clear-search-btn { position: absolute; right: 35px; top: 50%; transform: translateY(-50%); color: #C5A059; cursor: pointer; display: none; }
+        
+        /* Iconos del buscador */
+        .search-result-icon {
+            margin-right: 12px;
+            color: #C5A059; /* Iconos dorados */
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            stroke-width: 2px; /* Icono más grueso */
+        }
+
+        /* Input del buscador */
+        #page-search-input {
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(197, 160, 89, 0.5);
+            color: white;
+            font-size: 1.1rem;
+            padding-left: 0;
+        }
+        #page-search-input:focus {
+            box-shadow: none;
+            border-bottom: 1px solid #C5A059;
+        }
+        #page-search-input::placeholder { color: #94a3b8; }
+
+        #clear-search-btn { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; display: none; }
         #clear-search-btn:hover { color: white; }
+        
+        /* --- NUEVOS ESTILOS DE PESTAÑAS (Rectangulares Clásicos) --- */
+        .tab-button-classic {
+            background-color: transparent;
+            border: 2px solid #C5A059;
+            color: #C5A059; /* Texto dorado */
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 10px 24px;
+            margin: 0 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        
+        .tab-button-classic:hover {
+            background-color: rgba(197, 160, 89, 0.1);
+            box-shadow: inset 0 0 15px rgba(197, 160, 89, 0.3);
+        }
+
+        /* Estado Activo */
+        .tab-button-classic.active-tab {
+            background-color: #C5A059; /* Fondo dorado */
+            color: #1a1a1a; /* Texto oscuro */
+            border-color: #C5A059;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Estilo para las pestañas romanas (Coches) */
+        .roman-tab { background: linear-gradient(to bottom, #F2F0E6, #E6E2D3); border: 2px solid #C5A059; border-radius: 4px; padding: 10px 24px; font-family: 'Cinzel', serif; font-weight: bold; color: #2C3E50; margin: 0 8px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .dark .roman-tab { background: linear-gradient(to bottom, #2C3E50, #1a1a1a); border-color: #8E352E; color: #C5A059; }
+        .roman-tab.active-tab { background: #8E352E; color: #FFFFFF; border-color: #C5A059; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(142, 53, 46, 0.4); }
+        .dark .roman-tab.active-tab { background: #C5A059; color: #1a1a1a; border-color: #F2F0E6; }
         
         /* Vasijas Navegación */
         .vase-card-container { display: inline-block; padding: 10px; vertical-align: bottom; }
@@ -144,23 +226,16 @@
         .custom-carousel::-webkit-scrollbar { display: none; }
         .nav-arrow { background: rgba(197, 160, 89, 0.2); border: 2px solid #C5A059; color: #C5A059; border-radius: 50%; padding: 10px; cursor: pointer; transition: all 0.2s; z-index: 20; flex-shrink: 0; }
         .nav-arrow:hover { background: #C5A059; color: white; transform: scale(1.1); }
-
-        .roman-tab { background: linear-gradient(to bottom, #F2F0E6, #E6E2D3); border: 2px solid #C5A059; border-radius: 4px; padding: 10px 24px; font-family: 'Cinzel', serif; font-weight: bold; color: #2C3E50; margin: 0 8px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .dark .roman-tab { background: linear-gradient(to bottom, #2C3E50, #1a1a1a); border-color: #8E352E; color: #C5A059; }
-        .roman-tab.active-tab { background: #8E352E; color: #FFFFFF; border-color: #C5A059; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(142, 53, 46, 0.4); }
-        .dark .roman-tab.active-tab { background: #C5A059; color: #1a1a1a; border-color: #F2F0E6; }
-
-        .entertainment-subtab { font-size: 0.9rem; padding: 6px 16px; }
     </style>
 </head>
 <body class="bg-texture text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
     <!-- HEADER -->
     <header class="header-roman shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center gap-4">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center gap-6">
             
             <!-- IZQUIERDA -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 shrink-0">
                 <a href="#" class="flex items-center gap-2 group" data-target="screen-home">
                     <div class="p-2 bg-roman-gold rounded-full group-hover:rotate-45 transition-transform duration-300">
                         <span data-feather="columns" class="text-white w-6 h-6"></span>
@@ -175,18 +250,18 @@
                 </button>
             </div>
 
-            <!-- CENTRO -->
-            <div class="flex-1 max-w-md hidden md:block relative">
-                <div class="relative">
-                    <input type="text" id="page-search-input" placeholder="Buscar en la guía..." autocomplete="off" class="w-full bg-white/10 border border-roman-gold/50 rounded-full py-1 px-4 text-white placeholder-gray-400 focus:outline-none focus:bg-white/20 focus:border-roman-gold transition-all pr-10">
+            <!-- CENTRO: Buscador Global Estilizado -->
+            <div class="flex-1 max-w-xl relative">
+                <div class="relative flex items-center border-b border-roman-gold/50 pb-1">
+                    <input type="text" id="page-search-input" placeholder="Buscar en la guía..." autocomplete="off" class="w-full bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 text-lg">
                     <span id="clear-search-btn"><span data-feather="x" class="w-4 h-4"></span></span>
-                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-roman-gold pointer-events-none"><span data-feather="search" class="w-4 h-4"></span></span>
+                    <span class="text-roman-gold ml-2 pointer-events-none"><span data-feather="search" class="w-5 h-5"></span></span>
                 </div>
                 <div id="global-search-results"></div>
             </div>
 
             <!-- DERECHA -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 shrink-0">
                 <button class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors" data-target="screen-stars" title="Ver la Leyenda"><span data-feather="book-open" class="w-6 h-6"></span></button>
                 <button id="theme-toggle" class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors"><span id="theme-icon-sun" data-feather="sun" class="hidden w-6 h-6"></span><span id="theme-icon-moon" data-feather="moon" class="hidden w-6 h-6"></span></button>
             </div>
@@ -244,8 +319,7 @@
                 <div id="main-nav-carousel" class="custom-carousel">
                     <div class="vase-card-container" data-name="mi pueblo"><a href="#" data-target="screen-town" class="vase-card shape-1" id="img-nav-town"><div class="vase-content"><span data-feather="home" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">MI PUEBLO</span></div></a></div>
                     <div class="vase-card-container" data-name="guía coches"><a href="#" data-target="screen-cars" class="vase-card shape-2" id="img-nav-cars"><div class="vase-content"><span data-feather="truck" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">SERVICIOS AUTO</span></div></a></div>
-                    <!-- Renombrado a ENTRETENIMIENTO -->
-                    <div class="vase-card-container" data-name="entretenimiento"><a href="#" data-target="screen-entertainment" class="vase-card shape-3" id="img-nav-movies"><div class="vase-content"><span data-feather="film" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">ENTRETENIMIENTO</span></div></a></div>
+                    <div class="vase-card-container" data-name="cine y series"><a href="#" data-target="screen-entertainment" class="vase-card shape-3" id="img-nav-movies"><div class="vase-content"><span data-feather="film" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">ENTRETENIMIENTO</span></div></a></div>
                     <div class="vase-card-container" data-name="zonas de ocio"><a href="#" data-target="screen-leisure" class="vase-card shape-4" id="img-nav-leisure"><div class="vase-content"><span data-feather="coffee" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">ZONAS DE OCIO</span></div></a></div>
                 </div>
                 <button id="nav-right-btn" class="nav-arrow"><span data-feather="chevron-right"></span></button>
@@ -263,10 +337,12 @@
         <!-- COCHES Y SERVICIOS -->
         <section id="screen-cars" class="app-screen">
             <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Servicios de Automoción en Valdemoro</h1>
+            
             <div class="mb-6 overflow-x-auto flex justify-center" id="car-tabs">
                 <button data-tab-target="car-tab-content-buscador" class="tab-button roman-tab active-tab">Directorio Local</button>
                 <button data-tab-target="car-tab-content-portales" class="tab-button roman-tab">Portales Web</button>
             </div>
+            
             <div id="car-tab-content-buscador" class="tab-content active">
                 <div class="flex flex-col sm:flex-row gap-4 mb-6 select-input-style">
                     <input type="text" id="car-search-input" placeholder="Nombre (ej: Repsol, Ford...)" class="w-full select-input-style">
@@ -281,6 +357,7 @@
                 <div id="car-loading" class="hidden text-center py-10"><div class="loader mx-auto"></div><p class="mt-4 text-roman-gold font-serif">Cargando servicios...</p></div>
                 <div id="car-search-results" class="flex flex-col gap-6 min-h-[300px]"></div>
             </div>
+            
             <div id="car-tab-content-portales" class="tab-content">
                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <a href="https://www.coches.net/concesionarios/madrid/valdemoro/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group transition-all">
@@ -303,18 +380,18 @@
         <section id="screen-entertainment" class="app-screen">
             <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Entretenimiento en Valdemoro</h1>
             
-            <!-- Pestañas Nivel 1: CINE vs TEATRO -->
+            <!-- Pestañas Nivel 1: CINE vs TEATRO (Estilo Nuevo) -->
             <div class="mb-6 overflow-x-auto flex justify-center" id="ent-main-tabs">
-                <button data-ent-target="ent-cine" class="tab-button roman-tab active-tab text-xl">CINE</button>
-                <button data-ent-target="ent-teatro" class="tab-button roman-tab text-xl">TEATRO</button>
+                <button data-ent-target="ent-cine" class="tab-button tab-button-classic active-tab">CINE</button>
+                <button data-ent-target="ent-teatro" class="tab-button tab-button-classic">TEATRO</button>
             </div>
             
             <!-- CONTENIDO CINE -->
             <div id="ent-cine" class="ent-content active">
-                <!-- Subpestañas de Cine -->
+                <!-- Subpestañas de Cine (Estilo Nuevo) -->
                 <div class="mb-6 overflow-x-auto flex justify-center" id="ent-cine-tabs">
-                    <button data-filter="available" class="tab-button roman-tab active-tab entertainment-subtab">En Cartelera</button>
-                    <button data-filter="upcoming" class="tab-button roman-tab entertainment-subtab">Próximamente</button>
+                    <button data-filter="available" class="tab-button tab-button-classic active-tab">Cartelera</button>
+                    <button data-filter="upcoming" class="tab-button tab-button-classic">Próximamente</button>
                 </div>
                 
                 <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]"></div>
@@ -350,6 +427,7 @@
                 <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-gold hover:text-white transition-colors mb-8 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>REGRESAR</span></a>
                 <div class="max-w-3xl mx-auto text-center bg-black/40 backdrop-blur-sm p-8 rounded-lg border border-roman-gold shadow-[0_0_30px_rgba(197,160,89,0.2)]">
                     <h1 class="text-4xl md:text-6xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 mb-8 animate-pulse drop-shadow-lg">LEYENDA DE VALDEMOR</h1>
+                    
                     <article class="prose prose-invert prose-lg mx-auto font-serif text-gray-200 leading-relaxed text-justify">
                         <p class="mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-roman-gold first-letter:mr-1 float-left">
                             En los albores del tiempo, cuando los dioses aún caminaban entre los mortales y el cielo besaba la tierra de la meseta, un titán llamado <strong>Valdemor</strong>, nacido del fuego de la fragua de Vulcano y la firmeza de la roca madre, vagaba herido tras la Gran Guerra Celestial.
@@ -433,12 +511,19 @@
         const SEARCH_INDEX = [
             { term: "Inicio", target: "screen-home", icon: "columns" },
             { term: "Valdemoro", target: "screen-town", icon: "map-pin" },
-            { term: "Entretenimiento", target: "screen-entertainment", icon: "film" },
-            { term: "Cine", target: "screen-entertainment", icon: "film" },
-            { term: "Teatro", target: "screen-entertainment", icon: "star" },
+            { term: "Ayuntamiento", target: "screen-town", icon: "briefcase" },
+            { term: "Hospital", target: "screen-town", icon: "activity" },
+            { term: "Piscina", target: "screen-town", icon: "droplet" },
             { term: "Coches", target: "screen-cars", icon: "truck" },
+            { term: "Talleres", target: "screen-cars", icon: "tool" },
+            { term: "Gasolineras", target: "screen-cars", icon: "droplet" },
+            { term: "Cine", target: "screen-entertainment", icon: "film" },
+            { term: "Teatro", target: "screen-entertainment", icon: "film" },
             { term: "Ocio", target: "screen-leisure", icon: "coffee" },
-            { term: "Estrellas", target: "screen-stars", icon: "star" }
+            { term: "Madakiba", target: "screen-leisure", icon: "star" },
+            { term: "Kathulu", target: "screen-leisure", icon: "box" },
+            { term: "Estrellas", target: "screen-stars", icon: "star" },
+            { term: "Leyenda", target: "screen-stars", icon: "book-open" }
         ];
 
         const show = (id) => document.getElementById(id)?.classList.remove('hidden');
@@ -639,20 +724,207 @@
 
         // 3. SERVICIOS DE COCHES
         (function() {
-            // ... (Lógica de coches igual)
-            const VALDEMORO_SERVICES = [ { id: 1, name: 'Concesionario Ford Valdemoro', type: 'Concesionario', address: 'Av. de Madrid, 12', desc: 'Venta de vehículos nuevos y ocasión.', img: 'https://placehold.co/600x400/2C3E50/FFF?text=FORD', hours: 'L-V: 9:00-20:00' }, { id: 2, name: 'Renault - Dacia', type: 'Concesionario', address: 'Polígono Industrial Albresa', desc: 'Concesionario oficial Renault.', img: 'https://placehold.co/600x400/FCD34D/000?text=RENAULT', hours: 'L-S: 10:00-14:00' }, { id: 3, name: 'Estación de Servicio Repsol', type: 'Gasolinera', address: 'C. de la Guardia Civil', desc: 'Gasolinera 24h.', img: 'https://placehold.co/600x400/E44D26/FFF?text=REPSOL', hours: 'Abierto 24h' }, { id: 4, name: 'Elefante Azul', type: 'Lavado', address: 'Av. de Europa', desc: 'Centro de lavado.', img: 'https://placehold.co/600x400/3b82f6/FFF?text=LAVADO', hours: 'L-D: 8:00-22:00' }, { id: 5, name: 'Talleres Motrio', type: 'Lavado', address: 'C. Negritas, 5', desc: 'Mecánica general.', img: 'https://placehold.co/600x400/555/FFF?text=TALLER', hours: 'L-V: 8:30-18:30' }, { id: 6, name: 'Galp Energía', type: 'Gasolinera', address: 'Salida A-4 Km 26', desc: 'Combustible y GLP.', img: 'https://placehold.co/600x400/E44D26/FFF?text=GALP', hours: 'Abierto 24h' } ]; let allServices = VALDEMORO_SERVICES; let loaded = false; const searchInput = document.getElementById('car-search-input'); const typeFilter = document.getElementById('car-filter-type'); const container = document.getElementById('car-search-results'); const loading = document.getElementById('car-loading'); function loadServices() { if(loaded) return; loading.classList.remove('hidden'); setTimeout(() => { filterServices(); loading.classList.add('hidden'); loaded = true; }, 500); } function filterServices() { const txt = searchInput.value.toLowerCase(); const type = typeFilter.value; const res = allServices.filter(s => (s.name.toLowerCase().includes(txt)) && (!type || s.type === type)); renderList(res); } function renderList(list) { if(list.length === 0) { container.innerHTML = '<p class="text-center text-gray-500 italic py-8">No se encontraron servicios.</p>'; return; } container.innerHTML = list.map(s => { let badgeClass = s.type === 'Concesionario' ? 'bg-roman-gold text-roman-blue' : (s.type === 'Gasolinera' ? 'bg-roman-red text-white' : 'bg-blue-600 text-white'); return `<div class="flex flex-col sm:flex-row bg-white dark:bg-gray-800 rounded shadow overflow-hidden border border-gray-200 dark:border-gray-700 group transition-transform hover:scale-[1.01]"><div class="sm:w-1/3 relative h-48 sm:h-auto overflow-hidden"><div class="absolute top-2 left-2 px-2 py-1 text-xs font-bold rounded shadow z-10 ${badgeClass}">${s.type}</div><img src="${s.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"></div><div class="sm:w-2/3 p-5 flex flex-col justify-between"><div><h3 class="font-serif text-xl font-bold text-roman-blue dark:text-roman-gold">${s.name}</h3><p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2"><span data-feather="map-pin" class="w-4 h-4"></span> ${s.address}</p><p class="text-sm text-gray-500 mt-2 line-clamp-2">${s.desc}</p></div><div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-right"><button onclick="openServiceModal(${s.id})" class="px-4 py-2 bg-roman-blue text-white rounded text-sm hover:bg-blue-900 transition-colors">Más Info</button></div></div></div>`; }).join(''); feather.replace(); } window.openServiceModal = (id) => { const s = allServices.find(x => x.id == id); if(!s) return; show('car-modal'); document.getElementById('car-modal-title').textContent = s.name; document.getElementById('car-modal-description').textContent = s.desc; document.getElementById('car-modal-poster').src = s.img; document.getElementById('car-modal-specs').innerHTML = `<p><strong>Tipo:</strong> ${s.type}</p><p><strong>Dirección:</strong> ${s.address}</p><p><strong>Horario:</strong> ${s.hours}</p>`; const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' Valdemoro ' + s.address)}`; document.getElementById('car-modal-links').innerHTML = `<a href="${mapsUrl}" target="_blank" class="block text-center bg-roman-blue text-white py-2 rounded hover:bg-blue-900">Ver en Mapa</a>`; }; searchInput.addEventListener('input', filterServices); typeFilter.addEventListener('change', filterServices); document.getElementById('car-filter-reset-btn').onclick = () => { searchInput.value = ''; typeFilter.value = ''; filterServices(); }; document.getElementById('car-modal-close-btn').onclick = () => hide('car-modal'); document.getElementById('car-tabs').onclick = e => { const button = e.target.closest('.tab-button'); if(button) { document.querySelectorAll('#car-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue')); button.classList.add('active-tab', 'text-roman-blue'); document.querySelectorAll('#screen-cars .tab-content').forEach(c => c.classList.remove('active')); document.getElementById(button.dataset.tabTarget).classList.add('active'); if (button.dataset.tabTarget === 'car-tab-content-buscador') loadServices(); } }; document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-cars') loadServices(); });
+            const VALDEMORO_SERVICES = [
+                { id: 1, name: 'Concesionario Ford Valdemoro', type: 'Concesionario', address: 'Av. de Madrid, 12', desc: 'Venta de vehículos nuevos y ocasión. Taller oficial.', img: 'https://placehold.co/600x400/2C3E50/FFF?text=FORD', hours: 'L-V: 9:00-20:00' },
+                { id: 2, name: 'Renault - Dacia', type: 'Concesionario', address: 'Polígono Industrial Albresa', desc: 'Concesionario oficial Renault. Vehículos comerciales y turismos.', img: 'https://placehold.co/600x400/FCD34D/000?text=RENAULT', hours: 'L-S: 10:00-14:00' },
+                { id: 3, name: 'Estación de Servicio Repsol', type: 'Gasolinera', address: 'C. de la Guardia Civil', desc: 'Gasolinera 24h con tienda y lavado a presión.', img: 'https://placehold.co/600x400/E44D26/FFF?text=REPSOL', hours: 'Abierto 24h' },
+                { id: 4, name: 'Elefante Azul', type: 'Lavado', address: 'Av. de Europa', desc: 'Centro de lavado de alta presión y aspirado.', img: 'https://placehold.co/600x400/3b82f6/FFF?text=LAVADO', hours: 'L-D: 8:00-22:00' },
+                { id: 5, name: 'Talleres Motrio', type: 'Lavado', address: 'C. Negritas, 5', desc: 'Mecánica general y neumáticos.', img: 'https://placehold.co/600x400/555/FFF?text=TALLER', hours: 'L-V: 8:30-18:30' },
+                { id: 6, name: 'Galp Energía', type: 'Gasolinera', address: 'Salida A-4 Km 26', desc: 'Combustible, GLP y cafetería.', img: 'https://placehold.co/600x400/E44D26/FFF?text=GALP', hours: 'Abierto 24h' }
+            ];
+
+            let allServices = VALDEMORO_SERVICES;
+            let loaded = false;
+
+            const searchInput = document.getElementById('car-search-input');
+            const typeFilter = document.getElementById('car-filter-type');
+            const container = document.getElementById('car-search-results');
+            const loading = document.getElementById('car-loading');
+
+            function loadServices() {
+                if(loaded) return;
+                loading.classList.remove('hidden');
+                setTimeout(() => { 
+                    filterServices();
+                    loading.classList.add('hidden');
+                    loaded = true;
+                }, 500);
+            }
+
+            function filterServices() {
+                const txt = searchInput.value.toLowerCase();
+                const type = typeFilter.value;
+                
+                const res = allServices.filter(s => {
+                    return (s.name.toLowerCase().includes(txt)) && (!type || s.type === type);
+                });
+                
+                renderList(res);
+            }
+
+            function renderList(list) {
+                if(list.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500 italic py-8">No se encontraron servicios.</p>';
+                    return;
+                }
+                
+                container.innerHTML = list.map(s => {
+                    let badgeClass = s.type === 'Concesionario' ? 'bg-roman-gold text-roman-blue' : (s.type === 'Gasolinera' ? 'bg-roman-red text-white' : 'bg-blue-600 text-white');
+
+                    return `
+                    <div class="flex flex-col sm:flex-row bg-white dark:bg-gray-800 rounded shadow overflow-hidden border border-gray-200 dark:border-gray-700 group transition-transform hover:scale-[1.01]">
+                        <div class="sm:w-1/3 relative h-48 sm:h-auto overflow-hidden">
+                             <div class="absolute top-2 left-2 px-2 py-1 text-xs font-bold rounded shadow z-10 ${badgeClass}">${s.type}</div>
+                             <img src="${s.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="sm:w-2/3 p-5 flex flex-col justify-between">
+                             <div>
+                                 <h3 class="font-serif text-xl font-bold text-roman-blue dark:text-roman-gold">${s.name}</h3>
+                                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2"><span data-feather="map-pin" class="w-4 h-4"></span> ${s.address}</p>
+                                 <p class="text-sm text-gray-500 mt-2 line-clamp-2">${s.desc}</p>
+                             </div>
+                             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-right">
+                                 <button onclick="openServiceModal(${s.id})" class="px-4 py-2 bg-roman-blue text-white rounded text-sm hover:bg-blue-900 transition-colors">Más Info</button>
+                             </div>
+                        </div>
+                    </div>`;
+                }).join('');
+                feather.replace();
+            }
+
+            window.openServiceModal = (id) => {
+                const s = allServices.find(x => x.id == id);
+                if(!s) return;
+                show('car-modal');
+                document.getElementById('car-modal-title').textContent = s.name;
+                document.getElementById('car-modal-description').textContent = s.desc;
+                document.getElementById('car-modal-poster').src = s.img;
+                document.getElementById('car-modal-specs').innerHTML = `<p><strong>Tipo:</strong> ${s.type}</p><p><strong>Dirección:</strong> ${s.address}</p><p><strong>Horario:</strong> ${s.hours}</p>`;
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' Valdemoro ' + s.address)}`;
+                document.getElementById('car-modal-links').innerHTML = `<a href="${mapsUrl}" target="_blank" class="block text-center bg-roman-blue text-white py-2 rounded hover:bg-blue-900">Ver en Mapa</a>`;
+            };
+
+            searchInput.addEventListener('input', filterServices);
+            typeFilter.addEventListener('change', filterServices);
+            document.getElementById('car-filter-reset-btn').onclick = () => {
+                searchInput.value = ''; typeFilter.value = ''; filterServices();
+            };
+            document.getElementById('car-modal-close-btn').onclick = () => hide('car-modal');
+            
+            document.getElementById('car-tabs').onclick = e => {
+                const button = e.target.closest('.tab-button');
+                if(button) {
+                    document.querySelectorAll('#car-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
+                    button.classList.add('active-tab', 'text-roman-blue');
+                    document.querySelectorAll('#screen-cars .tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(button.dataset.tabTarget).classList.add('active');
+                    if (button.dataset.tabTarget === 'car-tab-content-buscador') loadServices();
+                }
+            };
+            
+            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-cars') loadServices(); });
         })();
 
         // 6. MI PUEBLO
         (function() {
-            // ... (Lógica townServices igual)
-            const townServices = [ { name: "Ayuntamiento", desc: "Atención ciudadana y gestión municipal.", loc: "Pza. de la Constitución, 11", img: APP_CONFIG.IMAGES.TOWN[0], url: "https://www.valdemoro.es/ayuntamiento" }, { name: "Teatro Juan Prado", desc: "Centro cultural principal.", loc: "C. Estrella de Elola, 27", img: APP_CONFIG.IMAGES.TOWN[1], url: "https://www.valdemoro.es/teatro" }, { name: "Hosp. Infanta Elena", desc: "Hospital universitario.", loc: "Av. Reyes Católicos, 21", img: APP_CONFIG.IMAGES.TOWN[2], url: "https://www.valdemoro.es/salud" }, { name: "Piscina Valdesanchuela", desc: "Complejo deportivo.", loc: "C. Valdesanchuela, s/n", img: APP_CONFIG.IMAGES.TOWN[3], url: "https://www.valdemoro.es/deportes" }, { name: "Parque Bolitas del Airón", desc: "El pulmón verde.", loc: "Camino de la Dehesa", img: APP_CONFIG.IMAGES.TOWN[4], url: "https://www.valdemoro.es/patrimonionatural" }, { name: "Centro de Empresas", desc: "Vivero de empresas.", loc: "C. Gaspar Bravo, s/n", img: "https://placehold.co/600x400/8E352E/FFF?text=Centro+Empresas", url: "https://www.valdemoro.es/centro-de-empresas" } ]; const grid = document.getElementById('town-services-grid'); if(grid) { grid.innerHTML = townServices.map(s => ` <a href="${s.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block"> <div class="h-48 overflow-hidden relative"> <img src="${s.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 sepia-[.2] group-hover:sepia-0"> <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12"> <p class="text-white text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${s.loc}</p> </div> </div> <div class="p-6"> <h2 class="text-xl font-serif font-semibold mb-2 text-roman-red group-hover:text-roman-gold transition-colors flex items-center justify-between">${s.name}<span data-feather="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100"></span></h2> <p class="text-gray-600 dark:text-gray-300 text-sm">${s.desc}</p> </div> </a> `).join(''); feather.replace(); }
+            const townServices = [
+                { name: "Ayuntamiento", desc: "Atención ciudadana y gestión municipal.", loc: "Pza. de la Constitución, 11", img: APP_CONFIG.IMAGES.TOWN[0], url: "https://www.valdemoro.es/ayuntamiento" },
+                { name: "Teatro Juan Prado", desc: "Centro cultural principal, exposiciones y artes escénicas.", loc: "C. Estrella de Elola, 27", img: APP_CONFIG.IMAGES.TOWN[1], url: "https://www.valdemoro.es/teatro" },
+                { name: "Hosp. Infanta Elena", desc: "Hospital universitario público de referencia.", loc: "Av. Reyes Católicos, 21", img: APP_CONFIG.IMAGES.TOWN[2], url: "https://www.valdemoro.es/salud" },
+                { name: "Piscina Valdesanchuela", desc: "Complejo deportivo y piscina cubierta climatizada.", loc: "C. Valdesanchuela, s/n", img: APP_CONFIG.IMAGES.TOWN[3], url: "https://www.valdemoro.es/deportes" },
+                { name: "Parque Bolitas del Airón", desc: "El pulmón verde de la ciudad, ideal para pasear.", loc: "Camino de la Dehesa", img: APP_CONFIG.IMAGES.TOWN[4], url: "https://www.valdemoro.es/patrimonionatural" },
+                { name: "Centro de Empresas", desc: "Vivero de empresas y asesoramiento a emprendedores.", loc: "C. Gaspar Bravo, s/n", img: "https://placehold.co/600x400/8E352E/FFF?text=Centro+Empresas", url: "https://www.valdemoro.es/centro-de-empresas" }
+            ];
+
+            const grid = document.getElementById('town-services-grid');
+            if(grid) {
+                grid.innerHTML = townServices.map(s => `
+                    <a href="${s.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block">
+                        <div class="h-48 overflow-hidden relative">
+                             <img src="${s.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 sepia-[.2] group-hover:sepia-0">
+                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
+                                <p class="text-white text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${s.loc}</p>
+                             </div>
+                        </div>
+                        <div class="p-6">
+                            <h2 class="text-xl font-serif font-semibold mb-2 text-roman-red group-hover:text-roman-gold transition-colors flex items-center justify-between">${s.name}<span data-feather="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100"></span></h2>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm">${s.desc}</p>
+                        </div>
+                    </a>
+                `).join('');
+                feather.replace(); 
+            }
         })();
 
         // 7. ZONAS DE OCIO
         (function() {
-            // ... (Lógica leisureSpots igual)
-            const leisureSpots = [ { name: "Madakiba", desc: "Tienda especializada en cómics y juegos.", img: APP_CONFIG.IMAGES.LEISURE.madakiba, loc: "Calle Afrodita, 5", url: "https://madakiba.com/" }, { name: "Kathulu Games", desc: "El templo de los juegos de mesa.", img: APP_CONFIG.IMAGES.LEISURE.kathulu, loc: "C. del Cristo de la Salud, 15", url: "https://kathulugames.es/" }, { name: "Videodisc", desc: "Música, cine y coleccionismo.", img: APP_CONFIG.IMAGES.LEISURE.videodisc, loc: "C. del Carmen, 2", url: "https://www.facebook.com/videodiscvaldemoro/" }, { name: "Restaurante El Chirón", desc: "Cocina de autor, Estrella Michelin.", img: APP_CONFIG.IMAGES.LEISURE.elchiron, loc: "C. Alarcón, 27", url: "https://restauranteelchiron.com/" }, { name: "Centro Comercial El Restón", desc: "Compras y restauración.", img: APP_CONFIG.IMAGES.LEISURE.reston, loc: "Av. del Mar Mediterráneo, 3", url: "https://ccelreston.com/" }, { name: "Parque Enrique Tierno Galván", desc: "El espacio verde más grande.", img: APP_CONFIG.IMAGES.LEISURE.tierno, loc: "Paseo del Prado", url: "https://www.valdemoro.es/parques" } ]; const grid = document.getElementById('leisure-grid'); if(grid) { grid.innerHTML = leisureSpots.map(spot => ` <a href="${spot.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block border-l-4 border-roman-gold"> <div class="h-56 overflow-hidden relative"> <img src="${spot.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${spot.name}"> <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div> <div class="absolute bottom-4 left-4 right-4"> <h2 class="text-2xl font-serif font-bold text-white mb-1 drop-shadow-md">${spot.name}</h2> <p class="text-roman-gold text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${spot.loc}</p> </div> </div> <div class="p-6"> <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">${spot.desc}</p> <div class="mt-4 flex justify-end"> <span class="text-roman-blue dark:text-roman-gold text-xs font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Visitar Sitio <span data-feather="arrow-right" class="w-3 h-3"></span></span> </div> </div> </a> `).join(''); feather.replace(); }
+            const leisureSpots = [
+                { 
+                    name: "Madakiba", 
+                    desc: "Tienda especializada en cómics, manga, juegos de mesa y merchandising. El paraíso del ocio alternativo.", 
+                    img: APP_CONFIG.IMAGES.LEISURE.madakiba,
+                    loc: "Calle Afrodita, 5",
+                    url: "https://madakiba.com/" 
+                },
+                { 
+                    name: "Kathulu Games", 
+                    desc: "El templo de los juegos de mesa, wargames y cartas coleccionables. Torneos semanales.", 
+                    img: APP_CONFIG.IMAGES.LEISURE.kathulu,
+                    loc: "C. del Cristo de la Salud, 15",
+                    url: "https://kathulugames.es/" 
+                },
+                { 
+                    name: "Videodisc", 
+                    desc: "Música, cine y coleccionismo. Un clásico de Valdemoro para los amantes de la cultura pop.", 
+                    img: APP_CONFIG.IMAGES.LEISURE.videodisc,
+                    loc: "C. del Carmen, 2",
+                    url: "https://www.facebook.com/videodiscvaldemoro/" 
+                },
+                {
+                    name: "Restaurante El Chirón",
+                    desc: "Cocina de autor con una Estrella Michelin. Tradición y vanguardia en el corazón de Valdemoro.",
+                    img: APP_CONFIG.IMAGES.LEISURE.elchiron,
+                    loc: "C. Alarcón, 27",
+                    url: "https://restauranteelchiron.com/"
+                },
+                {
+                    name: "Centro Comercial El Restón",
+                    desc: "Compras, restauración y servicios en un mismo lugar. El punto de encuentro del barrio.",
+                    img: APP_CONFIG.IMAGES.LEISURE.reston,
+                    loc: "Av. del Mar Mediterráneo, 3",
+                    url: "https://ccelreston.com/"
+                },
+                {
+                    name: "Parque Enrique Tierno Galván",
+                    desc: "El espacio verde más grande de la ciudad. Lagos, senderos y zonas deportivas.",
+                    img: APP_CONFIG.IMAGES.LEISURE.tierno,
+                    loc: "Paseo del Prado",
+                    url: "https://www.valdemoro.es/parques"
+                }
+            ];
+
+            const grid = document.getElementById('leisure-grid');
+            if(grid) {
+                grid.innerHTML = leisureSpots.map(spot => `
+                    <a href="${spot.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block border-l-4 border-roman-gold">
+                        <div class="h-56 overflow-hidden relative">
+                             <img src="${spot.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${spot.name}">
+                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
+                             <div class="absolute bottom-4 left-4 right-4">
+                                <h2 class="text-2xl font-serif font-bold text-white mb-1 drop-shadow-md">${spot.name}</h2>
+                                <p class="text-roman-gold text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${spot.loc}</p>
+                             </div>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">${spot.desc}</p>
+                            <div class="mt-4 flex justify-end">
+                                <span class="text-roman-blue dark:text-roman-gold text-xs font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Visitar Sitio <span data-feather="arrow-right" class="w-3 h-3"></span></span>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+                feather.replace();
+            }
         })();
     </script>
 </body>
