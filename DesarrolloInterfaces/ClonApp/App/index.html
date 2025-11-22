@@ -3,9 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+    <title>Notion M3 (Advanced Search)</title>
     
+    <!-- 1. Tailwind CSS + Configuración M3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Roboto', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        m3: {
+                            surface: '#FEF7FF',       
+                            'surface-container': '#F3EDF7', 
+                            primary: '#6750A4',       
+                            'on-primary': '#FFFFFF',
+                            text: '#1D1B20',
+                            'text-secondary': '#49454F',
+                            outline: '#79747E',
+                            'surface-variant': '#E7E0EC',
+                            'on-surface-variant': '#49454F',
+                            'blue-selection': '#E8F0FE',
+                            'blue-text': '#0B57D0'
+                        }
+                    },
+                    borderRadius: {
+                        'm3': '16px',
+                        'pill': '9999px'
+                    },
+                    boxShadow: {
+                        'm3-modal': '0px 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                        'm3-menu': '0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 2. Utilidades -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    
+    <!-- 3. LÓGICA DE LA APLICACIÓN -->
+    <script>
+        function notionApp() {
+            return {
+                // --- ESTADO UI ---
+                sidebarOpen: true,
+                showWorkspaceMenu: false,
+                showSearchModal: false,
+                currentView: 'home', 
+                
+                // --- ESTADO BUSCADOR AVANZADO ---
+                showFilters: false, // Controla la visibilidad de la fila de filtros
+                activeFilterMenu: null, // Controla qué menú desplegable está abierto: 'sort', 'workspace', 'page', 'date'
+                
+                // --- DATOS ---
+                activeWorkspaceId: 'ws-demo',
+                searchQuery: '',
+                workspaces: [
+                    { id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'bg-indigo-500', email: 'user@example.com', pages: [] },
+                    { id: 'ws-empty', name: 'Personal', initial: 'P', color: 'bg-emerald-500', email: 'personal@example.com', pages: [] }
+                ],
+
+                // --- PÁGINA ACTIVA ---
+                currentPageId: null,
+                activePage: { title: '', blocks: [] },
+                
+                // --- EDITOR ---
+                showBlockMenu: false,
+                currentBlockIndex: null,
+                
+                // --- DATOS DE BÚSQUEDA (MOCK) ---
+                searchResults: [
+                    { id: 'res1', title: 'Cuerpo (general)', type: 'page', path: 'Privado', date: 'Hoy' },
+                    { id: 'res2', title: 'Gótico', type: 'page', path: 'MÚSICA (BANDAS)', date: 'Hace 2 d' },
+                    { id: 'res3', title: 'Series y pelis', type: 'page', path: 'Entretenimiento', date: '18 nov' },
+                    { id: 'res4', title: 'Grupos acabados', type: 'page', path: 'Tareas en Música', date: '16 nov' },
+                    { id: 'res5', title: 'Metal', type: 'page', path: 'MÚSICA (BANDAS)', date: '15 nov' },
+                ],
+
+                marketStyles: [
+                    { id: 1, name: 'Dark Academia', author: 'NotionUser', color: 'bg-stone-800 text-stone-200' },
+                    { id: 2, name: 'Minimalist White', author: 'DesignPro', color: 'bg-white border border-gray-200 text-gray-800' },
+                    { id: 3, name: 'Cyberpunk Neon', author: 'HackerV2', color: 'bg-black border border-purple-500 text-purple-400' },
+                    { id: 4, name: 'Forest Green', author: 'NatureLover', color: 'bg-green-900 text-green-100' },
+                ],
+
+                menuItems: [
+                    { type: 'p', label: 'Texto', icon: 'ph ph-text-aa' },
+                    { type: 'h1', label: 'Encabezado 1', icon: 'ph ph-text-h-one' },
+                    { type: 'h2', label: 'Encabezado 2', icon: 'ph ph-text-h-two' },
+                    { type: 'todo', label: 'To-do list', icon: 'ph ph-check-square' },
+                    { type: 'quote', label: 'Cita', icon: 'ph ph-quotes' },
+                ],
+
+                init() {
+                    window.generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    const demoWs = this.workspaces.find(w => w.id === 'ws-demo');
+                    if (demoWs.pages.length === 0) this.generateMockData(demoWs);
+
+                    this.$watch('currentView', (value) => {
+                        if (value === 'page') {
+                            setTimeout(() => this.initSortable(), 100);
+                        }
+                    });
+
+                    window.addEventListener('keydown', (e) => {
+                        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                            e.preventDefault();
+                            this.showSearchModal = true;
+                            this.showFilters = false; // Resetear filtros al abrir
+                            this.activeFilterMenu = null;
+                            this.$nextTick(() => document.getElementById('searchInput').focus());
+                        }
+                        if (e.key === 'Escape') {
+                            if(this.activeFilterMenu) this.activeFilterMenu = null;
+                            else this.showSearchModal = false;
+                        }
+                    });
+                },
+
+                toggleFilterMenu(menuName) {
+                    if (this.activeFilterMenu === menuName) {
+                        this.activeFilterMenu = null;
+                    } else {
+                        this.activeFilterMenu = menuName;
+                    }
+                },
+
+                navigateTo(view) {
+                    this.currentView = view;
+                    this.currentPageId = null;
+                    this.sidebarOpen = window.innerWidth > 768;
+                },
+
+                openPage(pageId) {
+                    // Buscar en los resultados mock primero para simular navegación desde búsqueda
+                    let page = this.currentWorkspace.pages.find(p => p.id === pageId);
+                    
+                    // Si no existe (es un mock del buscador), creamos uno temporal o buscamos por título similar
+                    if (!page) {
+                        const result = this.searchResults.find(r => r.id === pageId);
+                        if (result) {
+                            // Intentar encontrar por título en el workspace real
+                            page = this.currentWorkspace.pages.find(p => p.title === result.title);
+                            // Si aún no existe, usar el primero del workspace como fallback para la demo
+                            if (!page && this.currentWorkspace.pages.length > 0) page = this.currentWorkspace.pages[0];
+                        }
+                    }
+
+                    if (page) {
+                        this.activePage = JSON.parse(JSON.stringify(page));
+                        this.currentPageId = page.id;
+                        this.currentView = 'page';
+                        this.showSearchModal = false; // CERRAR MODAL AL NAVEGAR
+                    }
+                },
+
+                createPage() {
+                    const newPage = {
+                        id: window.generateId(),
+                        title: '',
+                        icon: 'ph ph-file-text',
+                        updatedAt: new Date(),
+                        blocks: [{ id: window.generateId(), type: 'p', content: '' }]
+                    };
+                    this.currentWorkspace.pages.push(newPage);
+                    this.openPage(newPage.id);
+                },
+
+                get currentWorkspace() {
+                    return this.workspaces.find(w => w.id === this.activeWorkspaceId);
+                },
+
+                generateMockData(ws) {
+                    const mockPages = [
+                        { title: '🏠 Inicio', icon: 'ph ph-house' },
+                        { title: '🎵 Música (Bandas)', icon: 'ph ph-music-notes' },
+                        { title: '✈️ Viaje a Japón', icon: 'ph ph-airplane' },
+                        { title: '💼 Proyectos 2024', icon: 'ph ph-briefcase' }
+                    ];
+                    mockPages.forEach(m => {
+                        ws.pages.push({
+                            id: window.generateId(),
+                            title: m.title,
+                            icon: m.icon,
+                            updatedAt: new Date(),
+                            blocks: [{ id: 'b1', type: 'p', content: 'Contenido de ejemplo...' }]
+                        });
+                    });
+                },
+
+                // --- EDITOR & BLOCKS ---
+                handleBlockKeydown(e, index, block) {
+                    if (e.key === '/' && block.content === '') {
+                        this.currentBlockIndex = index;
+                        this.showBlockMenu = true;
+                    } else if (e.key === 'Enter' && !this.showBlockMenu) {
+                        e.preventDefault();
+                        this.addBlock(index + 1);
+                    } else if (e.key === 'Backspace' && block.content === '') {
+                        e.preventDefault();
+                        this.deleteBlock(index);
+                    } else {
+                        this.showBlockMenu = false;
+                    }
+                },
+
+                addBlock(index) {
+                    const id = window.generateId();
+                    this.activePage.blocks.splice(index, 0, { id, type: 'p', content: '' });
+                    this.$nextTick(() => {
+                        const el = document.getElementById('block-' + id);
+                        if(el) el.focus();
+                    });
+                    this.saveCurrentPage();
+                },
+
+                deleteBlock(index) {
+                    if (this.activePage.blocks.length > 1) {
+                        this.activePage.blocks.splice(index, 1);
+                        this.saveCurrentPage();
+                    }
+                },
+
+                transformBlock(type) {
+                    if (this.currentBlockIndex !== null) {
+                        this.activePage.blocks[this.currentBlockIndex].type = type;
+                        this.activePage.blocks[this.currentBlockIndex].content = '';
+                        this.showBlockMenu = false;
+                        this.saveCurrentPage();
+                        
+                        this.$nextTick(() => {
+                             const id = this.activePage.blocks[this.currentBlockIndex].id;
+                             const el = document.getElementById('block-' + id);
+                             if(el) el.focus();
+                        });
+                    }
+                },
+
+                saveCurrentPage() {
+                    const idx = this.currentWorkspace.pages.findIndex(p => p.id === this.activePage.id);
+                    if(idx !== -1) {
+                        this.currentWorkspace.pages[idx] = JSON.parse(JSON.stringify(this.activePage));
+                    }
+                },
+
+                initSortable() {
+                    const el = document.getElementById('blocks-container');
+                    if (el) {
+                        try {
+                            new Sortable(el, {
+                                handle: '.drag-handle',
+                                animation: 150,
+                                ghostClass: 'bg-indigo-50',
+                                onEnd: (evt) => {
+                                    const item = this.activePage.blocks.splice(evt.oldIndex, 1)[0];
+                                    this.activePage.blocks.splice(evt.newIndex, 0, item);
+                                    this.saveCurrentPage();
+                                }
+                            });
+                        } catch (e) {}
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 4. ALPINE.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <style>
+        [contenteditable]:empty:before { content: attr(placeholder); color: #9ca3af; pointer-events: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .m3-transition { transition: all 0.2s cubic-bezier(0.2, 0.0, 0, 1.0); }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .search-scrollbar::-webkit-scrollbar { width: 6px; }
+        .search-scrollbar::-webkit-scrollbar-thumb { background-color: #e0e0e0; border-radius: 3px; }
+    </style>
+</head>
+
+<body class="h-screen w-full flex overflow-hidden bg-m3-surface text-m3-text" x-data="notionApp()">
+
+    <!-- SIDEBAR -->
+    <aside class="flex flex-col h-full transition-all duration-300 m3-transition bg-m3-surface-container rounded-r-3xl z-20 border-r border-white/50 shadow-sm"
+           :class="sidebarOpen ? 'w-72' : 'w-20'">
+        
+        <div class="p-4 relative" @mouseenter="showWorkspaceMenu = true" @mouseleave="showWorkspaceMenu = false">
+            <div class="flex items-center gap-3 p-2 rounded-full hover:bg-black/5 cursor-pointer m3-transition"
+                 :class="!sidebarOpen ? 'justify-center' : ''">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-sm shrink-0"
+                     :class="currentWorkspace.color">
+                    <span x-text="currentWorkspace.initial"></span>
+                </div>
+                <div x-show="sidebarOpen" class="flex-1 overflow-hidden">
+                     <div class="text-sm font-medium truncate" x-text="currentWorkspace.name"></div>
+                     <div class="text-xs text-m3-text-secondary truncate" x-text="currentWorkspace.email"></div>
+                </div>
+                <i x-show="sidebarOpen" class="ph ph-caret-down text-m3-text-secondary"></i>
+            </div>
+
+            <div x-show="showWorkspaceMenu && sidebarOpen" 
+                 x-transition
+                 class="absolute left-4 right-4 top-16 bg-m3-surface shadow-lg rounded-m3 border border-gray-100 z-50 py-2 overflow-hidden">
+                <template x-for="ws in workspaces" :key="ws.id">
+                    <div @click="activeWorkspaceId = ws.id; navigateTo('home'); showWorkspaceMenu = false"
+                         class="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs" :class="ws.color" x-text="ws.initial"></div>
+                        <span class="text-sm" x-text="ws.name"></span>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <nav class="px-3 space-y-1">
+            <div @click="showSearchModal = true; $nextTick(() => document.getElementById('searchInput').focus())"
+                 class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-magnifying-glass text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Buscar</span>
+            </div>
+
+            <div @click="navigateTo('home')" 
+                 class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition group"
+                 :class="currentView === 'home' ? 'bg-m3-secondary-container text-m3-on-secondary-container font-medium' : 'text-m3-text-secondary hover:bg-black/5'">
+                <i class="ph ph-house text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Inicio</span>
+            </div>
+
+             <div class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-users-three text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Reuniones</span>
+            </div>
+            <div class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-sparkle text-xl text-yellow-600"></i>
+                <span x-show="sidebarOpen" class="text-sm">IA de Notion</span>
+            </div>
+
+            <div class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-tray text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Bandeja de entrada</span>
+            </div>
+        </nav>
+
+        <div class="my-4 border-t border-m3-outline/20 mx-4"></div>
+
+        <div class="flex-1 overflow-y-auto px-3 no-scrollbar space-y-1">
+            <div x-show="sidebarOpen" class="px-4 py-2 text-xs font-medium text-m3-text-secondary uppercase tracking-wider">Privado</div>
+            
+            <template x-for="page in currentWorkspace.pages" :key="page.id">
+                <div @click="openPage(page.id)" 
+                     class="flex items-center gap-4 px-4 py-2 rounded-pill cursor-pointer m3-transition"
+                     :class="currentPageId === page.id ? 'bg-m3-secondary-container text-m3-on-secondary-container' : 'text-m3-text-secondary hover:bg-black/5'">
+                    <i :class="page.icon || 'ph ph-file-text'" class="text-lg"></i>
+                    <span x-show="sidebarOpen" class="text-sm truncate" x-text="page.title || 'Sin título'"></span>
+                </div>
+            </template>
+            
+            <div @click="createPage()" class="flex items-center gap-4 px-4 py-2 rounded-pill cursor-pointer text-m3-text-secondary hover:bg-black/5 opacity-70 hover:opacity-100 mt-2">
+                <i class="ph ph-plus text-lg"></i>
+                <span x-show="sidebarOpen" class="text-sm">Añadir página</span>
+            </div>
+        </div>
+
+        <div class="p-3 mt-auto space-y-1 border-t border-m3-outline/20">
+            <div @click="navigateTo('settings')" class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-gear text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Configuración</span>
+            </div>
+            <div @click="navigateTo('market')" class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-paint-brush-broad text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Styles Market</span>
+            </div>
+            <div @click="navigateTo('trash')" class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5">
+                <i class="ph ph-trash text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Papelera</span>
+            </div>
+             <div @click="sidebarOpen = !sidebarOpen" class="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer text-m3-text-secondary hover:bg-black/5">
+                <i :class="sidebarOpen ? 'ph ph-arrows-in-line-horizontal' : 'ph ph-arrows-out-line-horizontal'" class="text-xl"></i>
+                <span x-show="sidebarOpen" class="text-sm">Colapsar</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col relative bg-m3-surface overflow-hidden shadow-xl z-10">
+        
+        <header class="h-16 flex items-center justify-between px-6 shrink-0 bg-m3-surface/80 backdrop-blur z-10">
+            <div class="flex items-center gap-2 text-m3-text-secondary text-sm">
+                <span class="opacity-50">Workspace</span>
+                <span class="opacity-50">/</span>
+                <span class="font-medium text-m3-text" x-text="activePage.title || (currentView === 'home' ? 'Inicio' : 'Vista')"></span>
+            </div>
+            <div class="flex items-center gap-2">
+                 <button class="p-2 rounded-full hover:bg-black/5 text-m3-text-secondary transition-colors"><i class="ph ph-clock-counter-clockwise text-xl"></i></button>
+                <button class="p-2 rounded-full hover:bg-black/5 text-m3-text-secondary transition-colors"><i class="ph ph-star text-xl"></i></button>
+                <button class="p-2 rounded-full hover:bg-black/5 text-m3-text-secondary transition-colors"><i class="ph ph-dots-three text-xl"></i></button>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar p-6 md:p-12 relative scroll-smooth">
+            
+            <!-- HOME VIEW -->
+            <div x-show="currentView === 'home'" class="max-w-4xl mx-auto animate-fade-in">
+                <div class="bg-gradient-to-br from-m3-primary/10 to-indigo-50 p-10 rounded-[32px] mb-10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-m3-primary/5 rounded-full blur-3xl"></div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-m3-text mb-4 relative z-10">Buenos días, Fixius</h1>
+                    <p class="text-m3-text-secondary text-lg relative z-10">Tu espacio de trabajo está listo.</p>
+                </div>
+
+                <h2 class="text-xs font-bold text-m3-text-secondary uppercase tracking-widest mb-6 px-2">Páginas Recientes</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <template x-for="page in currentWorkspace.pages.slice(0, 3)" :key="page.id">
+                        <div @click="openPage(page.id)" class="p-6 bg-m3-surface-container rounded-[24px] hover:bg-m3-secondary-container cursor-pointer m3-transition group border border-transparent hover:border-m3-primary/20 shadow-sm">
+                            <div class="text-4xl mb-4 group-hover:scale-110 m3-transition inline-block drop-shadow-sm">📄</div>
+                            <div class="font-bold text-m3-text truncate" x-text="page.title || 'Sin título'"></div>
+                            <div class="text-xs text-m3-text-secondary mt-2 flex items-center gap-1">
+                                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                Activo hoy
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- PAGE EDITOR VIEW -->
+            <div x-show="currentView === 'page'" class="max-w-3xl mx-auto pb-32 animate-fade-in">
+                <div class="h-56 rounded-t-[32px] bg-gradient-to-r from-rose-100 to-teal-100 mb-10 relative group overflow-hidden">
+                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
+                     <button class="absolute bottom-4 right-4 bg-white/80 backdrop-blur px-4 py-2 rounded-pill text-xs font-bold text-m3-text shadow-sm opacity-0 group-hover:opacity-100 m3-transition hover:bg-white">Cambiar portada</button>
+                </div>
+
+                <input type="text" x-model="activePage.title" 
+                       @input="saveCurrentPage()"
+                       class="text-5xl font-bold w-full bg-transparent outline-none border-none placeholder-gray-300 text-m3-text mb-8 px-2" 
+                       placeholder="Título de la página">
+                
+                <div id="blocks-container" class="space-y-2 min-h-[200px]">
+                    <template x-for="(block, index) in activePage.blocks" :key="block.id">
+                        <div class="group relative flex items-start -ml-10 pl-10 py-1">
+                            <div class="absolute left-0 top-2.5 opacity-0 group-hover:opacity-100 cursor-grab drag-handle p-1.5 rounded hover:bg-black/5 text-m3-outline transition-all">
+                                <i class="ph ph-dots-six-vertical text-xl"></i>
+                            </div>
+                            <div class="w-full">
+                                <template x-if="block.type === 'p'">
+                                    <p contenteditable="true" :id="'block-' + block.id"
+                                       class="py-1 px-2 outline-none text-lg leading-7 text-m3-text empty:before:content-[attr(placeholder)] empty:before:text-gray-300 rounded-lg hover:bg-black/[0.02] transition-colors"
+                                       @keydown="handleBlockKeydown($event, index, block)"
+                                       @input="block.content = $el.innerText; saveCurrentPage()"
+                                       placeholder="Escribe '/' para comandos..."></p>
+                                </template>
+                                <template x-if="block.type === 'h1'">
+                                    <h1 contenteditable="true" :id="'block-' + block.id"
+                                        class="text-4xl font-bold mt-6 mb-2 px-2 outline-none text-m3-text"
+                                        @keydown="handleBlockKeydown($event, index, block)"
+                                        @input="block.content = $el.innerText; saveCurrentPage()"></h1>
+                                </template>
+                                <template x-if="block.type === 'h2'">
+                                    <h2 contenteditable="true" :id="'block-' + block.id"
+                                        class="text-2xl font-semibold mt-4 mb-2 px-2 outline-none text-m3-text"
+                                        @keydown="handleBlockKeydown($event, index, block)"
+                                        @input="block.content = $el.innerText; saveCurrentPage()"></h2>
+                                </template>
+                                <template x-if="block.type === 'todo'">
+                                    <div class="flex items-start gap-3 px-2 py-1">
+                                        <input type="checkbox" class="mt-1.5 w-5 h-5 rounded border-gray-300 text-m3-primary focus:ring-m3-primary cursor-pointer">
+                                        <div contenteditable="true" :id="'block-' + block.id"
+                                             class="flex-1 outline-none text-lg leading-7"
+                                             @keydown="handleBlockKeydown($event, index, block)"
+                                             @input="block.content = $el.innerText; saveCurrentPage()"></div>
+                                    </div>
+                                </template>
+                                
+                                <div x-show="showBlockMenu && currentBlockIndex === index" 
+                                     @click.outside="showBlockMenu = false"
+                                     class="absolute top-full left-0 bg-m3-surface shadow-2xl border border-gray-100 rounded-[16px] w-64 z-50 py-2 mt-2 overflow-hidden animate-fade-in">
+                                    <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Básico</div>
+                                    <template x-for="item in menuItems">
+                                        <button @click="transformBlock(item.type)" 
+                                                class="w-full text-left px-4 py-3 hover:bg-m3-surface-container flex items-center gap-3 text-m3-text transition-colors">
+                                            <i :class="item.icon" class="text-xl text-m3-primary bg-m3-secondary-container p-1 rounded"></i>
+                                            <span x-text="item.label" class="font-medium"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="h-32 cursor-text" @click="addBlock(activePage.blocks.length)"></div>
+            </div>
+
+            <!-- STYLES MARKET VIEW -->
+            <div x-show="currentView === 'market'" class="max-w-6xl mx-auto animate-fade-in">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+                    <div>
+                        <h1 class="text-4xl font-bold text-m3-text mb-2">Styles Market</h1>
+                        <p class="text-m3-text-secondary text-lg">Personaliza la estética de tu espacio de trabajo.</p>
+                    </div>
+                    <div class="flex gap-2 bg-m3-surface-container p-1 rounded-pill self-start">
+                        <button class="px-6 py-2 rounded-pill bg-m3-surface shadow-sm text-sm font-bold text-m3-text hover:shadow-md m3-transition">Explorar</button>
+                        <button class="px-6 py-2 rounded-pill text-sm font-medium text-m3-text-secondary hover:bg-black/5 m3-transition">Mis Temas</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <template x-for="style in marketStyles" :key="style.id">
+                        <div class="bg-m3-surface-container rounded-[24px] overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl hover:-translate-y-1 m3-transition border border-transparent hover:border-m3-primary/30 flex flex-col">
+                            <div class="h-48 flex items-center justify-center relative overflow-hidden" :class="style.color">
+                                <span class="text-4xl font-serif font-bold opacity-80">Aa</span>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-bold text-lg text-m3-text" x-text="style.name"></h3>
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-md text-[10px] font-bold tracking-wide">FREE</span>
+                                </div>
+                                <p class="text-sm text-m3-text-secondary mb-6 flex-1">Diseñado por <span class="font-medium text-m3-text" x-text="style.author"></span></p>
+                                <button class="w-full py-3 rounded-pill bg-m3-text text-white text-sm font-bold hover:bg-m3-primary m3-transition shadow-lg shadow-m3-primary/20">Usar este estilo</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- SETTINGS VIEW -->
+            <div x-show="currentView === 'settings'" class="max-w-2xl mx-auto animate-fade-in pt-10">
+                <h1 class="text-3xl font-bold text-m3-text mb-8">Configuración</h1>
+                <div class="bg-m3-surface-container rounded-[24px] p-2 shadow-sm">
+                    <div class="p-4 hover:bg-m3-surface rounded-[20px] m3-transition cursor-pointer flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors"><i class="ph ph-user"></i></div>
+                            <div>
+                                <div class="font-bold text-lg">Cuenta</div>
+                                <div class="text-sm text-m3-text-secondary">Gestiona tu perfil y correo</div>
+                            </div>
+                        </div>
+                        <i class="ph ph-caret-right text-m3-text-secondary"></i>
+                    </div>
+                    <div class="h-px bg-m3-outline/10 mx-20 my-1"></div>
+                    <div class="p-4 hover:bg-m3-surface rounded-[20px] m3-transition cursor-pointer flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors"><i class="ph ph-palette"></i></div>
+                            <div>
+                                <div class="font-bold text-lg">Apariencia</div>
+                                <div class="text-sm text-m3-text-secondary">Personaliza el tema y colores</div>
+                            </div>
+                        </div>
+                        <i class="ph ph-caret-right text-m3-text-secondary"></i>
+                    </div>
+                </div>
+            </div>
+
+             <!-- TRASH VIEW -->
+             <div x-show="currentView === 'trash'" class="max-w-md mx-auto animate-fade-in pt-20 text-center">
+                <div class="w-32 h-32 bg-m3-surface-container rounded-full flex items-center justify-center mx-auto mb-8 text-5xl text-m3-text-secondary">
+                    <i class="ph ph-trash"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-m3-text mb-4">Papelera vacía</h1>
+                <p class="text-m3-text-secondary text-lg leading-relaxed">Los elementos que elimines aparecerán aquí durante 30 días antes de desaparecer para siempre.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SEARCH MODAL OVERLAY (Global) -->
+    <div x-show="showSearchModal" 
+         style="display: none;"
+         x-transition.opacity.duration.200ms
+         class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-start justify-center pt-20">
+        
+        <div @click.outside="showSearchModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             class="bg-m3-surface w-full max-w-2xl rounded-[24px] shadow-2xl overflow-hidden flex flex-col max-h-[70vh] border border-white/50">
+            
+            <!-- Search Header -->
+            <div class="p-4 border-b border-m3-outline/10">
+                <div class="flex items-center gap-3 bg-m3-surface-container px-4 py-3 rounded-xl relative z-20">
+                    <i class="ph ph-magnifying-glass text-xl text-m3-text-secondary"></i>
+                    <input id="searchInput" type="text" x-model="searchQuery" 
+                           placeholder="Buscar o preguntar en Notion..." 
+                           class="bg-transparent border-none outline-none w-full text-lg text-m3-text placeholder-m3-text-secondary/50">
+                    <!-- TOGGLE FILTER ICON -->
+                    <div class="flex items-center gap-2 border-l border-gray-300 pl-2">
+                        <div @click="showFilters = !showFilters" class="p-1.5 hover:bg-black/5 rounded-lg cursor-pointer transition-colors text-m3-text-secondary hover:text-m3-primary" :class="showFilters ? 'bg-black/5 text-m3-primary' : ''">
+                            <i class="ph ph-faders text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filters Section (Collapsible) -->
+                <div x-show="showFilters" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2 height-0"
+                     x-transition:enter-end="opacity-100 translate-y-0 height-auto"
+                     class="flex gap-2 mt-3 overflow-x-auto search-scrollbar pb-1 px-1 relative z-10">
+                    
+                    <!-- 1. Ordenar -->
+                    <div class="relative">
+                        <button @click="toggleFilterMenu('sort')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-m3-surface-container text-xs font-medium text-m3-text-secondary whitespace-nowrap transition-colors" :class="activeFilterMenu === 'sort' ? 'bg-m3-surface-container text-m3-primary' : ''">
+                            <i class="ph ph-arrows-down-up"></i> Ordenar <i class="ph ph-caret-down text-[10px]"></i>
+                        </button>
+                        <div x-show="activeFilterMenu === 'sort'" @click.outside="if(activeFilterMenu === 'sort') activeFilterMenu = null" class="absolute top-full left-0 mt-1 w-64 bg-m3-surface rounded-xl shadow-m3-menu border border-gray-100 z-50 py-1 overflow-hidden animate-fade-in">
+                            <div class="px-4 py-2 text-xs font-bold text-gray-400">Mejores resultados</div>
+                            <div class="px-4 py-2 hover:bg-m3-surface-container cursor-pointer text-sm text-m3-text">Última edición: recientes primero</div>
+                            <div class="px-4 py-2 hover:bg-m3-surface-container cursor-pointer text-sm text-m3-text">Última edición: antiguas primero</div>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <div class="px-4 py-2 hover:bg-m3-surface-container cursor-pointer text-sm text-m3-text">Fecha creación: recientes primero</div>
+                            <div class="px-4 py-2 hover:bg-m3-surface-container cursor-pointer text-sm text-m3-text">Fecha creación: antiguas primero</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Espacio de trabajo (Antes Creada por) -->
+                    <div class="relative">
+                        <button @click="toggleFilterMenu('workspace')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-m3-surface-container text-xs font-medium text-m3-text-secondary whitespace-nowrap transition-colors" :class="activeFilterMenu === 'workspace' ? 'bg-m3-surface-container text-m3-primary' : ''">
+                            <i class="ph ph-user"></i> Espacio de trabajo <i class="ph ph-caret-down text-[10px]"></i>
+                        </button>
+                         <div x-show="activeFilterMenu === 'workspace'" @click.outside="if(activeFilterMenu === 'workspace') activeFilterMenu = null" class="absolute top-full left-0 mt-1 w-60 bg-m3-surface rounded-xl shadow-m3-menu border border-gray-100 z-50 py-2 overflow-hidden animate-fade-in">
+                            <div class="px-3 pb-2 border-b border-gray-100">
+                                <input type="text" placeholder="Buscar personas..." class="w-full bg-m3-surface-container rounded-md px-2 py-1 text-sm outline-none border border-transparent focus:border-m3-primary/50">
+                            </div>
+                            <div class="px-2 py-1">
+                                <div class="px-2 py-1.5 hover:bg-m3-surface-container rounded-lg cursor-pointer flex items-center gap-2">
+                                    <div class="w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px]">F</div>
+                                    <span class="text-sm">FIXIUS50 MONSTER (Tú)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. En la página -->
+                    <div class="relative">
+                        <button @click="toggleFilterMenu('page')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-m3-surface-container text-xs font-medium text-m3-text-secondary whitespace-nowrap transition-colors" :class="activeFilterMenu === 'page' ? 'bg-m3-surface-container text-m3-primary' : ''">
+                            <i class="ph ph-file"></i> En la página <i class="ph ph-caret-down text-[10px]"></i>
+                        </button>
+                         <div x-show="activeFilterMenu === 'page'" @click.outside="if(activeFilterMenu === 'page') activeFilterMenu = null" class="absolute top-full left-0 mt-1 w-60 bg-m3-surface rounded-xl shadow-m3-menu border border-gray-100 z-50 py-2 overflow-hidden animate-fade-in">
+                             <div class="px-3 pb-2 border-b border-gray-100">
+                                <input type="text" placeholder="Buscar páginas..." class="w-full bg-m3-surface-container rounded-md px-2 py-1 text-sm outline-none border border-transparent focus:border-m3-primary/50">
+                            </div>
+                            <div class="max-h-48 overflow-y-auto">
+                                <template x-for="p in currentWorkspace.pages" :key="p.id">
+                                    <div class="px-3 py-1.5 hover:bg-m3-surface-container cursor-pointer flex items-center gap-2 text-sm text-m3-text">
+                                        <i :class="p.icon" class="text-m3-text-secondary"></i>
+                                        <span x-text="p.title || 'Sin título'" class="truncate"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Fecha -->
+                    <div class="relative">
+                        <button @click="toggleFilterMenu('date')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-m3-surface-container text-xs font-medium text-m3-text-secondary whitespace-nowrap transition-colors" :class="activeFilterMenu === 'date' ? 'bg-m3-surface-container text-m3-primary' : ''">
+                            <i class="ph ph-calendar"></i> Fecha <i class="ph ph-caret-down text-[10px]"></i>
+                        </button>
+                         <div x-show="activeFilterMenu === 'date'" @click.outside="if(activeFilterMenu === 'date') activeFilterMenu = null" class="absolute top-full left-0 mt-1 w-64 bg-m3-surface rounded-xl shadow-m3-menu border border-gray-100 z-50 py-2 overflow-hidden animate-fade-in">
+                            <div class="flex justify-between px-4 py-1 text-xs text-m3-text-secondary">
+                                <span>Última edición</span>
+                                <span class="hover:text-red-500 cursor-pointer">Borrar</span>
+                            </div>
+                            <div class="px-2 py-1 space-y-0.5">
+                                <div class="px-2 py-1.5 hover:bg-m3-surface-container rounded-md cursor-pointer text-sm">Hoy</div>
+                                <div class="px-2 py-1.5 hover:bg-m3-surface-container rounded-md cursor-pointer text-sm">Últimos 7 días</div>
+                                <div class="px-2 py-1.5 hover:bg-m3-surface-container rounded-md cursor-pointer text-sm">Últimos 30 días</div>
+                            </div>
+                            <div class="border-t border-gray-100 mt-1 pt-2 px-4 pb-2">
+                                <div class="text-xs font-bold text-center mb-2">nov 2025</div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
+                                    <span>do</span><span>lu</span><span>ma</span><span>mi</span><span>ju</span><span>vi</span><span>sa</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1 text-center text-sm text-m3-text">
+                                    <span class="opacity-30">26</span><span class="opacity-30">27</span><span class="opacity-30">28</span><span class="opacity-30">29</span><span class="opacity-30">30</span><span class="opacity-30">31</span>
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+                                    <span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+                                    <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+                                    <span class="bg-red-400 text-white rounded-full w-6 h-6 flex items-center justify-center mx-auto">22</span>
+                                    <span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span>
+                                    <span>30</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Results List -->
+            <div class="flex-1 overflow-y-auto p-2 search-scrollbar">
+                <div class="px-4 py-2 text-xs font-bold text-m3-text-secondary uppercase">Hoy</div>
+                
+                <template x-for="res in searchResults" :key="res.id">
+                    <div @click="openPage(res.id)" class="flex items-center gap-4 px-4 py-3 hover:bg-m3-surface-container rounded-xl cursor-pointer group transition-colors">
+                        <div class="w-8 h-8 flex items-center justify-center bg-m3-surface shadow-sm rounded-lg text-lg group-hover:scale-110 transition-transform">
+                            <i class="ph ph-file-text"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-m3-text truncate" x-text="res.title"></div>
+                            <div class="flex items-center gap-2 text-xs text-m3-text-secondary mt-0.5">
+                                <span x-text="res.path" class="truncate opacity-70"></span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-m3-text-secondary whitespace-nowrap" x-text="res.date"></div>
+                        <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 text-m3-text-secondary text-xs transition-opacity"></i>
+                    </div>
+                </template>
+                
+                <!-- Empty State Mockup -->
+                <div class="px-4 py-3 mt-2 border-t border-m3-outline/10 text-center text-xs text-m3-text-secondary">
+                    <span class="opacity-50">Busca personas, páginas o bloques...</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-3 bg-m3-surface-container/50 border-t border-m3-outline/10 flex justify-between items-center text-xs text-m3-text-secondary px-6">
+                <div class="flex gap-4">
+                    <span class="hover:text-m3-text cursor-pointer transition-colors">Seleccionar</span>
+                    <span class="hover:text-m3-text cursor-pointer transition-colors">Abrir</span>
+                </div>
+                <div class="flex gap-4">
+                     <span class="hover:text-m3-text cursor-pointer transition-colors">Abrir en nueva pestaña</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
