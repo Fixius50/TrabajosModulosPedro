@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Notion React M3 Architecture</title>
+
+    <!-- 1. CORE DEPENDENCIES (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 2. STYLE CONFIGURATION (Material Design 3) -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Roboto', 'Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        m3: {
+                            surface: '#FEF7FF', 'surface-container': '#F3EDF7', 
+                            primary: '#6750A4', 'on-primary': '#FFFFFF', 
+                            text: '#1D1B20', 'text-secondary': '#49454F',
+                            outline: '#79747E', 'surface-variant': '#E7E0EC',
+                            'secondary-container': '#E8DEF8', 'on-secondary-container': '#1D192B'
+                        }
+                    },
+                    borderRadius: { 'm3': '16px', 'pill': '9999px' },
+                    boxShadow: { 
+                        'm3-modal': '0px 25px 50px -12px rgba(0, 0, 0, 0.25)', 
+                        'm3-menu': '0px 2px 6px 2px rgba(0, 0, 0, 0.15)' 
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* CSS Base para UX Móvil */
+        body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Animaciones suaves */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-m3-surface text-m3-text overflow-hidden h-screen w-full">
+
+    <div id="root" class="h-full w-full"></div>
+
+    <!-- 3. LOGIC MODULES -->
+    <script type="module">
+        import { Octokit } from "https://esm.sh/@octokit/rest";
+        window.Octokit = Octokit;
+    </script>
+
+    <script type="text/babel">
+        // --- UTILS & HOOKS ---
+        
+        const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+        // Hook robusto para localStorage con manejo de errores
+        function usePersistentState(key, initialValue) {
+            const [state, setState] = React.useState(() => {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : initialValue;
+                } catch (error) {
+                    console.warn(`Error reading localStorage key "${key}":`, error);
+                    return initialValue;
+                }
+            });
+
+            React.useEffect(() => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(state));
+                } catch (error) {
+                    console.error(`Error saving localStorage key "${key}":`, error);
+                }
+            }, [key, state]);
+
+            return [state, setState];
+        }
+
+        // Sistema centralizado de notificaciones (Toast)
+        const ToastContext = React.createContext();
+        
+        function ToastProvider({ children }) {
+            const [toast, setToast] = React.useState({ show: false, message: '', type: 'info' });
+
+            const showToast = (message, type = 'info') => {
+                setToast({ show: true, message, type });
+                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+            };
+
+            return (
+                <ToastContext.Provider value={showToast}>
+                    {children}
+                    {toast.show && (
+                        <div className="fixed bottom-6 right-6 z-[60] bg-m3-on-secondary-container text-white px-6 py-3 rounded-m3 shadow-m3-modal animate-fade-in flex items-center gap-3">
+                            <i className={`ph ${toast.type === 'error' ? 'ph-warning-circle' : 'ph-check-circle'} text-xl`}></i>
+                            <span className="text-sm font-medium">{toast.message}</span>
+                        </div>
+                    )}
+                </ToastContext.Provider>
+            );
+        }
+
+        const useToast = () => React.useContext(ToastContext);
+
+        // --- COMPONENTS ---
+
+        // Block Input Component (Crucial para evitar cursor jumping en React)
+        const BlockInput = ({ tagName, html, onChange, onKeyDown, placeholder, className, autoFocus }) => {
+            const contentEditableRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (autoFocus && contentEditableRef.current) {
+                    // Pequeño delay para asegurar que el DOM está listo
+                    setTimeout(() => contentEditableRef.current.focus(), 0);
+                }
+            }, [autoFocus]);
+
+            const handleBlur = () => {
+                if (contentEditableRef.current) {
+                    onChange(contentEditableRef.current.innerText);
+                }
+            };
+
+            // Solo renderizamos tagName dinámicamente
+            const Tag = tagName;
+
+            return (
+                <Tag
+                    ref={contentEditableRef}
+                    className={`outline-none empty:before:content-[attr(placeholder)] empty:before:text-gray-300 ${className}`}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={handleBlur}
+                    onKeyDown={onKeyDown}
+                    placeholder={placeholder}
+                    // Importante: No pasamos 'html' como value controlado para evitar re-renders destructivos mientras se escribe
+                    dangerouslySetInnerHTML={{ __html: html }}
+                />
+            );
+        };
+
+        const IconPicker = ({ onSelect, onClose }) => {
+            const icons = ['📄', '🎵', '🚀', '💼', '💡', '🎨', '🏈', '🪐', '🍎', '🍕', '⚽', '🚗', '🐶', '🐱', '🎉', '📚', '💸', '🏠', '❤️', '💀', '🔥', '✨'];
+            const pickerRef = React.useRef();
+
+            React.useEffect(() => {
+                const handleClickOutside = (event) => {
+                    if (pickerRef.current && !pickerRef.current.contains(event.target)) onClose();
+                }
+                document.addEventListener("mousedown", handleClickOutside);
+                return () => document.removeEventListener("mousedown", handleClickOutside);
+            }, [onClose]);
+
+            return (
+                <div ref={pickerRef} className="absolute top-full left-0 mt-2 bg-m3-surface shadow-xl border border-gray-100 rounded-lg p-3 w-64 z-50 grid grid-cols-6 gap-2 max-h-48 overflow-y-auto">
+                    {icons.map(icon => (
+                        <div key={icon} onClick={() => onSelect(icon)} className="text-xl hover:bg-m3-surface-container rounded p-1 cursor-pointer text-center transition-colors">
+                            {icon}
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // --- MAIN APP ---
+
+        function App() {
+            // STATE: Workspaces & Data
+            const [workspaces, setWorkspaces] = usePersistentState('notion_workspaces', [
+                { id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'bg-indigo-500', email: 'user@example.com', pages: [] }
+            ]);
+            const [activeWorkspaceId, setActiveWorkspaceId] = usePersistentState('notion_active_ws', 'ws-demo');
+            
+            // STATE: GitHub
+            const [githubToken, setGithubToken] = usePersistentState('notion_gh_token', '');
+
+            // STATE: UI
+            const [uiState, setUiState] = React.useState({
+                sidebarOpen: window.innerWidth > 768,
+                isMobile: window.innerWidth <= 768,
+                currentView: 'home', // 'home', 'page', 'settings', 'market', 'trash'
+                activePageId: null,
+                modals: {
+                    workspace: false,
+                    search: false,
+                    market: false,
+                    pageOptions: false
+                }
+            });
+
+            const showToast = useToast();
+
+            // Computed
+            const currentWorkspace = workspaces.find(w => w.id === activeWorkspaceId) || workspaces[0];
+            const activePage = currentWorkspace?.pages.find(p => p.id === uiState.activePageId) || null;
+
+            // Effects
+            React.useEffect(() => {
+                const handleResize = () => {
+                    const isMobile = window.innerWidth <= 768;
+                    setUiState(prev => ({ 
+                        ...prev, 
+                        isMobile, 
+                        sidebarOpen: !isMobile 
+                    }));
+                };
+                window.addEventListener('resize', handleResize);
+                
+                // Generar datos mock si está vacío
+                if (currentWorkspace.pages.length === 0) {
+                    const mockPages = [
+                        { title: 'Guía de Inicio', icon: '🚀', cover: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80' },
+                        { title: 'Notas Personales', icon: '📝', cover: null }
+                    ];
+                    const newPages = mockPages.map(m => ({
+                        id: generateId(),
+                        title: m.title,
+                        icon: m.icon,
+                        cover: m.cover,
+                        updatedAt: new Date().toISOString(),
+                        blocks: [{ id: 'b1', type: 'p', content: 'Bienvenido a tu nuevo espacio de trabajo.' }]
+                    }));
+                    updateWorkspacePages(newPages);
+                }
+
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            // ACTIONS
+            const updateWorkspacePages = (newPages) => {
+                const updatedWorkspaces = workspaces.map(ws => 
+                    ws.id === activeWorkspaceId ? { ...ws, pages: newPages } : ws
+                );
+                setWorkspaces(updatedWorkspaces);
+            };
+
+            const navigateTo = (view, pageId = null) => {
+                setUiState(prev => ({
+                    ...prev,
+                    currentView: view,
+                    activePageId: pageId,
+                    sidebarOpen: prev.isMobile ? false : prev.sidebarOpen, // Close sidebar on mobile nav
+                    modals: { ...prev.modals, search: false } // Close search if navigating
+                }));
+            };
+
+            const createPage = () => {
+                const newPage = {
+                    id: generateId(),
+                    title: '',
+                    icon: null,
+                    cover: null,
+                    isPrivate: true,
+                    updatedAt: new Date().toISOString(),
+                    blocks: [{ id: generateId(), type: 'p', content: '' }]
+                };
+                updateWorkspacePages([...currentWorkspace.pages, newPage]);
+                navigateTo('page', newPage.id);
+                showToast("Página creada", "success");
+            };
+
+            const updatePage = (pageId, updates) => {
+                const updatedPages = currentWorkspace.pages.map(p => 
+                    p.id === pageId ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p
+                );
+                updateWorkspacePages(updatedPages);
+            };
+
+            const deletePage = (pageId) => {
+                if(confirm("¿Eliminar página permanentemente?")) {
+                    const updatedPages = currentWorkspace.pages.filter(p => p.id !== pageId);
+                    updateWorkspacePages(updatedPages);
+                    navigateTo('home');
+                    showToast("Página eliminada", "info");
+                }
+            };
+
+            // BLOCK LOGIC
+            const addBlock = (pageId, index, type = 'p') => {
+                const page = currentWorkspace.pages.find(p => p.id === pageId);
+                const newBlock = { id: generateId(), type, content: '' };
+                const newBlocks = [...page.blocks];
+                newBlocks.splice(index + 1, 0, newBlock);
+                updatePage(pageId, { blocks: newBlocks });
+                
+                // Hack para enfocar el nuevo bloque
+                setTimeout(() => {
+                    const el = document.getElementById(`block-${newBlock.id}`);
+                    if(el) el.focus();
+                }, 50);
+            };
+
+            const updateBlock = (pageId, blockId, content) => {
+                const page = currentWorkspace.pages.find(p => p.id === pageId);
+                const newBlocks = page.blocks.map(b => b.id === blockId ? { ...b, content } : b);
+                updatePage(pageId, { blocks: newBlocks });
+            };
+
+            const deleteBlock = (pageId, index) => {
+                const page = currentWorkspace.pages.find(p => p.id === pageId);
+                if (page.blocks.length <= 1) return; // Don't delete last block
+                const newBlocks = [...page.blocks];
+                newBlocks.splice(index, 1);
+                updatePage(pageId, { blocks: newBlocks });
+                
+                // Focus previous
+                setTimeout(() => {
+                   const prevId = newBlocks[index - 1]?.id || newBlocks[0].id;
+                   const el = document.getElementById(`block-${prevId}`);
+                   if(el) el.focus();
+                }, 50);
+            };
+            
+            // Move Block (Simple Array Swap - The "Nuclear Fix" for React)
+            const moveBlock = (pageId, index, direction) => {
+                const page = currentWorkspace.pages.find(p => p.id === pageId);
+                const newBlocks = [...page.blocks];
+                
+                if (direction === 'up' && index > 0) {
+                    [newBlocks[index], newBlocks[index - 1]] = [newBlocks[index - 1], newBlocks[index]];
+                } else if (direction === 'down' && index < newBlocks.length - 1) {
+                    [newBlocks[index], newBlocks[index + 1]] = [newBlocks[index + 1], newBlocks[index]];
+                } else {
+                    return;
+                }
+                updatePage(pageId, { blocks: newBlocks });
+            };
+
+            // RENDERING HELPERS
+            const renderBlock = (block, index) => {
+                const commonProps = {
+                    key: block.id,
+                    id: `block-${block.id}`,
+                    html: block.content,
+                    onChange: (val) => updateBlock(activePage.id, block.id, val),
+                    onKeyDown: (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addBlock(activePage.id, index);
+                        }
+                        if (e.key === 'Backspace' && block.content === '') {
+                            e.preventDefault();
+                            deleteBlock(activePage.id, index);
+                        }
+                    },
+                };
+
+                let Component;
+                let classes = "w-full py-1 text-m3-text";
+
+                switch (block.type) {
+                    case 'h1': 
+                        Component = <BlockInput tagName="h1" className="text-3xl font-bold mt-4 mb-2" placeholder="Título 1" {...commonProps} />;
+                        break;
+                    case 'h2':
+                        Component = <BlockInput tagName="h2" className="text-2xl font-bold mt-3 mb-1" placeholder="Título 2" {...commonProps} />;
+                        break;
+                    case 'todo':
+                        Component = (
+                            <div key={block.id} className="flex items-start gap-3 py-1 group relative">
+                                <input type="checkbox" className="mt-1.5 w-5 h-5 rounded border-gray-300 text-m3-primary focus:ring-m3-primary cursor-pointer" />
+                                <BlockInput tagName="div" className="flex-1 text-lg decoration-gray-400" placeholder="Tarea por hacer" {...commonProps} />
+                            </div>
+                        );
+                        break;
+                    default: // p
+                        Component = <BlockInput tagName="p" className="text-lg md:text-lg" placeholder="Escribe '/' para comandos..." {...commonProps} />;
+                }
+                
+                return (
+                    <div key={block.id} className="group relative flex items-start -ml-8 pl-8 py-0.5 hover:bg-black/[0.02] rounded-lg transition-colors">
+                        {/* Mobile/Desktop Controls Actions */}
+                        <div className="absolute left-0 top-2 opacity-0 group-hover:opacity-100 flex flex-col md:flex-row gap-1 transition-opacity z-10">
+                            <button onClick={() => moveBlock(activePage.id, index, 'up')} className="p-1 hover:text-m3-primary" title="Subir"><i className="ph ph-arrow-up"></i></button>
+                            <button onClick={() => moveBlock(activePage.id, index, 'down')} className="p-1 hover:text-m3-primary" title="Bajar"><i className="ph ph-arrow-down"></i></button>
+                        </div>
+                        <div className="w-full">
+                            {Component}
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="flex h-full w-full">
+                    {/* SIDEBAR */}
+                    <aside className={`fixed md:relative inset-y-0 left-0 bg-m3-surface-container border-r border-white/50 shadow-sm z-30 transition-all duration-300 flex flex-col
+                        ${uiState.sidebarOpen ? (uiState.isMobile ? 'w-64 translate-x-0' : 'w-72') : (uiState.isMobile ? '-translate-x-full' : 'w-20')}
+                    `}>
+                        {/* Workspace Header */}
+                        <div className="p-4 relative">
+                            <div onClick={() => setUiState(prev => ({...prev, modals: {...prev.modals, workspace: !prev.modals.workspace}}))} 
+                                 className={`flex items-center gap-3 p-2 rounded-full hover:bg-black/5 cursor-pointer transition-colors ${!uiState.sidebarOpen && !uiState.isMobile ? 'justify-center' : ''}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-sm shrink-0 ${currentWorkspace.color}`}>
+                                    {currentWorkspace.initial}
+                                </div>
+                                {(uiState.sidebarOpen || uiState.isMobile) && (
+                                    <>
+                                        <div className="flex-1 overflow-hidden">
+                                            <div className="text-sm font-medium truncate">{currentWorkspace.name}</div>
+                                            <div className="text-xs text-m3-text-secondary truncate">{currentWorkspace.email}</div>
+                                        </div>
+                                        <i className="ph ph-caret-down text-m3-text-secondary"></i>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Workspace Dropdown */}
+                            {uiState.modals.workspace && (
+                                <div className="absolute left-4 right-4 top-16 bg-m3-surface shadow-m3-menu rounded-m3 border border-gray-100 z-50 py-2 overflow-hidden animate-fade-in">
+                                    <div className="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Tus espacios</div>
+                                    {workspaces.map(ws => (
+                                        <div key={ws.id} onClick={() => { setActiveWorkspaceId(ws.id); setUiState(p => ({...p, modals: {...p.modals, workspace: false}})); navigateTo('home'); }} 
+                                             className="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3 justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] ${ws.color}`}>{ws.initial}</div>
+                                                <span className="text-sm truncate">{ws.name}</span>
+                                            </div>
+                                            {ws.id === activeWorkspaceId && <i className="ph ph-check text-m3-primary text-sm"></i>}
+                                        </div>
+                                    ))}
+                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <div onClick={() => { const name = prompt("Nombre del espacio:"); if(name) { const id = generateId(); setWorkspaces([...workspaces, {id, name, initial: name[0], color: 'bg-pink-500', email: 'new@ws.com', pages: []}]); setActiveWorkspaceId(id); }}} 
+                                         className="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3 text-m3-text-secondary hover:text-m3-primary">
+                                        <i className="ph ph-plus text-lg"></i> <span className="text-sm">Crear espacio</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Navigation */}
+                        <nav className="px-3 space-y-1 flex flex-col flex-1 overflow-y-auto no-scrollbar">
+                            <div onClick={() => setUiState(p => ({...p, modals: {...p.modals, search: true}}))} className="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer hover:bg-black/5 transition-colors text-m3-text-secondary">
+                                <i className="ph ph-magnifying-glass text-xl shrink-0"></i>
+                                {(uiState.sidebarOpen || uiState.isMobile) && <span className="text-sm">Buscar</span>}
+                            </div>
+                            <div onClick={() => navigateTo('home')} className={`flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer transition-colors ${uiState.currentView === 'home' ? 'bg-m3-secondary-container text-m3-on-secondary-container' : 'text-m3-text-secondary hover:bg-black/5'}`}>
+                                <i className="ph ph-house text-xl shrink-0"></i>
+                                {(uiState.sidebarOpen || uiState.isMobile) && <span className="text-sm">Inicio</span>}
+                            </div>
+
+                            <div className="my-4 border-t border-m3-outline/20 mx-2"></div>
+                            
+                            {/* Pages List */}
+                            {(uiState.sidebarOpen || uiState.isMobile) && <div className="px-4 py-2 text-xs font-medium text-m3-text-secondary uppercase tracking-wider">Páginas</div>}
+                            
+                            {currentWorkspace.pages.map(page => (
+                                <div key={page.id} onClick={() => navigateTo('page', page.id)} 
+                                     className={`flex items-center gap-4 px-4 py-2 rounded-pill cursor-pointer transition-colors ${uiState.activePageId === page.id ? 'bg-m3-secondary-container text-m3-on-secondary-container' : 'text-m3-text-secondary hover:bg-black/5'}`}>
+                                    <div className="text-lg shrink-0 w-5 h-5 flex items-center justify-center">
+                                        {page.icon || <i className="ph ph-file-text"></i>}
+                                    </div>
+                                    {(uiState.sidebarOpen || uiState.isMobile) && <span className="text-sm truncate">{page.title || 'Sin título'}</span>}
+                                </div>
+                            ))}
+                            
+                            <div onClick={createPage} className="flex items-center gap-4 px-4 py-2 rounded-pill cursor-pointer text-m3-text-secondary hover:bg-black/5 opacity-70 hover:opacity-100 mt-2">
+                                <i className="ph ph-plus text-lg shrink-0"></i>
+                                {(uiState.sidebarOpen || uiState.isMobile) && <span className="text-sm">Añadir página</span>}
+                            </div>
+                        </nav>
+
+                        {/* Bottom Bar */}
+                        <div className="p-3 border-t border-m3-outline/20 space-y-1">
+                            <div onClick={() => navigateTo('settings')} className="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer hover:bg-black/5 text-m3-text-secondary">
+                                <i className="ph ph-gear text-xl shrink-0"></i>
+                                {(uiState.sidebarOpen || uiState.isMobile) && <span className="text-sm">Configuración</span>}
+                            </div>
+                            {!uiState.isMobile && (
+                                <div onClick={() => setUiState(p => ({...p, sidebarOpen: !p.sidebarOpen}))} className="flex items-center gap-4 px-4 py-3 rounded-pill cursor-pointer hover:bg-black/5 text-m3-text-secondary">
+                                    <i className={`ph ${uiState.sidebarOpen ? 'ph-arrows-in-line-horizontal' : 'ph-arrows-out-line-horizontal'} text-xl shrink-0`}></i>
+                                    {uiState.sidebarOpen && <span className="text-sm">Colapsar</span>}
+                                </div>
+                            )}
+                        </div>
+                    </aside>
+
+                    {/* MAIN CONTENT */}
+                    <main className={`flex-1 flex flex-col relative bg-m3-surface overflow-hidden transition-opacity duration-300 ${uiState.isMobile && uiState.sidebarOpen ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                        
+                        {/* Header */}
+                        <header className="h-16 flex items-center justify-between px-4 shrink-0 bg-m3-surface/90 backdrop-blur z-20 border-b border-transparent sticky top-0">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                {uiState.isMobile && (
+                                    <button onClick={() => setUiState(p => ({...p, sidebarOpen: true}))} className="p-2 -ml-2 rounded-full hover:bg-black/5">
+                                        <i className="ph ph-list text-2xl text-m3-text"></i>
+                                    </button>
+                                )}
+                                <div className="flex items-center gap-2 text-sm text-m3-text truncate">
+                                    {uiState.currentView === 'page' && activePage ? (
+                                        <>
+                                            <span>{activePage.icon || <i className="ph ph-file-text"></i>}</span>
+                                            <span className="font-medium truncate">{activePage.title || 'Sin título'}</span>
+                                        </>
+                                    ) : (
+                                        <span className="font-medium capitalize">{uiState.currentView === 'home' ? 'Inicio' : uiState.currentView}</span>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {uiState.currentView === 'page' && (
+                                <div className="relative">
+                                    <button onClick={() => setUiState(p => ({...p, modals: {...p.modals, pageOptions: !p.modals.pageOptions}}))} className="p-2 rounded-full hover:bg-black/5 text-m3-text-secondary">
+                                        <i className="ph ph-dots-three text-xl"></i>
+                                    </button>
+                                    {uiState.modals.pageOptions && (
+                                        <div className="absolute top-12 right-0 w-56 bg-m3-surface shadow-lg rounded-xl border border-gray-100 z-50 py-1 animate-fade-in">
+                                             <div onClick={() => { deletePage(activePage.id); }} className="px-4 py-2 hover:bg-red-50 text-red-600 cursor-pointer flex items-center gap-2 text-sm">
+                                                <i className="ph ph-trash"></i> Eliminar página
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </header>
+
+                        {/* Content Scroll Area */}
+                        <div className="flex-1 overflow-y-auto no-scrollbar p-4 md:p-12 md:pb-32 relative scroll-smooth">
+                            
+                            {/* VIEW: HOME */}
+                            {uiState.currentView === 'home' && (
+                                <div className="max-w-5xl mx-auto animate-fade-in">
+                                    <div className="bg-gradient-to-br from-m3-primary/10 to-indigo-50 p-8 rounded-[24px] mb-8 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-m3-primary/5 rounded-full blur-3xl"></div>
+                                        <h1 className="text-3xl md:text-4xl font-bold text-m3-text mb-2">Buenos días</h1>
+                                        <p className="text-m3-text-secondary">Estás en <span className="font-semibold text-m3-primary">{currentWorkspace.name}</span>.</p>
+                                    </div>
+                                    <h2 className="text-xs font-bold text-m3-text-secondary uppercase tracking-widest mb-4 px-2">Acceso Rápido</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {currentWorkspace.pages.map(page => (
+                                            <div key={page.id} onClick={() => navigateTo('page', page.id)} className="bg-m3-surface-container rounded-xl overflow-hidden hover:shadow-md cursor-pointer transition-all border border-transparent hover:border-m3-primary/20 flex flex-col h-40 group">
+                                                <div className="h-1/2 w-full bg-gray-200 relative">
+                                                    {page.cover ? <img src={page.cover} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" /> : <div className="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200"></div>}
+                                                </div>
+                                                <div className="p-3 flex-1 flex flex-col justify-center relative">
+                                                    <div className="absolute -top-4 left-3 bg-m3-surface p-1 rounded-md shadow-sm text-xl">{page.icon || '📄'}</div>
+                                                    <div className="font-medium text-m3-text truncate mt-2">{page.title || 'Sin título'}</div>
+                                                    <div className="text-xs text-m3-text-secondary">{new Date(page.updatedAt).toLocaleDateString()}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div onClick={createPage} className="bg-transparent border-2 border-dashed border-m3-outline/20 rounded-xl flex items-center justify-center cursor-pointer hover:bg-m3-primary/5 hover:border-m3-primary/50 transition-all h-40">
+                                            <div className="text-center text-m3-text-secondary">
+                                                <i className="ph ph-plus text-3xl"></i>
+                                                <div className="text-xs font-medium mt-1">Nueva</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* VIEW: PAGE (EDITOR) */}
+                            {uiState.currentView === 'page' && activePage && (
+                                <div className="max-w-3xl mx-auto animate-fade-in pb-20">
+                                    {/* Cover */}
+                                    <div className="group relative mb-8 -mx-4 md:-mx-12 h-40 md:h-64 bg-gray-50 hover:bg-gray-100 transition-colors">
+                                        {activePage.cover && <img src={activePage.cover} className="w-full h-full object-cover" />}
+                                        <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                            {!activePage.cover && <button onClick={() => updatePage(activePage.id, {cover: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1000'})} className="bg-white/80 backdrop-blur text-xs px-3 py-1.5 rounded shadow-sm hover:bg-white flex items-center gap-2"><i className="ph ph-image"></i> Añadir portada</button>}
+                                            {activePage.cover && <button onClick={() => updatePage(activePage.id, {cover: null})} className="bg-white/80 backdrop-blur text-xs px-3 py-1.5 rounded shadow-sm hover:bg-white text-red-500"><i className="ph ph-trash"></i></button>}
+                                        </div>
+                                    </div>
+
+                                    {/* Icon & Title */}
+                                    <div className="relative pt-2 px-2 md:px-0">
+                                        <div className="relative inline-block group">
+                                            <div className="text-6xl md:text-7xl mb-4 -mt-16 md:-mt-20 relative z-10 cursor-pointer hover:opacity-80 transition-opacity"
+                                                 onClick={() => setUiState(p => ({...p, showIconPicker: !p.showIconPicker}))}>
+                                                {activePage.icon || <span className="opacity-0 group-hover:opacity-100 transition-opacity">📄</span>}
+                                            </div>
+                                            {uiState.showIconPicker && (
+                                                <IconPicker 
+                                                    onSelect={(icon) => { updatePage(activePage.id, {icon}); setUiState(p => ({...p, showIconPicker: false})); }}
+                                                    onClose={() => setUiState(p => ({...p, showIconPicker: false}))}
+                                                />
+                                            )}
+                                        </div>
+
+                                        <input 
+                                            type="text" 
+                                            value={activePage.title}
+                                            onChange={(e) => updatePage(activePage.id, {title: e.target.value})}
+                                            placeholder="Título de la página"
+                                            className="text-4xl md:text-5xl font-bold w-full bg-transparent outline-none border-none placeholder-gray-300 text-m3-text mb-6"
+                                        />
+                                    </div>
+                                    
+                                    {/* Blocks Area */}
+                                    <div className="space-y-1 min-h-[200px] px-2 md:px-0">
+                                        {activePage.blocks.map((block, index) => renderBlock(block, index))}
+                                        
+                                        <div className="h-24 cursor-text opacity-50 hover:opacity-100 flex items-center text-gray-300 text-sm pl-2"
+                                             onClick={() => addBlock(activePage.id, activePage.blocks.length - 1)}>
+                                            Click para añadir al final...
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* VIEW: SETTINGS */}
+                            {uiState.currentView === 'settings' && (
+                                <div className="max-w-2xl mx-auto animate-fade-in pt-6">
+                                    <h1 className="text-3xl font-bold text-m3-text mb-6">Configuración</h1>
+                                    <div className="bg-m3-surface-container rounded-2xl p-2 shadow-sm space-y-1">
+                                        <div className="p-4 bg-m3-surface rounded-xl flex justify-between items-center">
+                                            <div>
+                                                <div className="font-bold">Tema</div>
+                                                <div className="text-xs text-m3-text-secondary">Preferencia de color</div>
+                                            </div>
+                                            <select className="bg-m3-surface-container border-none text-sm rounded-lg px-3 py-2 outline-none">
+                                                <option>Sistema</option>
+                                                <option>Claro</option>
+                                                <option>Oscuro</option>
+                                            </select>
+                                        </div>
+                                        <div className="p-4 bg-m3-surface rounded-xl flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={() => {
+                                             const token = prompt("GitHub Personal Access Token:", githubToken);
+                                             if(token !== null) { setGithubToken(token); showToast("Token actualizado", "success"); }
+                                        }}>
+                                            <div>
+                                                <div className="font-bold">GitHub API Token</div>
+                                                <div className="text-xs text-m3-text-secondary">{githubToken ? 'Token configurado •••••' : 'No configurado'}</div>
+                                            </div>
+                                            <i className="ph ph-key text-xl text-m3-primary"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </main>
+
+                    {/* SEARCH MODAL */}
+                    {uiState.modals.search && (
+                        <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-start justify-center pt-0 md:pt-20 animate-fade-in">
+                            <div className="bg-m3-surface w-full max-w-2xl md:rounded-2xl shadow-2xl overflow-hidden flex flex-col h-full md:h-auto md:max-h-[70vh]">
+                                <div className="p-4 border-b border-m3-outline/10 flex items-center gap-3">
+                                    <i className="ph ph-magnifying-glass text-xl text-m3-text-secondary"></i>
+                                    <input autoFocus type="text" placeholder="Buscar..." className="flex-1 bg-transparent outline-none text-lg" 
+                                           onKeyDown={(e) => { if(e.key === 'Escape') setUiState(p => ({...p, modals: {...p.modals, search: false}})); }} />
+                                    <button onClick={() => setUiState(p => ({...p, modals: {...p.modals, search: false}}))} className="text-sm font-medium text-m3-primary">Esc</button>
+                                </div>
+                                <div className="p-2 overflow-y-auto max-h-[60vh]">
+                                    {currentWorkspace.pages.map(p => (
+                                        <div key={p.id} onClick={() => navigateTo('page', p.id)} className="flex items-center gap-3 p-3 hover:bg-m3-surface-container rounded-xl cursor-pointer group">
+                                            <div className="text-xl w-8 text-center">{p.icon || '📄'}</div>
+                                            <div className="flex-1">
+                                                <div className="font-medium text-m3-text">{p.title || 'Sin título'}</div>
+                                                <div className="text-xs text-m3-text-secondary">Editado {new Date(p.updatedAt).toLocaleDateString()}</div>
+                                            </div>
+                                            <i className="ph ph-arrow-right -ml-4 opacity-0 group-hover:ml-0 group-hover:opacity-100 transition-all text-m3-primary"></i>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        }
+
+        // --- RENDER ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <React.StrictMode>
+                <ToastProvider>
+                    <App />
+                </ToastProvider>
+            </React.StrictMode>
+        );
+    </script>
+</body>
+</html>
