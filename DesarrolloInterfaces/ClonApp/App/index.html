@@ -2,90 +2,91 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Notion Clone V42 - Modular (Fix)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Notion Clone</title>
     
-    <!-- 1. TAILWIND CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: {
-                        zinc: {
-                            850: '#1f1f22',
-                            900: '#18181b',
-                            950: '#09090b'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- 2. ESTILOS GLOBALES -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
-        
-        body { background-color: #FBFBFA; color: #3f3f46; -webkit-tap-highlight-color: transparent; }
-        
-        /* Scrollbar personalizada sutil */
-        .fancy-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .fancy-scroll::-webkit-scrollbar-track { background: transparent; }
-        .fancy-scroll::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 3px; }
-        .fancy-scroll::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
-
-        /* Fix para contentEditable vacío */
-        [contenteditable]:empty:before {
-            content: attr(placeholder);
-            color: #a1a1aa;
-            pointer-events: none;
-            display: block; 
-        }
-        
-        /* Animaciones de carga */
-        .animate-spin-slow { animation: spin 3s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>
-
-    <!-- 3. IMPORT MAPS -->
-    <script type="importmap">
-    {
-        "imports": {
-            "react": "https://esm.sh/react@18.2.0",
-            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-            "framer-motion": "https://esm.sh/framer-motion@10.16.4",
-            "lucide-react": "https://esm.sh/lucide-react@0.263.1"
-        }
-    }
-    </script>
-
-    <!-- 4. BABEL -->
+    <!-- React y ReactDOM desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone para transpilar JSX en el navegador -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide React Icons (necesario para los iconos en tu App.jsx) -->
+    <script src="https://unpkg.com/lucide-react@latest"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #ffffff;
+            color: #37352f;
+        }
+        
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        /* Estilos básicos para la aplicación */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Loading state */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <div class="loading-container">Cargando aplicación...</div>
+    </div>
 
-    <!-- 5. CARGA EL MODULO JSX -->
-    <script type="text/babel" data-type="module" src="./App.jsx"></script>
+    <!-- Tu componente App.jsx -->
+    <script type="text/babel" src="App.jsx"></script>
     
-    <!-- 6. INICIALIZACIÓN FINAL (Asegura que recibe el componente App correctamente) -->
-    <script type="module">
-        import { createRoot } from 'react-dom/client';
-        // Usamos la importación dinámica aquí, ya que la ruta puede ser sensible.
-        // El entorno de ejecución debe proveer el contenido del App.jsx al cargador.
-        // Si Babel compila correctamente el App.jsx, el módulo será accesible.
+    <!-- Script para renderizar la aplicación -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
         
-        // Carga la función de la aplicación desde el módulo compilado
-        import { App } from './App.jsx';
-
-        // Usa window.onload para asegurar que todo el DOM y scripts se hayan procesado
-        window.onload = function() {
-             const root = createRoot(document.getElementById('root'));
-             root.render(<App />);
-        };
+        // Esperar a que el componente App esté disponible
+        function renderApp() {
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            
+            // Verificar si el componente App está disponible globalmente
+            if (typeof App !== 'undefined') {
+                root.render(<App />);
+            } else {
+                // Si App no está disponible, intentar de nuevo en un momento
+                setTimeout(renderApp, 100);
+            }
+        }
+        
+        // Renderizar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderApp);
+        } else {
+            renderApp();
+        }
     </script>
 </body>
 </html>
