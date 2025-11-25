@@ -48,9 +48,9 @@
         body { font-family: 'Lato', sans-serif; }
         h1, h2, h3, .roman-font { font-family: 'Cinzel', serif; }
         
-        /* Textura Base */
+        /* Textura Base (Modo Claro/Oscuro Automático) */
         .bg-texture {
-            background-color: #F2F0E6;
+            background-color: #F2F0E6; /* Beige claro por defecto */
             background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4d1c2' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
         }
         .dark .bg-texture {
@@ -58,15 +58,19 @@
             background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23333' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
         }
 
-        /* Header Romano */
+        /* Header Romano Específico (Siempre Azul Oscuro) */
         .header-roman {
-            background-color: #16202c !important; /* Azul casi negro */
-            border-bottom: 2px solid #C5A059;
+            background-color: #2C3E50 !important; /* Forzamos azul oscuro siempre */
+            border-bottom: 4px solid #C5A059;
+        }
+        .dark .header-roman {
+            background-color: #111827 !important; 
         }
 
-        /* Fondo Estrellas */
+        /* Fondo Estrellas (Siempre Oscuro) */
         .bg-stars {
-            background-color: #0a0a0a !important;
+            background-color: #0a0a0a !important; /* Forzamos negro siempre */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E") !important;
             color: #ffffff !important;
         }
 
@@ -74,20 +78,44 @@
         .dark .marble-block { background: linear-gradient(145deg, #2d3748, #1a202c); border: 1px solid #4a5568; }
         
         /* Carrusel Materialize Ajustado */
-        .sections-carousel { height: 200px !important; margin: 0 -1rem; padding: 0 1rem; perspective: 1000px; }
-        .carousel .carousel-item { width: 250px !important; height: 160px; opacity: 1 !important; }
+        .sections-carousel {
+            height: 200px !important;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+            perspective: 1000px;
+        }
+        .carousel .carousel-item {
+            width: 250px !important;
+            height: 160px;
+            opacity: 1 !important;
+        }
         
+        /* Tarjetas Navegación */
         .carousel-item a.nav-card {
-            display: block; width: 100%; height: 100%; position: relative; text-align: center;
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            text-align: center;
             transition: transform 0.4s, box-shadow 0.4s, filter 0.6s;
-            background-size: cover; background-position: center;
-            border: 3px solid #C5A059; border-radius: 8px; overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #C5A059;
+            border-radius: 8px;
+            overflow: hidden;
             filter: grayscale(80%) brightness(70%) sepia(20%);
         }
-        .carousel-item a.nav-card:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(197, 160, 89, 0.4); filter: grayscale(0%) brightness(100%) sepia(0%); z-index: 10; }
+        .carousel-item a.nav-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(197, 160, 89, 0.4);
+            filter: grayscale(0%) brightness(100%) sepia(0%);
+            z-index: 10;
+        }
         
         .mural-frame { border: 8px double #C5A059; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background-color: #fff; padding: 10px; transition: transform 0.3s; }
         .mural-frame:hover { transform: translateY(-5px); }
+        .mural-image { filter: sepia(0.3) contrast(1.1); }
+
         .app-screen { display: none; }
         .app-screen.active { display: block; animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -96,173 +124,45 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .dark .text-primary-DEFAULT { color: #C5A059; }
-        .select-input-style { padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #D1D5DB; background-color: #FFFFFF; color: #1F2937; }
-        .dark .select-input-style { border-color: #4B5563; background-color: #1F2937; color: #F3F4F6; }
+        .select-input-style {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #D1D5DB;
+            background-color: #FFFFFF;
+            color: #1F2937;
+        }
+        .dark .select-input-style {
+            border-color: #4B5563;
+            background-color: #1F2937;
+            color: #F3F4F6;
+        }
         option { color: #333; background-color: #fff; }
 
+        .tab-button.active-tab { border-bottom-width: 3px; border-bottom-color: #3b82f6; color: #3b82f6; }
+        .dark .tab-button.active-tab { color: #60a5fa; border-bottom-color: #60a5fa; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
+        /* Reset específico para cualquier nav de Materialize que se nos escape */
         nav { background-color: transparent !important; box-shadow: none !important; height: auto !important; line-height: inherit !important; }
-        
-        /* --- ESTILOS BUSCADOR GLOBAL (Diseño Solicitado) --- */
-        #global-search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #1e293b; /* Fondo azul oscuro sólido */
-            border: 1px solid #334155;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 400px;
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            display: none;
-        }
-        
-        /* Item del buscador */
-        .search-result-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid #334155; /* Separador sutil */
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            color: #f1f5f9; /* Texto claro */
-            transition: background 0.2s ease;
-            font-family: 'Lato', sans-serif;
-        }
-        .search-result-item:hover {
-            background-color: #0f172a; /* Más oscuro al pasar el ratón */
-            padding-left: 20px; /* Efecto de desplazamiento */
-        }
-        .search-result-item:last-child { border-bottom: none; }
-        
-        /* Iconos del buscador */
-        .search-result-icon {
-            margin-right: 12px;
-            color: #C5A059; /* Iconos dorados */
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-            stroke-width: 2px; /* Icono más grueso */
-        }
-
-        /* Input del buscador */
-        #page-search-input {
-            background-color: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(197, 160, 89, 0.5);
-            color: white;
-            font-size: 1.1rem;
-            padding-left: 0;
-        }
-        #page-search-input:focus {
-            box-shadow: none;
-            border-bottom: 1px solid #C5A059;
-        }
-        #page-search-input::placeholder { color: #94a3b8; }
-
-        #clear-search-btn { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; display: none; }
-        #clear-search-btn:hover { color: white; }
-        
-        /* --- NUEVOS ESTILOS DE PESTAÑAS (Rectangulares Clásicos) --- */
-        .tab-button-classic {
-            background-color: transparent;
-            border: 2px solid #C5A059;
-            color: #C5A059; /* Texto dorado */
-            font-family: 'Cinzel', serif;
-            font-weight: 600;
-            letter-spacing: 1px;
-            padding: 10px 24px;
-            margin: 0 4px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-        }
-        
-        .tab-button-classic:hover {
-            background-color: rgba(197, 160, 89, 0.1);
-            box-shadow: inset 0 0 15px rgba(197, 160, 89, 0.3);
-        }
-
-        /* Estado Activo */
-        .tab-button-classic.active-tab {
-            background-color: #C5A059; /* Fondo dorado */
-            color: #1a1a1a; /* Texto oscuro */
-            border-color: #C5A059;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        /* Estilo para las pestañas romanas (Coches) */
-        .roman-tab { background: linear-gradient(to bottom, #F2F0E6, #E6E2D3); border: 2px solid #C5A059; border-radius: 4px; padding: 10px 24px; font-family: 'Cinzel', serif; font-weight: bold; color: #2C3E50; margin: 0 8px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .dark .roman-tab { background: linear-gradient(to bottom, #2C3E50, #1a1a1a); border-color: #8E352E; color: #C5A059; }
-        .roman-tab.active-tab { background: #8E352E; color: #FFFFFF; border-color: #C5A059; transform: translateY(-3px); box-shadow: 0 6px 12px rgba(142, 53, 46, 0.4); }
-        .dark .roman-tab.active-tab { background: #C5A059; color: #1a1a1a; border-color: #F2F0E6; }
-        
-        /* Vasijas Navegación */
-        .vase-card-container { display: inline-block; padding: 10px; vertical-align: bottom; }
-        .vase-card { position: relative; width: 200px; height: 260px; background-size: cover; background-position: center; border: 4px solid #C5A059; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: transform 0.3s ease, filter 0.3s ease; filter: sepia(0.4) brightness(0.9); overflow: visible; margin: 0 auto; display: flex; flex-direction: column; justify-content: flex-end; z-index: 1; }
-        .vase-card::before, .vase-card::after { content: ''; position: absolute; border: 4px solid #C5A059; background: transparent; z-index: -1; transition: all 0.3s ease; }
-        .vase-card:hover { transform: translateY(-10px) scale(1.05); filter: sepia(0) brightness(1.1); z-index: 10; }
-        .vase-content { background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4), rgba(0,0,0,0)); padding: 1rem; text-align: center; border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
-        
-        .shape-1 { width: 180px; height: 260px; border-radius: 40px 40px 90px 90px; }
-        .shape-1::before, .shape-1::after { top: 50px; width: 25px; height: 50px; border-radius: 50%; }
-        .shape-1::before { left: -12px; border-right: none; } .shape-1::after { right: -12px; border-left: none; }
-        .shape-2 { width: 210px; height: 240px; border-radius: 60px 60px 80px 80px / 40px 40px 90px 90px; }
-        .shape-2::before, .shape-2::after { top: 30px; width: 20px; height: 70px; border-radius: 10px; border: 4px solid #C5A059; }
-        .shape-2::before { left: -8px; border-right: none; } .shape-2::after { right: -8px; border-left: none; }
-        .shape-3 { width: 190px; height: 270px; border-radius: 20px 20px 80px 80px / 10px 10px 100px 100px; }
-        .shape-3::before, .shape-3::after { top: 60px; width: 30px; height: 30px; border-radius: 50%; transform: rotate(-20deg); }
-        .shape-3::before { left: -10px; border-right: none; transform: rotate(20deg); } .shape-3::after { right: -10px; border-left: none; transform: rotate(-20deg); }
-        .shape-4 { width: 220px; height: 230px; border-radius: 10px 10px 100px 100px / 5px 5px 120px 120px; }
-        .shape-4::before, .shape-4::after { top: 10px; width: 15px; height: 50px; border-radius: 0 0 20px 20px; }
-        .shape-4::before { left: 0px; border-top: none; border-right: none; transform: skewX(10deg); } .shape-4::after { right: 0px; border-top: none; border-left: none; transform: skewX(-10deg); }
-        
-        .custom-carousel-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .custom-carousel { display: flex; overflow-x: auto; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; gap: 1rem; padding: 2rem 1rem; width: 100%; max-width: 1000px; align-items: flex-end; }
-        .custom-carousel::-webkit-scrollbar { display: none; }
-        .nav-arrow { background: rgba(197, 160, 89, 0.2); border: 2px solid #C5A059; color: #C5A059; border-radius: 50%; padding: 10px; cursor: pointer; transition: all 0.2s; z-index: 20; flex-shrink: 0; }
-        .nav-arrow:hover { background: #C5A059; color: white; transform: scale(1.1); }
     </style>
 </head>
 <body class="bg-texture text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
 
-    <!-- HEADER -->
+    <!-- HEADER CORREGIDO: Usamos DIV en lugar de NAV para evitar estilos de Materialize -->
     <header class="header-roman shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center gap-6">
-            
-            <!-- IZQUIERDA -->
-            <div class="flex items-center gap-4 shrink-0">
-                <a href="#" class="flex items-center gap-2 group" data-target="screen-home">
-                    <div class="p-2 bg-roman-gold rounded-full group-hover:rotate-45 transition-transform duration-300">
-                        <span data-feather="columns" class="text-white w-6 h-6"></span>
-                    </div>
-                    <div class="hidden sm:block">
-                        <span class="block text-white font-serif text-lg leading-none tracking-widest">GUÍA</span>
-                        <span class="block text-roman-gold font-serif text-xs tracking-widest">VALDEMORO</span>
-                    </div>
-                </a>
-                <button id="header-back-btn" class="hidden px-4 py-1 bg-roman-red/20 border border-roman-red text-white rounded-full hover:bg-roman-red transition-colors flex items-center gap-2 text-sm font-serif font-bold">
-                    <span data-feather="arrow-left" class="w-4 h-4"></span> VOLVER
-                </button>
-            </div>
-
-            <!-- CENTRO: Buscador Global Estilizado -->
-            <div class="flex-1 max-w-xl relative">
-                <div class="relative flex items-center border-b border-roman-gold/50 pb-1">
-                    <input type="text" id="page-search-input" placeholder="Buscar en la guía..." autocomplete="off" class="w-full bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 text-lg">
-                    <span id="clear-search-btn"><span data-feather="x" class="w-4 h-4"></span></span>
-                    <span class="text-roman-gold ml-2 pointer-events-none"><span data-feather="search" class="w-5 h-5"></span></span>
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 group" data-target="screen-home">
+                <div class="p-2 bg-roman-gold rounded-full group-hover:rotate-45 transition-transform duration-300">
+                    <span data-feather="columns" class="text-white w-6 h-6"></span>
                 </div>
-                <div id="global-search-results"></div>
-            </div>
-
-            <!-- DERECHA -->
-            <div class="flex items-center gap-3 shrink-0">
-                <button class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors" data-target="screen-stars" title="Ver la Leyenda"><span data-feather="book-open" class="w-6 h-6"></span></button>
+                <div>
+                    <span class="block text-white font-serif text-lg leading-none tracking-widest">GUÍA</span>
+                    <span class="block text-roman-gold font-serif text-xs tracking-widest">VALDEMORO</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors" data-target="screen-stars" title="Ver las Estrellas"><span data-feather="star" class="w-6 h-6"></span></button>
                 <button id="theme-toggle" class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors"><span id="theme-icon-sun" data-feather="sun" class="hidden w-6 h-6"></span><span id="theme-icon-moon" data-feather="moon" class="hidden w-6 h-6"></span></button>
             </div>
         </div>
@@ -314,150 +214,126 @@
                 </div>
             </div>
 
-            <div class="custom-carousel-wrapper">
-                <button id="nav-left-btn" class="nav-arrow"><span data-feather="chevron-left"></span></button>
-                <div id="main-nav-carousel" class="custom-carousel">
-                    <div class="vase-card-container" data-name="mi pueblo"><a href="#" data-target="screen-town" class="vase-card shape-1" id="img-nav-town"><div class="vase-content"><span data-feather="home" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">MI PUEBLO</span></div></a></div>
-                    <div class="vase-card-container" data-name="guía coches"><a href="#" data-target="screen-cars" class="vase-card shape-2" id="img-nav-cars"><div class="vase-content"><span data-feather="truck" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">SERVICIOS AUTO</span></div></a></div>
-                    <div class="vase-card-container" data-name="cine y series"><a href="#" data-target="screen-entertainment" class="vase-card shape-3" id="img-nav-movies"><div class="vase-content"><span data-feather="film" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">ENTRETENIMIENTO</span></div></a></div>
-                    <div class="vase-card-container" data-name="zonas de ocio"><a href="#" data-target="screen-leisure" class="vase-card shape-4" id="img-nav-leisure"><div class="vase-content"><span data-feather="coffee" class="w-8 h-8 text-white mb-1 mx-auto"></span><span class="text-white font-serif font-bold text-lg block">ZONAS DE OCIO</span></div></a></div>
-                </div>
-                <button id="nav-right-btn" class="nav-arrow"><span data-feather="chevron-right"></span></button>
+            <!-- CARRUSEL DE NAVEGACIÓN -->
+            <div class="carousel sections-carousel">
+                <div class="carousel-item"><a href="#" data-target="screen-town" class="nav-card group" style="background-image: url('https://placehold.co/400x300/2C3E50/C5A059?text=MI+PUEBLO');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="home" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">MI PUEBLO</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-cars" class="nav-card group" style="background-image: url('https://placehold.co/400x300/8E352E/C5A059?text=GUÍA+COCHES');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="truck" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">GUÍA COCHES</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-movies" class="nav-card group" style="background-image: url('https://placehold.co/400x300/C5A059/2C3E50?text=CINE');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="film" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">CINE Y SERIES</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-country" class="nav-card group" style="background-image: url('https://placehold.co/400x300/1a1a1a/C5A059?text=MI+PAÍS');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="map" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">MI PAÍS</span></div></a></div>
             </div>
         </section>
 
-        <!-- SECCIONES -->
-        
         <!-- MI PUEBLO -->
         <section id="screen-town" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO (INICIO)</span></a>
             <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Servicios de Valdemoro</h1>
             <div id="town-services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
-        <!-- COCHES Y SERVICIOS -->
+        <!-- COCHES -->
         <section id="screen-cars" class="app-screen">
-            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Servicios de Automoción en Valdemoro</h1>
-            
-            <div class="mb-6 overflow-x-auto flex justify-center" id="car-tabs">
-                <button data-tab-target="car-tab-content-buscador" class="tab-button roman-tab active-tab">Directorio Local</button>
-                <button data-tab-target="car-tab-content-portales" class="tab-button roman-tab">Portales Web</button>
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Coches en Valdemoro</h1>
+            <div class="mb-6 overflow-x-auto">
+                <div class="flex justify-center border-b-2 border-roman-gold/30" id="car-tabs">
+                    <button data-tab-target="car-tab-content-buscador" class="tab-button active-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red transition-colors">Buscador</button>
+                    <button data-tab-target="car-tab-content-portales" class="tab-button px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red transition-colors">Portales</button>
+                </div>
             </div>
-            
             <div id="car-tab-content-buscador" class="tab-content active">
                 <div class="flex flex-col sm:flex-row gap-4 mb-6 select-input-style">
-                    <input type="text" id="car-search-input" placeholder="Nombre (ej: Repsol, Ford...)" class="w-full select-input-style">
-                    <select id="car-filter-type" class="w-full sm:w-1/2 select-input-style">
-                        <option value="">Todos los Servicios</option>
-                        <option value="Concesionario">Concesionarios</option>
-                        <option value="Gasolinera">Gasolineras</option>
-                        <option value="Lavado">Lavadero/Taller</option>
+                    <input type="text" id="car-search-input" placeholder="Modelo..." class="w-full select-input-style">
+                    <select id="car-filter-radius" class="w-full sm:w-1/3 select-input-style">
+                        <option value="all">¿Dónde? (Toda la zona)</option><option value="0">Solo Valdemoro</option><option value="10">+10 km</option><option value="20">+20 km</option>
                     </select>
+                    <select id="car-filter-year" class="w-full sm:w-1/4 select-input-style"><option value="">Año</option></select>
                     <button id="car-filter-reset-btn" class="p-3 bg-roman-red text-white rounded font-serif font-bold hover:bg-red-800">Limpiar</button>
                 </div>
-                <div id="car-loading" class="hidden text-center py-10"><div class="loader mx-auto"></div><p class="mt-4 text-roman-gold font-serif">Cargando servicios...</p></div>
+                <div id="car-loading" class="hidden text-center py-10"><div class="loader mx-auto"></div><p class="mt-4 text-roman-gold font-serif">Consultando inventario...</p></div>
                 <div id="car-search-results" class="flex flex-col gap-6 min-h-[300px]"></div>
             </div>
-            
             <div id="car-tab-content-portales" class="tab-content">
                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <a href="https://www.coches.net/concesionarios/madrid/valdemoro/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group transition-all">
-                        <div class="flex items-center mb-3"><span data-feather="search" class="w-8 h-8 text-roman-blue mr-3"></span><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Coches.net</h2></div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Directorio oficial de concesionarios.</p>
-                    </a>
-                    <a href="https://www.yelp.com/search?find_desc=Auto+Repair&find_loc=Valdemoro%2C+Madrid" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group transition-all">
-                        <div class="flex items-center mb-3"><span data-feather="tool" class="w-8 h-8 text-roman-blue mr-3"></span><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Yelp Talleres</h2></div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Reseñas de talleres mecánicos.</p>
-                    </a>
-                    <a href="https://www.yelp.com/search?find_desc=Car+Wash&find_loc=Valdemoro%2C+Madrid" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group transition-all">
-                         <div class="flex items-center mb-3"><span data-feather="droplet" class="w-8 h-8 text-roman-blue mr-3"></span><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Yelp Lavaderos</h2></div>
-                         <p class="text-sm text-gray-600 dark:text-gray-300">Limpieza de vehículos.</p>
-                     </a>
+                    <a href="https://www.coches.net/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group"><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Coches.net</h2><p class="text-sm">Ocasión.</p></a>
+                    <a href="https://www.milanuncios.com/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group"><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Milanuncios</h2><p class="text-sm">Particulares.</p></a>
                  </div>
             </div>
         </section>
 
-        <!-- ENTRETENIMIENTO (Antes Cine) -->
-        <section id="screen-entertainment" class="app-screen">
-            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Entretenimiento en Valdemoro</h1>
-            
-            <!-- Pestañas Nivel 1: CINE vs TEATRO (Estilo Nuevo) -->
-            <div class="mb-6 overflow-x-auto flex justify-center" id="ent-main-tabs">
-                <button data-ent-target="ent-cine" class="tab-button tab-button-classic active-tab">CINE</button>
-                <button data-ent-target="ent-teatro" class="tab-button tab-button-classic">TEATRO</button>
-            </div>
-            
-            <!-- CONTENIDO CINE -->
-            <div id="ent-cine" class="ent-content active">
-                <!-- Subpestañas de Cine (Estilo Nuevo) -->
-                <div class="mb-6 overflow-x-auto flex justify-center" id="ent-cine-tabs">
-                    <button data-filter="available" class="tab-button tab-button-classic active-tab">Cartelera</button>
-                    <button data-filter="upcoming" class="tab-button tab-button-classic">Próximamente</button>
+        <!-- PELÍCULAS -->
+        <section id="screen-movies" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Teatro y Espectáculos</h1>
+            <div class="mb-6 overflow-x-auto">
+                <div class="flex justify-center border-b-2 border-roman-gold/30" id="movie-tabs">
+                    <button data-tab-target="movie-filter-area" data-tab-filter="available" class="tab-button movie-tab active-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Cartelera</button>
+                    <button data-tab-target="movie-filter-area" data-tab-filter="upcoming" class="tab-button movie-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Próximamente</button>
+                    <button data-tab-target="movie-filter-area" data-tab-filter="past" class="tab-button movie-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Clásicos</button>
                 </div>
-                
+            </div>
+            <div id="movie-filter-area" class="tab-content active">
                 <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]"></div>
             </div>
-
-            <!-- CONTENIDO TEATRO -->
-            <div id="ent-teatro" class="ent-content hidden">
-                <div class="marble-block p-6 rounded shadow-lg mb-6 text-center">
-                    <h2 class="text-2xl font-serif font-bold text-roman-blue dark:text-roman-gold">Teatro Municipal Juan Prado</h2>
-                    <p class="italic text-gray-600">La joya cultural de nuestra villa.</p>
-                </div>
-                <div id="theater-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Mock Data de Teatro -->
-                </div>
-            </div>
         </section>
 
-        <!-- ZONAS DE OCIO -->
-        <section id="screen-leisure" class="app-screen">
-            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Zonas de Ocio en Valdemoro</h1>
-            <div id="leisure-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </section>
-
-        <!-- ESTRELLAS Y LEYENDA -->
-        <section id="screen-stars" class="app-screen bg-stars fixed inset-0 z-[100] overflow-y-auto">
-            <!-- Fondo GIF Antorcha -->
-            <div class="fixed inset-0 z-0 bg-black">
-                 <img src="https://i.gifer.com/7S7.gif" alt="Antorcha Olímpica" class="w-full h-full object-cover opacity-60">
-                 <div class="absolute inset-0 bg-black/80"></div> <!-- Overlay Oscuro para legibilidad -->
-            </div>
-
-            <div class="container mx-auto p-6 relative z-10">
-                <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-gold hover:text-white transition-colors mb-8 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>REGRESAR</span></a>
-                <div class="max-w-3xl mx-auto text-center bg-black/40 backdrop-blur-sm p-8 rounded-lg border border-roman-gold shadow-[0_0_30px_rgba(197,160,89,0.2)]">
-                    <h1 class="text-4xl md:text-6xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 mb-8 animate-pulse drop-shadow-lg">LEYENDA DE VALDEMOR</h1>
-                    
-                    <article class="prose prose-invert prose-lg mx-auto font-serif text-gray-200 leading-relaxed text-justify">
-                        <p class="mb-6 first-letter:text-5xl first-letter:font-bold first-letter:text-roman-gold first-letter:mr-1 float-left">
-                            En los albores del tiempo, cuando los dioses aún caminaban entre los mortales y el cielo besaba la tierra de la meseta, un titán llamado <strong>Valdemor</strong>, nacido del fuego de la fragua de Vulcano y la firmeza de la roca madre, vagaba herido tras la Gran Guerra Celestial.
-                        </p>
-                        <p class="mb-6">
-                             Buscando refugio de la ira de Júpiter, Valdemor halló un valle fértil, oculto entre cerros de yeso que brillaban bajo la luna como plata fundida. Allí, clavó su inmensa espada en el suelo, y de la herida de la tierra no brotó sangre, sino un manantial de aguas cristalinas y eternas. Agotado, el titán se recostó para descansar, y su cuerpo inmenso se transformó en las colinas que hoy abrazan nuestra villa.
-                        </p>
-                        <p class="mb-6">
-                             Se dice que su corazón, aún ardiente con el fuego divino, late en las profundidades, calentando los hogares en los inviernos crudos y otorgando fuerza a las vides y olivares. La antorcha que portaba, símbolo de su resistencia, nunca se apagó; su llama invisible protege a los habitantes del valle, guiando a los viajeros perdidos de vuelta al hogar.
-                        </p>
-                        <p class="italic text-roman-gold text-center border-t border-roman-gold/30 pt-4 mt-8">
-                            "Quien bebe del agua de este valle, bebe del espíritu del titán, y llevará siempre consigo la fuerza de la piedra y el calor del fuego eterno."
-                        </p>
-                    </article>
-                </div>
-            </div>
+        <!-- MI PAÍS -->
+        <section id="screen-country" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold">Hispania</h1>
+            <p class="text-lg italic">"Non plus ultra."</p>
         </section>
 
     </main>
 
-    <!-- MODALES -->
+    <!-- ESTRELLAS - Fuera del Main para cubrir todo -->
+    <section id="screen-stars" class="app-screen bg-stars fixed inset-0 z-[100] overflow-y-auto">
+        <div class="container mx-auto p-6">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-gold hover:text-white transition-colors mb-8 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>REGRESAR</span></a>
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-4xl md:text-6xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 mb-8 animate-pulse">ASTRA VALDEMORI</h1>
+                <div class="relative w-full aspect-square md:aspect-[16/9] rounded-full md:rounded-lg overflow-hidden shadow-[0_0_50px_rgba(255,215,0,0.2)] border border-roman-gold mx-auto mb-12 group">
+                    <img src="https://placehold.co/1200x675/0a0a0a/FFFFFF?text=MAPA+ESTELAR" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-1000 group-hover:scale-105 transform">
+                    <div class="absolute top-0 left-0 w-full h-full pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                </div>
+                <article class="prose prose-invert prose-lg mx-auto font-serif text-gray-300">
+                    <h2 class="text-2xl text-roman-gold mb-6 border-b border-gray-700 pb-4">La Leyenda de los Valles Moros</h2>
+                    <p class="italic text-gray-400 mb-6">"Escuchad, viajeros, la antigua crónica..."</p>
+                    
+                    <p class="mb-4 text-lg leading-relaxed">
+                        Hace eones, cuando los dioses caminaban entre los mortales, un titán llamado <strong>Valdemor</strong>, hijo de la tierra y el fuego, buscó descanso en estas llanuras. Fatigado por la guerra contra los cielos, se recostó donde hoy yace la Plaza de la Constitución. Su aliento se convirtió en el viento que mece los campos de cereales, y su escudo, olvidado en la batalla, se transformó en la fuente de la Villa.
+                    </p>
+                    
+                    <p class="mb-4 text-lg leading-relaxed">
+                        Se cuenta que las estrellas que veis sobre vosotros no son meros astros, sino las joyas de su corona, esparcidas por el firmamento para guiar a los viajeros hacia el refugio de sus valles. Quien bebe de las aguas de Valdemoro bajo la luz de Orión, se dice, nunca olvidará el camino de regreso a casa, pues el espíritu del titán protege a todos los que buscan paz en sus dominios.
+                    </p>
+
+                    <p class="text-lg leading-relaxed">
+                        Y así perdura la leyenda, susurrada por el viento entre los olivos y grabada en el mármol de nuestras calles.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL CINE -->
     <div id="movie-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-texture w-full max-w-3xl rounded shadow-2xl border-4 border-roman-gold overflow-hidden relative max-h-[90vh] flex flex-col">
             <button id="movie-modal-close-btn" class="absolute top-2 right-2 z-20 p-2 bg-roman-red text-white rounded-full hover:bg-red-700"><span data-feather="x"></span></button>
             <div class="relative z-10 overflow-y-auto p-6" id="movie-modal-scroll-content">
-                <div id="movie-modal-inner-content"><div class="flex flex-col md:flex-row gap-6"><img id="movie-modal-poster" class="w-full md:w-1/3 rounded shadow-lg border-2 border-roman-gold"><div class="md:w-2/3"><h2 id="movie-modal-title" class="text-3xl font-serif font-bold text-roman-blue dark:text-roman-gold mb-4"></h2><p id="movie-modal-description" class="text-gray-800 dark:text-gray-200 mb-6 leading-relaxed font-serif"></p><div class="mt-4 pt-4 border-t border-gray-300 dark:border-gray-700"><p class="text-sm"><strong>Director:</strong> <span id="movie-modal-director"></span></p><p class="text-sm"><strong>Actores:</strong> <span id="movie-modal-actors"></span></p><p class="text-sm"><strong>IMDB:</strong> <span id="movie-modal-rating" class="text-roman-gold font-bold"></span></p></div></div></div></div>
+                <div id="movie-modal-inner-content">
+                     <div class="flex flex-col md:flex-row gap-6">
+                        <img id="movie-modal-poster" class="w-full md:w-1/3 rounded shadow-lg border-2 border-roman-gold">
+                        <div class="md:w-2/3">
+                            <h2 id="movie-modal-title" class="text-3xl font-serif font-bold text-roman-blue dark:text-roman-gold mb-4"></h2>
+                            <p id="movie-modal-description" class="text-gray-800 dark:text-gray-200 mb-6 leading-relaxed font-serif"></p>
+                        </div>
+                     </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL COCHES -->
     <div id="car-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-texture w-full max-w-3xl rounded shadow-2xl border-4 border-roman-gold overflow-hidden relative max-h-[90vh] flex flex-col">
             <button id="car-modal-close-btn" class="absolute top-2 right-2 z-20 p-2 bg-roman-red text-white rounded-full hover:bg-red-700"><span data-feather="x"></span></button>
@@ -481,51 +357,7 @@
     <script>
         feather.replace();
 
-        const APP_CONFIG = {
-            API_KEYS: { OMDB: '60a68b63' },
-            IMAGES: {
-                MENU: {
-                    town: "https://placehold.co/400x300/2C3E50/C5A059?text=MI+PUEBLO",
-                    cars: "https://placehold.co/400x300/8E352E/C5A059?text=SERVICIOS+AUTO",
-                    movies: "https://placehold.co/400x300/C5A059/2C3E50?text=ENTRETENIMIENTO",
-                    leisure: "https://placehold.co/400x300/1a1a1a/C5A059?text=ZONAS+DE+OCIO"
-                },
-                TOWN: [
-                    "https://placehold.co/600x400/8E352E/FFF?text=Ayuntamiento",
-                    "https://placehold.co/600x400/C5A059/FFF?text=Teatro+Juan+Prado",
-                    "https://placehold.co/600x400/2C3E50/FFF?text=Hospital",
-                    "https://placehold.co/600x400/555/FFF?text=Piscina",
-                    "https://placehold.co/600x400/333/FFF?text=Parque"
-                ],
-                LEISURE: {
-                    madakiba: "https://placehold.co/600x400/8E352E/FFF?text=Madakiba+Comics",
-                    kathulu: "https://placehold.co/600x400/2C3E50/FFF?text=Kathulu+Games",
-                    videodisc: "https://placehold.co/600x400/C5A059/FFF?text=Videodisc",
-                    elchiron: "https://placehold.co/600x400/555/FFF?text=El+Chiron",
-                    reston: "https://placehold.co/600x400/333/FFF?text=CC+El+Reston",
-                    tierno: "https://placehold.co/600x400/2C3E50/FFF?text=Parque+Tierno+Galvan"
-                }
-            }
-        };
-        
-        const SEARCH_INDEX = [
-            { term: "Inicio", target: "screen-home", icon: "columns" },
-            { term: "Valdemoro", target: "screen-town", icon: "map-pin" },
-            { term: "Ayuntamiento", target: "screen-town", icon: "briefcase" },
-            { term: "Hospital", target: "screen-town", icon: "activity" },
-            { term: "Piscina", target: "screen-town", icon: "droplet" },
-            { term: "Coches", target: "screen-cars", icon: "truck" },
-            { term: "Talleres", target: "screen-cars", icon: "tool" },
-            { term: "Gasolineras", target: "screen-cars", icon: "droplet" },
-            { term: "Cine", target: "screen-entertainment", icon: "film" },
-            { term: "Teatro", target: "screen-entertainment", icon: "film" },
-            { term: "Ocio", target: "screen-leisure", icon: "coffee" },
-            { term: "Madakiba", target: "screen-leisure", icon: "star" },
-            { term: "Kathulu", target: "screen-leisure", icon: "box" },
-            { term: "Estrellas", target: "screen-stars", icon: "star" },
-            { term: "Leyenda", target: "screen-stars", icon: "book-open" }
-        ];
-
+        // UTILS
         const show = (id) => document.getElementById(id)?.classList.remove('hidden');
         const hide = (id) => document.getElementById(id)?.classList.add('hidden');
 
@@ -533,11 +365,6 @@
         (function() {
             const html = document.documentElement;
             const toggle = document.getElementById('theme-toggle');
-            const backBtn = document.getElementById('header-back-btn');
-            const pageSearch = document.getElementById('page-search-input');
-            const searchResults = document.getElementById('global-search-results');
-            const clearBtn = document.getElementById('clear-search-btn');
-            
             const updateIcons = (dark) => {
                 document.getElementById('theme-icon-sun').style.display = dark ? 'block' : 'none';
                 document.getElementById('theme-icon-moon').style.display = dark ? 'none' : 'block';
@@ -547,384 +374,208 @@
             updateIcons(dark);
             toggle.onclick = () => { const d = html.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light'); updateIcons(d); };
 
-            document.getElementById('img-nav-town').style.backgroundImage = `url('${APP_CONFIG.IMAGES.MENU.town}')`;
-            document.getElementById('img-nav-cars').style.backgroundImage = `url('${APP_CONFIG.IMAGES.MENU.cars}')`;
-            document.getElementById('img-nav-movies').style.backgroundImage = `url('${APP_CONFIG.IMAGES.MENU.movies}')`;
-            document.getElementById('img-nav-leisure').style.backgroundImage = `url('${APP_CONFIG.IMAGES.MENU.leisure}')`;
-
-            const carousel = document.getElementById('main-nav-carousel');
-            document.getElementById('nav-left-btn').onclick = () => carousel.scrollBy({left: -220, behavior: 'smooth'});
-            document.getElementById('nav-right-btn').onclick = () => carousel.scrollBy({left: 220, behavior: 'smooth'});
-
-            const goToScreen = (targetId) => {
-                if(targetId === 'screen-home' || targetId === 'screen-stars') {
-                    backBtn.classList.add('hidden');
-                } else {
-                    backBtn.classList.remove('hidden');
-                    backBtn.onclick = () => goToScreen('screen-home');
-                }
-                document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
-                window.scrollTo(0,0);
-                
-                // Re-init carousel fix
-                if (targetId === 'screen-home') {
-                     setTimeout(() => {
-                         const el = document.querySelector('.sections-carousel');
-                         if(el && window.M) {
-                             const instance = M.Carousel.getInstance(el);
-                             if(instance) instance.destroy();
-                             M.Carousel.init(el, { fullWidth: false, indicators: false, padding: 10 });
-                         }
-                     }, 50);
-                }
-
-                document.body.dispatchEvent(new CustomEvent('screenchange', {detail:{screenId:targetId}}));
-            };
+            // Inicializar Carrusel al cargar
+            document.addEventListener('DOMContentLoaded', function() {
+                M.Carousel.init(document.querySelectorAll('.sections-carousel'), { fullWidth: false, indicators: false, padding: 10 });
+            });
 
             document.querySelectorAll('[data-target]').forEach(l => l.onclick = e => {
                 e.preventDefault();
-                goToScreen(l.dataset.target);
-            });
-
-            const performSearch = () => {
-                const query = pageSearch.value.toLowerCase().trim();
-                if (query.length > 0) {
-                    clearBtn.style.display = 'block';
-                    const matches = SEARCH_INDEX.filter(item => item.term.toLowerCase().includes(query));
-                    if (matches.length > 0) {
-                        searchResults.innerHTML = matches.map(item => `<div class="search-result-item" data-target="${item.target}"><span class="search-result-icon" data-feather="${item.icon}"></span><span>${item.term}</span></div>`).join('');
-                        feather.replace();
-                        searchResults.querySelectorAll('.search-result-item').forEach(item => {
-                            item.addEventListener('click', () => {
-                                goToScreen(item.dataset.target);
-                                pageSearch.value = '';
-                                clearBtn.style.display = 'none';
-                                searchResults.style.display = 'none';
-                            });
-                        });
-                    } else {
-                        searchResults.innerHTML = `<div class="search-result-item" style="cursor: default;"><span class="search-result-icon" data-feather="alert-circle"></span><span>No se encontraron resultados</span></div>`;
-                        feather.replace();
-                    }
-                    searchResults.style.display = 'block';
-                } else {
-                    clearBtn.style.display = 'none';
-                    searchResults.style.display = 'none';
+                const targetId = l.dataset.target;
+                
+                // Ocultar todas y mostrar la nueva
+                document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+                const targetScreen = document.getElementById(targetId);
+                if (targetScreen) targetScreen.classList.add('active');
+                
+                window.scrollTo(0,0);
+                
+                // *** CORRECCIÓN DEL BUG DEL CARRUSEL ***
+                // Si volvemos a home, forzamos la reinicialización del carrusel
+                // con un pequeño retardo para asegurar que el contenedor ya tiene dimensiones.
+                if (targetId === 'screen-home') {
+                    setTimeout(() => {
+                        const carouselEl = document.querySelector('.sections-carousel');
+                        if (carouselEl && window.M) {
+                            // Destruir instancia anterior si existe para evitar duplicados
+                            const instance = M.Carousel.getInstance(carouselEl);
+                            if (instance) instance.destroy();
+                            
+                            // Re-inicializar limpio
+                            M.Carousel.init(carouselEl, { fullWidth: false, indicators: false, padding: 10 });
+                        }
+                    }, 50); // 50ms es suficiente para que el DOM se pinte
                 }
-            };
-            pageSearch.addEventListener('input', performSearch);
-            clearBtn.addEventListener('click', () => { pageSearch.value = ''; performSearch(); });
-            document.addEventListener('click', (e) => { if (!pageSearch.contains(e.target) && !searchResults.contains(e.target) && !clearBtn.contains(e.target)) searchResults.style.display = 'none'; });
+
+                document.body.dispatchEvent(new CustomEvent('screenchange', {detail:{screenId:targetId}}));
+            });
         })();
 
-        // 2. ENTRETENIMIENTO (Cine + Teatro)
+        // 2. CINE
         (function() {
-            const API_KEY = APP_CONFIG.API_KEYS.OMDB; 
-            const BASE_URL = 'https://www.omdbapi.com/';
+            const API_KEY = 'TU_API_KEY_V3_AQUI'; 
+            const BASE_URL = 'https://api.themoviedb.org/3';
+            const IMG_URL = 'https://image.tmdb.org/t/p/w500';
             let loaded = false;
-            
-            const LISTS_CONFIG = {
-                available: ['Gladiator II', 'Wicked', 'Venom: The Last Dance', 'Moana 2'],
-                upcoming: ['Mufasa: The Lion King', 'Sonic the Hedgehog 3', 'Captain America: Brave New World', 'Nosferatu']
-            };
-            
-            const THEATER_PLAYS = [
-                 { title: "La Casa de Bernarda Alba", date: "25 Nov - 20:00", img: "https://placehold.co/500x300/8E352E/FFF?text=Lorca", desc: "Clásico de Lorca por la compañía local." },
-                 { title: "Concierto de Santa Cecilia", date: "30 Nov - 19:00", img: "https://placehold.co/500x300/2C3E50/FFF?text=Musica", desc: "Asociación Musical Ciudad de Valdemoro." },
-                 { title: "El Cascanueces", date: "15 Dic - 18:00", img: "https://placehold.co/500x300/C5A059/FFF?text=Ballet", desc: "Ballet clásico para toda la familia." }
-            ];
 
-            async function fetchMovieByTitle(title) {
+            async function fetchApi(ep, p={}) {
                 try {
-                    const r = await fetch(`${BASE_URL}?t=${encodeURIComponent(title)}&apikey=${API_KEY}`);
+                    const q = new URLSearchParams({ api_key: API_KEY, language: 'es-ES', region: 'ES', ...p });
+                    const r = await fetch(`${BASE_URL}/${ep}?${q}`);
                     return r.ok ? await r.json() : null;
                 } catch { return null; }
             }
 
-            async function loadContent() {
+            async function loadMovies() {
                 if(loaded) return;
+                const [now, up, pop] = await Promise.all([fetchApi('movie/now_playing'), fetchApi('movie/upcoming'), fetchApi('movie/popular')]);
+                const lists = { available: now?.results||[], upcoming: up?.results||[], past: pop?.results||[] };
                 
-                // Cargar Cine (Cartelera por defecto)
-                await renderCine('available');
-                
-                // Cargar Teatro
-                const tGrid = document.getElementById('theater-grid');
-                tGrid.innerHTML = THEATER_PLAYS.map(p => `
-                    <div class="marble-block rounded shadow overflow-hidden flex flex-col">
-                        <img src="${p.img}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h3 class="font-serif font-bold text-xl text-roman-blue dark:text-roman-gold">${p.title}</h3>
-                            <p class="text-sm text-roman-red font-bold mt-1">${p.date}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">${p.desc}</p>
+                const render = (filter) => {
+                    if (!filter || !lists[filter]) return;
+                    const grid = document.getElementById('movies-grid');
+                    grid.innerHTML = lists[filter].map(m => `
+                        <div class="movie-card bg-white dark:bg-gray-800 rounded shadow group cursor-pointer overflow-hidden" onclick="openMovie(${m.id})">
+                            <img src="${m.poster_path?IMG_URL+m.poster_path:'https://placehold.co/500x750'}" class="w-full aspect-[2/3] object-cover">
+                            <div class="p-2"><h3 class="font-bold truncate text-roman-blue dark:text-roman-gold">${m.title}</h3></div>
                         </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                };
                 
+                render('available');
                 loaded = true;
-            }
-            
-            async function renderCine(listType) {
-                const container = document.getElementById('movies-grid');
-                if(!container) return;
-                container.innerHTML = '<div class="loader mx-auto"></div>';
-                
-                const titles = LISTS_CONFIG[listType] || [];
-                const promises = titles.map(t => fetchMovieByTitle(t));
-                const movies = await Promise.all(promises);
-                
-                container.innerHTML = movies.filter(m => m && m.Response === 'True').map(m => `
-                    <div class="movie-card bg-white dark:bg-gray-800 rounded shadow group cursor-pointer overflow-hidden" onclick="openMovie('${m.imdbID}')">
-                        <img src="${m.Poster !== 'N/A' ? m.Poster : 'https://placehold.co/500x750'}" class="w-full aspect-[2/3] object-cover">
-                        <div class="p-2"><h3 class="font-bold truncate text-roman-blue dark:text-roman-gold">${m.Title}</h3></div>
-                    </div>
-                `).join('');
-            }
 
-            // Listeners Pestañas Principales (Cine vs Teatro)
-            document.getElementById('ent-main-tabs').onclick = (e) => {
-                if(e.target.classList.contains('tab-button')) {
-                    document.querySelectorAll('#ent-main-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
-                    e.target.classList.add('active-tab');
-                    
-                    document.querySelectorAll('#screen-entertainment .ent-content').forEach(c => c.classList.add('hidden'));
-                    document.querySelectorAll('#screen-entertainment .ent-content').forEach(c => c.classList.remove('active'));
-                    
-                    const targetId = e.target.dataset.entTarget;
-                    document.getElementById(targetId).classList.remove('hidden');
-                    document.getElementById(targetId).classList.add('active');
-                }
-            };
-            
-            // Listeners Sub-pestañas Cine
-            document.getElementById('ent-cine-tabs').onclick = (e) => {
-                if(e.target.classList.contains('tab-button')) {
-                    document.querySelectorAll('#ent-cine-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
-                    e.target.classList.add('active-tab');
-                    const filter = e.target.dataset.filter;
-                    renderCine(filter);
-                }
-            };
-
-            window.openMovie = async (id) => {
-                show('movie-modal');
-                const d = await fetch(`${BASE_URL}?i=${id}&plot=full&apikey=${API_KEY}`).then(r => r.json());
-                if(d) {
-                    document.getElementById('movie-modal-title').textContent = d.Title;
-                    document.getElementById('movie-modal-description').textContent = d.Plot;
-                    document.getElementById('movie-modal-poster').src = d.Poster !== 'N/A' ? d.Poster : '';
-                    document.getElementById('movie-modal-director').textContent = d.Director;
-                    document.getElementById('movie-modal-actors').textContent = d.Actors;
-                    document.getElementById('movie-modal-rating').textContent = d.imdbRating;
-                }
-            };
+                document.getElementById('movie-tabs').onclick = e => {
+                    if(e.target.classList.contains('tab-button')) {
+                        document.querySelectorAll('#movie-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
+                        e.target.classList.add('active-tab');
+                        document.querySelectorAll('#screen-movies .tab-content').forEach(c => c.classList.remove('active'));
+                        if(e.target.dataset.tabTarget) document.getElementById(e.target.dataset.tabTarget).classList.add('active');
+                        if(e.target.dataset.filter) render(e.target.dataset.filter);
+                    }
+                };
+                
+                window.openMovie = async (id) => {
+                    show('movie-modal');
+                    const d = await fetchApi(`movie/${id}`);
+                    if(d) {
+                        document.getElementById('movie-modal-title').textContent = d.title;
+                        document.getElementById('movie-modal-description').textContent = d.overview;
+                        document.getElementById('movie-modal-poster').src = d.poster_path ? IMG_URL+d.poster_path : '';
+                    }
+                };
+            }
             document.getElementById('movie-modal-close-btn').onclick = () => hide('movie-modal');
-            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-entertainment') loadContent(); });
+            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-movies') loadMovies(); });
         })();
 
-        // 3. SERVICIOS DE COCHES
+        // 3. COCHES
         (function() {
-            const VALDEMORO_SERVICES = [
-                { id: 1, name: 'Concesionario Ford Valdemoro', type: 'Concesionario', address: 'Av. de Madrid, 12', desc: 'Venta de vehículos nuevos y ocasión. Taller oficial.', img: 'https://placehold.co/600x400/2C3E50/FFF?text=FORD', hours: 'L-V: 9:00-20:00' },
-                { id: 2, name: 'Renault - Dacia', type: 'Concesionario', address: 'Polígono Industrial Albresa', desc: 'Concesionario oficial Renault. Vehículos comerciales y turismos.', img: 'https://placehold.co/600x400/FCD34D/000?text=RENAULT', hours: 'L-S: 10:00-14:00' },
-                { id: 3, name: 'Estación de Servicio Repsol', type: 'Gasolinera', address: 'C. de la Guardia Civil', desc: 'Gasolinera 24h con tienda y lavado a presión.', img: 'https://placehold.co/600x400/E44D26/FFF?text=REPSOL', hours: 'Abierto 24h' },
-                { id: 4, name: 'Elefante Azul', type: 'Lavado', address: 'Av. de Europa', desc: 'Centro de lavado de alta presión y aspirado.', img: 'https://placehold.co/600x400/3b82f6/FFF?text=LAVADO', hours: 'L-D: 8:00-22:00' },
-                { id: 5, name: 'Talleres Motrio', type: 'Lavado', address: 'C. Negritas, 5', desc: 'Mecánica general y neumáticos.', img: 'https://placehold.co/600x400/555/FFF?text=TALLER', hours: 'L-V: 8:30-18:30' },
-                { id: 6, name: 'Galp Energía', type: 'Gasolinera', address: 'Salida A-4 Km 26', desc: 'Combustible, GLP y cafetería.', img: 'https://placehold.co/600x400/E44D26/FFF?text=GALP', hours: 'Abierto 24h' }
+            const FALLBACK_CARS = [
+                { id: 1, make: 'Porsche', model: '911 GT3', year: 2022, image: 'https://placehold.co/600x400/8E352E/FFF?text=Porsche' },
+                { id: 2, make: 'Tesla', model: 'Model S', year: 2023, image: 'https://placehold.co/600x400/2C3E50/FFF?text=Tesla' },
+                { id: 3, make: 'Ford', model: 'Mustang', year: 1968, image: 'https://placehold.co/600x400/C5A059/FFF?text=Mustang' }
             ];
+            const LOCATIONS = [{city:'Valdemoro',dist:0}, {city:'Pinto',dist:6}, {city:'Madrid',dist:28}];
+            let allCars = [], loaded = false;
 
-            let allServices = VALDEMORO_SERVICES;
-            let loaded = false;
-
-            const searchInput = document.getElementById('car-search-input');
-            const typeFilter = document.getElementById('car-filter-type');
-            const container = document.getElementById('car-search-results');
-            const loading = document.getElementById('car-loading');
-
-            function loadServices() {
+            async function loadCars() {
                 if(loaded) return;
-                loading.classList.remove('hidden');
-                setTimeout(() => { 
-                    filterServices();
-                    loading.classList.add('hidden');
-                    loaded = true;
-                }, 500);
-            }
-
-            function filterServices() {
-                const txt = searchInput.value.toLowerCase();
-                const type = typeFilter.value;
-                
-                const res = allServices.filter(s => {
-                    return (s.name.toLowerCase().includes(txt)) && (!type || s.type === type);
-                });
-                
-                renderList(res);
-            }
-
-            function renderList(list) {
-                if(list.length === 0) {
-                    container.innerHTML = '<p class="text-center text-gray-500 italic py-8">No se encontraron servicios.</p>';
-                    return;
+                show('car-loading');
+                let rawData = [];
+                try {
+                    const res = await fetch('https://freetestapi.com/api/v1/cars');
+                    if (!res.ok) throw new Error('Fallo API');
+                    rawData = await res.json();
+                    rawData = rawData.slice(0, 30);
+                } catch (err) {
+                    console.warn('Usando respaldo:', err);
+                    rawData = FALLBACK_CARS;
                 }
-                
-                container.innerHTML = list.map(s => {
-                    let badgeClass = s.type === 'Concesionario' ? 'bg-roman-gold text-roman-blue' : (s.type === 'Gasolinera' ? 'bg-roman-red text-white' : 'bg-blue-600 text-white');
-
-                    return `
-                    <div class="flex flex-col sm:flex-row bg-white dark:bg-gray-800 rounded shadow overflow-hidden border border-gray-200 dark:border-gray-700 group transition-transform hover:scale-[1.01]">
-                        <div class="sm:w-1/3 relative h-48 sm:h-auto overflow-hidden">
-                             <div class="absolute top-2 left-2 px-2 py-1 text-xs font-bold rounded shadow z-10 ${badgeClass}">${s.type}</div>
-                             <img src="${s.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </div>
-                        <div class="sm:w-2/3 p-5 flex flex-col justify-between">
-                             <div>
-                                 <h3 class="font-serif text-xl font-bold text-roman-blue dark:text-roman-gold">${s.name}</h3>
-                                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 flex items-center gap-2"><span data-feather="map-pin" class="w-4 h-4"></span> ${s.address}</p>
-                                 <p class="text-sm text-gray-500 mt-2 line-clamp-2">${s.desc}</p>
-                             </div>
-                             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-right">
-                                 <button onclick="openServiceModal(${s.id})" class="px-4 py-2 bg-roman-blue text-white rounded text-sm hover:bg-blue-900 transition-colors">Más Info</button>
-                             </div>
-                        </div>
-                    </div>`;
-                }).join('');
-                feather.replace();
+                allCars = rawData.map(c => ({
+                    ...c, 
+                    id: c.id || crypto.randomUUID(),
+                    price: c.price || Math.floor(Math.random()*50000+10000),
+                    location: c.location || LOCATIONS[Math.floor(Math.random()*LOCATIONS.length)],
+                    image: c.image || `https://placehold.co/600x400/2C3E50/FFF?text=${c.make}`,
+                    engine: c.engine || 'V6', horsepower: c.horsepower || 200, transmission: c.transmission || 'Auto', color: c.color || 'Negro'
+                }));
+                populate(); filter(); hide('car-loading'); loaded = true;
             }
 
-            window.openServiceModal = (id) => {
-                const s = allServices.find(x => x.id == id);
-                if(!s) return;
+            function populate() {
+                const yf = document.getElementById('car-filter-year');
+                yf.innerHTML = '<option value="">Año</option>';
+                [...new Set(allCars.map(c=>c.year))].sort().reverse().forEach(y => yf.innerHTML += `<option value="${y}">${y}</option>`);
+            }
+
+            function filter() {
+                const txt = document.getElementById('car-search-input').value.toLowerCase();
+                const rad = document.getElementById('car-filter-radius').value;
+                const yr = document.getElementById('car-filter-year').value;
+                const res = allCars.filter(c => {
+                    const dist = rad === 'all' ? 999 : parseInt(rad);
+                    return (c.make.toLowerCase().includes(txt) || c.model.toLowerCase().includes(txt)) && (c.location.dist <= dist) && (!yr || c.year == yr);
+                });
+                document.getElementById('car-search-results').innerHTML = res.map(c => `
+                    <div class="flex bg-white dark:bg-gray-800 rounded shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <div class="w-1/3 relative"><div class="absolute top-2 left-2 px-2 py-1 text-xs font-bold bg-green-600 text-white rounded shadow z-10">${c.location.dist===0?'En Valdemoro':c.location.city}</div><img src="${c.image}" class="w-full h-full object-cover"></div>
+                        <div class="w-2/3 p-4">
+                            <h3 class="font-serif font-bold text-xl text-roman-blue dark:text-roman-gold">${c.make} ${c.model}</h3>
+                            <p class="text-sm text-gray-500 my-2">${c.year} | ${c.transmission}</p>
+                            <div class="flex justify-between items-center mt-4">
+                                <span class="font-bold text-roman-red">${c.price.toLocaleString()} €</span>
+                                <button onclick="openCarModal('${c.id}')" class="px-3 py-1 bg-roman-blue text-white rounded text-sm hover:bg-blue-900">Ver Detalles</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            window.openCarModal = (id) => {
+                const c = allCars.find(x => x.id == id);
+                if(!c) return;
                 show('car-modal');
-                document.getElementById('car-modal-title').textContent = s.name;
-                document.getElementById('car-modal-description').textContent = s.desc;
-                document.getElementById('car-modal-poster').src = s.img;
-                document.getElementById('car-modal-specs').innerHTML = `<p><strong>Tipo:</strong> ${s.type}</p><p><strong>Dirección:</strong> ${s.address}</p><p><strong>Horario:</strong> ${s.hours}</p>`;
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' Valdemoro ' + s.address)}`;
-                document.getElementById('car-modal-links').innerHTML = `<a href="${mapsUrl}" target="_blank" class="block text-center bg-roman-blue text-white py-2 rounded hover:bg-blue-900">Ver en Mapa</a>`;
+                document.getElementById('car-modal-title').textContent = `${c.make} ${c.model}`;
+                document.getElementById('car-modal-description').textContent = `Disponible en ${c.location.city}.`;
+                document.getElementById('car-modal-poster').src = c.image;
+                document.getElementById('car-modal-specs').innerHTML = `Precio: ${c.price}€ | HP: ${c.horsepower}`;
             };
 
-            searchInput.addEventListener('input', filterServices);
-            typeFilter.addEventListener('change', filterServices);
+            document.getElementById('car-search-input').oninput = filter;
+            document.getElementById('car-filter-radius').onchange = filter;
+            document.getElementById('car-filter-year').onchange = filter;
             document.getElementById('car-filter-reset-btn').onclick = () => {
-                searchInput.value = ''; typeFilter.value = ''; filterServices();
+                document.getElementById('car-search-input').value = '';
+                document.getElementById('car-filter-radius').value = 'all';
+                document.getElementById('car-filter-year').value = '';
+                filter();
             };
             document.getElementById('car-modal-close-btn').onclick = () => hide('car-modal');
-            
             document.getElementById('car-tabs').onclick = e => {
-                const button = e.target.closest('.tab-button');
-                if(button) {
-                    document.querySelectorAll('#car-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
-                    button.classList.add('active-tab', 'text-roman-blue');
+                if(e.target.classList.contains('tab-button')) {
+                    document.querySelectorAll('#car-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-red'));
+                    e.target.classList.add('active-tab', 'text-roman-red');
                     document.querySelectorAll('#screen-cars .tab-content').forEach(c => c.classList.remove('active'));
-                    document.getElementById(button.dataset.tabTarget).classList.add('active');
-                    if (button.dataset.tabTarget === 'car-tab-content-buscador') loadServices();
+                    document.getElementById(e.target.dataset.tabTarget).classList.add('active');
                 }
             };
-            
-            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-cars') loadServices(); });
+            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-cars') loadCars(); });
         })();
 
         // 6. MI PUEBLO
         (function() {
-            const townServices = [
-                { name: "Ayuntamiento", desc: "Atención ciudadana y gestión municipal.", loc: "Pza. de la Constitución, 11", img: APP_CONFIG.IMAGES.TOWN[0], url: "https://www.valdemoro.es/ayuntamiento" },
-                { name: "Teatro Juan Prado", desc: "Centro cultural principal, exposiciones y artes escénicas.", loc: "C. Estrella de Elola, 27", img: APP_CONFIG.IMAGES.TOWN[1], url: "https://www.valdemoro.es/teatro" },
-                { name: "Hosp. Infanta Elena", desc: "Hospital universitario público de referencia.", loc: "Av. Reyes Católicos, 21", img: APP_CONFIG.IMAGES.TOWN[2], url: "https://www.valdemoro.es/salud" },
-                { name: "Piscina Valdesanchuela", desc: "Complejo deportivo y piscina cubierta climatizada.", loc: "C. Valdesanchuela, s/n", img: APP_CONFIG.IMAGES.TOWN[3], url: "https://www.valdemoro.es/deportes" },
-                { name: "Parque Bolitas del Airón", desc: "El pulmón verde de la ciudad, ideal para pasear.", loc: "Camino de la Dehesa", img: APP_CONFIG.IMAGES.TOWN[4], url: "https://www.valdemoro.es/patrimonionatural" },
-                { name: "Centro de Empresas", desc: "Vivero de empresas y asesoramiento a emprendedores.", loc: "C. Gaspar Bravo, s/n", img: "https://placehold.co/600x400/8E352E/FFF?text=Centro+Empresas", url: "https://www.valdemoro.es/centro-de-empresas" }
+            const srv = [
+                { name: "Ayuntamiento", loc: "Pza. Constitución", img: "https://placehold.co/600x400/8E352E/FFF?text=Ayto" },
+                { name: "Hospital", loc: "Av. Reyes Católicos", img: "https://placehold.co/600x400/2C3E50/FFF?text=Hospital" }
             ];
-
-            const grid = document.getElementById('town-services-grid');
-            if(grid) {
-                grid.innerHTML = townServices.map(s => `
-                    <a href="${s.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block">
-                        <div class="h-48 overflow-hidden relative">
-                             <img src="${s.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 sepia-[.2] group-hover:sepia-0">
-                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12">
-                                <p class="text-white text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${s.loc}</p>
-                             </div>
-                        </div>
-                        <div class="p-6">
-                            <h2 class="text-xl font-serif font-semibold mb-2 text-roman-red group-hover:text-roman-gold transition-colors flex items-center justify-between">${s.name}<span data-feather="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100"></span></h2>
-                            <p class="text-gray-600 dark:text-gray-300 text-sm">${s.desc}</p>
-                        </div>
-                    </a>
-                `).join('');
-                feather.replace(); 
-            }
-        })();
-
-        // 7. ZONAS DE OCIO
-        (function() {
-            const leisureSpots = [
-                { 
-                    name: "Madakiba", 
-                    desc: "Tienda especializada en cómics, manga, juegos de mesa y merchandising. El paraíso del ocio alternativo.", 
-                    img: APP_CONFIG.IMAGES.LEISURE.madakiba,
-                    loc: "Calle Afrodita, 5",
-                    url: "https://madakiba.com/" 
-                },
-                { 
-                    name: "Kathulu Games", 
-                    desc: "El templo de los juegos de mesa, wargames y cartas coleccionables. Torneos semanales.", 
-                    img: APP_CONFIG.IMAGES.LEISURE.kathulu,
-                    loc: "C. del Cristo de la Salud, 15",
-                    url: "https://kathulugames.es/" 
-                },
-                { 
-                    name: "Videodisc", 
-                    desc: "Música, cine y coleccionismo. Un clásico de Valdemoro para los amantes de la cultura pop.", 
-                    img: APP_CONFIG.IMAGES.LEISURE.videodisc,
-                    loc: "C. del Carmen, 2",
-                    url: "https://www.facebook.com/videodiscvaldemoro/" 
-                },
-                {
-                    name: "Restaurante El Chirón",
-                    desc: "Cocina de autor con una Estrella Michelin. Tradición y vanguardia en el corazón de Valdemoro.",
-                    img: APP_CONFIG.IMAGES.LEISURE.elchiron,
-                    loc: "C. Alarcón, 27",
-                    url: "https://restauranteelchiron.com/"
-                },
-                {
-                    name: "Centro Comercial El Restón",
-                    desc: "Compras, restauración y servicios en un mismo lugar. El punto de encuentro del barrio.",
-                    img: APP_CONFIG.IMAGES.LEISURE.reston,
-                    loc: "Av. del Mar Mediterráneo, 3",
-                    url: "https://ccelreston.com/"
-                },
-                {
-                    name: "Parque Enrique Tierno Galván",
-                    desc: "El espacio verde más grande de la ciudad. Lagos, senderos y zonas deportivas.",
-                    img: APP_CONFIG.IMAGES.LEISURE.tierno,
-                    loc: "Paseo del Prado",
-                    url: "https://www.valdemoro.es/parques"
-                }
-            ];
-
-            const grid = document.getElementById('leisure-grid');
-            if(grid) {
-                grid.innerHTML = leisureSpots.map(spot => `
-                    <a href="${spot.url}" target="_blank" class="marble-block rounded-lg shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300 block border-l-4 border-roman-gold">
-                        <div class="h-56 overflow-hidden relative">
-                             <img src="${spot.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${spot.name}">
-                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80"></div>
-                             <div class="absolute bottom-4 left-4 right-4">
-                                <h2 class="text-2xl font-serif font-bold text-white mb-1 drop-shadow-md">${spot.name}</h2>
-                                <p class="text-roman-gold text-xs font-bold flex items-center gap-1"><span data-feather="map-pin" class="w-3 h-3"></span> ${spot.loc}</p>
-                             </div>
-                        </div>
-                        <div class="p-6">
-                            <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">${spot.desc}</p>
-                            <div class="mt-4 flex justify-end">
-                                <span class="text-roman-blue dark:text-roman-gold text-xs font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Visitar Sitio <span data-feather="arrow-right" class="w-3 h-3"></span></span>
-                            </div>
-                        </div>
-                    </a>
-                `).join('');
-                feather.replace();
-            }
+            const g = document.getElementById('town-services-grid');
+            if(g) g.innerHTML = srv.map(s => `
+                <div class="marble-block rounded shadow overflow-hidden group hover:shadow-xl transition-all duration-300">
+                    <div class="h-48 overflow-hidden relative"><img src="${s.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 sepia-[.2] group-hover:sepia-0"><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12"><p class="text-white text-xs font-bold">${s.loc}</p></div></div>
+                    <div class="p-6"><h2 class="text-xl font-serif font-bold text-roman-red">${s.name}</h2></div>
+                </div>
+            `).join('');
         })();
     </script>
 </body>
