@@ -1,3 +1,4 @@
+import { createRoot } from 'react-dom/client';
 import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -173,7 +174,7 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-export default function App() { // Cambio a exportación por defecto
+function App() { // Cambio a exportación por defecto
     // --- ESTADO GLOBAL ---
     const [workspaces, setWorkspaces] = useState(() => {
         const saved = localStorage.getItem('notion_v38_workspaces');
@@ -535,4 +536,8 @@ export default function App() { // Cambio a exportación por defecto
             </Modal>
         </div>
     );
+    // 2. Añade esto AL FINAL DEL ARCHIVO para que arranque automáticamente:
+    const container = document.getElementById('root');
+    const root = createRoot(container);
+    root.render(<App />);
 }

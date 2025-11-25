@@ -17,31 +17,15 @@
       }
     }
     </script>
-
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: sans-serif; }
-        #root { width: 100%; min-height: 100vh; }
-    </style>
+    <style>body { margin: 0; font-family: sans-serif; } #root { width: 100%; min-height: 100vh; }</style>
 </head>
 <body>
-    <div id="root">Cargando desde Vercel...</div>
+    <div id="root">Cargando aplicación...</div>
 
     <script 
         type="text/babel" 
         data-type="module" 
         src="https://trabajos-modulos-pedro.vercel.app/App.jsx">
-    </script>
-    
-    <script type="text/babel" data-type="module">
-        import React from 'react';
-        import { createRoot } from 'react-dom/client';
-        
-        // Importamos la App desde TU nube
-        import App from "https://trabajos-modulos-pedro.vercel.app/App.jsx";
-
-        const root = createRoot(document.getElementById('root'));
-        root.render(<App />);
     </script>
 </body>
 </html>
