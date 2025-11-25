@@ -12,7 +12,7 @@ import {
 /**
  * --- 1. CONFIGURACIÓN & CONSTANTES ---
  */
-const GEMINI_API_KEY = "AIzaSyBnlYWiISht2qSfO296uh-cEN5I69Haxe8"; 
+ // const GEMINI_API_KEY = "AIzaSyBnlYWiISht2qSfO296uh-cEN5I69Haxe8"; 
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -298,41 +298,23 @@ export default function App() { // Cambio a exportación por defecto
     };
 
     // --- GEMINI IA (MAGIC CREATE) ---
+    // --- GEMINI IA (VERSIÓN SEGURA VERCEL) ---
     const generatePageWithAI = async () => {
         if (!aiPrompt.trim()) return;
         setIsAiGenerating(true);
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            // CAMBIO: Llamamos a TU backend en Vercel (URL absoluta para evitar errores en local)
+            const response = await fetch('https://trabajos-modulos-pedro.vercel.app/api/generar-pagina', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `Eres un diseñador experto de Notion AI. Genera un JSON válido para una página basada en el prompt: "${aiPrompt}".
-                    
-                    INSTRUCCIONES CREATIVAS:
-                    1. Título: Atractivo y breve.
-                    2. Icono: Un emoji que represente perfectamente el tema.
-                    3. Portada (cover): Elige una palabra clave en inglés que represente el tema (ej: fitness, travel, technology) para buscar una imagen.
-                    4. Bloques: Crea una estructura rica con h1, p y todo lists que tengan sentido para la petición.
-                    
-                    Formato JSON exacto: 
-                    { 
-                        "title": "string", 
-                        "icon": "emoji", 
-                        "cover_keyword": "word_in_english",
-                        "blocks": [ 
-                            { "type": "h1"|"p"|"todo", "content": "string" } 
-                        ] 
-                    }
-                    
-                    Responde SOLO con el JSON sin markdown.` }] }]
-                })
+                body: JSON.stringify({ prompt: aiPrompt })
             });
             
-            const data = await response.json();
-            let text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(text);
+            if (!response.ok) throw new Error('Error conectando con el servidor de IA');
 
+            const parsed = await response.json();
+
+            // El resto de la lógica se mantiene igual...
             const keyword = parsed.cover_keyword || "abstract";
             const dynamicCover = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword)}?width=1200&height=400&nologo=true`;
 
@@ -346,8 +328,7 @@ export default function App() { // Cambio a exportación por defecto
                 blocks: parsed.blocks?.map(b => ({ ...b, id: generateId() })) || []
             };
             
-            // Simulación de "pensando" para UX
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Pequeña pausa UX
 
             const updated = workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, newPage] } : ws);
             setWorkspaces(updated);
@@ -359,7 +340,7 @@ export default function App() { // Cambio a exportación por defecto
 
         } catch (e) {
             console.error("AI Error:", e);
-            alert("La IA no pudo generar la página. Intenta con otro prompt.");
+            alert("La IA no pudo generar la página. Verifica que tu despliegue en Vercel esté activo.");
         } finally {
             setIsAiGenerating(false);
         }
