@@ -6,3 +6,4 @@ Solo hay un index.html, que va cambiando segun lo pida Pedro un trabajo
 
 # AmpliaciónSistemasInformáticos
 Repositorio donde se va a almacenar todo lo relacionado a la IA.
+En la otra rama: gh_pages
