@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth h-full">
+<html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,51 +22,46 @@
         }
     </script>
     <style>
-        /* Asegurar altura completa */
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-        .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Eliminamos restricciones de altura que causaban el colapso */
+        body { min-height: 100vh; overflow-y: auto; }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; } /* Cambiado a block simple */
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         .dark .tab-btn.active { background-color: #3b82f6; color: white; }
-        /* Scrollbar discreta */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
     </style>
 </head>
-<!-- LA CLAVE ESTÁ AQUÍ: h-full w-full y quitamos los márgenes -->
-<body class="bg-gray-50 text-gray-800 dark:bg-darkbg dark:text-gray-200 transition-colors duration-300 antialiased flex flex-col h-full w-full">
+<body class="bg-gray-50 text-gray-800 dark:bg-darkbg dark:text-gray-200 transition-colors duration-300 antialiased p-0 m-0">
 
-    <nav class="flex-none bg-white/80 dark:bg-darkbg/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm w-full z-50 px-4">
-        <div class="flex justify-between h-14 items-center w-full">
-            <div class="flex items-center gap-2">
-                <span class="material-icons-round text-primary text-2xl">auto_stories</span>
-                <span id="nav-title" class="font-bold text-lg tracking-tight truncate">Bitácora IA</span>
+    <nav class="sticky top-0 z-50 bg-white/90 dark:bg-darkbg/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm px-6 py-3">
+        <div class="flex justify-between items-center max-w-7xl mx-auto w-full">
+            <div class="flex items-center gap-3">
+                <span class="material-icons-round text-primary text-3xl">auto_stories</span>
+                <span id="nav-title" class="font-bold text-xl tracking-tight">Bitácora IA</span>
             </div>
-            <div>
-                <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <span class="material-icons-round text-xl dark:hidden">dark_mode</span>
-                    <span class="material-icons-round text-xl hidden dark:block text-yellow-400">light_mode</span>
-                </button>
-            </div>
+            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <span class="material-icons-round text-xl dark:hidden">dark_mode</span>
+                <span class="material-icons-round text-xl hidden dark:block text-yellow-400">light_mode</span>
+            </button>
         </div>
     </nav>
 
-    <main class="flex-grow w-full h-full overflow-y-auto p-4 flex flex-col">
+    <main class="max-w-7xl mx-auto w-full p-6 pb-12">
 
-        <header class="text-center mb-4 flex-none">
-            <h1 class="text-2xl font-extrabold tracking-tight" id="main-title"></h1>
+        <header class="text-center mb-8 mt-4">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2" id="main-title"></h1>
+            <p class="text-gray-500 dark:text-gray-400" id="footer-author"></p>
         </header>
 
-        <div class="mb-4 overflow-x-auto pb-1 flex-none w-full">
-            <div class="flex space-x-2 min-w-max" id="tabs-container"></div>
+        <div class="mb-8 overflow-x-auto pb-2 text-center">
+            <div class="inline-flex space-x-2" id="tabs-container"></div>
         </div>
 
-        <div id="content-display" class="flex-grow w-full relative min-h-0 rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-surface">
+        <div id="content-display" class="w-full relative min-h-[500px]">
             </div>
-
-        <footer class="mt-4 pt-4 pb-2 text-center flex-none text-xs opacity-60" id="footer-author"></footer>
 
     </main>
 
@@ -77,12 +72,19 @@
                 {
                     id: 1, title: "Montaje 1", date: "Octubre 2023", image: null, 
                     placeholderIcon: "image", placeholderColor: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400",
-                    description: `<h3 class="text-lg font-bold mb-2">Descripción del Montaje 1</h3><p>Contenido adaptado al ancho completo.</p>`
+                    description: `
+                        <h3 class="text-2xl font-bold mb-4">Descripción del Montaje 1</h3>
+                        <p class="mb-4 text-lg leading-relaxed">Este es el contenido del primer trabajo. Al usar un diseño de flujo normal, el texto empujará la caja hacia abajo asegurando que siempre sea visible.</p>
+                        <ul class="list-disc list-inside space-y-2 mb-4 marker:text-primary">
+                            <li>Elemento de lista 1</li>
+                            <li>Elemento de lista 2</li>
+                        </ul>
+                    `
                 },
                 {
                     id: 2, title: "Montaje 2", date: "Noviembre 2023", image: null,
                     placeholderIcon: "layers", placeholderColor: "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400",
-                    description: `<h3 class="text-lg font-bold mb-2">Montaje 2</h3><p>Más contenido aquí.</p>`
+                    description: `<h3 class="text-2xl font-bold mb-4">Montaje 2</h3><p class="text-lg">Segundo ejemplo de contenido.</p>`
                 }
             ]
         };
@@ -95,26 +97,36 @@
 
             DOC_DATA.works.forEach((work, index) => {
                 const isFirst = index === 0;
-                // Tab Btn
+                // Button
                 const btn = document.createElement('button');
-                btn.className = `tab-btn px-4 py-2 rounded-full text-sm font-bold transition-all border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 ${isFirst ? 'active' : ''}`;
+                btn.className = `tab-btn px-6 py-2 rounded-full text-sm font-bold transition-all border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 ${isFirst ? 'active' : ''}`;
                 btn.textContent = `${index + 1}. ${work.title}`;
                 btn.onclick = () => switchTab(work.id); btn.id = `tab-btn-${work.id}`;
                 tabsContainer.appendChild(btn);
 
-                // Content Block (Layout Full Width)
+                // Content Card
                 const contentDiv = document.createElement('div');
-                contentDiv.className = `tab-content w-full h-full ${isFirst ? 'active' : ''}`;
+                contentDiv.className = `tab-content w-full ${isFirst ? 'active' : ''}`;
                 contentDiv.id = `work-content-${work.id}`;
 
-                let imageHTML = work.image ? `<img src="${work.image}" class="w-full h-full object-cover">` : 
-                    `<div class="w-full h-full flex flex-col items-center justify-center p-4 ${work.placeholderColor}"><span class="material-icons-round text-5xl opacity-80">${work.placeholderIcon}</span></div>`;
+                let imageHTML = work.image ? 
+                    `<img src="${work.image}" class="w-full h-full object-cover min-h-[300px]">` : 
+                    `<div class="w-full h-full min-h-[300px] flex flex-col items-center justify-center p-8 ${work.placeholderColor}"><span class="material-icons-round text-6xl opacity-80">${work.placeholderIcon}</span></div>`;
 
-                // Estructura Flex para ocupar todo
+                // Layout de Tarjeta Robusta
                 contentDiv.innerHTML = `
-                    <div class="flex flex-col md:flex-row h-full w-full">
-                        <div class="w-full md:w-1/2 h-1/2 md:h-full relative overflow-hidden">${imageHTML}<div class="absolute bottom-2 left-2 bg-white/90 dark:bg-black/70 backdrop-blur px-2 py-1 rounded text-xs font-bold">${work.date}</div></div>
-                        <div class="w-full md:w-1/2 h-1/2 md:h-full p-6 overflow-y-auto"><div class="prose prose-sm dark:prose-invert max-w-none">${work.description}</div></div>
+                    <div class="bg-white dark:bg-surface rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col md:flex-row">
+                        <div class="w-full md:w-5/12 relative min-h-[300px]">
+                             ${imageHTML}
+                             <div class="absolute bottom-4 left-4 bg-white/90 dark:bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                                ${work.date}
+                            </div>
+                        </div>
+                        <div class="w-full md:w-7/12 p-8 md:p-10">
+                            <div class="prose prose-lg dark:prose-invert max-w-none">
+                                ${work.description}
+                            </div>
+                        </div>
                     </div>
                 `;
                 displayContainer.appendChild(contentDiv);
