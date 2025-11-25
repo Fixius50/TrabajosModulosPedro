@@ -2,479 +2,90 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion V30 (Robust Fix)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Notion Clone V42 - Modular (Fix)</title>
     
-    <!-- 1. ESTILOS -->
+    <!-- 1. TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Roboto', 'Inter', 'system-ui', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
                     colors: {
-                        m3: {
-                            surface: '#FEF7FF', 'surface-container': '#F3EDF7', primary: '#6750A4',
-                            'on-primary': '#FFFFFF', text: '#1D1B20', 'text-secondary': '#49454F',
-                            outline: '#79747E', 'surface-variant': '#E7E0EC',
-                            'on-surface-variant': '#49454F', 'blue-selection': '#E8F0FE', 'blue-text': '#0B57D0'
+                        zinc: {
+                            850: '#1f1f22',
+                            900: '#18181b',
+                            950: '#09090b'
                         }
-                    },
-                    borderRadius: { 'm3': '16px', 'pill': '9999px' },
-                    boxShadow: { 'm3-modal': '0px 25px 50px -12px rgba(0, 0, 0, 0.25)', 'm3-menu': '0px 2px 6px 2px rgba(0, 0, 0, 0.15)' },
-                    screens: { 'xs': '480px' }
+                    }
                 }
             }
         }
     </script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    
-    <!-- 2. LÓGICA DE LA APP (Colocada AQUÍ para garantizar disponibilidad) -->
-    <script type="module">
-        import { Octokit } from "https://esm.sh/@octokit/rest";
-        window.Octokit = Octokit;
-    </script>
 
-    <script>
-        // Definimos la función globalmente. Alpine la encontrará sí o sí.
-        function notionApp() {
-            return {
-                // --- ESTADO UI ---
-                sidebarOpen: window.innerWidth > 768,
-                isMobile: window.innerWidth <= 768,
-                showWorkspaceMenu: false,
-                showSearchModal: false,
-                showMarketModal: false,
-                showPageOptions: false,
-                showIconMenu: false,
-                showImportPopup: false,
-                isLoadingMarket: false,
-                importPopupMessage: '',
-                marketTab: 'gallery',
-                currentView: 'home',
-                settingsTab: 'menu',
-                showFilters: false,
-                activeFilterMenu: null,
-                searchQuery: '',
-                
-                // --- DATOS ---
-                importedStyles: [],
-                importedFonts: [],
-                activeWorkspaceId: 'ws-demo',
-                selectedSearchWorkspaceId: 'ws-demo',
-                workspaces: [
-                    { id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'bg-indigo-500', email: 'user@example.com', pages: [] },
-                    { id: 'ws-empty', name: 'Personal', initial: 'P', color: 'bg-emerald-500', email: 'personal@example.com', pages: [] }
-                ],
-                currentPageId: null,
-                activePage: { title: '', icon: null, cover: null, isPrivate: true, blocks: [] },
-                showBlockMenu: false,
-                currentBlockIndex: null,
-                iconList: ['📄', '🎵', '🚀', '💼', '💡', '🎨', '🏈', '🪐', '🍎', '🍕', '⚽', '🚗', '🐶', '🐱', '🎉', '📚', '💸', '🏠', '❤️', '💀', '🔥', '✨'],
-                
-                // Estructura inicial segura para evitar errores de renderizado
-                marketData: { 
-                    styles: [
-                        { id: 1, name: 'Dark Academia', author: 'NotionUser', color: 'bg-stone-800', previewClass: 'bg-stone-800' },
-                        { id: 2, name: 'Minimalist White', author: 'DesignPro', color: 'bg-white border border-gray-200', previewClass: 'bg-white border border-gray-200' }
-                    ], 
-                    fonts: [], 
-                    covers: { 
-                        'Abstractos': ['https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1200&q=80'], 
-                        'NASA': ['https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80'] 
-                    } 
-                },
-                
-                octokit: null,
-                githubToken: localStorage.getItem('notion_gh_token') || '',
+    <!-- 2. ESTILOS GLOBALES -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
+        
+        body { background-color: #FBFBFA; color: #3f3f46; -webkit-tap-highlight-color: transparent; }
+        
+        /* Scrollbar personalizada sutil */
+        .fancy-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .fancy-scroll::-webkit-scrollbar-track { background: transparent; }
+        .fancy-scroll::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 3px; }
+        .fancy-scroll::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
 
-                init() {
-                    // Generador ID
-                    if (!window.generateId) window.generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
-                    
-                    // Mock Data Inicial
-                    const demoWs = this.workspaces.find(w => w.id === 'ws-demo');
-                    if (demoWs && demoWs.pages.length === 0) this.generateMockData(demoWs);
-                    
-                    this.selectedSearchWorkspaceId = this.activeWorkspaceId;
-                    
-                    // Inicializar Octokit si hay token
-                    if (window.Octokit) this.octokit = new window.Octokit({ auth: this.githubToken });
-
-                    // Watchers & Events
-                    this.$watch('currentView', (value) => { if (value === 'page') setTimeout(() => this.initSortable(), 100); });
-                    window.addEventListener('resize', () => { 
-                        this.isMobile = window.innerWidth <= 768; 
-                        if (!this.isMobile && !this.sidebarOpen) this.sidebarOpen = true; 
-                    });
-                    window.addEventListener('keydown', (e) => { 
-                        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); this.openSearch(); } 
-                        if (e.key === 'Escape') this.closeModals(); 
-                    });
-                    
-                    // Cargar datos reales
-                    this.fetchMarketData();
-                },
-
-                // --- API GITHUB ---
-                configureToken() {
-                    const token = prompt("Introduce tu GitHub Token para evitar límites de API:", this.githubToken);
-                    if (token !== null) {
-                        this.githubToken = token;
-                        localStorage.setItem('notion_gh_token', token);
-                        if (window.Octokit) this.octokit = new window.Octokit({ auth: token });
-                        this.fetchMarketData();
-                        alert("Token guardado. Recargando datos...");
-                    }
-                },
-
-                async fetchMarketData() {
-                    if (!this.octokit) return;
-                    this.isLoadingMarket = true;
-                    const owner = 'Fixius50';
-                    const repo = 'TrabajosModulosPedro';
-                    const basePath = 'DesarrolloInterfaces/ClonApp/App';
-                    
-                    try {
-                        const { data: rootContents } = await this.octokit.rest.repos.getContent({ owner, repo, path: basePath });
-                        
-                        const fonts = [];
-                        const styles = [];
-
-                        for (const item of rootContents) {
-                            if (item.type === 'dir') {
-                                if (item.name === 'tipographyApp') {
-                                    try {
-                                        const { data: fontFolders } = await this.octokit.rest.repos.getContent({ owner, repo, path: item.path });
-                                        for (const fontFolder of fontFolders) {
-                                            if (fontFolder.type === 'dir') {
-                                                const { data: fontFiles } = await this.octokit.rest.repos.getContent({ owner, repo, path: fontFolder.path });
-                                                const fontFile = fontFiles.find(f => f.name.match(/\.(ttf|otf|woff)$/));
-                                                if (fontFile) fonts.push({ id: fontFolder.sha, name: fontFolder.name, type: 'font', download_url: fontFile.download_url });
-                                            }
-                                        }
-                                    } catch(e) {}
-                                }
-                                if (item.name === 'themesApp' || item.name === 'stylessApp') {
-                                    try {
-                                         const { data: themeFiles } = await this.octokit.rest.repos.getContent({ owner, repo, path: item.path });
-                                         for (const file of themeFiles) {
-                                             if (file.name.endsWith('.json') || file.name.endsWith('.css')) {
-                                                 styles.push({
-                                                     id: file.sha, name: file.name.split('.')[0].replace(/-/g, ' '), author: 'Fixius50', type: 'style',
-                                                     download_url: file.download_url, color: 'bg-gray-200', previewClass: 'bg-gray-200'
-                                                 });
-                                             }
-                                         }
-                                    } catch(e) {}
-                                }
-                            }
-                        }
-                        this.marketData.fonts = fonts;
-                        this.marketData.styles = [...this.marketData.styles, ...styles];
-
-                    } catch (error) {
-                        console.error("GitHub API Error:", error);
-                        if (error.status === 403) {
-                             if(confirm("Límite de API excedido (403). ¿Configurar Token?")) this.configureToken();
-                        }
-                    } finally {
-                        this.isLoadingMarket = false;
-                    }
-                },
-
-                // --- CORE LOGIC ---
-                importResource(item, type) {
-                    if (type === 'style') {
-                        this.importedStyles.push({ id: window.generateId(), name: item.name, type: 'style', previewClass: item.previewClass || '' });
-                        this.importPopupMessage = 'Para usar este tema, ve a Configuración > Apariencia.';
-                    } else {
-                        this.importedFonts.push({ id: window.generateId(), name: item.name, type: 'font', previewClass: '' });
-                        this.importPopupMessage = 'Para usar esta fuente, ve a Configuración > Tipografía.';
-                    }
-                    this.showMarketModal = false;
-                    this.showImportPopup = true;
-                    setTimeout(() => this.showImportPopup = false, 5000);
-                },
-
-                navigateTo(view) { 
-                    this.currentView = view; 
-                    this.currentPageId = null;
-                    if (view !== 'page') this.activePage = { title: '', icon: null, cover: null, isPrivate: true, blocks: [] };
-                    if (view === 'settings') this.settingsTab = 'menu';
-                },
-
-                openPage(pageId) {
-                    const scopeWs = this.workspaces.find(w => w.id === this.selectedSearchWorkspaceId) || this.currentWorkspace;
-                    let page = scopeWs.pages.find(p => p.id === pageId);
-                    if (page) {
-                        if (this.activeWorkspaceId !== this.selectedSearchWorkspaceId) this.activeWorkspaceId = this.selectedSearchWorkspaceId;
-                        this.activePage = JSON.parse(JSON.stringify(page)); 
-                        this.currentPageId = page.id; 
-                        this.currentView = 'page'; 
-                        this.showSearchModal = false;
-                        if (this.isMobile) this.sidebarOpen = false;
-                    }
-                },
-                
-                closeModals() { this.activeFilterMenu = null; this.showSearchModal = false; this.showMarketModal = false; this.showPageOptions = false; this.showIconMenu = false; },
-                toggleFilterMenu(menuName) { this.activeFilterMenu = (this.activeFilterMenu === menuName) ? null : menuName; },
-                openSearch() { this.showSearchModal = true; this.showFilters = false; this.activeFilterMenu = null; this.selectedSearchWorkspaceId = this.activeWorkspaceId; this.$nextTick(() => { const input = document.getElementById('searchInput'); if(input) input.focus(); }); },
-                
-                createNewWorkspace() { const name = prompt("Nombre:"); if (name) { const newWs = { id: window.generateId(), name: name, initial: name.charAt(0).toUpperCase(), color: 'bg-gray-500', email: 'new@example.com', pages: [] }; this.workspaces.push(newWs); this.activeWorkspaceId = newWs.id; this.navigateTo('home'); this.showWorkspaceMenu = false; } },
-                renameWorkspace() { const newName = prompt("Renombrar:", this.currentWorkspace.name); if (newName) { this.currentWorkspace.name = newName; this.currentWorkspace.initial = newName.charAt(0).toUpperCase(); } },
-                
-                deleteCurrentWorkspace() { if (this.workspaces.length <= 1) { alert("No puedes eliminar el último."); return; } if(confirm(`¿Eliminar "${this.currentWorkspace.name}"?`)) { this.workspaces = this.workspaces.filter(w => w.id !== this.activeWorkspaceId); this.activeWorkspaceId = this.workspaces[0].id; this.navigateTo('home'); this.showPageOptions = false; } },
-                deleteCurrentPage() { if (!this.currentPageId) return; if(confirm("¿Eliminar página?")) { this.currentWorkspace.pages = this.currentWorkspace.pages.filter(p => p.id !== this.currentPageId); this.navigateTo('home'); this.showPageOptions = false; } },
-                
-                createPage() { const newPage = { id: window.generateId(), title: '', icon: null, cover: null, isPrivate: true, updatedAt: new Date(), blocks: [{ id: window.generateId(), type: 'p', content: '' }] }; this.currentWorkspace.pages.push(newPage); this.openPage(newPage.id); },
-                saveCurrentPage() { const idx = this.currentWorkspace.pages.findIndex(p => p.id === this.activePage.id); if(idx !== -1) this.currentWorkspace.pages[idx] = JSON.parse(JSON.stringify(this.activePage)); },
-                
-                openMarket(tab = 'gallery') { this.marketTab = tab; this.showMarketModal = true; },
-                addRandomCover() { const allCovers = Object.values(this.marketData.covers).flat(); this.activePage.cover = allCovers[Math.floor(Math.random() * allCovers.length)]; this.saveCurrentPage(); },
-                selectCover(url) { this.activePage.cover = url; this.saveCurrentPage(); this.showMarketModal = false; },
-                removeCover() { this.activePage.cover = null; this.saveCurrentPage(); },
-                addIcon() { this.showIconMenu = true; },
-                setIcon(icon) { this.activePage.icon = icon; this.saveCurrentPage(); this.showIconMenu = false; },
-                togglePrivacy() { this.activePage.isPrivate = !this.activePage.isPrivate; this.saveCurrentPage(); },
-                
-                get currentWorkspace() { return this.workspaces.find(w => w.id === this.activeWorkspaceId); },
-                get filteredPages() { const searchWs = this.workspaces.find(w => w.id === this.selectedSearchWorkspaceId); if (!searchWs) return []; if (!this.searchQuery.trim()) return searchWs.pages; return searchWs.pages.filter(p => (p.title && p.title.toLowerCase().includes(this.searchQuery.toLowerCase()))); },
-                
-                generateMockData(ws) { const mockPages = [ { title: 'Música (Bandas)', icon: '🎵', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80' }, { title: 'Viaje a Japón', icon: '✈️', cover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' }, { title: 'Proyectos', icon: '💼', cover: null } ]; mockPages.forEach(m => { ws.pages.push({ id: window.generateId(), title: m.title, icon: m.icon, cover: m.cover, isPrivate: true, updatedAt: new Date(), blocks: [{ id: 'b1', type: 'p', content: 'Contenido de ejemplo...' }] }); }); },
-                
-                handleBlockKeydown(e, index, block) { if (e.key === 'Enter') { e.preventDefault(); this.addBlock(index + 1); } else if (e.key === 'Backspace' && block.content === '') { e.preventDefault(); this.deleteBlock(index); } },
-                addBlock(index) { const id = window.generateId(); this.activePage.blocks.splice(index, 0, { id, type: 'p', content: '' }); this.$nextTick(() => { const el = document.getElementById('block-' + id); if(el) el.focus(); }); this.saveCurrentPage(); },
-                deleteBlock(index) { if (this.activePage.blocks.length > 1) { this.activePage.blocks.splice(index, 1); this.saveCurrentPage(); } },
-                
-                // SORTABLE NUCLEAR FIX
-                initSortable() {
-                    const el = document.getElementById('blocks-container');
-                    if (el) {
-                        try {
-                            new Sortable(el, {
-                                handle: '.drag-handle',
-                                animation: 150,
-                                ghostClass: 'bg-indigo-50',
-                                onEnd: (evt) => {
-                                    evt.item.remove(); // Nuclear fix: remove DOM
-                                    const item = this.activePage.blocks.splice(evt.oldIndex, 1)[0];
-                                    this.activePage.blocks.splice(evt.newIndex, 0, item); // Update data
-                                    this.saveCurrentPage();
-                                }
-                            });
-                        } catch (e) { console.error(e); }
-                    }
-                }
-            };
+        /* Fix para contentEditable vacío */
+        [contenteditable]:empty:before {
+            content: attr(placeholder);
+            color: #a1a1aa;
+            pointer-events: none;
+            display: block; 
         }
+        
+        /* Animaciones de carga */
+        .animate-spin-slow { animation: spin 3s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+
+    <!-- 3. IMPORT MAPS -->
+    <script type="importmap">
+    {
+        "imports": {
+            "react": "https://esm.sh/react@18.2.0",
+            "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+            "framer-motion": "https://esm.sh/framer-motion@10.16.4",
+            "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+        }
+    }
     </script>
-    
-    <!-- 3. ALPINE JS (AHORA SÍ, DESPUÉS DE DEFINIR LA FUNCIÓN) -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
+
+    <!-- 4. BABEL -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
+<body>
+    <div id="root"></div>
 
-<body class="h-screen w-full flex overflow-hidden bg-m3-surface text-m3-text" x-data="notionApp()">
-
-    <!-- SIDEBAR -->
-    <aside class="flex flex-col h-full transition-all duration-300 m3-transition bg-m3-surface-container z-30 border-r border-white/50 shadow-sm fixed md:relative inset-y-0 left-0"
-           :class="sidebarOpen ? (isMobile ? 'w-20 translate-x-0' : 'w-72') : (isMobile ? '-translate-x-full w-20' : 'w-20')">
+    <!-- 5. CARGA EL MODULO JSX -->
+    <script type="text/babel" data-type="module" src="./App.jsx"></script>
+    
+    <!-- 6. INICIALIZACIÓN FINAL (Asegura que recibe el componente App correctamente) -->
+    <script type="module">
+        import { createRoot } from 'react-dom/client';
+        // Usamos la importación dinámica aquí, ya que la ruta puede ser sensible.
+        // El entorno de ejecución debe proveer el contenido del App.jsx al cargador.
+        // Si Babel compila correctamente el App.jsx, el módulo será accesible.
         
-        <!-- Workspace Header -->
-        <div class="p-4 relative flex justify-center md:justify-start" 
-             @mouseenter="!isMobile && (showWorkspaceMenu = true)" 
-             @mouseleave="!isMobile && (showWorkspaceMenu = false)" 
-             @click="isMobile && (showWorkspaceMenu = !showWorkspaceMenu)">
-            
-            <div class="flex items-center gap-3 p-2 rounded-full hover:bg-black/5 cursor-pointer m3-transition"
-                 :class="(!sidebarOpen && !isMobile) ? 'justify-center' : ''">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-sm shrink-0"
-                     :class="currentWorkspace.color">
-                    <span x-text="currentWorkspace.initial"></span>
-                </div>
-                <div x-show="sidebarOpen && !isMobile" class="flex-1 overflow-hidden">
-                     <div @click.stop="renameWorkspace()" class="text-sm font-medium truncate hover:underline cursor-text" x-text="currentWorkspace.name"></div>
-                     <div class="text-xs text-m3-text-secondary truncate" x-text="currentWorkspace.email"></div>
-                </div>
-                <i x-show="sidebarOpen && !isMobile" class="ph ph-caret-down text-m3-text-secondary"></i>
-            </div>
+        // Carga la función de la aplicación desde el módulo compilado
+        import { App } from './App.jsx';
 
-            <!-- Dropdown Workspace -->
-            <div x-show="showWorkspaceMenu && sidebarOpen" x-transition class="absolute left-4 right-4 top-16 bg-m3-surface shadow-lg rounded-m3 border border-gray-100 z-50 py-2 overflow-hidden min-w-[200px]">
-                <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Tus espacios</div>
-                <template x-for="ws in workspaces" :key="ws.id">
-                    <div @click="activeWorkspaceId = ws.id; navigateTo('home'); showWorkspaceMenu = false" class="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3 justify-between group">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs shrink-0" :class="ws.color" x-text="ws.initial"></div>
-                            <span class="text-sm truncate" x-text="ws.name"></span>
-                        </div>
-                        <i x-show="ws.id === activeWorkspaceId" class="ph ph-check text-m3-primary text-sm"></i>
-                    </div>
-                </template>
-                <div class="border-t border-gray-100 my-1"></div>
-                <div @click="createNewWorkspace()" class="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3 text-m3-text-secondary hover:text-m3-primary">
-                    <i class="ph ph-plus text-lg"></i>
-                    <span class="text-sm">Crear espacio</span>
-                </div>
-                <!-- API Token -->
-                <div @click="configureToken()" class="px-4 py-3 hover:bg-m3-surface-container cursor-pointer flex items-center gap-3 text-m3-text-secondary hover:text-m3-primary border-t border-gray-100">
-                    <i class="ph ph-key text-lg"></i>
-                    <span class="text-sm">Configurar API Key</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nav Items -->
-        <nav class="px-2 md:px-3 space-y-1 flex flex-col items-center md:items-stretch">
-            <div @click="openSearch()" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i class="ph ph-magnifying-glass text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Buscar</span></div>
-            <div @click="navigateTo('home')" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition justify-center md:justify-start" :class="currentView === 'home' ? 'bg-m3-secondary-container text-m3-on-secondary-container' : 'text-m3-text-secondary hover:bg-black/5'"><i class="ph ph-house text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Inicio</span></div>
-            <div class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i class="ph ph-users-three text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Reuniones</span></div>
-            <div class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i class="ph ph-sparkle text-xl text-yellow-600 shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">IA Notion</span></div>
-            <div class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i class="ph ph-tray text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Bandeja</span></div>
-        </nav>
-        <div class="my-4 border-t border-m3-outline/20 mx-4"></div>
-
-        <!-- Page Tree -->
-        <div class="flex-1 overflow-y-auto px-2 md:px-3 no-scrollbar space-y-1 flex flex-col items-center md:items-stretch">
-            <div x-show="sidebarOpen && !isMobile" class="px-4 py-2 text-xs font-medium text-m3-text-secondary uppercase tracking-wider">Privado</div>
-            <template x-for="page in currentWorkspace.pages" :key="page.id"><div @click="openPage(page.id)" class="flex items-center gap-4 px-3 md:px-4 py-2 rounded-pill cursor-pointer m3-transition justify-center md:justify-start" :class="currentPageId === page.id ? 'bg-m3-secondary-container text-m3-on-secondary-container' : 'text-m3-text-secondary hover:bg-black/5'"><div class="text-lg shrink-0 w-5 h-5 flex items-center justify-center"><span x-show="page.icon" x-text="page.icon"></span><i x-show="!page.icon" class="ph ph-file-text text-m3-text-secondary"></i></div><span x-show="sidebarOpen && !isMobile" class="text-sm truncate" x-text="page.title || 'Sin título'"></span></div></template>
-            <div @click="createPage()" class="flex items-center gap-4 px-3 md:px-4 py-2 rounded-pill cursor-pointer text-m3-text-secondary hover:bg-black/5 opacity-70 hover:opacity-100 mt-2 justify-center md:justify-start"><i class="ph ph-plus text-lg shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Añadir página</span></div>
-        </div>
-
-        <!-- Bottom Actions -->
-        <div class="p-3 mt-auto space-y-1 border-t border-m3-outline/20 flex flex-col items-center md:items-stretch">
-            <div @click="navigateTo('settings')" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start" :class="currentView === 'settings' ? 'bg-m3-secondary-container text-m3-on-secondary-container' : ''"><i class="ph ph-gear text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Config</span></div>
-            <div @click="openMarket('styles')" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i class="ph ph-paint-brush-broad text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Styles Market</span></div>
-            <div @click="navigateTo('trash')" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer m3-transition text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start" :class="currentView === 'trash' ? 'bg-m3-secondary-container text-m3-on-secondary-container' : ''"><i class="ph ph-trash text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Papelera</span></div>
-             <div x-show="!isMobile" @click="sidebarOpen = !sidebarOpen" class="flex items-center gap-4 px-3 md:px-4 py-3 rounded-pill cursor-pointer text-m3-text-secondary hover:bg-black/5 justify-center md:justify-start"><i :class="sidebarOpen ? 'ph ph-arrows-in-line-horizontal' : 'ph ph-arrows-out-line-horizontal'" class="text-xl shrink-0"></i><span x-show="sidebarOpen && !isMobile" class="text-sm truncate">Colapsar</span></div>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 flex flex-col relative bg-m3-surface overflow-hidden shadow-xl z-10 w-full transition-all duration-300"
-          :class="isMobile && sidebarOpen ? 'translate-x-20 opacity-50 pointer-events-none' : ''">
-        
-        <!-- Top Bar -->
-        <header class="h-16 flex items-center justify-between px-4 shrink-0 bg-m3-surface/90 backdrop-blur z-10">
-            <div class="flex items-center gap-3 text-m3-text-secondary text-sm overflow-hidden">
-                <button x-show="isMobile" @click="sidebarOpen = !sidebarOpen" class="p-2 -ml-2 rounded-full hover:bg-black/5">
-                    <i class="ph ph-list text-2xl text-m3-text"></i>
-                </button>
-                <div class="flex items-center gap-1 truncate">
-                    <div class="flex items-center gap-1">
-                         <template x-if="currentView === 'page'">
-                            <div class="flex items-center gap-1">
-                                <span x-show="activePage.icon" x-text="activePage.icon" class="mr-1"></span>
-                                <i x-show="!activePage.icon" class="ph ph-file-text mr-1"></i>
-                                <span class="font-medium text-m3-text truncate" x-text="activePage.title || 'Sin título'"></span>
-                            </div>
-                        </template>
-                        <template x-if="currentView !== 'page'">
-                            <span class="font-medium text-m3-text truncate" x-text="currentView === 'home' ? 'Inicio' : (currentView === 'settings' ? 'Configuración' : (currentView === 'trash' ? 'Papelera' : 'Importados'))"></span>
-                        </template>
-                    </div>
-                    <div x-show="currentView === 'page'" @click="togglePrivacy()" class="ml-2 flex items-center gap-1 text-xs text-m3-text-secondary cursor-pointer hover:bg-black/5 px-2 py-1 rounded transition-colors select-none">
-                        <i :class="activePage.isPrivate ? 'ph ph-lock-key' : 'ph ph-globe'" class="text-sm"></i>
-                        <span x-show="!isMobile" x-text="activePage.isPrivate ? 'Privada' : 'Pública'"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-1 relative">
-                <button @click="showPageOptions = !showPageOptions" class="p-2 rounded-full hover:bg-black/5 text-m3-text-secondary transition-colors"><i class="ph ph-dots-three text-xl"></i></button>
-                <div x-show="showPageOptions" @click.outside="showPageOptions = false" x-transition class="absolute top-12 right-0 w-56 bg-m3-surface shadow-lg rounded-xl border border-gray-100 z-50 py-1 overflow-hidden">
-                    <template x-if="currentView === 'page'">
-                        <div><div @click="deleteCurrentPage()" class="px-4 py-2 hover:bg-red-50 text-red-600 cursor-pointer flex items-center gap-2 text-sm"><i class="ph ph-trash"></i> Eliminar página</div><div class="border-t border-gray-100 my-1"></div></div>
-                    </template>
-                    <div class="px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Espacio</div>
-                    <div @click="renameWorkspace(); showPageOptions = false" class="px-4 py-2 hover:bg-m3-surface-container cursor-pointer flex items-center gap-2 text-sm text-m3-text"><i class="ph ph-pencil-simple"></i> Renombrar</div>
-                    <div @click="deleteCurrentWorkspace()" class="px-4 py-2 hover:bg-red-50 text-red-600 cursor-pointer flex items-center gap-2 text-sm"><i class="ph ph-x-circle"></i> Eliminar espacio</div>
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto no-scrollbar p-4 md:p-12 relative scroll-smooth">
-            <!-- HOME, EDITOR, SETTINGS... (Same as V24) -->
-            <div x-show="currentView === 'home'" class="max-w-5xl mx-auto animate-fade-in">
-                <div class="bg-gradient-to-br from-m3-primary/10 to-indigo-50 p-6 md:p-10 rounded-[24px] md:rounded-[32px] mb-8 relative overflow-hidden"><div class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-m3-primary/5 rounded-full blur-3xl"></div><h1 class="text-3xl md:text-5xl font-bold text-m3-text mb-2 relative z-10">Buenos días</h1><p class="text-m3-text-secondary text-base md:text-lg relative z-10">Estás en <span class="font-semibold text-m3-primary" x-text="currentWorkspace.name"></span>.</p></div>
-                <h2 class="text-xs font-bold text-m3-text-secondary uppercase tracking-widest mb-4 px-2">Tus páginas</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"><template x-for="page in currentWorkspace.pages" :key="page.id"><div @click="openPage(page.id)" class="bg-m3-surface-container rounded-xl overflow-hidden hover:bg-m3-secondary-container cursor-pointer m3-transition group border border-transparent hover:border-m3-primary/20 shadow-sm flex flex-col h-40 relative"><div class="h-1/2 w-full bg-gray-200 relative overflow-hidden"><template x-if="page.cover"><img :src="page.cover" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"></template><template x-if="!page.cover"><div class="w-full h-full bg-gradient-to-r from-gray-100 to-gray-200 group-hover:from-gray-200 group-hover:to-gray-300 transition-colors"></div></template></div><div class="absolute top-[35%] left-4 bg-m3-surface rounded-md p-1 shadow-sm text-2xl leading-none group-hover:scale-110 transition-transform"><span x-text="page.icon || '📄'"></span></div><div class="p-3 pt-6 flex-1 flex flex-col justify-center"><div class="font-medium text-m3-text truncate text-sm" x-text="page.title || 'Sin título'"></div><div class="text-xs text-m3-text-secondary mt-1" x-text="'Editado ' + new Date(page.updatedAt).toLocaleDateString()"></div></div></div></template><div @click="createPage()" class="bg-transparent border-2 border-dashed border-m3-outline/20 rounded-xl flex items-center justify-center cursor-pointer hover:border-m3-primary/50 hover:bg-m3-primary/5 m3-transition h-40 group"><div class="text-center text-m3-text-secondary group-hover:text-m3-primary transition-colors"><i class="ph ph-plus text-3xl mb-1"></i><div class="text-xs font-medium">Nueva página</div></div></div></div>
-            </div>
-            
-            <div x-show="currentView === 'page'" class="max-w-3xl mx-auto pb-32 animate-fade-in relative">
-                 <!-- (Editor Code) -->
-                <div class="group/cover relative mb-8 -mx-4 md:-mx-12"><div x-show="activePage.cover" class="h-40 md:h-64 w-full relative"><img :src="activePage.cover" class="w-full h-full object-cover object-center"><div class="absolute bottom-2 right-2 opacity-0 group-hover/cover:opacity-100 transition-opacity flex items-end justify-end p-4 gap-2"><button @click="openMarket('gallery')" class="bg-white/80 backdrop-blur hover:bg-white text-xs font-medium px-3 py-1.5 rounded shadow-sm flex items-center gap-2 transition-colors"><i class="ph ph-image"></i> Cambiar</button><button @click="removeCover()" class="bg-white/80 backdrop-blur hover:bg-white text-xs font-medium px-3 py-1.5 rounded shadow-sm flex items-center gap-2 transition-colors text-red-500"><i class="ph ph-trash"></i></button></div></div></div>
-                <div class="group/header relative pt-2 px-2 md:px-0">
-                     <div x-show="activePage.icon" class="relative inline-block"><div class="text-6xl md:text-7xl mb-4 -mt-16 md:-mt-20 relative z-10 ml-1 cursor-pointer hover:opacity-80 transition-opacity" @click="showIconMenu = !showIconMenu"><span x-text="activePage.icon"></span></div><div x-show="showIconMenu" @click.outside="showIconMenu = false" class="absolute top-full left-0 mt-2 bg-m3-surface shadow-xl border border-gray-100 rounded-lg p-3 w-64 z-50 grid grid-cols-6 gap-2 overflow-y-auto max-h-48"><template x-for="icon in iconList"><div @click="setIcon(icon)" class="text-xl hover:bg-m3-surface-container rounded p-1 cursor-pointer text-center" x-text="icon"></div></template></div></div>
-                     <div class="flex items-center gap-1 text-m3-text-secondary text-sm mb-4 opacity-0 group-hover/header:opacity-100 transition-opacity h-8"><div class="relative"><button x-show="!activePage.icon" @click="showIconMenu = !showIconMenu" class="hover:bg-m3-surface-container px-3 py-1.5 rounded flex items-center gap-2 transition-colors"><i class="ph ph-smiley text-lg"></i> Añadir icono</button><div x-show="showIconMenu && !activePage.icon" @click.outside="showIconMenu = false" class="absolute top-full left-0 mt-2 bg-m3-surface shadow-xl border border-gray-100 rounded-lg p-3 w-64 z-50 grid grid-cols-6 gap-2 overflow-y-auto max-h-48"><template x-for="icon in iconList"><div @click="setIcon(icon)" class="text-xl hover:bg-m3-surface-container rounded p-1 cursor-pointer text-center" x-text="icon"></div></template></div></div><button x-show="!activePage.cover" @click="addRandomCover()" class="hover:bg-m3-surface-container px-3 py-1.5 rounded flex items-center gap-2 transition-colors"><i class="ph ph-image text-lg"></i> Añadir portada</button><button class="hover:bg-m3-surface-container px-3 py-1.5 rounded flex items-center gap-2 transition-colors"><i class="ph ph-chat-circle text-lg"></i> Añadir comentario</button></div>
-                     <input type="text" x-model="activePage.title" @input="saveCurrentPage()" class="text-4xl md:text-5xl font-bold w-full bg-transparent outline-none border-none placeholder-gray-300 text-m3-text mb-6" placeholder="Título de la página">
-                </div>
-                <div id="blocks-container" class="space-y-2 min-h-[200px] px-2 md:px-0"><template x-for="(block, index) in activePage.blocks" :key="block.id"><div class="group relative flex items-start md:-ml-8 md:pl-8 py-1"><div class="hidden md:block absolute left-0 top-2.5 opacity-0 group-hover:opacity-100 cursor-grab drag-handle p-1 text-m3-outline"><i class="ph ph-dots-six-vertical text-xl"></i></div><div class="w-full"><template x-if="block.type === 'p'"><p contenteditable="true" :id="'block-' + block.id" class="py-1 outline-none text-base md:text-lg text-m3-text empty:before:content-[attr(placeholder)] empty:before:text-gray-300" @keydown="handleBlockKeydown($event, index, block)" @input="block.content = $el.innerText; saveCurrentPage()" placeholder="Escribe '/'..."></p></template><template x-if="block.type === 'h1'"><h1 contenteditable="true" :id="'block-' + block.id" class="text-3xl font-bold mt-4 mb-2 outline-none" @keydown="handleBlockKeydown($event, index, block)" @input="block.content = $el.innerText; saveCurrentPage()"></h1></template><template x-if="block.type === 'h2'"><h2 contenteditable="true" :id="'block-' + block.id" class="text-2xl font-bold mt-3 mb-1 outline-none" @keydown="handleBlockKeydown($event, index, block)" @input="block.content = $el.innerText; saveCurrentPage()"></h2></template><template x-if="block.type === 'todo'"><div class="flex items-start gap-3 py-1"><input type="checkbox" class="mt-1.5 w-5 h-5 rounded border-gray-300 text-m3-primary focus:ring-m3-primary"><div contenteditable="true" :id="'block-' + block.id" class="flex-1 outline-none text-lg" @keydown="handleBlockKeydown($event, index, block)" @input="block.content = $el.innerText; saveCurrentPage()"></div></div></template></div></div></template></div>
-                <div class="h-32 cursor-text" @click="addBlock(activePage.blocks.length)"></div>
-            </div>
-            
-            <div x-show="currentView === 'settings'" class="max-w-2xl mx-auto animate-fade-in pt-10">
-                <div x-show="settingsTab === 'menu'">
-                    <h1 class="text-3xl font-bold text-m3-text mb-8">Configuración</h1>
-                    <div class="bg-m3-surface-container rounded-[24px] p-2 shadow-sm">
-                        <div class="p-4 hover:bg-m3-surface rounded-[20px] m3-transition cursor-pointer flex justify-between items-center group"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl"><i class="ph ph-user"></i></div><div><div class="font-bold text-lg">Cuenta</div><div class="text-sm text-m3-text-secondary">Gestiona tu perfil</div></div></div><i class="ph ph-caret-right text-m3-text-secondary"></i></div>
-                        <div class="h-px bg-m3-outline/10 mx-20 my-1"></div>
-                        <div @click="settingsTab = 'appearance'" class="p-4 hover:bg-m3-surface rounded-[20px] m3-transition cursor-pointer flex justify-between items-center group"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl"><i class="ph ph-palette"></i></div><div><div class="font-bold text-lg">Apariencia</div><div class="text-sm text-m3-text-secondary">Temas y colores</div></div></div><i class="ph ph-caret-right text-m3-text-secondary"></i></div>
-                        <div class="h-px bg-m3-outline/10 mx-20 my-1"></div>
-                        <div @click="settingsTab = 'fonts'" class="p-4 hover:bg-m3-surface rounded-[20px] m3-transition cursor-pointer flex justify-between items-center group"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl"><i class="ph ph-text-aa"></i></div><div><div class="font-bold text-lg">Tipografía</div><div class="text-sm text-m3-text-secondary">Fuentes y tamaño</div></div></div><i class="ph ph-caret-right text-m3-text-secondary"></i></div>
-                    </div>
-                </div>
-                <div x-show="settingsTab === 'appearance'" class="space-y-6">
-                    <div @click="settingsTab = 'menu'" class="text-m3-primary cursor-pointer hover:underline flex items-center gap-2"><i class="ph ph-arrow-left"></i> Volver</div>
-                    <h2 class="text-2xl font-bold">Apariencia</h2>
-                    <div class="bg-m3-surface-container p-4 rounded-2xl shadow-sm"><div class="font-medium mb-2">Tema del sistema</div><div class="flex gap-2 text-sm text-m3-text-secondary"><button class="bg-white px-3 py-1 rounded-full shadow-sm">Claro</button><button class="hover:bg-white/50 px-3 py-1 rounded-full">Oscuro</button></div></div>
-                    <h3 class="text-lg font-bold mt-6">Temas Importados</h3>
-                    <template x-if="importedStyles.length === 0"><div class="text-m3-text-secondary text-sm">No hay temas importados.</div></template>
-                    <template x-for="style in importedStyles" :key="style.id"><div class="bg-m3-surface-container p-4 rounded-2xl flex items-center justify-between shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded bg-white border flex items-center justify-center font-bold text-lg" :class="style.previewClass">Aa</div><div><div class="font-bold" x-text="style.name"></div><div class="text-xs opacity-60">Importado</div></div></div><button @click="alert('Tema aplicado')" class="bg-m3-primary text-white px-4 py-2 rounded-full text-sm hover:opacity-90">Aplicar</button></div></template>
-                </div>
-                <div x-show="settingsTab === 'fonts'" class="space-y-6">
-                    <div @click="settingsTab = 'menu'" class="text-m3-primary cursor-pointer hover:underline flex items-center gap-2"><i class="ph ph-arrow-left"></i> Volver</div>
-                    <h2 class="text-2xl font-bold">Tipografía</h2>
-                    <div class="bg-m3-surface-container p-6 rounded-2xl shadow-sm"><div class="flex justify-between mb-2"><span class="font-medium">Tamaño de fuente</span><span class="text-m3-primary font-bold">16px</span></div><input type="range" min="12" max="24" class="w-full accent-m3-primary"></div>
-                    <h3 class="text-lg font-bold mt-6">Fuentes Importadas</h3>
-                    <template x-if="importedFonts.length === 0"><div class="text-m3-text-secondary text-sm">No hay fuentes importadas.</div></template>
-                    <template x-for="font in importedFonts" :key="font.id"><div class="bg-m3-surface-container p-4 rounded-2xl flex items-center justify-between shadow-sm"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded bg-white border flex items-center justify-center font-bold text-lg text-black">Aa</div><div><div class="font-bold" x-text="font.name"></div><div class="text-xs opacity-60">Importado</div></div></div><button @click="alert('Fuente aplicada')" class="bg-m3-primary text-white px-4 py-2 rounded-full text-sm hover:opacity-90">Aplicar</button></div></template>
-                </div>
-            </div>
-            
-            <div x-show="currentView === 'trash'" class="max-w-md mx-auto animate-fade-in pt-20 text-center"><div class="w-32 h-32 bg-m3-surface-container rounded-full flex items-center justify-center mx-auto mb-8 text-5xl text-m3-text-secondary"><i class="ph ph-trash"></i></div><h1 class="text-3xl font-bold text-m3-text mb-4">Papelera vacía</h1><p class="text-m3-text-secondary text-lg leading-relaxed">Los elementos eliminados aparecerán aquí.</p></div>
-        </div>
-    </main>
-
-    <!-- IMPORT POPUP -->
-    <div x-show="showImportPopup" style="display: none;" x-transition.opacity class="fixed bottom-8 right-8 bg-m3-surface-container text-m3-text p-6 rounded-2xl shadow-2xl border border-white/50 z-50 max-w-sm animate-bounce-in"><h3 class="font-bold text-lg mb-2">¡Importación exitosa! 🚀</h3><p class="text-sm text-m3-text-secondary mb-4" x-text="importPopupMessage"></p><button @click="showImportPopup = false" class="w-full bg-m3-primary text-white py-2 rounded-pill text-sm font-medium">Entendido</button></div>
-
-    <!-- MARKET MODAL -->
-    <div x-show="showMarketModal" style="display: none;" x-transition.opacity class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div @click.outside="showMarketModal = false" class="bg-m3-surface w-full max-w-4xl h-[85vh] rounded-[24px] shadow-2xl flex flex-col overflow-hidden animate-fade-in">
-            <div class="border-b border-m3-outline/10 p-4 flex items-center justify-between bg-m3-surface"><div class="flex gap-6 text-sm font-medium overflow-x-auto"><button @click="marketTab = 'gallery'" class="pb-3 border-b-2 transition-colors whitespace-nowrap" :class="marketTab === 'gallery' ? 'border-m3-primary text-m3-primary' : 'border-transparent text-m3-text-secondary hover:text-m3-text'">Galería</button><button @click="marketTab = 'styles'" class="pb-3 border-b-2 transition-colors whitespace-nowrap" :class="marketTab === 'styles' ? 'border-m3-primary text-m3-primary' : 'border-transparent text-m3-text-secondary hover:text-m3-text'">Estilos</button><button @click="marketTab = 'fonts'" class="pb-3 border-b-2 transition-colors whitespace-nowrap" :class="marketTab === 'fonts' ? 'border-m3-primary text-m3-primary' : 'border-transparent text-m3-text-secondary hover:text-m3-text'">Fuentes</button></div><button @click="showMarketModal = false" class="p-2 hover:bg-black/5 rounded-full text-m3-text-secondary transition-colors"><i class="ph ph-x text-xl"></i></button></div>
-            <div class="flex-1 overflow-y-auto p-6 bg-m3-surface-container/30">
-                <div x-show="isLoadingMarket" class="flex items-center justify-center h-full text-m3-text-secondary"><i class="ph ph-spinner animate-spin text-3xl"></i><span class="ml-2">Cargando repositorio...</span></div>
-                <div x-show="!isLoadingMarket">
-                    <div x-show="marketTab === 'gallery'" class="space-y-8">
-                        <div class="flex justify-between items-center"><h2 class="text-lg font-bold text-m3-text">Selecciona una portada</h2><div class="flex gap-2"><button class="text-xs bg-white/50 px-3 py-1 rounded hover:bg-white border border-transparent hover:border-m3-outline/20">Subir propia</button><button @click="removeCover(); showMarketModal=false" class="text-xs text-red-500 hover:underline font-medium">Eliminar</button></div></div>
-                        <template x-for="(images, category) in marketData.covers" :key="category"><div><h3 class="text-xs font-bold text-m3-text-secondary uppercase mb-3" x-text="category"></h3><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><template x-for="img in images" :key="img"><div @click="selectCover(img)" class="h-24 rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 border-transparent hover:border-m3-primary shadow-sm"><img :src="img" class="w-full h-full object-cover"></div></template></div></div></template>
-                    </div>
-                    <div x-show="marketTab === 'styles'"><div class="flex justify-end mb-4"><button class="text-xs bg-white/50 px-3 py-1 rounded hover:bg-white border border-transparent hover:border-m3-outline/20">Subir JSON/CSS</button></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><template x-for="style in marketData.styles" :key="style.id"><div class="bg-m3-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow cursor-pointer flex flex-col"><div class="h-32 flex items-center justify-center" :class="style.color"><span class="text-3xl font-bold opacity-50">Aa</span></div><div class="p-4 border-t border-m3-outline/5"><h3 class="font-bold text-m3-text" x-text="style.name"></h3><p class="text-xs text-m3-text-secondary mt-1">Por <span x-text="style.author"></span></p><button @click="importResource(style, 'style')" class="mt-3 w-full py-2 bg-m3-primary text-white rounded-lg text-xs font-medium hover:opacity-90 transition-opacity">Obtener</button></div></div></template></div></div>
-                    <div x-show="marketTab === 'fonts'"><div class="flex justify-end mb-4"><button class="text-xs bg-white/50 px-3 py-1 rounded hover:bg-white border border-transparent hover:border-m3-outline/20">Subir TTF/OTF</button></div><div class="grid grid-cols-1 gap-4"><template x-for="font in marketData.fonts" :key="font.id"><div class="bg-m3-surface p-4 rounded-xl shadow-sm flex justify-between items-center"><div><div class="font-serif text-xl mb-1" x-text="font.name"></div><div class="text-xs text-m3-text-secondary">Fuente del repo</div></div><button @click="importResource(font, 'font')" class="bg-m3-surface-container px-4 py-2 rounded-pill text-sm hover:bg-m3-secondary-container">Obtener</button></div></template></div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SEARCH MODAL -->
-    <div x-show="showSearchModal" style="display: none;" x-transition.opacity.duration.200ms class="fixed inset-0 z-50 flex items-start justify-center pt-0 md:pt-20" :class="isMobile ? 'bg-m3-surface' : 'bg-black/40 backdrop-blur-sm'">
-        <div @click.outside="if(!isMobile) showSearchModal = false" class="bg-m3-surface w-full max-w-2xl md:rounded-[24px] shadow-2xl overflow-hidden flex flex-col h-full md:h-auto md:max-h-[70vh] border border-white/50">
-            <div x-show="isMobile" class="p-2 flex justify-end"><button @click="showSearchModal = false" class="p-2 text-m3-text">Cerrar</button></div>
-            <div class="p-4 border-b border-m3-outline/10"><div class="flex items-center gap-3 bg-m3-surface-container px-4 py-3 rounded-xl relative z-20"><i class="ph ph-magnifying-glass text-xl text-m3-text-secondary"></i><input id="searchInput" type="text" x-model="searchQuery" placeholder="Buscar páginas..." class="bg-transparent border-none outline-none w-full text-lg text-m3-text placeholder-m3-text-secondary/50"><div class="flex items-center gap-2 border-l border-gray-300 pl-2"><div @click="showFilters = !showFilters" class="p-1.5 rounded-lg cursor-pointer text-m3-text-secondary" :class="showFilters ? 'bg-black/10 text-m3-primary' : ''"><i class="ph ph-faders text-lg"></i></div></div></div><div x-show="showFilters" x-transition class="flex gap-2 mt-3 overflow-x-auto search-scrollbar pb-1 px-1"><button @click="toggleFilterMenu('sort')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-m3-surface-container text-xs font-medium whitespace-nowrap text-m3-text hover:bg-m3-surface-variant"><i class="ph ph-arrows-down-up"></i> Ordenar</button><button @click="toggleFilterMenu('workspace')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-m3-surface-container text-xs font-medium whitespace-nowrap text-m3-text hover:bg-m3-surface-variant"><i class="ph ph-user"></i> Workspace de</button></div><div x-show="activeFilterMenu" class="mt-2 p-2 bg-m3-surface-container rounded-xl text-sm animate-fade-in relative z-10 shadow-md border border-white/50"><div x-show="activeFilterMenu === 'workspace'" class="p-1 space-y-1"><div class="px-3 py-2 text-xs font-bold text-gray-500 uppercase">FILTRAR POR ESPACIO</div><template x-for="ws in workspaces" :key="ws.id"><div @click="selectedSearchWorkspaceId = ws.id; activeFilterMenu = null" class="px-3 py-2 hover:bg-white rounded cursor-pointer flex items-center gap-2" :class="selectedSearchWorkspaceId === ws.id ? 'bg-white font-medium' : ''"><div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs" :class="ws.color" x-text="ws.initial"></div><span x-text="ws.name"></span><i x-show="selectedSearchWorkspaceId === ws.id" class="ph ph-check ml-auto text-m3-primary"></i></div></template></div></div></div>
-            <div class="flex-1 overflow-y-auto p-2 search-scrollbar"><template x-for="page in filteredPages" :key="page.id"><div @click="openPage(page.id)" class="flex items-center gap-4 px-4 py-3 hover:bg-m3-surface-container rounded-xl cursor-pointer border-b border-gray-50 last:border-0 group"><div class="w-8 h-8 flex items-center justify-center bg-m3-surface shadow-sm rounded-lg text-lg group-hover:scale-110 transition-transform"><span x-text="page.icon || '📄'"></span></div><div class="flex-1 min-w-0"><div class="font-medium text-m3-text truncate" x-text="page.title || 'Sin título'"></div><div class="text-xs text-m3-text-secondary mt-0.5 flex items-center gap-1"><span x-text="workspaces.find(w => w.id === selectedSearchWorkspaceId)?.name" class="opacity-75"></span> • <span x-text="new Date(page.updatedAt).toLocaleDateString()"></span></div></div></div></template></div>
-        </div>
-    </div>
+        // Usa window.onload para asegurar que todo el DOM y scripts se hayan procesado
+        window.onload = function() {
+             const root = createRoot(document.getElementById('root'));
+             root.render(<App />);
+        };
+    </script>
 </body>
 </html>

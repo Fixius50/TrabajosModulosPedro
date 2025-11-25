@@ -173,7 +173,7 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-export function App() { // Cambiado a export function
+export default function App() { // Cambio a exportación por defecto
     // --- ESTADO GLOBAL ---
     const [workspaces, setWorkspaces] = useState(() => {
         const saved = localStorage.getItem('notion_v38_workspaces');
@@ -347,7 +347,7 @@ export function App() { // Cambiado a export function
             };
             
             // Simulación de "pensando" para UX
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             const updated = workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, newPage] } : ws);
             setWorkspaces(updated);
