@@ -1,149 +1,139 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitácora - Taller de IA</title>
+    <title>Bitácora ASI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: '#3b82f6', surface: '#1e293b' } } } }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: white; min-height: 100vh; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-tab { display: none; }
+        .active-btn { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="p-4 md:p-8 font-sans">
+
+    <header class="max-w-6xl mx-auto mb-8 border-b border-gray-700 pb-6 sticky top-0 bg-[#0f172a]/95 z-50 backdrop-blur">
+        <div class="flex items-center gap-3 mb-4 pt-2">
+            <span class="material-icons-round text-primary text-4xl">folder_special</span>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Bitácora de Prácticas</h1>
+                <p class="text-gray-400 text-sm">Repositorio: ASI/media/files</p>
+            </div>
+        </div>
+        <div id="tabs-menu" class="flex flex-wrap gap-2"></div>
+    </header>
+
+    <main id="main-content" class="max-w-6xl mx-auto min-h-[600px] pb-12">
+        </main>
 
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                fontFamily: { sans: ['Roboto', 'sans-serif'] },
-                extend: {
-                    colors: {
-                        primary: '#3b82f6', secondary: '#8b5cf6', darkbg: '#0f172a', surface: '#1e293b',
+        /**
+         * ------------------------------------------------------------------
+         * CONFIGURACIÓN DE TUS FOTOS
+         * ------------------------------------------------------------------
+         * Rutas basadas en tu estructura: ./media/files/CARPETA/ARCHIVO
+         */
+        const DATA = [
+            {
+                id: "mac", 
+                folder: "Mac mini", 
+                files: [
+                    {
+                        // IMPORTANTE: Pon el nombre EXACTO de tu foto aquí abajo
+                        src: "./media/files/Mac mini/foto1.jpg", 
+                        title: "Instalación Inicial",
+                        desc: "Primera configuración del sistema operativo."
+                    },
+                    {
+                        src: "./media/files/Mac mini/red.png", 
+                        title: "Configuración de Red",
+                        desc: "Ajustes de la tarjeta de red."
                     }
+                ]
+            },
+            {
+                id: "rasp",
+                folder: "Raspberry",
+                files: [
+                    {
+                        src: "./media/files/Raspberry/placa.jpg", 
+                        title: "Vista de la placa",
+                        desc: "Conexiones principales de la Raspberry Pi."
+                    }
+                    // Copia este bloque para añadir más fotos:
+                    // { src: "./media/files/Raspberry/OTRA_FOTO.jpg", title: "...", desc: "..." },
+                ]
+            }
+        ];
+
+        // --- LÓGICA DE VISUALIZACIÓN ---
+        function init() {
+            const menu = document.getElementById('tabs-menu');
+            const content = document.getElementById('main-content');
+
+            DATA.forEach((section, index) => {
+                const isFirst = index === 0;
+
+                // Botón
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2 rounded-lg border border-gray-600 font-medium transition-all hover:bg-gray-800 flex items-center gap-2 ${isFirst ? 'active-btn' : 'text-gray-400'}`;
+                btn.innerHTML = `<span class="material-icons-round text-sm">folder</span> ${section.folder}`;
+                btn.onclick = () => showTab(index);
+                menu.appendChild(btn);
+
+                // Contenedor
+                const wrapper = document.createElement('div');
+                wrapper.id = `tab-${index}`;
+                wrapper.className = `grid grid-cols-1 gap-10 ${isFirst ? 'fade-in' : 'hidden-tab'}`;
+
+                section.files.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 shadow-xl flex flex-col md:flex-row";
+                    card.innerHTML = `
+                        <div class="w-full md:w-1/2 bg-black flex items-center justify-center relative min-h-[350px] group">
+                            <img src="${file.src}" alt="${file.title}" class="w-full h-full object-contain absolute inset-0 transition-transform duration-500 group-hover:scale-105"
+                                 onerror="this.parentElement.innerHTML='<div class=\'text-gray-500 flex flex-col items-center justify-center h-full p-4 text-center\'><span class=\'material-icons-round text-5xl mb-2 text-red-400\'>broken_image</span><span class=\'text-white font-bold\'>No encuentro la imagen</span><span class=\'text-xs mt-2 font-mono\'>${file.src}</span></div>'">
+                        </div>
+                        <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+                            <h3 class="text-2xl font-bold text-white mb-3 flex items-center gap-2">
+                                <span class="material-icons-round text-primary">image</span> ${file.title}
+                            </h3>
+                            <p class="text-gray-300 leading-relaxed text-lg border-l-4 border-primary/50 pl-4">${file.desc}</p>
+                        </div>
+                    `;
+                    wrapper.appendChild(card);
+                });
+                content.appendChild(wrapper);
+            });
+        }
+
+        function showTab(activeIndex) {
+            const buttons = document.getElementById('tabs-menu').children;
+            const tabs = document.getElementById('main-content').children;
+            
+            for (let i = 0; i < buttons.length; i++) {
+                if (i === activeIndex) {
+                    buttons[i].classList.add('active-btn', 'text-white');
+                    buttons[i].classList.remove('text-gray-400');
+                    tabs[i].classList.remove('hidden-tab');
+                    tabs[i].classList.add('fade-in');
+                } else {
+                    buttons[i].classList.remove('active-btn', 'text-white');
+                    buttons[i].classList.add('text-gray-400');
+                    tabs[i].classList.add('hidden-tab');
+                    tabs[i].classList.remove('fade-in');
                 }
             }
         }
-    </script>
-    <style>
-        /* Eliminamos restricciones de altura que causaban el colapso */
-        body { min-height: 100vh; overflow-y: auto; }
-        
-        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
-        .tab-content.active { display: block; } /* Cambiado a block simple */
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-        .dark .tab-btn.active { background-color: #3b82f6; color: white; }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800 dark:bg-darkbg dark:text-gray-200 transition-colors duration-300 antialiased p-0 m-0">
-
-    <nav class="sticky top-0 z-50 bg-white/90 dark:bg-darkbg/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm px-6 py-3">
-        <div class="flex justify-between items-center max-w-7xl mx-auto w-full">
-            <div class="flex items-center gap-3">
-                <span class="material-icons-round text-primary text-3xl">auto_stories</span>
-                <span id="nav-title" class="font-bold text-xl tracking-tight">Bitácora IA</span>
-            </div>
-            <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <span class="material-icons-round text-xl dark:hidden">dark_mode</span>
-                <span class="material-icons-round text-xl hidden dark:block text-yellow-400">light_mode</span>
-            </button>
-        </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto w-full p-6 pb-12">
-
-        <header class="text-center mb-8 mt-4">
-            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2" id="main-title"></h1>
-            <p class="text-gray-500 dark:text-gray-400" id="footer-author"></p>
-        </header>
-
-        <div class="mb-8 overflow-x-auto pb-2 text-center">
-            <div class="inline-flex space-x-2" id="tabs-container"></div>
-        </div>
-
-        <div id="content-display" class="w-full relative min-h-[500px]">
-            </div>
-
-    </main>
-
-    <script>
-        const DOC_DATA = {
-            title: "Portafolio Taller de IA", author: "Roberto Monedero Alonso",
-            works: [
-                {
-                    id: 1, title: "Montaje 1", date: "Octubre 2023", image: null, 
-                    placeholderIcon: "image", placeholderColor: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400",
-                    description: `
-                        <h3 class="text-2xl font-bold mb-4">Descripción del Montaje 1</h3>
-                        <p class="mb-4 text-lg leading-relaxed">Este es el contenido del primer trabajo. Al usar un diseño de flujo normal, el texto empujará la caja hacia abajo asegurando que siempre sea visible.</p>
-                        <ul class="list-disc list-inside space-y-2 mb-4 marker:text-primary">
-                            <li>Elemento de lista 1</li>
-                            <li>Elemento de lista 2</li>
-                        </ul>
-                    `
-                },
-                {
-                    id: 2, title: "Montaje 2", date: "Noviembre 2023", image: null,
-                    placeholderIcon: "layers", placeholderColor: "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400",
-                    description: `<h3 class="text-2xl font-bold mb-4">Montaje 2</h3><p class="text-lg">Segundo ejemplo de contenido.</p>`
-                }
-            ]
-        };
-
-        function renderApp() {
-            document.getElementById('main-title').textContent = DOC_DATA.title;
-            document.getElementById('footer-author').textContent = `Autor: ${DOC_DATA.author}`;
-            const tabsContainer = document.getElementById('tabs-container');
-            const displayContainer = document.getElementById('content-display');
-
-            DOC_DATA.works.forEach((work, index) => {
-                const isFirst = index === 0;
-                // Button
-                const btn = document.createElement('button');
-                btn.className = `tab-btn px-6 py-2 rounded-full text-sm font-bold transition-all border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 ${isFirst ? 'active' : ''}`;
-                btn.textContent = `${index + 1}. ${work.title}`;
-                btn.onclick = () => switchTab(work.id); btn.id = `tab-btn-${work.id}`;
-                tabsContainer.appendChild(btn);
-
-                // Content Card
-                const contentDiv = document.createElement('div');
-                contentDiv.className = `tab-content w-full ${isFirst ? 'active' : ''}`;
-                contentDiv.id = `work-content-${work.id}`;
-
-                let imageHTML = work.image ? 
-                    `<img src="${work.image}" class="w-full h-full object-cover min-h-[300px]">` : 
-                    `<div class="w-full h-full min-h-[300px] flex flex-col items-center justify-center p-8 ${work.placeholderColor}"><span class="material-icons-round text-6xl opacity-80">${work.placeholderIcon}</span></div>`;
-
-                // Layout de Tarjeta Robusta
-                contentDiv.innerHTML = `
-                    <div class="bg-white dark:bg-surface rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col md:flex-row">
-                        <div class="w-full md:w-5/12 relative min-h-[300px]">
-                             ${imageHTML}
-                             <div class="absolute bottom-4 left-4 bg-white/90 dark:bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                                ${work.date}
-                            </div>
-                        </div>
-                        <div class="w-full md:w-7/12 p-8 md:p-10">
-                            <div class="prose prose-lg dark:prose-invert max-w-none">
-                                ${work.description}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                displayContainer.appendChild(contentDiv);
-            });
-        }
-        function switchTab(id) {
-            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-btn-${id}`).classList.add('active');
-            document.getElementById(`work-content-${id}`).classList.add('active');
-        }
-        function toggleTheme() {
-            const html = document.documentElement;
-            html.classList.toggle('dark');
-            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-        }
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); }
-        renderApp();
+        init();
     </script>
 </body>
 </html>
