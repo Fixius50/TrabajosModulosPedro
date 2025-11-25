@@ -13,7 +13,6 @@ import {
 /**
  * --- 1. CONFIGURACIÓN & CONSTANTES ---
  */
-// NOTA: GEMINI_API_KEY eliminada por seguridad. Se usa el backend.
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -174,7 +173,7 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-// NOTA: Se eliminó 'export default' para evitar errores al cargar como script
+// La función NO es 'export default' porque se ejecuta abajo
 function App() { 
     // --- ESTADO GLOBAL ---
     const [workspaces, setWorkspaces] = useState(() => {
@@ -537,7 +536,7 @@ function App() {
     );
 }
 
-// RENDERIZADO AUTOMÁTICO AL FINAL DEL ARCHIVO
+// INICIALIZACIÓN
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
