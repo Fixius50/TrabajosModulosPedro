@@ -1,5 +1,5 @@
-import { createRoot } from 'react-dom/client';
 import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
+import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     List, Plus, Trash, Image as ImageIcon, FileText, 
@@ -13,7 +13,7 @@ import {
 /**
  * --- 1. CONFIGURACIÓN & CONSTANTES ---
  */
- // const GEMINI_API_KEY = "AIzaSyBnlYWiISht2qSfO296uh-cEN5I69Haxe8"; 
+// NOTA: GEMINI_API_KEY eliminada por seguridad. Se usa el backend.
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -174,7 +174,8 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-function App() { // Cambio a exportación por defecto
+// NOTA: Se eliminó 'export default' para evitar errores al cargar como script
+function App() { 
     // --- ESTADO GLOBAL ---
     const [workspaces, setWorkspaces] = useState(() => {
         const saved = localStorage.getItem('notion_v38_workspaces');
@@ -298,24 +299,22 @@ function App() { // Cambio a exportación por defecto
         }
     };
 
-    // --- GEMINI IA (MAGIC CREATE) ---
     // --- GEMINI IA (VERSIÓN SEGURA VERCEL) ---
     const generatePageWithAI = async () => {
         if (!aiPrompt.trim()) return;
         setIsAiGenerating(true);
         try {
-            // CAMBIO: Llamamos a TU backend en Vercel (URL absoluta para evitar errores en local)
+            // CAMBIO: Llamada a tu backend desplegado
             const response = await fetch('https://trabajos-modulos-pedro.vercel.app/api/generar-pagina', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: aiPrompt })
             });
             
-            if (!response.ok) throw new Error('Error conectando con el servidor de IA');
+            if (!response.ok) throw new Error('Error al conectar con el servidor de IA');
 
             const parsed = await response.json();
 
-            // El resto de la lógica se mantiene igual...
             const keyword = parsed.cover_keyword || "abstract";
             const dynamicCover = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword)}?width=1200&height=400&nologo=true`;
 
@@ -329,7 +328,7 @@ function App() { // Cambio a exportación por defecto
                 blocks: parsed.blocks?.map(b => ({ ...b, id: generateId() })) || []
             };
             
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Pequeña pausa UX
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             const updated = workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, newPage] } : ws);
             setWorkspaces(updated);
@@ -536,8 +535,9 @@ function App() { // Cambio a exportación por defecto
             </Modal>
         </div>
     );
-    // 2. Añade esto AL FINAL DEL ARCHIVO para que arranque automáticamente:
-    const container = document.getElementById('root');
-    const root = createRoot(container);
-    root.render(<App />);
 }
+
+// RENDERIZADO AUTOMÁTICO AL FINAL DEL ARCHIVO
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);
