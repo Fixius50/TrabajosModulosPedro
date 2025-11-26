@@ -10,14 +10,12 @@ import {
     Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft
 } from 'lucide-react';
 
-// NOTA: Eliminamos el import estático de Octokit para evitar errores de compilación "Could not resolve"
-// Lo cargaremos dinámicamente dentro de la función fetchMarketData.
-
 /**
  * --- 1. CONFIGURACIÓN ---
  */
 const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
 
+// TOKEN RESTAURADO (Mantener en privado si es posible)
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -180,13 +178,14 @@ function App() {
     useEffect(() => { localStorage.setItem('notion_v50_workspaces', JSON.stringify(workspaces)); }, [workspaces]);
     useEffect(() => { if (notification.show) { const timer = setTimeout(() => setNotification({ ...notification, show: false }), 5000); return () => clearTimeout(timer); } }, [notification.show]);
 
-    // GitHub Fetch (MODIFICADO: Import dinámico)
+    // GitHub Fetch: MEJORADO con Import Dinámico + ImportMap
     const fetchMarketData = async () => {
         setIsLoadingMarket(true);
         if (!githubToken) { setIsLoadingMarket(false); return; }
         try {
-            // CARGA DINÁMICA: Esto evita el error "Could not resolve" al compilar
-            const { Octokit } = await import("https://esm.sh/@octokit/rest");
+            // FIX: Usamos el nombre del paquete definido en importmap en lugar de la URL absoluta
+            // Si esto fallara (por configuración del servidor), puedes revertir a "https://esm.sh/@octokit/rest"
+            const { Octokit } = await import("@octokit/rest");
             
             const octokit = new Octokit({ auth: githubToken });
             const { data: rootContents } = await octokit.rest.repos.getContent({ owner: GITHUB_OWNER, repo: GITHUB_REPO, path: GITHUB_PATH });
