@@ -8,13 +8,12 @@ import {
     Users, Inbox, ArrowLeft, SlidersHorizontal, User, Briefcase, Plane, Music,
     Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft
 } from 'lucide-react';
-// Importación directa gracias al Import Map del index.html
 import { Octokit } from "@octokit/rest";
 
 /**
  * --- 1. CONFIGURACIÓN ---
  */
-// Tu Endpoint de Vercel desplegado
+// Endpoint REAL de tu Vercel
 const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
 
 // Configuración GitHub
@@ -31,10 +30,11 @@ const MOCK_COVERS = {
     'NASA': ['https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80']
 };
 
+// ESTADO INICIAL VACÍO (Para mostrar la ola)
 const INITIAL_WORKSPACES = [
     { 
         id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com',
-        pages: [] // Empezamos vacío para ver el estado "Empty"
+        pages: [] 
     }
 ];
 
@@ -66,7 +66,7 @@ const BreathingText = ({ text }) => (
             {text}
         </motion.div>
         <motion.p animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-sm text-zinc-500 font-medium">
-            Contactando con Vercel AI...
+            Generando tu página con Vercel AI...
         </motion.p>
     </div>
 );
@@ -217,12 +217,11 @@ export default function App() {
         } catch (e) { console.error("GitHub Error:", e); } finally { setIsLoadingMarket(false); }
     };
 
-    // VERCEL AI GENERATOR (Modificado para usar tu API)
+    // VERCEL AI GENERATOR
     const generatePageWithAI = async () => {
         if (!aiPrompt.trim()) return;
         setIsAiGenerating(true);
         try {
-            // AQUÍ ES DONDE LLAMAMOS A TU FUNCIÓN EN VERCEL
             const response = await fetch(VERCEL_AI_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -235,23 +234,11 @@ export default function App() {
             if (!response.ok) throw new Error('Error en la API de Vercel');
             
             const parsed = await response.json();
-
-            // Generamos la portada visualmente basada en la palabra clave
             const keyword = parsed.cover_keyword || "abstract";
             const dynamicCover = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword)}?width=1200&height=400&nologo=true`;
-
-            const newPage = {
-                id: generateId(),
-                title: parsed.title || 'Idea IA',
-                icon: parsed.icon || '✨',
-                cover: dynamicCover,
-                updatedAt: new Date().toISOString(),
-                isPrivate: true,
-                blocks: parsed.blocks?.map(b => ({ ...b, id: generateId() })) || []
-            };
+            const newPage = { id: generateId(), title: parsed.title || 'Idea IA', icon: parsed.icon || '✨', cover: dynamicCover, updatedAt: new Date().toISOString(), isPrivate: true, blocks: parsed.blocks?.map(b => ({ ...b, id: generateId() })) || [] };
             
-            // Pequeña pausa para que la animación de "pensando" se luzca
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Pensando...
 
             const updated = workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, newPage] } : ws);
             setWorkspaces(updated);
@@ -260,11 +247,7 @@ export default function App() {
             setShowAI(false);
             setAiPrompt("");
             setNotification({ show: true, message: `"${newPage.title}" creada por IA.` });
-
-        } catch (e) {
-            console.error("AI Error:", e);
-            alert("Error conectando con tu IA en Vercel. Verifica que el proyecto esté desplegado.");
-        } finally { setIsAiGenerating(false); }
+        } catch (e) { console.error("AI Error:", e); alert("Error generando la página."); } finally { setIsAiGenerating(false); }
     };
 
     useEffect(() => { if(showMarket) fetchMarketData(); }, [showMarket]);
