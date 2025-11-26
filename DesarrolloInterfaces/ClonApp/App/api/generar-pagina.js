@@ -1,8 +1,7 @@
-// DesarrolloInterfaces/ClonApp/App/api/generar-pagina.js
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
-  // Configuración de CORS para permitir peticiones desde tu frontend
+  // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -21,6 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Asegúrate de definir GEMINI_API_KEY en las variables de entorno de Vercel
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const response = await result.response;
     const text = response.text();
 
-    // Intentamos limpiar el JSON si viene con bloques de código markdown
+    // Limpieza de markdown
     const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
     res.status(200).json(JSON.parse(cleanText));
