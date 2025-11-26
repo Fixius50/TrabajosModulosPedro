@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
-// 1. AÑADIMOS ESTE IMPORT QUE FALTABA
 import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -10,16 +9,15 @@ import {
     Users, Inbox, ArrowLeft, SlidersHorizontal, User, Briefcase, Plane, Music,
     Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft
 } from 'lucide-react';
-import { Octokit } from "@octokit/rest";
+
+// NOTA: Eliminamos el import estático de Octokit para evitar errores de compilación "Could not resolve"
+// Lo cargaremos dinámicamente dentro de la función fetchMarketData.
 
 /**
  * --- 1. CONFIGURACIÓN ---
  */
 const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
 
-// ⚠️ ADVERTENCIA DE SEGURIDAD: 
-// Este token es visible en el navegador. GitHub podría revocarlo automáticamente.
-// Lo ideal es usar un proxy (como hiciste con la IA) para llamar a GitHub.
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -43,7 +41,6 @@ const INITIAL_WORKSPACES = [
 /**
  * --- 2. COMPONENTES UI ---
  */
-// ... (Tus componentes WavyText, BreathingText, etc. se mantienen igual, los abrevio aquí por espacio pero NO LOS BORRES) ...
 const WavyText = ({ text }) => {
   const letters = Array.from(text);
   const container = {
@@ -147,7 +144,6 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-// 2. QUITAMOS "export default" y lo dejamos como función normal
 function App() {
     const [workspaces, setWorkspaces] = useState(() => { const saved = localStorage.getItem('notion_v50_workspaces'); return saved ? JSON.parse(saved) : INITIAL_WORKSPACES; });
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -184,11 +180,14 @@ function App() {
     useEffect(() => { localStorage.setItem('notion_v50_workspaces', JSON.stringify(workspaces)); }, [workspaces]);
     useEffect(() => { if (notification.show) { const timer = setTimeout(() => setNotification({ ...notification, show: false }), 5000); return () => clearTimeout(timer); } }, [notification.show]);
 
-    // GitHub Fetch
+    // GitHub Fetch (MODIFICADO: Import dinámico)
     const fetchMarketData = async () => {
         setIsLoadingMarket(true);
         if (!githubToken) { setIsLoadingMarket(false); return; }
         try {
+            // CARGA DINÁMICA: Esto evita el error "Could not resolve" al compilar
+            const { Octokit } = await import("https://esm.sh/@octokit/rest");
+            
             const octokit = new Octokit({ auth: githubToken });
             const { data: rootContents } = await octokit.rest.repos.getContent({ owner: GITHUB_OWNER, repo: GITHUB_REPO, path: GITHUB_PATH });
             const styles = []; const fonts = []; const covers = { ...MOCK_COVERS }; 
@@ -254,7 +253,7 @@ function App() {
 
     useEffect(() => { if(showMarket) fetchMarketData(); }, [showMarket]);
 
-    // Actions (Simplificadas para renderizar)
+    // Actions
     const updatePage = (pid, u) => setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: ws.pages.map(p => p.id === pid ? { ...p, ...u } : p) } : ws));
     const createPage = () => { const id = generateId(); const np = { id, title: '', icon: null, cover: null, isPrivate: true, updatedAt: new Date().toISOString(), blocks: [{ id: generateId(), type: 'p', content: '' }] }; setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, np] } : ws)); setActivePageId(id); setCurrentView('page'); };
     const deletePage = (id) => { if(confirm("¿Eliminar?")) { setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: ws.pages.filter(p => p.id !== id) } : ws)); if(activePageId === id) { setActivePageId(null); setCurrentView('home'); } } };
@@ -369,8 +368,7 @@ function App() {
     );
 }
 
-// 3. AÑADIMOS EL CÓDIGO DE EJECUCIÓN AL FINAL
-// Esto hace que Babel cargue este archivo, lo transpile y lo ejecute automáticamente.
+// 2. INICIALIZACIÓN
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(<App />);
