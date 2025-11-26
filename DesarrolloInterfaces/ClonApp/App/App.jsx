@@ -8,9 +8,16 @@ import {
     Users, Inbox, ArrowLeft, SlidersHorizontal, User, Briefcase, Plane, Music,
     Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft
 } from 'lucide-react';
+// Importación directa gracias al Import Map del index.html
 import { Octokit } from "@octokit/rest";
 
-// --- CONFIGURACIÓN ---
+/**
+ * --- 1. CONFIGURACIÓN ---
+ */
+// Tu Endpoint de Vercel desplegado
+const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
+
+// Configuración GitHub
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -27,27 +34,53 @@ const MOCK_COVERS = {
 const INITIAL_WORKSPACES = [
     { 
         id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com',
-        pages: [] 
+        pages: [] // Empezamos vacío para ver el estado "Empty"
     }
 ];
 
-// --- COMPONENTES UI ---
+/**
+ * --- 2. COMPONENTES UI ---
+ */
+
+// Texto animado tipo "Ola"
 const WavyText = ({ text }) => {
   const letters = Array.from(text);
-  const container = { hidden: { opacity: 0 }, visible: (i = 1) => ({ opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.04 * i } }) };
-  const child = { visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 200, repeat: Infinity, repeatType: "mirror", duration: 2 } }, hidden: { opacity: 0, y: 20, transition: { type: "spring", damping: 12, stiffness: 200 } } };
-  return (<motion.div style={{ overflow: "hidden", display: "flex" }} variants={container} initial="hidden" animate="visible" className="text-zinc-400 text-sm font-medium mt-4">{letters.map((letter, index) => <motion.span variants={child} key={index}>{letter === " " ? "\u00A0" : letter}</motion.span>)}</motion.div>);
+  const container = {
+    hidden: { opacity: 0 },
+    visible: (i = 1) => ({ opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.04 * i } }),
+  };
+  const child = {
+    visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 200, repeat: Infinity, repeatType: "mirror", duration: 2 } },
+    hidden: { opacity: 0, y: 20, transition: { type: "spring", damping: 12, stiffness: 200 } },
+  };
+  return (
+    <motion.div style={{ overflow: "hidden", display: "flex" }} variants={container} initial="hidden" animate="visible" className="text-zinc-400 text-sm font-medium mt-4">
+      {letters.map((letter, index) => <motion.span variants={child} key={index}>{letter === " " ? "\u00A0" : letter}</motion.span>)}
+    </motion.div>
+  );
 };
 
 const BreathingText = ({ text }) => (
     <div className="flex flex-col items-center justify-center gap-4">
-        <motion.div animate={{ scale: [1, 1.05, 1], opacity: [0.6, 1, 0.6], textShadow: ["0 0 10px rgba(99,102,241,0)", "0 0 20px rgba(99,102,241,0.5)", "0 0 10px rgba(99,102,241,0)"] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-center">{text}</motion.div>
-        <motion.p animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-sm text-zinc-500 font-medium">Contactando con tu API en Vercel...</motion.p>
+        <motion.div animate={{ scale: [1, 1.05, 1], opacity: [0.6, 1, 0.6], textShadow: ["0 0 10px rgba(99,102,241,0)", "0 0 20px rgba(99,102,241,0.5)", "0 0 10px rgba(99,102,241,0)"] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-center">
+            {text}
+        </motion.div>
+        <motion.p animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-sm text-zinc-500 font-medium">
+            Contactando con Vercel AI...
+        </motion.p>
     </div>
 );
 
 const NotificationPopup = ({ message, onClose, isVisible }) => (
-    <AnimatePresence>{isVisible && <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className="fixed bottom-6 right-6 bg-zinc-900/90 backdrop-blur-md text-white p-4 rounded-xl shadow-2xl flex items-center gap-4 z-[100] border border-zinc-700/50 max-w-sm cursor-pointer" onClick={onClose}><div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-full shadow-lg"><Sparkles size={18} className="text-white" /></div><div className="flex-1"><h4 className="font-bold text-sm">¡Página Creada!</h4><p className="text-xs text-zinc-300 line-clamp-2">{message}</p></div><button className="bg-white text-black px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-zinc-200 transition-colors shadow-sm">Aceptar</button></motion.div>}</AnimatePresence>
+    <AnimatePresence>
+        {isVisible && (
+            <motion.div initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }} className="fixed bottom-6 right-6 bg-zinc-900/90 backdrop-blur-md text-white p-4 rounded-xl shadow-2xl flex items-center gap-4 z-[100] border border-zinc-700/50 max-w-sm cursor-pointer" onClick={onClose}>
+                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-full shadow-lg"><Sparkles size={18} className="text-white" /></div>
+                <div className="flex-1"><h4 className="font-bold text-sm">¡Página Creada!</h4><p className="text-xs text-zinc-300 line-clamp-2">{message}</p></div>
+                <button className="bg-white text-black px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-zinc-200 transition-colors shadow-sm">Aceptar</button>
+            </motion.div>
+        )}
+    </AnimatePresence>
 );
 
 const FancyEditable = ({ tagName: Tag, html, className, onChange, onKeyDown, placeholder, disabled }) => {
@@ -62,12 +95,32 @@ const SpotlightCard = ({ children, className = "", onClick }) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
     const handleMouseMove = (e) => { if (!divRef.current) return; const rect = divRef.current.getBoundingClientRect(); setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top }); };
-    return (<motion.div ref={divRef} onMouseMove={handleMouseMove} onMouseEnter={() => setOpacity(1)} onMouseLeave={() => setOpacity(0)} onClick={onClick} className={`relative rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden cursor-pointer group ${className}`} whileHover={{ y: -2 }} whileTap={{ scale: 0.99 }}><div className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 z-10" style={{ opacity, background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(0,0,0,0.05), transparent 40%)` }} /><div className="relative h-full z-0">{children}</div></motion.div>);
+    return (
+        <motion.div ref={divRef} onMouseMove={handleMouseMove} onMouseEnter={() => setOpacity(1)} onMouseLeave={() => setOpacity(0)} onClick={onClick} className={`relative rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden cursor-pointer group ${className}`} whileHover={{ y: -2 }} whileTap={{ scale: 0.99 }}>
+            <div className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 z-10" style={{ opacity, background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(0,0,0,0.05), transparent 40%)` }} />
+            <div className="relative h-full z-0">{children}</div>
+        </motion.div>
+    );
 };
 
 const Modal = ({ isOpen, onClose, children, title, size = "max-w-2xl", transparent = false }) => {
     return (
-        <AnimatePresence>{isOpen && <><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" /><motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className={`fixed inset-0 m-auto ${size} h-fit max-h-[85vh] ${transparent ? 'bg-transparent shadow-none' : 'bg-white shadow-2xl border border-zinc-200'} rounded-2xl z-50 overflow-hidden flex flex-col text-zinc-800`}>{title !== null && !transparent && <div className="flex justify-between items-center p-4 border-b border-zinc-100 shrink-0"><h2 className="text-lg font-bold text-zinc-800">{title}</h2><button onClick={onClose} className="p-1 hover:bg-zinc-100 rounded-full text-zinc-500"><X size={20}/></button></div>}<div className="flex-1 overflow-y-auto">{children}</div></motion.div></>}</AnimatePresence>
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" />
+                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className={`fixed inset-0 m-auto ${size} h-fit max-h-[85vh] ${transparent ? 'bg-transparent shadow-none' : 'bg-white shadow-2xl border border-zinc-200'} rounded-2xl z-50 overflow-hidden flex flex-col text-zinc-800`}>
+                        {title !== null && !transparent && (
+                            <div className="flex justify-between items-center p-4 border-b border-zinc-100 shrink-0">
+                                <h2 className="text-lg font-bold text-zinc-800">{title}</h2>
+                                <button onClick={onClose} className="p-1 hover:bg-zinc-100 rounded-full text-zinc-500"><X size={20}/></button>
+                            </div>
+                        )}
+                        <div className="flex-1 overflow-y-auto">{children}</div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
     );
 };
 
@@ -79,7 +132,12 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
             <div className="w-full">
                 {block.type === 'h1' && <FancyEditable tagName="h1" html={block.content} className="text-3xl font-bold text-zinc-800 mb-2" placeholder="Encabezado 1" onKeyDown={handleKeyDown} onChange={(val) => updateBlock(block.id, { content: val })} />}
                 {block.type === 'p' && <FancyEditable tagName="p" html={block.content} className="text-base text-zinc-700 leading-relaxed min-h-[24px]" placeholder="Escribe '/' para comandos..." onKeyDown={handleKeyDown} onChange={(val) => updateBlock(block.id, { content: val })} />}
-                {block.type === 'todo' && <div className="flex items-start gap-3"><div onClick={() => updateBlock(block.id, { checked: !block.checked })} className={`mt-1 w-4 h-4 rounded border cursor-pointer flex items-center justify-center transition-colors ${block.checked ? 'bg-indigo-500 border-indigo-500' : 'border-zinc-400 hover:border-zinc-600'}`}>{block.checked && <Check size={12} className="text-white" />}</div><FancyEditable tagName="p" html={block.content} className={`flex-1 text-base min-h-[24px] transition-opacity ${block.checked ? 'line-through text-zinc-400 opacity-50' : 'text-zinc-700'}`} placeholder="Tarea por hacer" onKeyDown={handleKeyDown} onChange={(val) => updateBlock(block.id, { content: val })} /></div>}
+                {block.type === 'todo' && (
+                    <div className="flex items-start gap-3">
+                        <div onClick={() => updateBlock(block.id, { checked: !block.checked })} className={`mt-1 w-4 h-4 rounded border cursor-pointer flex items-center justify-center transition-colors ${block.checked ? 'bg-indigo-500 border-indigo-500' : 'border-zinc-400 hover:border-zinc-600'}`}>{block.checked && <Check size={12} className="text-white" />}</div>
+                        <FancyEditable tagName="p" html={block.content} className={`flex-1 text-base min-h-[24px] transition-opacity ${block.checked ? 'line-through text-zinc-400 opacity-50' : 'text-zinc-700'}`} placeholder="Tarea por hacer" onKeyDown={handleKeyDown} onChange={(val) => updateBlock(block.id, { content: val })} />
+                    </div>
+                )}
             </div>
         </motion.div>
     );
@@ -266,7 +324,6 @@ export default function App() {
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-6 md:px-24 md:py-12 relative fancy-scroll">
-                    {/* VISTA PRINCIPAL MEJORADA */}
                     {currentView === 'home' && (
                         <div className="max-w-4xl mx-auto h-full flex flex-col">
                             {workspace.pages.length > 0 ? (
