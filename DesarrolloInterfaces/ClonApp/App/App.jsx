@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react';
+// 1. AÑADIMOS ESTE IMPORT QUE FALTABA
+import { createRoot } from 'react-dom/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     List, Plus, Trash, Image as ImageIcon, FileText, 
@@ -13,10 +15,11 @@ import { Octokit } from "@octokit/rest";
 /**
  * --- 1. CONFIGURACIÓN ---
  */
-// Endpoint REAL de tu Vercel
 const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
 
-// Configuración GitHub
+// ⚠️ ADVERTENCIA DE SEGURIDAD: 
+// Este token es visible en el navegador. GitHub podría revocarlo automáticamente.
+// Lo ideal es usar un proxy (como hiciste con la IA) para llamar a GitHub.
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -30,7 +33,6 @@ const MOCK_COVERS = {
     'NASA': ['https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80']
 };
 
-// ESTADO INICIAL VACÍO (Para mostrar la ola)
 const INITIAL_WORKSPACES = [
     { 
         id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com',
@@ -41,8 +43,7 @@ const INITIAL_WORKSPACES = [
 /**
  * --- 2. COMPONENTES UI ---
  */
-
-// Texto animado tipo "Ola"
+// ... (Tus componentes WavyText, BreathingText, etc. se mantienen igual, los abrevio aquí por espacio pero NO LOS BORRES) ...
 const WavyText = ({ text }) => {
   const letters = Array.from(text);
   const container = {
@@ -146,7 +147,8 @@ const EditorBlock = ({ block, index, updateBlock, addBlock, deleteBlock }) => {
 /**
  * --- 3. MAIN APP ---
  */
-export default function App() {
+// 2. QUITAMOS "export default" y lo dejamos como función normal
+function App() {
     const [workspaces, setWorkspaces] = useState(() => { const saved = localStorage.getItem('notion_v50_workspaces'); return saved ? JSON.parse(saved) : INITIAL_WORKSPACES; });
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [currentView, setCurrentView] = useState('home'); 
@@ -252,7 +254,7 @@ export default function App() {
 
     useEffect(() => { if(showMarket) fetchMarketData(); }, [showMarket]);
 
-    // Actions
+    // Actions (Simplificadas para renderizar)
     const updatePage = (pid, u) => setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: ws.pages.map(p => p.id === pid ? { ...p, ...u } : p) } : ws));
     const createPage = () => { const id = generateId(); const np = { id, title: '', icon: null, cover: null, isPrivate: true, updatedAt: new Date().toISOString(), blocks: [{ id: generateId(), type: 'p', content: '' }] }; setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: [...ws.pages, np] } : ws)); setActivePageId(id); setCurrentView('page'); };
     const deletePage = (id) => { if(confirm("¿Eliminar?")) { setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: ws.pages.filter(p => p.id !== id) } : ws)); if(activePageId === id) { setActivePageId(null); setCurrentView('home'); } } };
@@ -366,3 +368,9 @@ export default function App() {
         </div>
     );
 }
+
+// 3. AÑADIMOS EL CÓDIGO DE EJECUCIÓN AL FINAL
+// Esto hace que Babel cargue este archivo, lo transpile y lo ejecute automáticamente.
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(<App />);

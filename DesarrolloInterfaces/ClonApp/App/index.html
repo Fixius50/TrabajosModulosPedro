@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Notion Clone V50 - Modular Vercel AI</title>
     
-    <!-- 1. TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,7 +18,6 @@
         }
     </script>
 
-    <!-- 2. ESTILOS -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
         body { background-color: #FBFBFA; color: #3f3f46; -webkit-tap-highlight-color: transparent; }
@@ -31,7 +29,6 @@
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 
-    <!-- 3. IMPORT MAPS (Gestión de dependencias) -->
     <script type="importmap">
     {
         "imports": {
@@ -44,22 +41,11 @@
     }
     </script>
 
-    <!-- 4. BABEL -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
     <div id="root"></div>
 
-    <!-- 5. CARGA E INICIALIZACIÓN -->
-    <!-- Importante: data-type="module" permite imports dentro del JSX -->
-    <script type="text/babel" data-type="module">
-        import React from 'react';
-        import { createRoot } from 'react-dom/client';
-        // Importamos la App desde el archivo local
-        import App from './App.jsx';
-
-        const root = createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    <script type="text/babel" data-type="module" src="./App.jsx"></script>
 </body>
 </html>
