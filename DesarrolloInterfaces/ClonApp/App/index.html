@@ -25,7 +25,6 @@
         body { 
             background-color: #FBFBFA; 
             color: #3f3f46; 
-            /* Se eliminó -webkit-tap-highlight-color para comportamiento web estándar */
         }
 
         /* Estilos de Scrollbar optimizados para Web/Desktop */
@@ -45,7 +44,7 @@
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 
-    <!-- IMPORT MAP: Control centralizado de versiones para evitar errores -->
+    <!-- IMPORT MAP: Control centralizado de versiones -->
     <script type="importmap">
     {
         "imports": {
@@ -62,9 +61,16 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <!-- Feedback visual si falla la carga -->
+        <div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#666;flex-direction:column;gap:1rem;">
+            <div class="animate-spin-slow" style="font-size:2rem;">↻</div>
+            <p>Cargando App...</p>
+            <p style="font-size:0.8rem;color:#999;">NOTA: Si esto no carga, usa un Servidor Local (ej. Live Server).</p>
+        </div>
+    </div>
 
-    <!-- Carga del App.jsx separado -->
+    <!-- CORRECCIÓN: Quitamos el './' que da error en algunos navegadores -->
     <script type="text/babel" data-type="module" src="App.jsx"></script>
 </body>
 </html>

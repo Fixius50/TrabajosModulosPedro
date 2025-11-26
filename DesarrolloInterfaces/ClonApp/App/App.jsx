@@ -15,7 +15,7 @@ import {
  */
 const VERCEL_AI_ENDPOINT = "https://trabajos-modulos-pedro-o66c11qeo-fixius50s-projects.vercel.app/api/generar-pagina";
 
-// TOKEN RESTAURADO (Mantener en privado si es posible)
+// TOKEN DE GITHUB
 const GITHUB_TOKEN_DEFAULT = "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";
 const GITHUB_OWNER = "Fixius50";
 const GITHUB_REPO = "TrabajosModulosPedro";
@@ -176,20 +176,24 @@ function App() {
     }, [searchQuery, workspace]);
 
     useEffect(() => { localStorage.setItem('notion_v50_workspaces', JSON.stringify(workspaces)); }, [workspaces]);
+    useEffect(() => { localStorage.setItem('notion_gh_token', githubToken); }, [githubToken]);
     useEffect(() => { if (notification.show) { const timer = setTimeout(() => setNotification({ ...notification, show: false }), 5000); return () => clearTimeout(timer); } }, [notification.show]);
 
-    // GitHub Fetch: MEJORADO con Import Dinámico + ImportMap
+    // GitHub Fetch
     const fetchMarketData = async () => {
         setIsLoadingMarket(true);
-        if (!githubToken) { setIsLoadingMarket(false); return; }
+        if (!githubToken) { 
+            setNotification({ show: true, message: "Falta GitHub Token. Configúralo en ajustes." });
+            setIsLoadingMarket(false); 
+            return; 
+        }
         try {
-            // FIX: Usamos el nombre del paquete definido en importmap en lugar de la URL absoluta
-            // Si esto fallara (por configuración del servidor), puedes revertir a "https://esm.sh/@octokit/rest"
             const { Octokit } = await import("@octokit/rest");
             
             const octokit = new Octokit({ auth: githubToken });
             const { data: rootContents } = await octokit.rest.repos.getContent({ owner: GITHUB_OWNER, repo: GITHUB_REPO, path: GITHUB_PATH });
             const styles = []; const fonts = []; const covers = { ...MOCK_COVERS }; 
+            
             for (const item of rootContents) {
                 if (item.type === 'dir') {
                     if (item.name === 'stylessApp' || item.name === 'themesApp') {
@@ -214,7 +218,10 @@ function App() {
                 }
             }
             setMarketData({ styles, fonts, covers });
-        } catch (e) { console.error("GitHub Error:", e); } finally { setIsLoadingMarket(false); }
+        } catch (e) { 
+            console.error("GitHub Error:", e);
+            setNotification({ show: true, message: "Error conectando con GitHub." });
+        } finally { setIsLoadingMarket(false); }
     };
 
     // VERCEL AI GENERATOR
@@ -250,7 +257,7 @@ function App() {
         } catch (e) { console.error("AI Error:", e); alert("Error generando la página."); } finally { setIsAiGenerating(false); }
     };
 
-    useEffect(() => { if(showMarket) fetchMarketData(); }, [showMarket]);
+    useEffect(() => { if(showMarket && githubToken) fetchMarketData(); }, [showMarket]);
 
     // Actions
     const updatePage = (pid, u) => setWorkspaces(workspaces.map(ws => ws.id === activeWorkspaceId ? { ...ws, pages: ws.pages.map(p => p.id === pid ? { ...p, ...u } : p) } : ws));
@@ -259,7 +266,6 @@ function App() {
     const updateBlock = (bid, u) => updatePage(activePageId, { blocks: activePage.blocks.map(b => b.id === bid ? { ...b, ...u } : b) });
     const addBlock = (idx) => { const bs = [...activePage.blocks]; bs.splice(idx, 0, { id: generateId(), type: 'p', content: '' }); updatePage(activePageId, { blocks: bs }); };
     const deleteBlock = (idx) => { const bs = [...activePage.blocks]; bs.splice(idx, 1); updatePage(activePageId, { blocks: bs }); };
-    const reorderBlocks = (bs) => updatePage(activePageId, { blocks: bs });
     const importResource = (i, t) => { alert("Recurso importado."); };
 
     return (
