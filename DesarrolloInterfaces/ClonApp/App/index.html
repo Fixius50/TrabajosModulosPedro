@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Notion Clone V69 - Feature Complete</title>
+    <title>Notion Clone V72 - Marketplace Pro</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -86,7 +86,8 @@
             Users, Inbox, ArrowLeft, SlidersHorizontal, User, Briefcase, Plane, Music,
             Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft, CreditCard, LogOut,
             ChevronRight, UploadCloud, Command, FolderOpen, Camera, PlusCircle, Download, FileJson,
-            Smile, MessageSquare, ImagePlus, Archive, RefreshCcw, CornerDownLeft, Clock
+            Smile, MessageSquare, ImagePlus, Archive, RefreshCcw, CornerDownLeft, Clock,
+            LayoutGrid, Package, Undo2, Filter
         } from 'lucide-react';
         import { clsx } from 'clsx';
         import { formatDistanceToNow } from 'date-fns';
@@ -105,10 +106,11 @@
 
         const ICONS_LIST = ['📄', '🎵', '🚀', '💼', '💡', '🎨', '🏈', '🪐', '🍎', '🍕', '⚽', '🚗', '🐶', '🐱', '🎉', '📚', '💸', '🏠', '❤️', '💀', '🔥', '✨'];
         
+        // DEFAULT THEME: "stylessApp"
         const DEFAULT_THEME = {
             id: 'default',
-            name: 'Notion Classic',
-            author: 'System',
+            name: 'stylessApp',
+            author: 'System (Default)',
             colors: {
                 bg: '#ffffff',
                 text: '#37352f',
@@ -119,10 +121,11 @@
         const INITIAL_STATE = {
             workspaces: [{ id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com', pages: [] }],
             profile: { name: "Usuario Fixius", email: "usuario@ejemplo.com", bio: "Productivity enthusiast.", avatar: null },
-            themes: [DEFAULT_THEME]
+            themes: [DEFAULT_THEME],
+            fonts: [] // New: Store installed fonts separately or in a generic resource array
         };
 
-        // UTILS GLOBALES
+        // UTILS
         const utils = {
             generateId: () => Math.random().toString(36).substr(2, 9),
             getRandomColor: () => {
@@ -178,7 +181,7 @@
         );
 
         // ==========================================
-        // 2. PAGE COMPONENTS (Comments & Controls)
+        // 2. PAGE COMPONENTS
         // ==========================================
         const PageHeaderControls = ({ page, onUpdate, onToggleComments }) => {
             return (
@@ -200,7 +203,7 @@
             );
         };
 
-        const CommentSection = ({ comments, onAddComment, userAvatar, userName }) => {
+        const CommentSection = ({ comments, onAddComment, userAvatar }) => {
             const [text, setText] = useState("");
             const handleSubmit = (e) => {
                 if (e.key === 'Enter' && !e.shiftKey && text.trim()) { e.preventDefault(); onAddComment(text); setText(""); }
@@ -238,7 +241,7 @@
         };
 
         // ==========================================
-        // 3. BASE COMPONENTS (Modal, Toast, Editor)
+        // 3. BASE COMPONENTS
         // ==========================================
         const Modal = ({ isOpen, onClose, children, title, size = "max-w-2xl", transparent = false }) => (
             <AnimatePresence>
@@ -309,12 +312,13 @@
         };
 
         const useAppStore = () => {
-            const [workspaces, setWorkspaces] = useLocalStorage('notion_v69_ws', INITIAL_STATE.workspaces);
-            const [userProfile, setUserProfile] = useLocalStorage('notion_v69_profile', INITIAL_STATE.profile);
-            const [themes, setThemes] = useLocalStorage('notion_v69_themes', INITIAL_STATE.themes);
-            const [activeWorkspaceId, setActiveWorkspaceId] = useLocalStorage('notion_v69_active_id', 'ws-demo');
+            const [workspaces, setWorkspaces] = useLocalStorage('notion_v72_ws', INITIAL_STATE.workspaces);
+            const [userProfile, setUserProfile] = useLocalStorage('notion_v72_profile', INITIAL_STATE.profile);
+            const [themes, setThemes] = useLocalStorage('notion_v72_themes', INITIAL_STATE.themes);
+            const [fonts, setFonts] = useLocalStorage('notion_v72_fonts', INITIAL_STATE.fonts);
+            const [activeWorkspaceId, setActiveWorkspaceId] = useLocalStorage('notion_v72_active_id', 'ws-demo');
             const [activePageId, setActivePageId] = useState(null);
-            const [activeThemeId, setActiveThemeId] = useLocalStorage('notion_v69_active_theme', 'default');
+            const [activeThemeId, setActiveThemeId] = useLocalStorage('notion_v72_active_theme', 'default');
 
             const activeWorkspace = useMemo(() => workspaces.find(w => w.id === activeWorkspaceId) || workspaces[0], [workspaces, activeWorkspaceId]);
             const activePage = useMemo(() => activeWorkspace?.pages.find(p => p.id === activePageId), [activeWorkspace, activePageId]);
@@ -327,6 +331,8 @@
             const actions = {
                 setActiveWorkspaceId, setActivePageId, setUserProfile, setActiveThemeId,
                 addWorkspace: (name) => { const newWs = { id: utils.generateId(), name, initial: name[0].toUpperCase(), color: utils.getRandomColor(), email: userProfile.email, pages: [] }; setWorkspaces(p => [...p, newWs]); setActiveWorkspaceId(newWs.id); },
+                
+                // ADD PAGE: Supports 'inInbox' param
                 addPage: (data={}) => { 
                     const id = utils.generateId(); 
                     const newPage = { 
@@ -335,19 +341,51 @@
                         icon: null, 
                         cover: null, 
                         comments: [], 
-                        inInbox: data.inInbox || false, 
+                        inInbox: data.inInbox || false,
+                        isDeleted: false,
+                        deletedAt: null,
                         updatedAt: new Date().toISOString(), 
                         blocks: [{id: utils.generateId(), type:'p', content:''}], 
                         ...data 
                     }; 
-                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: [...w.pages, newPage] } : w)); setActivePageId(id); return id; 
+                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: [...w.pages, newPage] } : w)); 
+                    setActivePageId(id); 
+                    return id; 
                 },
+                
                 updatePage: (pid, u) => setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, ...u } : pg) } : w)),
-                deletePage: (pid) => { setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.filter(pg => pg.id !== pid) } : w)); if(activePageId === pid) setActivePageId(null); },
+                deletePage: (pid) => { 
+                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, isDeleted: true, deletedAt: new Date().toISOString() } : pg) } : w));
+                    if(activePageId === pid) setActivePageId(null); 
+                },
+                restorePage: (pid) => {
+                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, isDeleted: false, deletedAt: null } : pg) } : w));
+                },
+                permanentDeletePage: (pid) => {
+                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.filter(pg => pg.id !== pid) } : w));
+                },
+                
                 updateBlock: (bid, u) => activePage && actions.updatePage(activePageId, { blocks: activePage.blocks.map(b => b.id === bid ? { ...b, ...u } : b) }),
                 addBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0,idx), {id: utils.generateId(), type:'p', content:''}, ...activePage.blocks.slice(idx)] }),
                 deleteBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0,idx), ...activePage.blocks.slice(idx+1)] }),
-                addTheme: (t) => { if(!t.name) return; setThemes(p => { const exists = p.find(ex => ex.id === t.id); return exists ? p.map(ex => ex.id === t.id ? t : ex) : [...p, t]; }); },
+                
+                addTheme: (t) => { 
+                    if(!t.name) return; 
+                    setThemes(p => { const exists = p.find(ex => ex.id === t.id); if (exists) return p.map(ex => ex.id === t.id ? t : ex); return [...p, t]; }); 
+                },
+                removeTheme: (themeId) => {
+                    if (themeId === 'default') return; 
+                    setThemes(p => p.filter(t => t.id !== themeId));
+                    if (activeThemeId === themeId) setActiveThemeId('default');
+                },
+                addFont: (f) => {
+                    if(!f.name) return;
+                    setFonts(p => { const exists = p.find(ex => ex.id === f.id); if(exists) return p; return [...p, f]; });
+                },
+                removeFont: (fontId) => {
+                    setFonts(p => p.filter(f => f.id !== fontId));
+                },
+                
                 addComment: (text) => {
                     if (!activePage) return;
                     const newComment = { id: utils.generateId(), author: userProfile.name, avatar: userProfile.avatar, text, createdAt: new Date().toISOString() };
@@ -356,16 +394,15 @@
                 }
             };
 
-            // EXPORTAR TODO (incluyendo activeThemeId y utils)
-            return { workspaces, userProfile, activeWorkspace, activePage, activePageId, themes, activeTheme, activeThemeId, actions, utils };
+            return { workspaces, userProfile, activeWorkspace, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils };
         };
 
         // ==========================================
         // 5. MAIN APP COMPONENT
         // ==========================================
         function App() {
-            const { workspaces, userProfile, activeWorkspace, activePage, activePageId, themes, activeTheme, activeThemeId, actions, utils } = useAppStore();
-            const [ui, setUi] = useState({ sidebarOpen: true, currentView: 'home', settingsSection: 'account', modals: { search: false, market: false, ai: false, workspaceMenu: false, iconPicker: false, pageOptions: false }, marketTab: 'gallery', notification: { show: false, message: '' } });
+            const { workspaces, userProfile, activeWorkspace, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils } = useAppStore();
+            const [ui, setUi] = useState({ sidebarOpen: true, currentView: 'home', settingsSection: 'account', modals: { search: false, market: false, ai: false, workspaceMenu: false, iconPicker: false, pageOptions: false }, marketTab: 'gallery', marketSubTab: 'store', notification: { show: false, message: '' } });
             const [showComments, setShowComments] = useState(false);
             const [searchQuery, setSearchQuery] = useState('');
             const [aiPrompt, setAiPrompt] = useState("");
@@ -377,62 +414,41 @@
 
             const filteredPages = useMemo(() => {
                 if (!activeWorkspace) return [];
-                if (!searchQuery.trim()) return activeWorkspace.pages;
-                return activeWorkspace.pages.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+                if (!searchQuery.trim()) return activeWorkspace.pages.filter(p => !p.isDeleted);
+                return activeWorkspace.pages.filter(p => !p.isDeleted && p.title.toLowerCase().includes(searchQuery.toLowerCase()));
             }, [searchQuery, activeWorkspace]);
 
             const inboxPages = useMemo(() => {
                 if (!activeWorkspace) return [];
-                return activeWorkspace.pages.filter(p => p.inInbox === true);
+                return activeWorkspace.pages.filter(p => p.inInbox === true && !p.isDeleted);
+            }, [activeWorkspace]);
+
+            const trashPages = useMemo(() => {
+                if (!activeWorkspace) return [];
+                return activeWorkspace.pages.filter(p => p.isDeleted === true);
             }, [activeWorkspace]);
 
             const showNotify = (msg) => { setUi(p => ({ ...p, notification: { show: true, message: msg } })); setTimeout(() => setUi(p => ({ ...p, notification: { show: false, message: '' } })), 3000); };
             const toggleModal = (n, v) => { setUi(p => ({ ...p, modals: { ...p.modals, [n]: v } })); if(n === 'market' && v && marketData.styles.length === 0) fetchMarketData(); };
             
-            // --- ROBUST API FUNCTIONS ---
             const generatePageWithAI = async () => {
                 if (!aiPrompt.trim()) return;
                 setIsAiGenerating(true);
                 const strictPrompt = `Genera un JSON para Notion sobre: "${aiPrompt}". Estructura: {"title": "Str", "icon": "Emoji", "cover": "URL", "blocks": [{"type": "h1|p|h2|bullet|todo", "content": "Str"}]}. Solo JSON.`;
-                
                 try {
                     let data;
                     if (USE_MOCK_API || window.location.hostname.includes("goog")) {
                         await utils.delay(2000);
-                        data = {
-                            title: `Página: ${aiPrompt}`,
-                            icon: "🤖",
-                            cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900",
-                            blocks: [
-                                {type: "h1", content: `Resultado para: ${aiPrompt}`},
-                                {type: "p", content: "Contenido generado en modo local (Mock)."},
-                                {type: "todo", content: "Validar respuesta"},
-                                {type: "todo", content: "Editar bloques"}
-                            ]
-                        };
+                        data = { title: `Página: ${aiPrompt}`, icon: "🤖", cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900", blocks: [{type: "h1", content: `Resultado`}, {type: "p", content: "Contenido generado en modo local."}] };
                     } else {
                         const res = await fetch(API_ENDPOINTS.AI, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: strictPrompt }) });
                         if (!res.ok) throw new Error("API Error");
                         data = await res.json();
                     }
-
-                    actions.addPage({ 
-                        title: data.title || "IA Page", 
-                        icon: data.icon || "✨", 
-                        cover: data.cover, 
-                        inInbox: true,
-                        blocks: data.blocks?.map(b => ({ ...b, id: utils.generateId() })) || [] 
-                    });
-                    
+                    actions.addPage({ title: data.title, icon: data.icon, cover: data.cover, inInbox: true, blocks: data.blocks?.map(b => ({ ...b, id: utils.generateId() })) || [] });
                     toggleModal('ai', false);
                     showNotify("Página creada en Bandeja 📥");
-                } catch (e) { 
-                    console.error("AI Error:", e);
-                    showNotify("Error generando página");
-                } finally { 
-                    setIsAiGenerating(false); 
-                    setAiPrompt(""); 
-                }
+                } catch (e) { console.error("AI Error:", e); showNotify("Error generando página"); } finally { setIsAiGenerating(false); setAiPrompt(""); }
             };
 
             const fetchMarketData = async () => {
@@ -442,7 +458,7 @@
                         await utils.delay(1000);
                         setMarketData({
                             styles: [{id: 'local-dark', name: 'Dark Mode Pro', author: 'Mock Dev', colors: { bg: '#1f1f22', text: '#ffffff', sidebar: '#18181b' }}, {id: 'local-sepia', name: 'Sepia Reading', author: 'Mock Dev', colors: { bg: '#f4ecd8', text: '#5b4636', sidebar: '#e9e0c9' }}],
-                            fonts: [],
+                            fonts: [{id: 'font-mono', name: 'JetBrains Mono'}, {id: 'font-serif', name: 'Merriweather'}],
                             covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600"]
                         });
                     } else {
@@ -451,52 +467,25 @@
                         const data = await res.json();
                         setMarketData(data || { styles: [], fonts: [], covers: [] });
                     }
-                } catch (e) { 
-                    console.error(e);
-                    setMarketData({ styles: [], fonts: [], covers: [] }); 
-                }
+                } catch (e) { console.error(e); setMarketData({ styles: [], fonts: [], covers: [] }); }
                 finally { setLoadingMarket(false); }
             };
 
             const handleFileUpload = async (event) => {
                 const file = event.target.files[0];
                 if (!file) return;
-                
                 if (uploadContext === 'style-json') {
                     const reader = new FileReader();
-                    reader.onload = (e) => { 
-                        try { 
-                            const json = JSON.parse(e.target.result);
-                            actions.addTheme({ ...json, id: utils.generateId(), source: 'local' }); 
-                            showNotify("Tema importado"); 
-                            toggleModal('market', false); 
-                        } catch { showNotify("JSON inválido"); } 
-                    };
-                    reader.readAsText(file); 
-                    setUploadContext(null); 
-                    return;
+                    reader.onload = (e) => { try { actions.addTheme({ ...JSON.parse(e.target.result), id: utils.generateId(), source: 'local' }); showNotify("Tema importado"); toggleModal('market', false); } catch { showNotify("JSON inválido"); } };
+                    reader.readAsText(file); setUploadContext(null); return;
                 }
-
                 showNotify("Subiendo...");
-                try {
-                    await utils.delay(800);
-                    const url = URL.createObjectURL(file);
-                    
-                    if(uploadContext === 'cover') { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); }
-                    else if(uploadContext === 'avatar') actions.setUserProfile(p => ({ ...p, avatar: url }));
-                    
-                    showNotify("Subida completada");
-                } catch { showNotify("Error al subir"); }
+                try { await utils.delay(800); const url = URL.createObjectURL(file); if(uploadContext === 'cover') { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); } else if(uploadContext === 'avatar') actions.setUserProfile(p => ({ ...p, avatar: url })); showNotify("Subida completada"); } catch { showNotify("Error al subir"); }
                 setUploadContext(null);
             };
 
             const triggerUpload = (ctx) => { setUploadContext(ctx); if (fileInputRef.current) { fileInputRef.current.value = ''; fileInputRef.current.click(); } };
-
-            const activeThemeStyle = activeTheme ? {
-                '--bg-color': activeTheme.colors?.bg || '#ffffff',
-                '--text-color': activeTheme.colors?.text || '#37352f',
-                '--sidebar-bg': activeTheme.colors?.sidebar || '#F7F7F5'
-            } : {};
+            const activeThemeStyle = activeTheme ? { '--bg-color': activeTheme.colors?.bg || '#ffffff', '--text-color': activeTheme.colors?.text || '#37352f', '--sidebar-bg': activeTheme.colors?.sidebar || '#F7F7F5' } : {};
 
             if (!activeWorkspace) return null;
 
@@ -505,7 +494,6 @@
                     <Notification message={ui.notification.message} isVisible={ui.notification.show} onClose={() => setUi(p => ({...p, notification: {show: false}}))} />
                     <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept={uploadContext === 'style-json' ? '.json' : 'image/*'} />
 
-                    {/* SIDEBAR */}
                     <motion.aside initial={false} animate={{ width: ui.sidebarOpen ? 240 : 56 }} style={{backgroundColor: 'var(--sidebar-bg)'}} className="h-full flex flex-col z-20 relative border-r border-[#E9E9E8] transition-all duration-300 group/sidebar">
                         <div className="p-3 relative shrink-0">
                             <div onClick={() => toggleModal('workspaceMenu', !ui.modals.workspaceMenu)} className={clsx("flex items-center gap-2 p-1.5 rounded-md hover:bg-[var(--item-hover)] transition-colors cursor-pointer relative z-20 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}>
@@ -518,197 +506,81 @@
                                         <div className="fixed inset-0 z-10" onClick={() => toggleModal('workspaceMenu', false)}/>
                                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-12 left-2 right-2 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 overflow-hidden text-zinc-800">
                                             <div className="p-2 border-b border-zinc-100 bg-zinc-50/50"><span className="text-[10px] font-bold text-zinc-400 uppercase px-2">Espacios</span></div>
-                                            <div className="max-h-48 overflow-y-auto">
-                                                {workspaces.map(ws => (
-                                                    <div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); toggleModal('workspaceMenu', false); setUi(p => ({...p, currentView: 'home'})); }} className="flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer text-sm group/ws">
-                                                        <div className={`w-5 h-5 rounded-[3px] bg-gradient-to-br ${ws.color} text-white flex items-center justify-center text-[10px]`}>{ws.initial}</div>
-                                                        <span className={`flex-1 truncate ${ws.id === activeWorkspaceId ? 'font-medium' : ''}`}>{ws.name}</span>
-                                                        {ws.id === activeWorkspaceId && <Check size={14} className="text-indigo-600"/>}
-                                                    </div>
-                                                ))}
-                                            </div>
+                                            <div className="max-h-48 overflow-y-auto">{workspaces.map(ws => (<div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); toggleModal('workspaceMenu', false); setUi(p => ({...p, currentView: 'home'})); }} className="flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer text-sm group/ws"><div className={`w-5 h-5 rounded-[3px] bg-gradient-to-br ${ws.color} text-white flex items-center justify-center text-[10px]`}>{ws.initial}</div><span className={`flex-1 truncate ${ws.id === activeWorkspaceId ? 'font-medium' : ''}`}>{ws.name}</span>{ws.id === activeWorkspaceId && <Check size={14} className="text-indigo-600"/>}</div>))}</div>
                                             <div onClick={() => { const n = prompt("Nombre:"); if(n) actions.addWorkspace(n); toggleModal('workspaceMenu', false); }} className="p-2 border-t border-zinc-100 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm text-zinc-600"><PlusCircle size={14}/> <span>Crear Nuevo</span></div>
                                         </motion.div>
                                     </>
                                 )}
                             </AnimatePresence>
                         </div>
-
                         <div className="flex-1 overflow-y-auto px-2 space-y-0.5 fancy-scroll">
-                            {[
-                                { icon: Search, label: 'Buscar', action: () => toggleModal('search', true) },
-                                { icon: SidebarIcon, label: 'Inicio', action: () => { setUi(p => ({...p, currentView: 'home'})); actions.setActivePageId(null); } },
-                                { icon: Inbox, label: 'Bandeja', action: () => { setUi(p => ({...p, currentView: 'inbox'})); actions.setActivePageId(null); } },
-                                { icon: Sparkles, label: 'IA Notion', action: () => toggleModal('ai', true), color: 'text-yellow-600' }
-                            ].map((item, i) => (
+                            {[{ icon: Search, label: 'Buscar', action: () => toggleModal('search', true) }, { icon: SidebarIcon, label: 'Inicio', action: () => { setUi(p => ({...p, currentView: 'home'})); actions.setActivePageId(null); } }, { icon: Inbox, label: 'Bandeja', action: () => { setUi(p => ({...p, currentView: 'inbox'})); actions.setActivePageId(null); } }, { icon: Sparkles, label: 'IA Notion', action: () => toggleModal('ai', true), color: 'text-yellow-600' }].map((item, i) => (
                                 <div key={i} onClick={item.action} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}>
                                     <item.icon size={18} className={clsx("shrink-0 opacity-70", item.color)} />
                                     {ui.sidebarOpen && <span className="text-sm font-medium opacity-80">{item.label}</span>}
-                                    {item.label === 'Bandeja' && inboxPages.length > 0 && ui.sidebarOpen && (
-                                        <div className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full ml-auto">{inboxPages.length}</div>
-                                    )}
+                                    {item.label === 'Bandeja' && inboxPages.length > 0 && ui.sidebarOpen && (<div className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full ml-auto">{inboxPages.length}</div>)}
                                 </div>
                             ))}
-                            <div className="mt-6 mb-1 px-2 flex justify-between items-center group/header">
-                                {ui.sidebarOpen && <span className="text-xs font-semibold opacity-50">PÁGINAS</span>}
-                                {ui.sidebarOpen && <button onClick={(e) => { e.stopPropagation(); const id = actions.addPage(); setUi(p=>({...p, currentView:'page'})); actions.setActivePageId(id); }} className="opacity-0 group-hover/header:opacity-100 transition-opacity p-1 hover:bg-[rgba(0,0,0,0.05)] rounded"><Plus size={14}/></button>}
-                            </div>
-                            {activeWorkspace.pages.filter(p => !p.inInbox).map(page => (
-                                <div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({...p, currentView: 'page'})); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer group min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1', activePageId === page.id ? 'bg-[rgba(0,0,0,0.05)] font-medium' : 'opacity-80')}>
-                                    <span className="text-lg leading-none w-4 text-center shrink-0">{page.icon || <FileText size={16} />}</span>
-                                    {ui.sidebarOpen && <span className="text-sm truncate">{page.title || 'Sin título'}</span>}
-                                </div>
-                            ))}
+                            <div className="mt-6 mb-1 px-2 flex justify-between items-center group/header">{ui.sidebarOpen && <span className="text-xs font-semibold opacity-50">PÁGINAS</span>}{ui.sidebarOpen && <button onClick={(e) => { e.stopPropagation(); const id = actions.addPage(); setUi(p=>({...p, currentView:'page'})); actions.setActivePageId(id); }} className="opacity-0 group-hover/header:opacity-100 transition-opacity p-1 hover:bg-[rgba(0,0,0,0.05)] rounded"><Plus size={14}/></button>}</div>
+                            {activeWorkspace.pages.filter(p => !p.inInbox && !p.isDeleted).map(page => (<div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({...p, currentView: 'page'})); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer group min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1', activePageId === page.id ? 'bg-[rgba(0,0,0,0.05)] font-medium' : 'opacity-80')}><span className="text-lg leading-none w-4 text-center shrink-0">{page.icon || <FileText size={16} />}</span>{ui.sidebarOpen && <span className="text-sm truncate">{page.title || 'Sin título'}</span>}</div>))}
                         </div>
                         <div className="p-2 border-t border-[#E9E9E8] space-y-0.5">
                              <div onClick={() => toggleModal('market', true)} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Palette size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Marketplace</span>}</div>
                              <div onClick={() => setUi(p => ({...p, currentView: 'settings'}))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Settings size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Configuración</span>}</div>
+                             <div onClick={() => { setUi(p => ({...p, currentView: 'trash'})); actions.setActivePageId(null); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Trash size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Papelera</span>}</div>
                              <div onClick={() => setUi(p => ({...p, sidebarOpen: !p.sidebarOpen}))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer mt-2 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><ChevronsLeft size={18} className={`shrink-0 transition-transform opacity-50 ${!ui.sidebarOpen ? "rotate-180" : ""}`} /> {ui.sidebarOpen && <span className="text-sm opacity-60">Cerrar barra</span>}</div>
                         </div>
                     </motion.aside>
 
-                    {/* MAIN CONTENT */}
                     <main className="flex-1 h-full overflow-hidden relative flex flex-col transition-colors duration-300" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
                         <header className="h-12 flex items-center justify-between px-4 shrink-0 transition-colors z-10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(255,255,255,0.0)' }}>
                             <div className="flex items-center gap-2 text-sm opacity-60 overflow-hidden w-full">
                                 {!ui.sidebarOpen && <button onClick={() => setUi(p => ({...p, sidebarOpen: true}))} className="p-1 hover:bg-[rgba(0,0,0,0.05)] rounded mr-2"><List size={18}/></button>}
                                 {ui.currentView === 'home' && <div className="flex items-center gap-2"><Briefcase size={16}/><span>Inicio</span></div>}
                                 {ui.currentView === 'inbox' && <div className="flex items-center gap-2"><Inbox size={16}/><span>Bandeja de Entrada</span></div>}
+                                {ui.currentView === 'trash' && <div className="flex items-center gap-2"><Trash size={16}/><span>Papelera</span></div>}
                                 {ui.currentView === 'settings' && <div className="flex items-center gap-2"><Settings size={16}/><span>Configuración</span></div>}
                                 {ui.currentView === 'page' && <div className="flex items-center gap-2 overflow-hidden w-full"><span className="text-lg">{activePage?.icon || <FileText size={16} />}</span><span className="truncate font-medium">{activePage?.title || 'Sin título'}</span></div>}
                             </div>
                             {ui.currentView === 'page' && (
-                                <div className="relative ml-2">
-                                    <button onClick={() => toggleModal('pageOptions', !ui.modals.pageOptions)} className="p-1 opacity-60 hover:opacity-100 hover:bg-[rgba(0,0,0,0.05)] rounded transition-colors"><MoreHorizontal size={20} /></button>
-                                    <AnimatePresence>{ui.modals.pageOptions && <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="absolute right-0 top-8 w-56 bg-white border border-zinc-200 rounded-lg shadow-xl z-50 overflow-hidden py-1"><button onClick={() => { actions.deletePage(activePageId); toggleModal('pageOptions', false); setUi(p => ({...p, currentView: 'home'})); }} className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50 cursor-pointer text-sm"><Trash size={14}/> Eliminar</button></motion.div>}</AnimatePresence>
-                                </div>
+                                <div className="relative ml-2"><button onClick={() => toggleModal('pageOptions', !ui.modals.pageOptions)} className="p-1 opacity-60 hover:opacity-100 hover:bg-[rgba(0,0,0,0.05)] rounded transition-colors"><MoreHorizontal size={20} /></button><AnimatePresence>{ui.modals.pageOptions && <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="absolute right-0 top-8 w-56 bg-white border border-zinc-200 rounded-lg shadow-xl z-50 overflow-hidden py-1"><button onClick={() => { actions.deletePage(activePageId); toggleModal('pageOptions', false); setUi(p => ({...p, currentView: 'home'})); showNotify("Página movida a papelera"); }} className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50 cursor-pointer text-sm"><Trash size={14}/> Eliminar</button></motion.div>}</AnimatePresence></div>
                             )}
                         </header>
 
                         <div className="flex-1 overflow-y-auto p-0 relative fancy-scroll">
-                            
-                            {/* HOME VIEW */}
                             {ui.currentView === 'home' && (
                                 <div className="max-w-4xl mx-auto h-full flex flex-col p-8 md:p-12 text-center">
-                                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.8 }} className="mb-8 flex justify-center">
-                                        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-200 shadow-md bg-zinc-100">
-                                            {userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-zinc-300">{activeWorkspace.initial}</div>}
-                                        </div>
-                                    </motion.div>
+                                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.8 }} className="mb-8 flex justify-center"><div className="w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-200 shadow-md bg-zinc-100">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover"/> : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-zinc-300">{activeWorkspace.initial}</div>}</div></motion.div>
                                     <FancyText text={`Hola, ${userProfile.name}`} className="text-4xl font-bold mb-2 text-current" />
                                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="opacity-70">Estás en <strong>{activeWorkspace.name}</strong>.</motion.p>
                                 </div>
                             )}
-
-                            {/* INBOX VIEW */}
                             {ui.currentView === 'inbox' && (
                                 <div className="max-w-3xl mx-auto py-12 px-6">
                                     <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Inbox size={24}/> Bandeja de Entrada</h1>
-                                    {inboxPages.length === 0 ? (
-                                        <div className="text-center py-12 opacity-50">
-                                            <div className="mb-2 text-4xl">📭</div>
-                                            No tienes páginas nuevas.
-                                        </div>
-                                    ) : (
-                                        <div className="grid gap-4">
-                                            {inboxPages.map(page => (
-                                                <SpotlightCard key={page.id} className="p-4 flex items-center justify-between cursor-pointer" onClick={() => { actions.setActivePageId(page.id); setUi(p => ({...p, currentView: 'page'})); }}>
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="text-2xl">{page.icon}</div>
-                                                        <div>
-                                                            <div className="font-bold text-zinc-800">{page.title}</div>
-                                                            <div className="text-xs text-zinc-500">Generado {formatDistanceToNow(new Date(page.updatedAt))} ago</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <button onClick={(e) => { e.stopPropagation(); actions.updatePage(page.id, { inInbox: false }); showNotify("Movido a páginas"); }} className="p-2 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600" title="Mover a páginas"><Archive size={16}/></button>
-                                                    </div>
-                                                </SpotlightCard>
-                                            ))}
-                                        </div>
+                                    {inboxPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">📭</div>No tienes páginas nuevas.</div> : (<div className="grid gap-4">{inboxPages.map(page => (<SpotlightCard key={page.id} className="p-4 flex items-center justify-between cursor-pointer" onClick={() => { actions.setActivePageId(page.id); setUi(p => ({...p, currentView: 'page'})); }}><div className="flex items-center gap-4"><div className="text-2xl">{page.icon}</div><div><div className="font-bold text-zinc-800">{page.title}</div><div className="text-xs text-zinc-500">Generado {formatDistanceToNow(new Date(page.updatedAt))} ago</div></div></div><div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); actions.updatePage(page.id, { inInbox: false }); showNotify("Movido a páginas"); }} className="p-2 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600" title="Mover a páginas"><Archive size={16}/></button></div></SpotlightCard>))}</div>)}
+                                </div>
+                            )}
+                            {ui.currentView === 'trash' && (
+                                <div className="max-w-3xl mx-auto py-12 px-6">
+                                    <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Trash size={24}/> Papelera</h1>
+                                    <p className="text-sm opacity-60 mb-6">Las páginas aquí pueden ser restauradas o eliminadas para siempre.</p>
+                                    {trashPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">🗑️</div>Papelera vacía.</div> : (
+                                        <div className="grid gap-3">{trashPages.map(page => (<div key={page.id} className="p-3 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3 opacity-60"><div className="text-lg">{page.icon || <FileText size={16}/>}</div><div><div className="font-medium text-sm text-zinc-900">{page.title || 'Sin título'}</div><div className="text-xs text-zinc-500">Borrado {formatDistanceToNow(new Date(page.deletedAt))} ago</div></div></div><div className="flex gap-2"><button onClick={() => { actions.restorePage(page.id); showNotify("Página restaurada"); }} className="flex items-center gap-1 bg-zinc-100 text-zinc-700 text-xs px-3 py-1.5 rounded hover:bg-zinc-200"><Undo2 size={12}/> Restaurar</button><button onClick={() => { if(confirm("¿Borrar definitivamente?")) actions.permanentDeletePage(page.id); }} className="p-1.5 text-red-400 hover:bg-red-50 rounded"><Trash size={14}/></button></div></div>))}</div>
                                     )}
                                 </div>
                             )}
-
-                            {/* SETTINGS VIEW */}
                             {ui.currentView === 'settings' && (
                                 <div className="flex h-full">
-                                    {/* Sidebar de Configuración */}
-                                    <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1">
-                                        <div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div>
-                                        <button onClick={() => setUi(p => ({...p, settingsSection: 'account'}))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button>
-                                        <button onClick={() => setUi(p => ({...p, settingsSection: 'themes'}))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button>
-                                    </div>
-
-                                    {/* Contenido de Configuración */}
+                                    <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({...p, settingsSection: 'account'}))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => setUi(p => ({...p, settingsSection: 'themes'}))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button></div>
                                     <div className="flex-1 overflow-y-auto px-12 py-12">
-                                        {ui.settingsSection === 'account' && (
-                                            <div className="max-w-2xl animate-in fade-in duration-300">
-                                                <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1>
-                                                <div className="flex items-start gap-6 mb-8">
-                                                    <div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">
-                                                        {userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover"/> : <Camera size={32} className="text-zinc-300"/>}
-                                                    </div>
-                                                    <div className="flex-1 space-y-4">
-                                                        <div>
-                                                            <label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label>
-                                                            <input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({...p, name: e.target.value}))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors"/>
-                                                        </div>
-                                                        <div>
-                                                            <label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label>
-                                                            <input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed"/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
+                                        {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover"/> : <Camera size={32} className="text-zinc-300"/>}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({...p, name: e.target.value}))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors"/></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed"/></div></div></div></div>)}
                                         {ui.settingsSection === 'themes' && (
                                             <div className="max-w-2xl animate-in fade-in duration-300">
                                                 <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Apariencia</h1>
-                                                <p className="text-sm opacity-60 mb-6">Personaliza la estética de tu espacio de trabajo. Los temas instalados desde el Marketplace aparecerán aquí.</p>
-                                                
                                                 <div className="space-y-3">
-                                                    {/* DEFAULT THEME */}
-                                                    <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div>
-                                                            <div>
-                                                                <div className="font-bold text-sm text-zinc-900">Notion Classic</div>
-                                                                <div className="text-xs text-zinc-500">Tema original (Claro)</div>
-                                                            </div>
-                                                        </div>
-                                                        <button 
-                                                            onClick={() => actions.setActiveThemeId('default')} 
-                                                            disabled={activeThemeId === 'default'}
-                                                            className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}
-                                                        >
-                                                            {activeThemeId === 'default' ? "Activo" : "Aplicar"}
-                                                        </button>
-                                                    </div>
-
-                                                    {/* INSTALLED THEMES */}
-                                                    {themes.filter(t => t.id !== 'default').map(t => (
-                                                        <div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff'}}>Aa</div>
-                                                                <div>
-                                                                    <div className="font-bold text-sm text-zinc-900">{t.name}</div>
-                                                                    <div className="text-xs text-zinc-500">Por {t.author}</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-2">
-                                                                <button onClick={() => { setThemes(prev => prev.filter(item => item.id !== t.id)); if(activeThemeId === t.id) actions.setActiveThemeId('default'); }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><Trash size={14}/></button>
-                                                                <button 
-                                                                    onClick={() => actions.setActiveThemeId(t.id)} 
-                                                                    disabled={activeThemeId === t.id}
-                                                                    className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}
-                                                                >
-                                                                    {activeThemeId === t.id ? "Activo" : "Aplicar"}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                    <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div><div><div className="font-bold text-sm text-zinc-900">stylessApp (Default)</div><div className="text-xs text-zinc-500">Tema original (Claro)</div></div></div><button onClick={() => actions.setActiveThemeId('default')} disabled={activeThemeId === 'default'} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === 'default' ? "Activo" : "Aplicar"}</button></div>
+                                                    {themes.filter(t => t.id !== 'default').map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff'}}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => { actions.removeTheme(t.id); showNotify("Tema eliminado"); }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><Trash size={14}/></button><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
                                                 </div>
                                             </div>
                                         )}
@@ -716,30 +588,17 @@
                                 </div>
                             )}
 
-                            {/* EDITOR */}
                             {ui.currentView === 'page' && activePage && (
                                 <motion.div key={activePage.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto pb-48">
                                     <div className={clsx("group/cover relative w-full border-b border-zinc-100 transition-all", activePage.cover ? "h-48 md:h-72" : "h-0")}>
                                         {activePage.cover && <img src={activePage.cover} className="w-full h-full object-cover"/>}
                                         {activePage.cover && <button onClick={() => toggleModal('market', true)} className="absolute bottom-4 right-4 bg-white/80 hover:bg-white text-xs px-2 py-1 rounded shadow-sm text-zinc-600 border border-zinc-200 opacity-0 group-hover/cover:opacity-100 transition-opacity">Cambiar portada</button>}
                                     </div>
-
                                     <div className="px-8 md:px-24 pt-8">
-                                        {activePage.icon && (
-                                            <div className="relative -mt-16 mb-4 z-10 group/icon">
-                                                <div onClick={() => toggleModal('iconPicker', !ui.modals.iconPicker)} className="text-7xl cursor-pointer hover:scale-105 transition-transform inline-block relative drop-shadow-sm">{activePage.icon}</div>
-                                                {ui.modals.iconPicker && (<div className="absolute top-full left-0 z-50 bg-white border border-zinc-200 p-3 rounded-xl shadow-xl w-64 grid grid-cols-6 gap-2 h-48 overflow-y-auto mt-2">{ICONS_LIST.map(icon => (<div key={icon} onClick={() => { actions.updatePage(activePageId, { icon }); toggleModal('iconPicker', false); }} className="text-xl p-1 hover:bg-zinc-100 rounded cursor-pointer text-center">{icon}</div>))}</div>)}
-                                            </div>
-                                        )}
-
+                                        {activePage.icon && (<div className="relative -mt-16 mb-4 z-10 group/icon"><div onClick={() => toggleModal('iconPicker', !ui.modals.iconPicker)} className="text-7xl cursor-pointer hover:scale-105 transition-transform inline-block relative drop-shadow-sm">{activePage.icon}</div>{ui.modals.iconPicker && (<div className="absolute top-full left-0 z-50 bg-white border border-zinc-200 p-3 rounded-xl shadow-xl w-64 grid grid-cols-6 gap-2 h-48 overflow-y-auto mt-2">{ICONS_LIST.map(icon => (<div key={icon} onClick={() => { actions.updatePage(activePageId, { icon }); toggleModal('iconPicker', false); }} className="text-xl p-1 hover:bg-zinc-100 rounded cursor-pointer text-center">{icon}</div>))}</div>)}</div>)}
                                         <PageHeaderControls page={activePage} onUpdate={(u) => actions.updatePage(activePageId, u)} onToggleComments={() => setShowComments(!showComments)} />
-
-                                        {showComments && (
-                                            <CommentSection comments={activePage.comments} onAddComment={(text) => actions.addComment(text)} userAvatar={userProfile.avatar} userName={userProfile.name} />
-                                        )}
-
+                                        {showComments && (<CommentSection comments={activePage.comments} onAddComment={(text) => actions.addComment(text)} userAvatar={userProfile.avatar} userName={userProfile.name} />)}
                                         <input value={activePage.title} onChange={(e) => actions.updatePage(activePage.id, { title: e.target.value })} placeholder="Título de la página" className="w-full text-4xl font-bold placeholder:opacity-50 border-none outline-none bg-transparent mb-8 text-current" />
-                                        
                                         <div className="space-y-0.5 min-h-[300px]">{activePage.blocks.map((block, index) => (<EditorBlock key={block.id} block={block} index={index} actions={actions}/>))}</div>
                                         <div className="h-32 -mx-4 cursor-text mt-4 opacity-0 hover:opacity-100 transition-opacity flex items-start pt-2 px-4 text-zinc-300 text-sm" onClick={() => actions.addBlock(activePage.blocks.length)}>Haz clic para escribir...</div>
                                     </div>
@@ -749,76 +608,84 @@
                     </main>
 
                     {/* MODALS */}
-                    <Modal isOpen={ui.modals.search} onClose={() => toggleModal('search', false)} title={null}>
-                        <div className="p-4 border-b border-zinc-100 bg-[#FBFBFA]">
-                            <div className="flex items-center gap-3 bg-white px-3 py-3 rounded-lg border border-zinc-200 shadow-sm"><Search className="text-zinc-400" size={18} /><input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Busca en tus páginas..." className="bg-transparent w-full outline-none text-base placeholder:text-zinc-400 text-zinc-700" /></div>
-                        </div>
-                        <div className="p-2 min-h-[300px]">
-                            {filteredPages.length > 0 ? filteredPages.map(p => (<div key={p.id} onClick={() => { actions.setActivePageId(p.id); setUi(prev => ({...prev, currentView: 'page', modals: {...prev.modals, search: false}})); }} className="flex items-center gap-3 p-2 hover:bg-zinc-100 rounded cursor-pointer group"><div className="text-xl">{p.icon || '📄'}</div><div className="flex-1"><div className="text-sm font-medium text-zinc-800">{p.title || 'Sin título'}</div><div className="text-xs text-zinc-400">En {activeWorkspace.name}</div></div><ArrowRight size={14} className="text-zinc-300 opacity-0 group-hover:opacity-100"/></div>)) : <div className="text-center text-zinc-400 mt-12 text-sm">No se encontraron resultados</div>}
-                        </div>
-                    </Modal>
-
-                    {/* AI MODAL */}
-                    <Modal isOpen={ui.modals.ai} onClose={() => toggleModal('ai', false)} title={null} transparent={true}>
-                        <div className="flex items-center justify-center h-full p-4">
-                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-200">
-                                <div className="p-6 bg-gradient-to-br from-indigo-50 to-white">
-                                    <h2 className="text-lg font-bold text-zinc-800 mb-2 flex items-center gap-2"><Sparkles size={18} className="text-indigo-500"/> Notion AI</h2>
-                                    <p className="text-sm text-zinc-500 mb-4">Describe lo que necesitas. La página se generará en segundo plano.</p>
-                                    <textarea autoFocus value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="Ej: Rutina de gimnasio para 3 días..." className="w-full bg-white border border-zinc-200 rounded-xl p-4 h-32 resize-none no-ring focus:border-zinc-400 transition-colors mb-4 text-zinc-700 text-sm"/>
-                                    <div className="flex justify-end gap-2">
-                                        <button onClick={() => toggleModal('ai', false)} className="px-4 py-2 rounded-lg text-zinc-500 hover:bg-zinc-100 text-sm font-medium">Cancelar</button>
-                                        <button onClick={generatePageWithAI} disabled={isAiGenerating} className="px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-sm hover:bg-black transition-colors disabled:opacity-50 flex items-center gap-2">
-                                            {isAiGenerating ? <Loader2 className="animate-spin" size={16}/> : <Wand2 size={16}/>} Generar
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </Modal>
-
-                    <Modal isOpen={ui.modals.market} onClose={() => toggleModal('market', false)} title="Marketplace">
+                    <Modal isOpen={ui.modals.search} onClose={() => toggleModal('search', false)} title={null}><div className="p-4 border-b border-zinc-100 bg-[#FBFBFA]"><div className="flex items-center gap-3 bg-white px-3 py-3 rounded-lg border border-zinc-200 shadow-sm"><Search className="text-zinc-400" size={18} /><input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Busca en tus páginas..." className="bg-transparent w-full outline-none text-base placeholder:text-zinc-400 text-zinc-700" /></div></div><div className="p-2 min-h-[300px]">{filteredPages.length > 0 ? filteredPages.map(p => (<div key={p.id} onClick={() => { actions.setActivePageId(p.id); setUi(prev => ({...prev, currentView: 'page', modals: {...prev.modals, search: false}})); }} className="flex items-center gap-3 p-2 hover:bg-zinc-100 rounded cursor-pointer group"><div className="text-xl">{p.icon || '📄'}</div><div className="flex-1"><div className="text-sm font-medium text-zinc-800">{p.title || 'Sin título'}</div><div className="text-xs text-zinc-400">En {activeWorkspace.name}</div></div><ArrowRight size={14} className="text-zinc-300 opacity-0 group-hover:opacity-100"/></div>)) : <div className="text-center text-zinc-400 mt-12 text-sm">No se encontraron resultados</div>}</div></Modal>
+                    <Modal isOpen={ui.modals.ai} onClose={() => toggleModal('ai', false)} title={null} transparent={true}><div className="flex items-center justify-center h-full p-4"><motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-200"><div className="p-6 bg-gradient-to-br from-indigo-50 to-white"><h2 className="text-lg font-bold text-zinc-800 mb-2 flex items-center gap-2"><Sparkles size={18} className="text-indigo-500"/> Notion AI</h2><p className="text-sm text-zinc-500 mb-4">Describe lo que necesitas. La página se generará en segundo plano.</p><textarea autoFocus value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="Ej: Rutina de gimnasio para 3 días..." className="w-full bg-white border border-zinc-200 rounded-xl p-4 h-32 resize-none no-ring focus:border-zinc-400 transition-colors mb-4 text-zinc-700 text-sm"/><div className="flex justify-end gap-2"><button onClick={() => toggleModal('ai', false)} className="px-4 py-2 rounded-lg text-zinc-500 hover:bg-zinc-100 text-sm font-medium">Cancelar</button><button onClick={generatePageWithAI} disabled={isAiGenerating} className="px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-sm hover:bg-black transition-colors disabled:opacity-50 flex items-center gap-2">{isAiGenerating ? <Loader2 className="animate-spin" size={16}/> : <Wand2 size={16}/>} Generar</button></div></div></motion.div></div></Modal>
+                    
+                    <Modal isOpen={ui.modals.market} onClose={() => toggleModal('market', false)} title="Marketplace" size="max-w-6xl">
                          <FancyTabs tabs={[{id: 'gallery', label: 'Galería'}, {id: 'styles', label: 'Estilos & Temas'}, {id: 'fonts', label: 'Fuentes'}]} activeTab={ui.marketTab} onTabChange={(id) => setUi(p=>({...p, marketTab: id}))} />
                          <div className="p-6 min-h-[400px]">
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="flex gap-2 bg-zinc-100 p-1 rounded-lg">
+                                    <button onClick={() => setUi(p=>({...p, marketSubTab: 'store'}))} className={clsx("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", ui.marketSubTab === 'store' ? "bg-white shadow text-zinc-900" : "text-zinc-500 hover:text-zinc-700")}>Explorar</button>
+                                    <button onClick={() => setUi(p=>({...p, marketSubTab: 'library'}))} className={clsx("px-3 py-1.5 text-xs font-medium rounded-md transition-colors", ui.marketSubTab === 'library' ? "bg-white shadow text-zinc-900" : "text-zinc-500 hover:text-zinc-700")}>Mis Instalados</button>
+                                </div>
+                                <div className="flex gap-2">
+                                    {ui.marketTab === 'gallery' && <button onClick={() => triggerUpload('cover')} className="text-xs flex items-center gap-1 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded text-zinc-600 font-medium"><UploadCloud size={12}/> Subir Propia</button>}
+                                    {ui.marketTab === 'styles' && <button onClick={() => triggerUpload('style-json')} className="flex items-center gap-2 text-xs bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-md font-medium text-zinc-700"><FileJson size={14}/> Cargar JSON</button>}
+                                    {ui.marketTab === 'fonts' && <button onClick={() => triggerUpload('font')} className="text-xs flex items-center gap-1 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded text-zinc-600 font-medium"><UploadCloud size={12}/> Subir Fuente</button>}
+                                </div>
+                            </div>
+
                             {loadingMarket ? <div className="flex items-center justify-center h-48"><Loader2 className="animate-spin text-zinc-400"/></div> : (
                                 <>
+                                    {/* --- GALERÍA (COVERS) --- */}
                                     {ui.marketTab === 'gallery' && (
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            <SpotlightCard onClick={() => triggerUpload('cover')} className="h-28 flex flex-col items-center justify-center text-zinc-400 bg-zinc-50 gap-2 cursor-pointer">
-                                                <UploadCloud size={20}/> <span className="text-xs font-bold">Subir Propia</span>
-                                            </SpotlightCard>
-                                            {(marketData.covers.length > 0 ? marketData.covers : ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600"]).map((url, i) => (
-                                                <SpotlightCard key={i} onClick={() => { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); }} className="h-28 cursor-pointer">
-                                                    <img src={url} className="w-full h-full object-cover"/>
-                                                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">Usar</div>
-                                                </SpotlightCard>
-                                            ))}
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {ui.marketSubTab === 'store' ? (
+                                                (marketData.covers.length > 0 ? marketData.covers : ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600"]).map((url, i) => (<SpotlightCard key={i} onClick={() => { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); }} className="h-32 cursor-pointer"><img src={url} className="w-full h-full object-cover"/><div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">Usar</div></SpotlightCard>))
+                                            ) : (
+                                                <div className="col-span-full text-center py-12 text-zinc-400">No tienes portadas guardadas localmente.</div>
+                                            )}
                                         </div>
                                     )}
+
+                                    {/* --- ESTILOS & TEMAS --- */}
                                     {ui.marketTab === 'styles' && (
-                                        <div className="space-y-4">
-                                            <div className="flex justify-end">
-                                                <button onClick={() => triggerUpload('style-json')} className="flex items-center gap-2 text-xs bg-zinc-100 hover:bg-zinc-200 px-3 py-2 rounded-md font-medium text-zinc-700"><FileJson size={14}/> Cargar JSON Local</button>
-                                            </div>
-                                            {marketData.styles.length === 0 ? <div className="text-center text-zinc-400 py-10">No se encontraron estilos en el repositorio remoto.</div> : (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                    {marketData.styles.map(style => {
-                                                        const isInstalled = themes.some(t => t.id === style.id || t.name === style.name);
-                                                        return (
-                                                            <SpotlightCard key={style.id} className="p-4 flex justify-between items-center bg-white">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="w-10 h-10 rounded bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center font-serif font-bold text-zinc-400">Aa</div>
-                                                                    <div><div className="font-bold text-sm text-zinc-800">{style.name}</div><div className="text-xs text-zinc-500">Remoto</div></div>
-                                                                </div>
-                                                                {isInstalled ? (
-                                                                    <span className="text-xs font-bold text-zinc-300 bg-zinc-50 px-3 py-1.5 rounded cursor-default border border-zinc-100">Instalado</span>
-                                                                ) : (
-                                                                    <button onClick={() => { actions.addTheme({ ...style }); showNotify("Tema instalado"); }} className="flex items-center gap-1 bg-zinc-900 text-white text-xs px-3 py-1.5 rounded hover:bg-black"><Download size={12}/> Obtener</button>
-                                                                )}
-                                                            </SpotlightCard>
-                                                        );
-                                                    })}
-                                                </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {ui.marketSubTab === 'store' ? (
+                                                marketData.styles.length === 0 ? <div className="col-span-full text-center py-12 text-zinc-400">No hay temas disponibles.</div> : 
+                                                marketData.styles.map(style => {
+                                                    const isInstalled = themes.some(t => t.id === style.id || t.name === style.name);
+                                                    return (
+                                                        <SpotlightCard key={style.id} className="p-4 flex flex-col justify-between bg-white h-full">
+                                                            <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center font-serif font-bold text-zinc-400">Aa</div><div><div className="font-bold text-sm text-zinc-800">{style.name}</div><div className="text-xs text-zinc-500">Remoto</div></div></div>
+                                                            {isInstalled ? <button onClick={() => { actions.removeTheme(style.id); showNotify("Tema desinstalado"); }} className="w-full flex justify-center items-center gap-1 bg-red-50 text-red-500 text-xs px-3 py-2 rounded hover:bg-red-100 font-medium transition-colors"><Trash size={12}/> Desinstalar</button> : <button onClick={() => { actions.addTheme({ ...style }); showNotify("Tema instalado"); }} className="w-full flex justify-center items-center gap-1 bg-zinc-900 text-white text-xs px-3 py-2 rounded hover:bg-black font-medium transition-colors"><Download size={12}/> Instalar</button>}
+                                                        </SpotlightCard>
+                                                    );
+                                                })
+                                            ) : (
+                                                themes.filter(t => t.id !== 'default').length === 0 ? <div className="col-span-full text-center py-12 text-zinc-400">No tienes temas instalados.</div> :
+                                                themes.filter(t => t.id !== 'default').map(t => (
+                                                    <SpotlightCard key={t.id} className="p-4 flex flex-col justify-between bg-white h-full">
+                                                        <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center font-serif font-bold text-zinc-400">Aa</div><div><div className="font-bold text-sm text-zinc-800">{t.name}</div><div className="text-xs text-zinc-500">Local</div></div></div>
+                                                        <button onClick={() => { actions.removeTheme(t.id); showNotify("Tema eliminado"); }} className="w-full flex justify-center items-center gap-1 bg-red-50 text-red-500 text-xs px-3 py-2 rounded hover:bg-red-100 font-medium transition-colors"><Trash size={12}/> Eliminar</button>
+                                                    </SpotlightCard>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* --- FUENTES --- */}
+                                    {ui.marketTab === 'fonts' && (
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {ui.marketSubTab === 'store' ? (
+                                                marketData.fonts.map(f => {
+                                                    const isInstalled = fonts.some(font => font.id === f.id);
+                                                    return (
+                                                        <div key={f.id} className="flex flex-col justify-between p-4 bg-white border border-zinc-200 rounded-lg h-32 hover:shadow-md transition-shadow">
+                                                            <div><div className="font-bold text-zinc-800 text-lg">{f.name}</div><div className="text-xs text-zinc-400">Open Source</div></div>
+                                                            {isInstalled ? <button onClick={() => { actions.removeFont(f.id); showNotify("Fuente eliminada"); }} className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded w-fit">Desinstalar</button> : <button onClick={() => { actions.addFont(f); showNotify("Fuente instalada"); }} className="text-xs font-bold bg-zinc-900 text-white px-3 py-1.5 rounded w-fit hover:bg-black">Instalar</button>}
+                                                        </div>
+                                                    )
+                                                })
+                                            ) : (
+                                                fonts.length === 0 ? <div className="col-span-full text-center py-12 text-zinc-400">No hay fuentes instaladas.</div> :
+                                                fonts.map(f => (
+                                                    <div key={f.id} className="flex flex-col justify-between p-4 bg-white border border-zinc-200 rounded-lg h-32 hover:shadow-md transition-shadow">
+                                                        <div><div className="font-bold text-zinc-800 text-lg">{f.name}</div><div className="text-xs text-zinc-400">Local</div></div>
+                                                        <button onClick={() => { actions.removeFont(f.id); showNotify("Fuente eliminada"); }} className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded w-fit">Eliminar</button>
+                                                    </div>
+                                                ))
                                             )}
                                         </div>
                                     )}
@@ -826,7 +693,6 @@
                             )}
                          </div>
                     </Modal>
-
                 </div>
             );
         }
