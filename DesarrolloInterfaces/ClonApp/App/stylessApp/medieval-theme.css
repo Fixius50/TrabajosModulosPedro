@@ -1,0 +1,305 @@
+/* =================================================================
+   THEME: CRÓNICAS DE FIXIUS (MEDIEVAL FANTASY) - V2 (Accessible)
+   ================================================================= */
+
+/* 1. FUENTES Y VARIABLES RAÍZ */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=UnifrakturMaguntia&display=swap');
+
+:root {
+    /* --- PALETA DE COLORES DE ALTO CONTRASTE --- */
+    
+    /* Maderas (Fondos Oscuros) */
+    --med-wood-dark: #26160c;   /* Casi negro, madera quemada */
+    --med-wood-mid: #4a301e;    /* Madera roble */
+    
+    /* Pergaminos (Fondos Claros) */
+    --med-parchment: #f3e8c8;      /* Crema suave */
+    --med-parchment-dim: #e6d8b0;  /* Crema oscurecido para bordes/inputs */
+    
+    /* Textos (Legibilidad Prioritaria) */
+    --med-ink: #1a0f08;         /* Café muy oscuro, casi negro (para fondo claro) */
+    --med-paper-text: #f0e6d2;  /* Blanco hueso (para fondo oscuro) */
+    --med-gold-text: #e8c776;   /* Dorado legible sobre fondo oscuro */
+    
+    /* Acentos */
+    --med-red-seal: #8a1c1c;    /* Lacre rojo */
+    --med-iron: #3d3b38;        /* Hierro forjado */
+    
+    /* --- SOBRESCRITURA DE VARIABLES CSS DE LA APP ORIGINAL --- */
+    --bg-color: var(--med-parchment) !important;
+    --text-color: var(--med-ink) !important;
+    --sidebar-bg: var(--med-wood-dark) !important;
+}
+
+/* =========================================
+   2. ESTRUCTURA GLOBAL Y TIPOGRAFÍA
+   ========================================= */
+
+body {
+    background-color: #111 !important; /* Fallback */
+    /* Textura de fondo de piedra oscura para los márgenes si se ven */
+    background-image: 
+        repeating-linear-gradient(45deg, #1a1a1a 0, #1a1a1a 1px, #111 0, #111 50%) !important;
+    background-size: 1.25rem 1.25rem !important; /* 20px -> 1.25rem */
+    
+    font-family: 'Crimson Text', serif !important;
+    color: var(--med-ink) !important;
+    font-size: 1rem; /* Base size */
+    line-height: 1.6;
+}
+
+/* Títulos: Fuente Gótica muy legible y grande */
+h1, h2, h3, .text-4xl, .text-3xl, .text-2xl, .text-xl, .font-bold {
+    font-family: 'UnifrakturMaguntia', cursive !important;
+    color: var(--med-wood-dark) !important;
+    letter-spacing: 0.05em;
+}
+
+/* Ajuste de tamaños relativos para títulos */
+.text-4xl { font-size: 2.5rem !important; }
+.text-3xl { font-size: 2rem !important; }
+.text-2xl { font-size: 1.75rem !important; }
+.text-xl  { font-size: 1.5rem !important; }
+
+/* Scrollbars Integrados */
+::-webkit-scrollbar {
+    width: 0.75rem; /* 12px */
+    height: 0.75rem;
+}
+::-webkit-scrollbar-track {
+    background: var(--med-wood-mid);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--med-gold-text);
+    border: 2px solid var(--med-wood-mid);
+    border-radius: 0.5rem;
+}
+
+/* =========================================
+   3. SIDEBAR (CONTEXTO: OSCURO)
+   ========================================= */
+/* IMPORTANTE: Aquí el texto DEBE ser claro obligatoriamente */
+
+aside, aside.group\/sidebar {
+    background-color: var(--med-wood-dark) !important;
+    /* Patrón de madera sutil */
+    background-image: repeating-linear-gradient(90deg, 
+        rgba(255,255,255,0.02) 0px, 
+        rgba(255,255,255,0.02) 1px, 
+        transparent 1px, 
+        transparent 20px
+    ) !important;
+    border-right: 0.3rem solid var(--med-iron) !important; /* Borde metálico */
+    box-shadow: 0.3rem 0 1rem rgba(0,0,0,0.5) !important;
+}
+
+/* Forzar color de texto CLARO en el sidebar para todos los elementos */
+aside .text-zinc-800, 
+aside .text-zinc-900, 
+aside .text-zinc-700,
+aside .text-zinc-600,
+aside .text-zinc-500,
+aside .text-zinc-400,
+aside span,
+aside div {
+    color: var(--med-paper-text) !important;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.8); /* Sombra para mejorar lectura */
+}
+
+/* Elementos atenuados (fechas, subtítulos) en amarillo apagado */
+aside .opacity-60, 
+aside .opacity-70, 
+aside .opacity-50 {
+    color: var(--med-gold-text) !important;
+    opacity: 0.9 !important; /* Aumentamos opacidad para legibilidad */
+}
+
+/* Efectos Hover en Sidebar */
+aside div[class*="hover"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Iluminar suavemente */
+    border-radius: 0.25rem;
+}
+
+/* Iconos en el Sidebar */
+aside svg {
+    color: var(--med-gold-text) !important;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,1));
+}
+
+/* =========================================
+   4. MAIN CONTENT (CONTEXTO: CLARO)
+   ========================================= */
+/* IMPORTANTE: Aquí el texto DEBE ser oscuro obligatoriamente */
+
+main {
+    background-color: var(--med-parchment) !important;
+    /* Ruido de papel sutil */
+    background-image: 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E"),
+        linear-gradient(to right, #eaddc5, #f7f2e4, #eaddc5) !important;
+    color: var(--med-ink) !important;
+}
+
+/* Encabezado transparente */
+header {
+    background: rgba(243, 232, 200, 0.9) !important; /* Pergamino semitransparente */
+    border-bottom: 1px solid rgba(74, 48, 30, 0.2) !important;
+    backdrop-filter: blur(4px);
+}
+
+/* Título de Página Editable ("Sin título") */
+input.text-4xl {
+    color: var(--med-wood-dark) !important; /* Título oscuro */
+    background: transparent !important;
+    text-shadow: none !important;
+    font-size: 2.5rem !important;
+    border-bottom: 2px dashed rgba(74, 48, 30, 0.3) !important;
+}
+
+input.text-4xl::placeholder {
+    color: rgba(74, 48, 30, 0.4) !important;
+}
+
+/* Bloques de contenidos */
+[contenteditable], p, li {
+    color: var(--med-ink) !important;
+    font-weight: 500;
+}
+
+/* =========================================
+   5. MODALES Y PANELES FLOTANTES
+   ========================================= */
+
+/* Backdrop (Fondo oscuro detrás del modal) */
+.modal-backdrop {
+    background-color: rgba(15, 12, 10, 0.85) !important; /* Muy oscuro para enfocar */
+    backdrop-filter: blur(2px);
+}
+
+/* Caja del Modal */
+div.fixed.bg-white,
+div.fixed.bg-m3-surface {
+    background-color: var(--med-parchment) !important;
+    border: 4px solid var(--med-iron) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 
+        0 0 0 2px var(--med-wood-dark),
+        0 1.5rem 3rem rgba(0,0,0,0.7) !important;
+    color: var(--med-ink) !important;
+}
+
+/* Encabezados de Modal (Si existen) */
+div.fixed h2, 
+div.fixed .font-bold {
+    color: var(--med-wood-dark) !important;
+}
+
+/* Tarjetas dentro de modales (Marketplace/Inbox) */
+.border-zinc-200, .border-zinc-100 {
+    border-color: rgba(74, 48, 30, 0.3) !important;
+}
+
+/* Tarjetas Blancas (Grid items) */
+.bg-white {
+    background-color: rgba(255, 255, 255, 0.5) !important; /* Mezcla con pergamino */
+    border: 1px solid rgba(74, 48, 30, 0.3) !important;
+}
+
+/* =========================================
+   6. ELEMENTOS DE INTERFAZ (UI)
+   ========================================= */
+
+/* --- Inputs (Buscador, Formularios) --- */
+/* Deben tener fondo claro y borde visible para contraste */
+input:not(.text-4xl), textarea {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    border: 2px solid #8c7b6c !important; /* Borde café medio */
+    border-radius: 0.25rem !important;
+    padding: 0.5rem !important;
+    color: var(--med-ink) !important;
+    font-family: 'Crimson Text', serif !important;
+    font-weight: 600 !important;
+}
+input:focus, textarea:focus {
+    background-color: #fff !important;
+    border-color: var(--med-red-seal) !important;
+    box-shadow: 0 0 0 2px rgba(138, 28, 28, 0.2) !important;
+}
+
+/* --- Botones Primarios (Acciones fuertes) --- */
+button.bg-zinc-900, 
+button.bg-black {
+    background: var(--med-red-seal) !important;
+    color: #fff !important; /* Texto blanco sobre rojo = Alto contraste */
+    border: 2px double #4a0e0e !important;
+    font-family: 'Cinzel Decorative', serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.8rem !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.25rem !important;
+}
+button.bg-zinc-900:hover {
+    background: #a32222 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
+}
+
+/* --- Botones Secundarios / Tags / Tabs --- */
+button.bg-zinc-100, 
+.bg-zinc-100 {
+    background-color: rgba(74, 48, 30, 0.1) !important;
+    color: var(--med-wood-dark) !important; /* Texto oscuro sobre fondo claro */
+    border: 1px solid rgba(74, 48, 30, 0.2) !important;
+    font-weight: bold !important;
+}
+
+/* Tab Activa */
+button.text-zinc-900.bg-white {
+    background-color: var(--med-wood-mid) !important;
+    color: var(--med-gold-text) !important; /* Texto dorado sobre madera */
+    border: 1px solid var(--med-iron) !important;
+}
+
+/* --- Checkboxes de Tareas --- */
+input[type="checkbox"] {
+    appearance: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid var(--med-wood-dark) !important;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+}
+input[type="checkbox"]:checked {
+    background-color: var(--med-red-seal) !important;
+    box-shadow: inset 0 0 0 2px #fff; 
+}
+
+/* =========================================
+   7. DECORACIÓN Y DETALLES
+   ========================================= */
+
+/* Avatar de usuario */
+.rounded-full.bg-zinc-100 {
+    border: 2px solid var(--med-gold-text) !important;
+    background-color: var(--med-wood-mid) !important;
+    color: var(--med-parchment) !important;
+}
+
+/* Efecto Hover en lista de items (Sidebar y Main) */
+.hover\:bg-zinc-100:hover, 
+.hover\:bg-\[var\(--item-hover\)\]:hover {
+    background-color: rgba(197, 160, 89, 0.2) !important; /* Dorado muy suave */
+    border-radius: 0.25rem;
+}
+
+/* Portadas (Covers) */
+img.object-cover {
+    filter: sepia(30%) contrast(110%); /* Efecto visual envejecido */
+    border-bottom: 3px solid var(--med-gold-text) !important;
+}
+
+/* Separadores */
+hr, .border-b, .border-t {
+    border-color: rgba(74, 48, 30, 0.2) !important;
+}

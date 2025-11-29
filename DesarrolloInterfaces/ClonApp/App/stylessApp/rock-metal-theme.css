@@ -1,0 +1,319 @@
+/* =================================================================
+   THEME: 80s HEAVY METAL & NEON ROCK
+   ================================================================= */
+
+/* 1. FUENTES Y VARIABLES RAÍZ */
+/* Metal Mania para títulos agresivos, Rock Salt para "escritura a mano" tipo setlist */
+@import url('https://fonts.googleapis.com/css2?family=Metal+Mania&family=Rock+Salt&family=Roboto+Condensed:wght@400;700&display=swap');
+
+:root {
+    /* --- PALETA DE COLORES "HAIR METAL" --- */
+    
+    /* Fondos Oscuros (Cuero y Escenario) */
+    --rock-black: #09090b;       /* Negro puro */
+    --rock-leather: #161618;     /* Gris muy oscuro con textura */
+    --rock-amp: #222224;         /* Gris amplificador */
+    
+    /* Neones y Acentos (Luces de concierto) */
+    --neon-pink: #ff0055;        /* Rosa Glam */
+    --neon-blue: #00f3ff;        /* Cian Eléctrico */
+    --neon-purple: #bd00ff;      /* Púrpura Deep */
+    --chrome: #e0e0e0;           /* Plata/Cromo */
+    
+    /* Textos (Alto Contraste) */
+    --text-main: #eeeeee;        /* Blanco casi puro */
+    --text-dim: #a0a0a0;         /* Gris plata */
+    
+    /* --- SOBRESCRITURA DE VARIABLES CSS DE LA APP ORIGINAL --- */
+    --bg-color: var(--rock-amp) !important;
+    --text-color: var(--text-main) !important;
+    --sidebar-bg: var(--rock-black) !important;
+}
+
+/* =========================================
+   2. ESTRUCTURA GLOBAL Y TIPOGRAFÍA
+   ========================================= */
+
+body {
+    background-color: var(--rock-black) !important;
+    color: var(--text-main) !important;
+    font-family: 'Roboto Condensed', sans-serif !important; /* Fuente legible pero "estrecha" */
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+}
+
+/* Títulos: Estilo Metal Pesado */
+h1, h2, h3, .text-4xl, .text-3xl, .text-2xl, .text-xl, .font-bold {
+    font-family: 'Metal Mania', cursive !important;
+    color: var(--chrome) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    /* Efecto de texto cromado */
+    text-shadow: 
+        0 0 5px rgba(255, 255, 255, 0.4),
+        2px 2px 0px #000 !important;
+}
+
+/* Ajuste de tamaños para legibilidad de la fuente Metal */
+.text-4xl { font-size: 3rem !important; color: var(--neon-pink) !important; }
+.text-3xl { font-size: 2.2rem !important; }
+
+/* Selección de texto (Como un marcador neón) */
+::selection {
+    background: var(--neon-pink);
+    color: #fff;
+}
+
+/* Scrollbars tipo Neón */
+::-webkit-scrollbar {
+    width: 0.8rem;
+    background: var(--rock-black);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--neon-blue);
+    border: 2px solid var(--rock-black);
+    border-radius: 0; /* Bordes cuadrados, más industrial */
+}
+
+/* =========================================
+   3. SIDEBAR (CONTEXTO: OSCURO / CUERO)
+   ========================================= */
+
+aside, aside.group\/sidebar {
+    background-color: var(--rock-black) !important;
+    /* Textura de rejilla de amplificador */
+    background-image: 
+        radial-gradient(var(--rock-leather) 15%, transparent 16%),
+        radial-gradient(var(--rock-leather) 15%, transparent 16%) !important;
+    background-size: 0.5rem 0.5rem !important;
+    background-position: 0 0, 0.25rem 0.25rem !important;
+    
+    border-right: 2px solid var(--neon-purple) !important;
+    box-shadow: 5px 0 20px rgba(189, 0, 255, 0.15) !important; /* Resplandor púrpura */
+}
+
+/* Forzar textos claros en el sidebar */
+aside .text-zinc-800, 
+aside .text-zinc-900, 
+aside .text-zinc-700,
+aside span, aside div {
+    color: var(--text-main) !important;
+    font-family: 'Rock Salt', cursive !important; /* Fuente tipo setlist escrito a mano */
+    font-size: 0.8rem !important; /* Ajuste porque Rock Salt es grande */
+}
+
+aside .text-zinc-500, 
+aside .text-zinc-400,
+aside .opacity-60, 
+aside .opacity-70 {
+    color: var(--neon-blue) !important;
+    opacity: 0.8 !important;
+}
+
+/* Items Hover en Sidebar */
+aside div[class*="hover"]:hover {
+    background-color: transparent !important;
+    color: var(--neon-pink) !important;
+    text-shadow: 0 0 8px var(--neon-pink); /* Efecto neón encendido */
+    border-left: 4px solid var(--neon-pink); /* Barra indicadora */
+}
+
+/* Iconos */
+aside svg {
+    color: var(--chrome) !important;
+}
+
+/* =========================================
+   4. MAIN CONTENT (CONTEXTO: DARK STAGE)
+   ========================================= */
+
+main {
+    background-color: var(--rock-amp) !important;
+    /* Degradado sutil como humo de escenario */
+    background-image: linear-gradient(to bottom, #111 0%, var(--rock-amp) 20%) !important;
+}
+
+/* Header Transparente */
+header {
+    background: rgba(0,0,0,0.8) !important;
+    border-bottom: 1px solid var(--neon-purple) !important;
+    backdrop-filter: blur(5px);
+}
+
+/* Títulos de página editables */
+input.text-4xl {
+    font-family: 'Metal Mania', cursive !important;
+    color: var(--text-main) !important;
+    background: transparent !important;
+    border-bottom: 2px solid var(--neon-pink) !important;
+    text-shadow: 0 0 10px rgba(255, 0, 85, 0.5) !important;
+}
+
+/* Texto del editor */
+[contenteditable], p, li {
+    color: var(--text-main) !important;
+    font-family: 'Roboto Condensed', sans-serif !important;
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+
+/* Formateo de código */
+code, pre {
+    background: #000 !important;
+    color: var(--neon-blue) !important;
+    border: 1px solid var(--neon-blue);
+    font-family: 'Courier New', monospace;
+}
+
+/* =========================================
+   5. ELEMENTOS DE UI (INPUTS, TARJETAS)
+   ========================================= */
+
+/* --- Inputs (Estilo Consola de Audio) --- */
+input:not(.text-4xl), textarea {
+    background-color: #000 !important;
+    border: 1px solid #444 !important;
+    border-radius: 0.2rem !important; /* Esquinas casi rectas */
+    color: var(--neon-blue) !important;
+    font-family: 'Courier New', monospace !important;
+    padding: 0.6rem !important;
+}
+
+input:focus, textarea:focus {
+    border-color: var(--neon-blue) !important;
+    box-shadow: 0 0 10px var(--neon-blue) !important; /* Resplandor */
+    outline: none !important;
+}
+
+/* Placeholder */
+::placeholder {
+    color: #555 !important;
+    text-transform: uppercase;
+}
+
+/* --- Modales (Cajas de Equipo / Flight Cases) --- */
+div.fixed.bg-white,
+div.fixed.bg-m3-surface {
+    background-color: #1a1a1a !important;
+    border: 4px solid var(--chrome) !important; /* Borde metálico grueso */
+    border-radius: 0.5rem !important;
+    box-shadow: 
+        inset 0 0 20px #000,
+        0 0 30px rgba(0, 0, 0, 0.8) !important;
+    color: var(--text-main) !important;
+}
+
+/* Esquinas metálicas en modales (Simuladas con clip-path si fuera posible, 
+   pero usaremos bordes internos para efecto visual seguro) */
+div.fixed.bg-white::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 1px solid rgba(255,255,255,0.1);
+    pointer-events: none;
+}
+
+/* Tarjetas (Spotlight Cards) */
+.group.relative.border.bg-white,
+.bg-white {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    color: var(--text-main) !important;
+}
+/* Forzar texto blanco dentro de tarjetas que originalmente eran blancas */
+.bg-white .text-zinc-800, 
+.bg-white .text-zinc-900 {
+    color: #fff !important;
+}
+.bg-white .text-zinc-500 {
+    color: #aaa !important;
+}
+
+/* Hover en tarjetas */
+.group.relative.border.bg-white:hover {
+    border-color: var(--neon-pink) !important;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.3) !important;
+}
+
+/* =========================================
+   6. BOTONES (GUITAR PEDALS & SWITCHES)
+   ========================================= */
+
+/* Botón Primario (Pedal de Distorsión) */
+button.bg-zinc-900, 
+button.bg-black {
+    background: linear-gradient(135deg, #cc0044, #990033) !important;
+    color: #fff !important;
+    border: 2px solid #ff3377 !important;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: 'Roboto Condensed', sans-serif !important;
+    box-shadow: 0 5px 0 #660022 !important; /* Efecto 3D de botón físico */
+    transition: all 0.1s;
+}
+
+button.bg-zinc-900:active, 
+button.bg-black:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #660022 !important;
+}
+
+/* Botón Secundario / Tags */
+button.bg-zinc-100, 
+.bg-zinc-100 {
+    background-color: #333 !important;
+    color: var(--chrome) !important;
+    border: 1px solid #555 !important;
+}
+
+/* Tabs Activos */
+button.text-zinc-900.bg-white {
+    background-color: var(--neon-blue) !important;
+    color: #000 !important;
+    font-weight: 900 !important;
+    border: none !important;
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* =========================================
+   7. DETALLES FINALES
+   ========================================= */
+
+/* Checkboxes */
+input[type="checkbox"] {
+    appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid var(--chrome) !important;
+    background: #000;
+    cursor: pointer;
+}
+input[type="checkbox"]:checked {
+    background: var(--neon-blue) !important;
+    box-shadow: 0 0 8px var(--neon-blue);
+    border-color: var(--neon-blue) !important;
+}
+
+/* Avatar de Usuario */
+.rounded-full.bg-zinc-100 {
+    border: 2px solid var(--neon-pink) !important;
+    background-color: #000 !important;
+}
+
+/* Portadas (Covers) */
+img.object-cover {
+    filter: contrast(120%) grayscale(20%); /* Look videoclip 80s */
+    border-bottom: 2px solid var(--neon-blue) !important;
+}
+
+/* Líneas separadoras */
+hr, .border-b, .border-t, .border-zinc-200, .border-zinc-100 {
+    border-color: #333 !important;
+}
+
+/* Notificaciones Toast */
+.fixed.bottom-6.right-6 {
+    background-color: #111 !important;
+    border: 1px solid var(--neon-pink) !important;
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.4) !important;
+}
