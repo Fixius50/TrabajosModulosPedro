@@ -1,5 +1,5 @@
 /* =================================================================
-   THEME: CRÓNICAS DE FIXIUS (MEDIEVAL FANTASY) - V2 (Accessible)
+   THEME: CRÓNICAS DE FIXIUS (MEDIEVAL FANTASY) - V3 (Updated for V77)
    ================================================================= */
 
 /* 1. FUENTES Y VARIABLES RAÍZ */
@@ -9,66 +9,59 @@
     /* --- PALETA DE COLORES DE ALTO CONTRASTE --- */
     
     /* Maderas (Fondos Oscuros) */
-    --med-wood-dark: #26160c;   /* Casi negro, madera quemada */
-    --med-wood-mid: #4a301e;    /* Madera roble */
+    --med-wood-dark: #26160c;   /* Casi negro */
+    --med-wood-mid: #4a301e;    /* Roble oscuro */
+    --med-wood-light: #6b4d36;  /* Madera media */
     
     /* Pergaminos (Fondos Claros) */
     --med-parchment: #f3e8c8;      /* Crema suave */
-    --med-parchment-dim: #e6d8b0;  /* Crema oscurecido para bordes/inputs */
+    --med-parchment-dim: #e6d8b0;  /* Crema oscurecido */
+    --med-parchment-texture: #e8dcc4; 
     
     /* Textos (Legibilidad Prioritaria) */
-    --med-ink: #1a0f08;         /* Café muy oscuro, casi negro (para fondo claro) */
-    --med-paper-text: #f0e6d2;  /* Blanco hueso (para fondo oscuro) */
-    --med-gold-text: #e8c776;   /* Dorado legible sobre fondo oscuro */
+    --med-ink: #1a0f08;         /* Café muy oscuro (casi negro) */
+    --med-paper-text: #f0e6d2;  /* Marfil antiguo (para texto sobre madera) */
+    --med-gold-text: #e8c776;   /* Dorado legible */
+    --med-dim-text: #968674;    /* Texto secundario claro */
     
     /* Acentos */
     --med-red-seal: #8a1c1c;    /* Lacre rojo */
-    --med-iron: #3d3b38;        /* Hierro forjado */
+    --med-red-hover: #b32a2a;
+    --med-iron: #3d3b38;        /* Hierro */
+    --med-gold-border: #bf9b30;
     
-    /* --- SOBRESCRITURA DE VARIABLES CSS DE LA APP ORIGINAL --- */
+    /* --- SOBRESCRITURA DE VARIABLES CSS DE LA APP ORIGINAl --- */
     --bg-color: var(--med-parchment) !important;
     --text-color: var(--med-ink) !important;
     --sidebar-bg: var(--med-wood-dark) !important;
+    --item-hover: rgba(232, 199, 118, 0.15) !important; /* Selección dorada sutil */
 }
 
 /* =========================================
-   2. ESTRUCTURA GLOBAL Y TIPOGRAFÍA
+   2. ESTRUCTURA GLOBAL
    ========================================= */
 
 body {
-    background-color: #111 !important; /* Fallback */
-    /* Textura de fondo de piedra oscura para los márgenes si se ven */
-    background-image: 
-        repeating-linear-gradient(45deg, #1a1a1a 0, #1a1a1a 1px, #111 0, #111 50%) !important;
-    background-size: 1.25rem 1.25rem !important; /* 20px -> 1.25rem */
-    
+    background-color: #1a1512 !important; 
+    /* Fondo "detrás" de la app (márgenes visibles si aplica) */
+    background-image: repeating-linear-gradient(45deg, #181310 0, #181310 2px, #1a1512 0, #1a1512 50%) !important;
     font-family: 'Crimson Text', serif !important;
     color: var(--med-ink) !important;
-    font-size: 1rem; /* Base size */
+    font-size: 1rem;
     line-height: 1.6;
 }
 
-/* Títulos: Fuente Gótica muy legible y grande */
+/* Títulos */
 h1, h2, h3, .text-4xl, .text-3xl, .text-2xl, .text-xl, .font-bold {
     font-family: 'UnifrakturMaguntia', cursive !important;
     color: var(--med-wood-dark) !important;
     letter-spacing: 0.05em;
+    font-weight: normal !important; /* La fuente ya es gruesa */
 }
 
-/* Ajuste de tamaños relativos para títulos */
-.text-4xl { font-size: 2.5rem !important; }
-.text-3xl { font-size: 2rem !important; }
-.text-2xl { font-size: 1.75rem !important; }
-.text-xl  { font-size: 1.5rem !important; }
-
-/* Scrollbars Integrados */
-::-webkit-scrollbar {
-    width: 0.75rem; /* 12px */
-    height: 0.75rem;
-}
-::-webkit-scrollbar-track {
-    background: var(--med-wood-mid);
-}
+/* Scrollbars */
+::-webkit-scrollbar { width: 0.75rem; height: 0.75rem; }
+::-webkit-scrollbar-track { background: var(--med-wood-mid); }
 ::-webkit-scrollbar-thumb {
     background: var(--med-gold-text);
     border: 2px solid var(--med-wood-mid);
@@ -76,230 +69,199 @@ h1, h2, h3, .text-4xl, .text-3xl, .text-2xl, .text-xl, .font-bold {
 }
 
 /* =========================================
-   3. SIDEBAR (CONTEXTO: OSCURO)
+   3. SIDEBAR (OSCURO)
    ========================================= */
-/* IMPORTANTE: Aquí el texto DEBE ser claro obligatoriamente */
+/* El texto debe ser CLARO aquí */
 
-aside, aside.group\/sidebar {
+aside, .group\/sidebar {
     background-color: var(--med-wood-dark) !important;
-    /* Patrón de madera sutil */
-    background-image: repeating-linear-gradient(90deg, 
-        rgba(255,255,255,0.02) 0px, 
-        rgba(255,255,255,0.02) 1px, 
-        transparent 1px, 
-        transparent 20px
-    ) !important;
-    border-right: 0.3rem solid var(--med-iron) !important; /* Borde metálico */
-    box-shadow: 0.3rem 0 1rem rgba(0,0,0,0.5) !important;
+    /* Vetas de madera verticales */
+    background-image: 
+        repeating-linear-gradient(90deg, transparent 0, transparent 4px, rgba(0,0,0,0.2) 5px),
+        linear-gradient(to right, #2b1a0e, #1f1108) !important;
+    border-right: 0.3rem solid var(--med-iron) !important; 
+    box-shadow: 5px 0 15px rgba(0,0,0,0.6) !important;
 }
 
-/* Forzar color de texto CLARO en el sidebar para todos los elementos */
-aside .text-zinc-800, 
+/* FORZADO DE TEXTO CLARO EN SIDEBAR */
 aside .text-zinc-900, 
+aside .text-zinc-800, 
 aside .text-zinc-700,
 aside .text-zinc-600,
 aside .text-zinc-500,
-aside .text-zinc-400,
-aside span,
-aside div {
+aside span, aside div {
     color: var(--med-paper-text) !important;
-    text-shadow: 1px 1px 0 rgba(0,0,0,0.8); /* Sombra para mejorar lectura */
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
 }
 
-/* Elementos atenuados (fechas, subtítulos) en amarillo apagado */
-aside .opacity-60, 
-aside .opacity-70, 
-aside .opacity-50 {
-    color: var(--med-gold-text) !important;
-    opacity: 0.9 !important; /* Aumentamos opacidad para legibilidad */
+/* Iconos Dorados y Nombres en Opacidad */
+aside svg { color: var(--med-gold-text) !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8)); }
+aside .opacity-60, aside .opacity-70, aside .opacity-50 {
+    color: var(--med-dim-text) !important;
+    opacity: 1 !important; /* Restaurar opacidad para legibilidad */
 }
 
-/* Efectos Hover en Sidebar */
-aside div[class*="hover"]:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important; /* Iluminar suavemente */
-    border-radius: 0.25rem;
+/* MENÚ DESPLEGABLE DE WORKSPACE (Dentro del Sidebar) */
+/* Este menu flota, debe ser legible */
+aside .bg-white.border.border-zinc-200 {
+    background-color: var(--med-parchment) !important;
+    border: 3px solid var(--med-wood-mid) !important;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.5) !important;
+    border-radius: 0.3rem !important;
+}
+/* Al desplegar el workspace, el texto interno volvemos a oscurecerlo porque el fondo es pergamino */
+aside .bg-white .text-zinc-800,
+aside .bg-white div {
+    color: var(--med-wood-dark) !important;
+    text-shadow: none !important;
 }
 
-/* Iconos en el Sidebar */
-aside svg {
-    color: var(--med-gold-text) !important;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,1));
+/* Icono redondo del workspace */
+aside .rounded-\[3px\].bg-gradient-to-br {
+    border: 1px solid var(--med-gold-text);
+    box-shadow: 0 0 5px var(--med-gold-text);
 }
 
 /* =========================================
-   4. MAIN CONTENT (CONTEXTO: CLARO)
+   4. MAIN CONTENT (CLARO)
    ========================================= */
-/* IMPORTANTE: Aquí el texto DEBE ser oscuro obligatoriamente */
 
 main {
     background-color: var(--med-parchment) !important;
-    /* Ruido de papel sutil */
     background-image: 
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E"),
-        linear-gradient(to right, #eaddc5, #f7f2e4, #eaddc5) !important;
-    color: var(--med-ink) !important;
+        radial-gradient(var(--med-dim-text) 1px, transparent 1px),
+        linear-gradient(to right, #f2e6c2, #fbf7e6, #f2e6c2) !important;
+    background-size: 20px 20px, 100% 100% !important;
+    background-blend-mode: multiply;
 }
 
-/* Encabezado transparente */
+/* Header Transparente */
 header {
-    background: rgba(243, 232, 200, 0.9) !important; /* Pergamino semitransparente */
+    background: rgba(243, 232, 200, 0.85) !important;
     border-bottom: 1px solid rgba(74, 48, 30, 0.2) !important;
-    backdrop-filter: blur(4px);
-}
-
-/* Título de Página Editable ("Sin título") */
-input.text-4xl {
-    color: var(--med-wood-dark) !important; /* Título oscuro */
-    background: transparent !important;
-    text-shadow: none !important;
-    font-size: 2.5rem !important;
-    border-bottom: 2px dashed rgba(74, 48, 30, 0.3) !important;
-}
-
-input.text-4xl::placeholder {
-    color: rgba(74, 48, 30, 0.4) !important;
-}
-
-/* Bloques de contenidos */
-[contenteditable], p, li {
-    color: var(--med-ink) !important;
-    font-weight: 500;
+    backdrop-filter: blur(5px);
 }
 
 /* =========================================
-   5. MODALES Y PANELES FLOTANTES
+   5. MODALES Y BÚSQUEDA (ESTILO TABLÓN/PERGAMINO)
    ========================================= */
 
-/* Backdrop (Fondo oscuro detrás del modal) */
+/* Backdrop Oscuro */
 .modal-backdrop {
-    background-color: rgba(15, 12, 10, 0.85) !important; /* Muy oscuro para enfocar */
-    backdrop-filter: blur(2px);
+    background: rgba(15, 12, 11, 0.9) !important; /* "Oscuridad de la Mazmorra" */
 }
 
-/* Caja del Modal */
-div.fixed.bg-white,
-div.fixed.bg-m3-surface {
-    background-color: var(--med-parchment) !important;
-    border: 4px solid var(--med-iron) !important;
+/* Contenedor del Modal (Incluye el de búsqueda) */
+div.fixed.bg-white, 
+div[role="dialog"] > div.bg-white {
+    background-color: #fdfbf7 !important; /* Papiro muy claro */
+    border: 4px double var(--med-wood-dark) !important;
     border-radius: 0.5rem !important;
     box-shadow: 
-        0 0 0 2px var(--med-wood-dark),
-        0 1.5rem 3rem rgba(0,0,0,0.7) !important;
-    color: var(--med-ink) !important;
-}
-
-/* Encabezados de Modal (Si existen) */
-div.fixed h2, 
-div.fixed .font-bold {
+        0 0 0 4px var(--med-parchment-dim), /* Borde externo doble */
+        0 20px 50px rgba(0,0,0,0.8) !important;
     color: var(--med-wood-dark) !important;
 }
 
-/* Tarjetas dentro de modales (Marketplace/Inbox) */
-.border-zinc-200, .border-zinc-100 {
-    border-color: rgba(74, 48, 30, 0.3) !important;
+/* Elementos de Texto en Search Modal */
+div.fixed.bg-white input.text-lg {
+    font-family: 'Cinzel Decorative', serif !important;
+    font-weight: bold;
+    color: var(--med-ink) !important;
 }
 
-/* Tarjetas Blancas (Grid items) */
-.bg-white {
-    background-color: rgba(255, 255, 255, 0.5) !important; /* Mezcla con pergamino */
-    border: 1px solid rgba(74, 48, 30, 0.3) !important;
+/* Tarjetas de Resultados (Spotlight Cards actualizadas) */
+.hover\:bg-notion-select:hover,
+div.hover\:bg-zinc-100 {
+    background-color: rgba(74, 48, 30, 0.1) !important;
+    border-radius: 0.25rem !important;
 }
 
 /* =========================================
-   6. ELEMENTOS DE INTERFAZ (UI)
+   6. UI ESSENTIALS: INPUTS, BOTONES, TARJETAS
    ========================================= */
 
-/* --- Inputs (Buscador, Formularios) --- */
-/* Deben tener fondo claro y borde visible para contraste */
-input:not(.text-4xl), textarea {
+/* INPUTS (Estilo Cuero Hendido) */
+input:not(.text-4xl), textarea, select {
     background-color: rgba(255, 255, 255, 0.6) !important;
-    border: 2px solid #8c7b6c !important; /* Borde café medio */
+    border: 2px solid #8c7b6c !important;
     border-radius: 0.25rem !important;
-    padding: 0.5rem !important;
+    font-family: 'Crimson Text', serif;
+    font-weight: 700;
     color: var(--med-ink) !important;
-    font-family: 'Crimson Text', serif !important;
-    font-weight: 600 !important;
-}
-input:focus, textarea:focus {
-    background-color: #fff !important;
-    border-color: var(--med-red-seal) !important;
-    box-shadow: 0 0 0 2px rgba(138, 28, 28, 0.2) !important;
 }
 
-/* --- Botones Primarios (Acciones fuertes) --- */
-button.bg-zinc-900, 
-button.bg-black {
-    background: var(--med-red-seal) !important;
-    color: #fff !important; /* Texto blanco sobre rojo = Alto contraste */
-    border: 2px double #4a0e0e !important;
-    font-family: 'Cinzel Decorative', serif !important;
+/* TITULO EDITABLE GIGANTE */
+input.text-4xl {
+    font-family: 'UnifrakturMaguntia', cursive !important;
+    color: var(--med-red-seal) !important;
+    background: transparent !important;
+    border-bottom: 3px dashed rgba(138, 28, 28, 0.2) !important;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    margin-bottom: 2rem !important;
+}
+
+/* BOTONES PRIMARIOS (LACRE ROJO) */
+button.bg-zinc-900, button.bg-black {
+    background: radial-gradient(circle at 30% 30%, #a62828, #721414) !important;
+    border: 2px outset #5a0e0e !important;
+    color: #fff !important;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.85rem !important;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.8rem !important;
-    padding: 0.5rem 1rem !important;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
     border-radius: 0.25rem !important;
 }
-button.bg-zinc-900:hover {
-    background: #a32222 !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
+
+/* BOTONES SECUNDARIOS / TAGS */
+button.bg-zinc-100, .bg-zinc-100 {
+    background: transparent !important;
+    border: 1px solid var(--med-wood-light) !important;
+    color: var(--med-wood-dark) !important;
+    font-weight: 600;
 }
 
-/* --- Botones Secundarios / Tags / Tabs --- */
-button.bg-zinc-100, 
-.bg-zinc-100 {
-    background-color: rgba(74, 48, 30, 0.1) !important;
-    color: var(--med-wood-dark) !important; /* Texto oscuro sobre fondo claro */
-    border: 1px solid rgba(74, 48, 30, 0.2) !important;
-    font-weight: bold !important;
-}
-
-/* Tab Activa */
-button.text-zinc-900.bg-white {
+/* AVATAR */
+.bg-zinc-100.rounded-full {
+    border: 3px solid var(--med-gold-border) !important;
     background-color: var(--med-wood-mid) !important;
-    color: var(--med-gold-text) !important; /* Texto dorado sobre madera */
-    border: 1px solid var(--med-iron) !important;
 }
 
-/* --- Checkboxes de Tareas --- */
+/* CHECKBOXES (PERGAMINO ANTIGUO) */
 input[type="checkbox"] {
-    appearance: none;
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1.25rem; height: 1.25rem;
     border: 2px solid var(--med-wood-dark) !important;
+    border-radius: 0 !important;
     background-color: transparent;
     cursor: pointer;
-    position: relative;
 }
 input[type="checkbox"]:checked {
     background-color: var(--med-red-seal) !important;
-    box-shadow: inset 0 0 0 2px #fff; 
+    box-shadow: inset 0 0 0 3px var(--med-parchment);
 }
 
 /* =========================================
-   7. DECORACIÓN Y DETALLES
+   7. DETALLES FINALES
    ========================================= */
 
-/* Avatar de usuario */
-.rounded-full.bg-zinc-100 {
-    border: 2px solid var(--med-gold-text) !important;
-    background-color: var(--med-wood-mid) !important;
-    color: var(--med-parchment) !important;
+/* Comentarios y Nombres destacados */
+.font-semibold.text-zinc-800 {
+    font-family: 'Cinzel Decorative', cursive;
+    color: var(--med-red-seal) !important;
+    border-bottom: 1px solid rgba(138, 28, 28, 0.2);
 }
 
-/* Efecto Hover en lista de items (Sidebar y Main) */
-.hover\:bg-zinc-100:hover, 
-.hover\:bg-\[var\(--item-hover\)\]:hover {
-    background-color: rgba(197, 160, 89, 0.2) !important; /* Dorado muy suave */
-    border-radius: 0.25rem;
+/* Etiquetas pequeñas (subheaders) */
+.text-xs.font-bold, .text-zinc-400.uppercase {
+    color: var(--med-wood-mid) !important;
+    font-family: 'Cinzel Decorative', serif;
+    letter-spacing: 0.1em;
 }
 
-/* Portadas (Covers) */
-img.object-cover {
-    filter: sepia(30%) contrast(110%); /* Efecto visual envejecido */
-    border-bottom: 3px solid var(--med-gold-text) !important;
-}
+/* Breadcrumbs en búsqueda */
+.opacity-70, .opacity-40 { opacity: 1 !important; color: #887 !important; }
 
-/* Separadores */
-hr, .border-b, .border-t {
-    border-color: rgba(74, 48, 30, 0.2) !important;
+/* Separadores de línea */
+.border-zinc-200, .border-zinc-100, .border-b, hr {
+    border-color: rgba(74, 48, 30, 0.25) !important;
 }
