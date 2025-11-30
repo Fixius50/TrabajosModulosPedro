@@ -153,11 +153,11 @@
         // ==========================================
         // 2. PAGE COMPONENTS
         // ==========================================
-        const PageHeaderControls = ({ page, onUpdate, onToggleComments }) => {
+        const PageHeaderControls = ({ page, onUpdate, onToggleComments, onOpenIconPicker, onOpenCoverPicker }) => {
             return (
                 <div className="flex items-center gap-1 text-xs text-zinc-400 font-medium mb-4 select-none animate-in fade-in duration-300">
-                    {!page.icon && <button onClick={() => onUpdate({ icon: '📄' })} className="flex items-center gap-1.5 hover:bg-zinc-100 px-2 py-1 rounded transition-colors hover:text-zinc-600"><Smile size={14} /> Agregar icono</button>}
-                    {!page.cover && <button onClick={() => onUpdate({ cover: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=900&q=80' })} className="flex items-center gap-1.5 hover:bg-zinc-100 px-2 py-1 rounded transition-colors hover:text-zinc-600"><ImagePlus size={14} /> Agregar portada</button>}
+                    {!page.icon && <button onClick={onOpenIconPicker} className="flex items-center gap-1.5 hover:bg-zinc-100 px-2 py-1 rounded transition-colors hover:text-zinc-600"><Smile size={14} /> Agregar icono</button>}
+                    {!page.cover && <button onClick={onOpenCoverPicker} className="flex items-center gap-1.5 hover:bg-zinc-100 px-2 py-1 rounded transition-colors hover:text-zinc-600"><ImagePlus size={14} /> Agregar portada</button>}
                     <button onClick={onToggleComments} className="flex items-center gap-1.5 hover:bg-zinc-100 px-2 py-1 rounded transition-colors hover:text-zinc-600"><MessageSquare size={14} /> {page.comments?.length > 0 ? `Comentarios (${page.comments.length})` : 'Agregar comentario'}</button>
                 </div>
             );
@@ -206,10 +206,10 @@
 
         const SlashMenu = ({ query, onSelect, onClose }) => {
             const items = [
+                { id: 'p', label: 'Texto', icon: <FileText size={16} />, desc: 'Empieza a escribir' },
                 { id: 'h1', label: 'Encabezado 1', icon: <Type size={18} />, desc: 'Título grande' },
                 { id: 'h2', label: 'Encabezado 2', icon: <Type size={16} />, desc: 'Título mediano' },
                 { id: 'h3', label: 'Encabezado 3', icon: <Type size={14} />, desc: 'Título pequeño' },
-                { id: 'p', label: 'Texto', icon: <FileText size={16} />, desc: 'Empieza a escribir' },
                 { id: 'bullet', label: 'Lista con viñetas', icon: <List size={16} />, desc: 'Lista simple' },
                 { id: 'todo', label: 'Lista de tareas', icon: <CheckSquare size={16} />, desc: 'Tareas pendientes' },
                 { id: 'quote', label: 'Cita', icon: <Quote size={16} />, desc: 'Captura una cita' },
@@ -255,10 +255,34 @@
             const handleKeyDown = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    actions.addBlock(index + 1);
+                    if (['bullet', 'todo'].includes(block.type)) {
+                        if (!block.content) {
+                            if ((block.level || 0) > 0) {
+                                actions.updateBlock(block.id, { level: (block.level || 0) - 1 });
+                            } else {
+                                actions.updateBlock(block.id, { type: 'p' });
+                            }
+                        } else {
+                            actions.addBlock(index + 1, { type: block.type, level: block.level || 0 });
+                        }
+                    } else {
+                        actions.addBlock(index + 1);
+                    }
                 } else if (e.key === 'Backspace' && (!block.content)) {
                     e.preventDefault();
-                    actions.deleteBlock(index);
+                    if ((block.level || 0) > 0) {
+                        actions.updateBlock(block.id, { level: (block.level || 0) - 1 });
+                    } else {
+                        actions.deleteBlock(index);
+                    }
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const currentLevel = block.level || 0;
+                    if (e.shiftKey) {
+                        actions.updateBlock(block.id, { level: Math.max(0, currentLevel - 1) });
+                    } else {
+                        actions.updateBlock(block.id, { level: Math.min(3, currentLevel + 1) });
+                    }
                 }
             };
 
@@ -288,8 +312,22 @@
                         {block.type === 'h2' && <FancyEditable tagName="h2" html={block.content} className="text-2xl font-semibold text-zinc-800 mb-1 mt-4" placeholder="Encabezado 2" onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
                         {block.type === 'h3' && <FancyEditable tagName="h3" html={block.content} className="text-xl font-semibold text-zinc-800 mb-1 mt-3" placeholder="Encabezado 3" onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
                         {block.type === 'p' && <FancyEditable tagName="p" html={block.content} className="text-base text-zinc-700 leading-relaxed min-h-[1.5rem]" placeholder='Escribe "/" para comandos...' onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
-                        {block.type === 'bullet' && (<div className="flex items-start gap-2"><div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-zinc-800 shrink-0" /><FancyEditable tagName="p" html={block.content} className="flex-1 text-base text-zinc-700 leading-relaxed" placeholder="Lista" onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>)}
-                        {block.type === 'todo' && (<div className="flex items-start gap-3"><div onClick={() => actions.updateBlock(block.id, { checked: !block.checked })} className={clsx("mt-1 w-4 h-4 rounded-[3px] border cursor-pointer flex items-center justify-center transition-colors", block.checked ? 'bg-[#2EAADC] border-[#2EAADC]' : 'border-zinc-400 hover:bg-zinc-100')}>{block.checked && <Check size={12} className="text-white" />}</div><FancyEditable tagName="p" html={block.content} className={clsx("flex-1 text-base min-h-[1.5rem] transition-opacity", block.checked ? 'line-through text-zinc-400 opacity-50' : 'text-zinc-700')} placeholder="Tarea por hacer" onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>)}
+                        {block.type === 'bullet' && (
+                            <div className="flex items-start gap-2" style={{ marginLeft: (block.level || 0) * 24 + 'px' }}>
+                                <div className={clsx("mt-2.5 shrink-0 transition-all",
+                                    (block.level || 0) % 3 === 0 ? "w-1.5 h-1.5 rounded-full bg-zinc-800" :
+                                        (block.level || 0) % 3 === 1 ? "w-1.5 h-1.5 rounded-full border border-zinc-800 bg-transparent" :
+                                            "w-1.5 h-1.5 bg-zinc-800"
+                                )} />
+                                <FancyEditable tagName="p" html={block.content} className="flex-1 text-base text-zinc-700 leading-relaxed" placeholder="Lista" onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus />
+                            </div>
+                        )}
+                        {block.type === 'todo' && (
+                            <div className="flex items-start gap-3" style={{ marginLeft: (block.level || 0) * 24 + 'px' }}>
+                                <div onClick={() => actions.updateBlock(block.id, { checked: !block.checked })} className={clsx("mt-1 w-4 h-4 rounded-[3px] border cursor-pointer flex items-center justify-center transition-colors", block.checked ? 'bg-[#2EAADC] border-[#2EAADC]' : 'border-zinc-400 hover:bg-zinc-100')}>{block.checked && <Check size={12} className="text-white" />}</div>
+                                <FancyEditable tagName="p" html={block.content} className={clsx("flex-1 text-base min-h-[1.5rem] transition-opacity", block.checked ? 'line-through text-zinc-400 opacity-50' : 'text-zinc-700')} placeholder="Tarea por hacer" onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus />
+                            </div>
+                        )}
                         {block.type === 'quote' && (<div className="flex items-start gap-3 pl-4 border-l-4 border-zinc-900 my-2"><FancyEditable tagName="p" html={block.content} className="text-lg italic text-zinc-700" placeholder="Cita..." onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>)}
                         {block.type === 'divider' && (<div className="py-4"><div className="h-px bg-zinc-200 w-full" /></div>)}
                         {block.type === 'callout' && (<div className="p-4 bg-zinc-50 rounded-lg flex gap-3 border border-zinc-200 my-2"><Info size={20} className="text-zinc-500 shrink-0" /><FancyEditable tagName="p" html={block.content} className="text-base text-zinc-800" placeholder="Destacado..." onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>)}
@@ -360,7 +398,7 @@
                     setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.filter(pg => pg.id !== pid) } : w));
                 },
                 updateBlock: (bid, u) => activePage && actions.updatePage(activePageId, { blocks: activePage.blocks.map(b => b.id === bid ? { ...b, ...u } : b) }),
-                addBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), { id: utils.generateId(), type: 'p', content: '' }, ...activePage.blocks.slice(idx)] }),
+                addBlock: (idx, initialData = {}) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), { id: utils.generateId(), type: 'p', content: '', ...initialData }, ...activePage.blocks.slice(idx)] }),
                 deleteBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), ...activePage.blocks.slice(idx + 1)] }),
 
                 addTheme: (t) => {
@@ -389,179 +427,205 @@
         // ==========================================
         // 5. MAIN APP COMPONENT
         // ==========================================
-        function App() {
+        const App = () => {
             const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils } = useAppStore();
-            const [ui, setUi] = useState({ sidebarOpen: true, currentView: 'home', settingsSection: 'account', modals: { search: false, market: false, ai: false, workspaceMenu: false, iconPicker: false, pageOptions: false, createWorkspace: false }, marketTab: 'gallery', marketSubTab: 'store', notification: { show: false, message: '' } });
-            const [showComments, setShowComments] = useState(false);
-            const [searchQuery, setSearchQuery] = useState('');
+            const [ui, setUi] = useState({
+                currentView: 'home', // home, page, settings, trash
+                sidebarCollapsed: false,
+                settingsSection: 'account',
+                marketTab: 'gallery',
+                marketSubTab: 'store',
+                modals: { search: false, ai: false, market: false, createWorkspace: false, iconPicker: false }
+            });
+            const [searchQuery, setSearchQuery] = useState("");
             const [aiPrompt, setAiPrompt] = useState("");
             const [isAiGenerating, setIsAiGenerating] = useState(false);
-            const [marketData, setMarketData] = useState({ styles: [], fonts: [], covers: [] });
-            const [loadingMarket, setLoadingMarket] = useState(false);
-            const fileInputRef = useRef(null);
-            const [uploadContext, setUploadContext] = useState(null);
+            const [showComments, setShowComments] = useState(false);
             const [newWorkspaceName, setNewWorkspaceName] = useState("");
+            const [marketData, setMarketData] = useState({ covers: [], styles: [], fonts: [] });
+            const [loadingMarket, setLoadingMarket] = useState(false);
 
+            // Derived state
             const filteredPages = useMemo(() => {
                 if (!activeWorkspace) return [];
-                if (!searchQuery.trim()) return activeWorkspace.pages.filter(p => !p.isDeleted);
+                if (!searchQuery) return activeWorkspace.pages.filter(p => !p.isDeleted);
                 return activeWorkspace.pages.filter(p => !p.isDeleted && p.title.toLowerCase().includes(searchQuery.toLowerCase()));
-            }, [searchQuery, activeWorkspace]);
+            }, [activeWorkspace, searchQuery]);
 
-            const inboxPages = useMemo(() => {
-                if (!activeWorkspace) return [];
-                return activeWorkspace.pages.filter(p => p.inInbox === true && !p.isDeleted);
-            }, [activeWorkspace]);
+            const trashPages = useMemo(() => activeWorkspace ? activeWorkspace.pages.filter(p => p.isDeleted) : [], [activeWorkspace]);
 
-            const trashPages = useMemo(() => {
-                if (!activeWorkspace) return [];
-                return activeWorkspace.pages.filter(p => p.isDeleted === true);
-            }, [activeWorkspace]);
+            // Effects
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggleModal('search', true); }
+                    if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); setUi(p => ({ ...p, sidebarCollapsed: !p.sidebarCollapsed })); }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
 
-            const showNotify = (msg) => { setUi(p => ({ ...p, notification: { show: true, message: msg } })); setTimeout(() => setUi(p => ({ ...p, notification: { show: false, message: '' } })), 3000); };
-            const toggleModal = (n, v) => { setUi(p => ({ ...p, modals: { ...p.modals, [n]: v } })); if (n === 'market' && v && marketData.styles.length === 0) fetchMarketData(); };
+            useEffect(() => {
+                // Apply theme
+                const root = document.documentElement;
+                if (activeTheme.colors) {
+                    root.style.setProperty('--bg-color', activeTheme.colors.bg);
+                    root.style.setProperty('--text-color', activeTheme.colors.text);
+                    root.style.setProperty('--sidebar-bg', activeTheme.colors.sidebar);
+                }
+                // Apply font
+                // (Simplified for this demo)
+            }, [activeTheme]);
+
+            const toggleModal = (name, value) => setUi(p => ({ ...p, modals: { ...p.modals, [name]: value } }));
 
             const handleCreateWorkspace = () => {
-                if (!newWorkspaceName.trim()) { showNotify("El nombre es obligatorio"); return; }
+                if (!newWorkspaceName.trim()) return;
                 actions.addWorkspace(newWorkspaceName);
                 setNewWorkspaceName("");
                 toggleModal('createWorkspace', false);
-                toggleModal('workspaceMenu', false);
-                setUi(p => ({ ...p, currentView: 'home' }));
-                showNotify("Espacio de trabajo creado");
             };
 
             const generatePageWithAI = async () => {
                 if (!aiPrompt.trim()) return;
                 setIsAiGenerating(true);
-                const strictPrompt = `Genera un JSON para Notion sobre: "${aiPrompt}". Estructura: {"title": "Str", "icon": "Emoji", "cover": "URL", "blocks": [{"type": "h1|p|h2|bullet|todo", "content": "Str"}]}. Solo JSON.`;
-                try {
-                    let data;
-                    if (USE_MOCK_API || window.location.hostname.includes("goog")) {
-                        await utils.delay(2000);
-                        data = { title: `Página: ${aiPrompt}`, icon: "🤖", cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900", blocks: [{ type: "h1", content: `Resultado` }, { type: "p", content: "Contenido generado en modo local." }] };
-                    } else {
-                        const res = await fetch(API_ENDPOINTS.AI, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: strictPrompt }) });
-                        if (!res.ok) throw new Error("API Error");
-                        data = await res.json();
-                    }
-                    actions.addPage({ title: data.title, icon: data.icon, cover: data.cover, inInbox: true, blocks: data.blocks?.map(b => ({ ...b, id: utils.generateId() })) || [] });
-                    toggleModal('ai', false);
-                    showNotify("Página creada en Bandeja 📥");
-                    setUi(p => ({ ...p, currentView: 'inbox' }));
-                } catch (e) { console.error("AI Error:", e); showNotify("Error generando página"); } finally { setIsAiGenerating(false); setAiPrompt(""); }
+                await utils.delay(1500); // Mock delay
+                const id = actions.addPage({
+                    title: "Plan Generado por AI",
+                    icon: "🤖",
+                    blocks: [
+                        { id: utils.generateId(), type: 'h1', content: 'Plan Personalizado' },
+                        { id: utils.generateId(), type: 'p', content: `Aquí tienes una propuesta basada en: "${aiPrompt}"` },
+                        { id: utils.generateId(), type: 'bullet', content: 'Paso 1: Análisis inicial' },
+                        { id: utils.generateId(), type: 'bullet', content: 'Paso 2: Ejecución estratégica' },
+                        { id: utils.generateId(), type: 'todo', content: 'Revisar resultados' }
+                    ]
+                });
+                setIsAiGenerating(false);
+                setAiPrompt("");
+                toggleModal('ai', false);
+                actions.setActivePageId(id);
+                setUi(p => ({ ...p, currentView: 'page' }));
             };
 
-            const fetchMarketData = async () => {
-                setLoadingMarket(true);
-                try {
-                    if (USE_MOCK_API || window.location.hostname.includes("goog")) {
-                        await utils.delay(1000);
-                        setMarketData({
-                            styles: [{ id: 'local-dark', name: 'Dark Mode Pro', author: 'Mock Dev', colors: { bg: '#1f1f22', text: '#ffffff', sidebar: '#18181b' } }, { id: 'local-sepia', name: 'Sepia Reading', author: 'Mock Dev', colors: { bg: '#f4ecd8', text: '#5b4636', sidebar: '#e9e0c9' } }],
-                            fonts: [{ id: 'font-mono', name: 'JetBrains Mono' }, { id: 'font-serif', name: 'Merriweather' }],
-                            covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600", "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600"]
-                        });
-                    } else {
-                        const res = await fetch(API_ENDPOINTS.MARKET);
-                        if (!res.ok) throw new Error("Market Error");
-                        const data = await res.json();
-                        setMarketData(data || { styles: [], fonts: [], covers: [] });
-                    }
-                } catch (e) { console.error(e); setMarketData({ styles: [], fonts: [], covers: [] }); }
-                finally { setLoadingMarket(false); }
+            const triggerUpload = (type) => {
+                // Mock upload
+                showNotify("Simulando subida de archivo...");
+                setTimeout(() => showNotify("Archivo subido con éxito"), 1000);
             };
 
-            const handleFileUpload = async (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-                if (uploadContext === 'style-json') {
-                    const reader = new FileReader();
-                    reader.onload = (e) => { try { actions.addTheme({ ...JSON.parse(e.target.result), id: utils.generateId(), source: 'local' }); showNotify("Tema importado"); toggleModal('market', false); } catch { showNotify("JSON inválido"); } };
-                    reader.readAsText(file); setUploadContext(null); return;
-                }
-                showNotify("Subiendo...");
-                try { await utils.delay(800); const url = URL.createObjectURL(file); if (uploadContext === 'cover') { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); } else if (uploadContext === 'avatar') actions.setUserProfile(p => ({ ...p, avatar: url })); showNotify("Subida completada"); } catch { showNotify("Error al subir"); }
-                setUploadContext(null);
+            const [notification, setNotification] = useState({ show: false, message: '' });
+            const showNotify = (msg) => {
+                setNotification({ show: true, message: msg });
+                setTimeout(() => setNotification({ show: false, message: '' }), 3000);
             };
-
-            const triggerUpload = (ctx) => { setUploadContext(ctx); if (fileInputRef.current) { fileInputRef.current.value = ''; fileInputRef.current.click(); } };
-            const activeThemeStyle = activeTheme ? { '--bg-color': activeTheme.colors?.bg || '#ffffff', '--text-color': activeTheme.colors?.text || '#37352f', '--sidebar-bg': activeTheme.colors?.sidebar || '#F7F7F5' } : {};
-
-            if (!activeWorkspace) return null;
 
             return (
-                <div className="flex h-screen w-full font-sans selection:bg-[#cce9ff] relative overflow-hidden transition-colors duration-300" style={activeThemeStyle}>
-                    <Notification message={ui.notification.message} isVisible={ui.notification.show} onClose={() => setUi(p => ({ ...p, notification: { show: false } }))} />
-                    <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} accept={uploadContext === 'style-json' ? '.json' : 'image/*'} />
+                <div className={clsx("flex h-screen text-[var(--text-color)] bg-[var(--bg-color)] transition-colors duration-300 font-sans selection:bg-notion-select selection:text-notion-text", activeTheme.id === 'dark' ? 'dark' : '')}>
+                    <Notification message={notification.message} isVisible={notification.show} onClose={() => setNotification({ ...notification, show: false })} />
 
-                    <motion.aside initial={false} animate={{ width: ui.sidebarOpen ? 240 : 56 }} style={{ backgroundColor: 'var(--sidebar-bg)' }} className="h-full flex flex-col z-20 relative border-r border-[#E9E9E8] transition-all duration-300 group/sidebar">
-                        <div className="p-3 relative shrink-0">
-                            <div onClick={() => toggleModal('workspaceMenu', !ui.modals.workspaceMenu)} className={clsx("flex items-center gap-2 p-1.5 rounded-md hover:bg-[var(--item-hover)] transition-colors cursor-pointer relative z-20 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}>
-                                <div className={`w-5 h-5 rounded-[3px] bg-gradient-to-br ${activeWorkspace.color} flex items-center justify-center text-white text-[10px] font-bold shadow-sm shrink-0`}>{activeWorkspace.initial}</div>
-                                {ui.sidebarOpen && <><div className="flex-1 overflow-hidden text-sm font-medium truncate opacity-90">{activeWorkspace.name}</div><ChevronDown size={12} className="opacity-50" /></>}
+                    {/* SIDEBAR */}
+                    <motion.aside
+                        initial={false}
+                        animate={{ width: ui.sidebarCollapsed ? 0 : 240, opacity: ui.sidebarCollapsed ? 0 : 1 }}
+                        className="flex-shrink-0 bg-[var(--sidebar-bg)] border-r border-zinc-200 flex flex-col overflow-hidden relative group/sidebar"
+                    >
+                        <div className="p-3 flex items-center gap-2 hover:bg-zinc-200/50 m-2 rounded-md cursor-pointer transition-colors" onClick={() => toggleModal('createWorkspace', true)}>
+                            <div className={clsx("w-5 h-5 rounded flex items-center justify-center text-xs font-bold text-white shadow-sm", `bg-gradient-to-br ${activeWorkspace.color}`)}>
+                                {activeWorkspace.initial}
                             </div>
-                            <AnimatePresence>
-                                {ui.modals.workspaceMenu && ui.sidebarOpen && (
-                                    <>
-                                        <div className="fixed inset-0 z-10" onClick={() => toggleModal('workspaceMenu', false)} />
-                                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute top-12 left-2 right-2 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 overflow-hidden text-zinc-800">
-                                            <div className="p-2 border-b border-zinc-100 bg-zinc-50/50"><span className="text-[10px] font-bold text-zinc-400 uppercase px-2">Espacios</span></div>
-                                            <div className="max-h-48 overflow-y-auto">{workspaces.map(ws => (<div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); toggleModal('workspaceMenu', false); setUi(p => ({ ...p, currentView: 'home' })); }} className="flex items-center gap-2 p-2 hover:bg-zinc-100 cursor-pointer text-sm group/ws"><div className={`w-5 h-5 rounded-[3px] bg-gradient-to-br ${ws.color} text-white flex items-center justify-center text-[10px]`}>{ws.initial}</div><span className={`flex-1 truncate ${ws.id === activeWorkspaceId ? 'font-medium' : ''}`}>{ws.name}</span>{ws.id === activeWorkspaceId && <Check size={14} className="text-indigo-600" />}</div>))}</div>
-                                            <div onClick={() => toggleModal('createWorkspace', true)} className="p-2 border-t border-zinc-100 hover:bg-zinc-50 cursor-pointer flex items-center gap-2 text-sm text-zinc-600"><PlusCircle size={14} /> <span>Crear Nuevo</span></div>
-                                        </motion.div>
-                                    </>
-                                )}
-                            </AnimatePresence>
+                            <div className="font-medium text-sm truncate flex-1">{activeWorkspace.name}</div>
+                            <ChevronsLeft size={14} className="text-zinc-400 opacity-0 group-hover/sidebar:opacity-100 cursor-pointer hover:text-zinc-600" onClick={(e) => { e.stopPropagation(); setUi(p => ({ ...p, sidebarCollapsed: true })); }} />
                         </div>
-                        <div className="flex-1 overflow-y-auto px-2 space-y-0.5 fancy-scroll">
-                            {[{ icon: Search, label: 'Buscar', action: () => toggleModal('search', true) }, { icon: SidebarIcon, label: 'Inicio', action: () => { setUi(p => ({ ...p, currentView: 'home' })); actions.setActivePageId(null); } }, { icon: Inbox, label: 'Bandeja', action: () => { setUi(p => ({ ...p, currentView: 'inbox' })); actions.setActivePageId(null); } }, { icon: Sparkles, label: 'IA Notion', action: () => toggleModal('ai', true), color: 'text-yellow-600' }].map((item, i) => (
-                                <div key={i} onClick={item.action} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}>
-                                    <item.icon size={18} className={clsx("shrink-0 opacity-70", item.color)} />
-                                    {ui.sidebarOpen && <span className="text-sm font-medium opacity-80">{item.label}</span>}
-                                    {item.label === 'Bandeja' && inboxPages.length > 0 && ui.sidebarOpen && (<div className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full ml-auto">{inboxPages.length}</div>)}
+
+                        <div className="flex-1 overflow-y-auto px-2 space-y-0.5">
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'home' }))} className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer", ui.currentView === 'home' ? "bg-zinc-200/50 font-medium text-zinc-900" : "text-zinc-600 hover:bg-zinc-100")}>
+                                <LayoutGrid size={16} /> <span>Inicio</span>
+                            </div>
+                            <div onClick={() => toggleModal('search', true)} className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer text-zinc-600 hover:bg-zinc-100">
+                                <Search size={16} /> <span>Buscar</span>
+                            </div>
+                            <div onClick={() => toggleModal('ai', true)} className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer text-zinc-600 hover:bg-zinc-100 group">
+                                <Sparkles size={16} className="text-indigo-500 group-hover:animate-pulse" /> <span>Notion AI</span>
+                            </div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer text-zinc-600 hover:bg-zinc-100">
+                                <Settings size={16} /> <span>Configuración</span>
+                            </div>
+
+                            <div className="mt-6 mb-2 px-3 text-xs font-bold text-zinc-400 uppercase flex justify-between group">
+                                <span>Privado</span>
+                                <Plus size={14} className="cursor-pointer hover:text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { const id = actions.addPage(); actions.setActivePageId(id); setUi(p => ({ ...p, currentView: 'page' })); }} />
+                            </div>
+                            {activeWorkspace.pages.filter(p => !p.isDeleted && !p.inInbox).map(page => (
+                                <div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }} className={clsx("group flex items-center gap-2 px-3 py-1 rounded-md text-sm cursor-pointer min-h-[28px]", activePageId === page.id && ui.currentView === 'page' ? "bg-zinc-200/50 font-medium text-zinc-900" : "text-zinc-600 hover:bg-zinc-100")}>
+                                    <span className="text-lg leading-none">{page.icon || <FileText size={16} />}</span>
+                                    <span className="truncate flex-1">{page.title || "Sin título"}</span>
+                                    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
+                                        <button onClick={(e) => { e.stopPropagation(); actions.deletePage(page.id); }} className="p-0.5 hover:bg-zinc-300 rounded text-zinc-500"><Trash size={12} /></button>
+                                    </div>
                                 </div>
                             ))}
-                            <div className="mt-6 mb-1 px-2 flex justify-between items-center group/header">{ui.sidebarOpen && <span className="text-xs font-semibold opacity-50">PÁGINAS</span>}{ui.sidebarOpen && <button onClick={(e) => { e.stopPropagation(); const id = actions.addPage(); setUi(p => ({ ...p, currentView: 'page' })); actions.setActivePageId(id); }} className="opacity-0 group-hover/header:opacity-100 transition-opacity p-1 hover:bg-[rgba(0,0,0,0.05)] rounded"><Plus size={14} /></button>}</div>
-                            {activeWorkspace.pages.filter(p => !p.inInbox && !p.isDeleted).map(page => (<div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer group min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1', activePageId === page.id ? 'bg-[rgba(0,0,0,0.05)] font-medium' : 'opacity-80')}><span className="text-lg leading-none w-4 text-center shrink-0">{page.icon || <FileText size={16} />}</span>{ui.sidebarOpen && <span className="text-sm truncate">{page.title || 'Sin título'}</span>}</div>))}
-                        </div>
-                        <div className="p-2 border-t border-[#E9E9E8] space-y-0.5">
-                            <div onClick={() => toggleModal('market', true)} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Palette size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Marketplace</span>}</div>
-                            <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Settings size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Configuración</span>}</div>
-                            <div onClick={() => { setUi(p => ({ ...p, currentView: 'trash' })); actions.setActivePageId(null); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Trash size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Papelera</span>}</div>
-                            <div onClick={() => setUi(p => ({ ...p, sidebarOpen: !p.sidebarOpen }))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer mt-2 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><ChevronsLeft size={18} className={`shrink-0 transition-transform opacity-50 ${!ui.sidebarOpen ? "rotate-180" : ""}`} /> {ui.sidebarOpen && <span className="text-sm opacity-60">Cerrar barra</span>}</div>
+
+                            <div className="mt-6 mb-2 px-3 text-xs font-bold text-zinc-400 uppercase">Herramientas</div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'trash' }))} className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer", ui.currentView === 'trash' ? "bg-zinc-200/50 font-medium text-zinc-900" : "text-zinc-600 hover:bg-zinc-100")}>
+                                <Trash size={16} /> <span>Papelera</span>
+                            </div>
                         </div>
                     </motion.aside>
 
-                    <main className="flex-1 h-full overflow-hidden relative flex flex-col transition-colors duration-300" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-                        <header className="h-12 flex items-center justify-between px-4 shrink-0 transition-colors z-10 sticky top-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(255,255,255,0.0)' }}>
-                            <div className="flex items-center gap-2 text-sm opacity-60 overflow-hidden w-full">
-                                {!ui.sidebarOpen && <button onClick={() => setUi(p => ({ ...p, sidebarOpen: true }))} className="p-1 hover:bg-[rgba(0,0,0,0.05)] rounded mr-2"><List size={18} /></button>}
-                                {ui.currentView === 'home' && <div className="flex items-center gap-2"><Briefcase size={16} /><span>Inicio</span></div>}
-                                {ui.currentView === 'inbox' && <div className="flex items-center gap-2"><Inbox size={16} /><span>Bandeja de Entrada</span></div>}
-                                {ui.currentView === 'trash' && <div className="flex items-center gap-2"><Trash size={16} /><span>Papelera</span></div>}
-                                {ui.currentView === 'settings' && <div className="flex items-center gap-2"><Settings size={16} /><span>Configuración</span></div>}
-                                {ui.currentView === 'page' && <div className="flex items-center gap-2 overflow-hidden w-full"><span className="text-lg">{activePage?.icon || <FileText size={16} />}</span><span className="truncate font-medium">{activePage?.title || 'Sin título'}</span></div>}
+                    {/* MAIN CONTENT */}
+                    <main className="flex-1 h-full overflow-y-auto relative bg-white">
+                        {!ui.sidebarCollapsed && (
+                            <div className="absolute top-4 left-4 z-20 md:hidden">
+                                <button onClick={() => setUi(p => ({ ...p, sidebarCollapsed: true }))}><ChevronsLeft size={20} /></button>
                             </div>
-                            {ui.currentView === 'page' && (
-                                <div className="relative ml-2"><button onClick={() => toggleModal('pageOptions', !ui.modals.pageOptions)} className="p-1 opacity-60 hover:opacity-100 hover:bg-[rgba(0,0,0,0.05)] rounded transition-colors"><MoreHorizontal size={20} /></button><AnimatePresence>{ui.modals.pageOptions && <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute right-0 top-8 w-56 bg-white border border-zinc-200 rounded-lg shadow-xl z-50 overflow-hidden py-1"><button onClick={() => { actions.deletePage(activePageId); toggleModal('pageOptions', false); setUi(p => ({ ...p, currentView: 'home' })); showNotify("Página movida a papelera"); }} className="w-full text-left flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50 cursor-pointer text-sm"><Trash size={14} /> Eliminar</button></motion.div>}</AnimatePresence></div>
-                            )}
-                        </header>
+                        )}
+                        {ui.sidebarCollapsed && (
+                            <div className="absolute top-4 left-4 z-20">
+                                <button onClick={() => setUi(p => ({ ...p, sidebarCollapsed: false }))} className="p-1 hover:bg-zinc-100 rounded"><SidebarIcon size={20} className="text-zinc-400" /></button>
+                            </div>
+                        )}
 
-                        <div className="flex-1 overflow-y-auto p-0 relative fancy-scroll">
+                        <div className="max-w-full mx-auto min-h-full">
                             {ui.currentView === 'home' && (
-                                <div className="max-w-4xl mx-auto h-full flex flex-col p-8 md:p-12 text-center">
-                                    <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.8 }} className="mb-8 flex justify-center"><div className="w-24 h-24 rounded-full overflow-hidden border-2 border-zinc-200 shadow-md bg-zinc-100">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-zinc-300">{activeWorkspace.initial}</div>}</div></motion.div>
-                                    <FancyText text={`Hola, ${userProfile.name}`} className="text-4xl font-bold mb-2 text-current" />
-                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="opacity-70">Estás en <strong>{activeWorkspace.name}</strong>.</motion.p>
+                                <div className="max-w-5xl mx-auto py-12 px-6">
+                                    <div className="mb-8 flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-full overflow-hidden border border-zinc-200 shadow-sm bg-zinc-100">
+                                            {userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-zinc-300">{activeWorkspace.initial}</div>}
+                                        </div>
+                                        <div>
+                                            <h1 className="text-3xl font-bold text-zinc-800">Hola, {userProfile.name}</h1>
+                                            <p className="text-zinc-500">Bienvenido a {activeWorkspace.name}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {activeWorkspace.pages.filter(p => !p.isDeleted).map(page => (
+                                            <div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }} className="group relative bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer h-48 flex flex-col">
+                                                {page.cover ? (
+                                                    <div className="h-24 w-full relative shrink-0">
+                                                        <img src={page.cover} className="w-full h-full object-cover" />
+                                                        {page.icon && <div className="absolute -bottom-4 left-4 text-3xl drop-shadow-sm">{page.icon}</div>}
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-12 w-full bg-zinc-50 shrink-0 relative">
+                                                        {page.icon && <div className="absolute -bottom-4 left-4 text-3xl">{page.icon}</div>}
+                                                    </div>
+                                                )}
+
+                                                <div className={clsx("p-4 flex-1 flex flex-col", page.cover ? "pt-6" : "pt-6")}>
+                                                    <h3 className="font-bold text-zinc-800 truncate mb-1">{page.title || 'Sin título'}</h3>
+                                                    <p className="text-xs text-zinc-400">Editado {formatDistanceToNow(new Date(page.updatedAt))} ago</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div onClick={() => { const id = actions.addPage(); actions.setActivePageId(id); setUi(p => ({ ...p, currentView: 'page' })); }} className="border-2 border-dashed border-zinc-200 rounded-xl flex flex-col items-center justify-center text-zinc-400 hover:text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50 transition-all cursor-pointer h-48">
+                                            <Plus size={32} className="mb-2" />
+                                            <span className="font-medium">Nueva página</span>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
-                            {ui.currentView === 'inbox' && (
-                                <div className="max-w-3xl mx-auto py-12 px-6">
-                                    <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Inbox size={24} /> Bandeja de Entrada</h1>
-                                    {inboxPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">📭</div>No tienes páginas nuevas.</div> : (<div className="grid gap-4">{inboxPages.map(page => (<SpotlightCard key={page.id} className="p-4 flex items-center justify-between cursor-pointer" onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }}><div className="flex items-center gap-4"><div className="text-2xl">{page.icon}</div><div><div className="font-bold text-zinc-800">{page.title}</div><div className="text-xs text-zinc-500">Generado {formatDistanceToNow(new Date(page.updatedAt))} ago</div></div></div><div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); actions.updatePage(page.id, { inInbox: false }); showNotify("Movido a páginas"); }} className="p-2 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600" title="Mover a páginas"><Archive size={16} /></button></div></SpotlightCard>))}</div>)}
-                                </div>
-                            )}
+
                             {ui.currentView === 'trash' && (
                                 <div className="max-w-3xl mx-auto py-12 px-6">
                                     <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Trash size={24} /> Papelera</h1>
@@ -571,6 +635,7 @@
                                     )}
                                 </div>
                             )}
+
                             {ui.currentView === 'settings' && (
                                 <div className="flex h-full">
                                     <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => setUi(p => ({ ...p, settingsSection: 'themes' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button></div>
@@ -597,7 +662,7 @@
                                     </div>
                                     <div className="px-8 md:px-24 pt-8">
                                         {activePage.icon && (<div className="relative -mt-16 mb-4 z-10 group/icon"><div onClick={() => toggleModal('iconPicker', !ui.modals.iconPicker)} className="text-7xl cursor-pointer hover:scale-105 transition-transform inline-block relative drop-shadow-sm">{activePage.icon}</div>{ui.modals.iconPicker && (<div className="absolute top-full left-0 z-50 bg-white border border-zinc-200 p-3 rounded-xl shadow-xl w-64 grid grid-cols-6 gap-2 h-48 overflow-y-auto mt-2">{ICONS_LIST.map(icon => (<div key={icon} onClick={() => { actions.updatePage(activePageId, { icon }); toggleModal('iconPicker', false); }} className="text-xl p-1 hover:bg-zinc-100 rounded cursor-pointer text-center">{icon}</div>))}</div>)}</div>)}
-                                        <PageHeaderControls page={activePage} onUpdate={(u) => actions.updatePage(activePageId, u)} onToggleComments={() => setShowComments(!showComments)} />
+                                        <PageHeaderControls page={activePage} onUpdate={(u) => actions.updatePage(activePageId, u)} onToggleComments={() => setShowComments(!showComments)} onOpenIconPicker={() => toggleModal('iconPicker', true)} onOpenCoverPicker={() => toggleModal('market', true)} />
                                         {showComments && (<CommentSection comments={activePage.comments} onAddComment={(text) => actions.addComment(text)} userAvatar={userProfile.avatar} userName={userProfile.name} />)}
                                         <input value={activePage.title} onChange={(e) => actions.updatePage(activePage.id, { title: e.target.value })} placeholder="Título de la página" className="w-full text-4xl font-bold placeholder:opacity-50 border-none outline-none bg-transparent mb-8 text-current" />
                                         <div className="space-y-0.5 min-h-[300px]">{activePage.blocks.map((block, index) => (<EditorBlock key={block.id} block={block} index={index} actions={actions} />))}</div>
@@ -712,7 +777,7 @@
                     </Modal>
                 </div>
             );
-        }
+        };
 
         const container = document.getElementById('root');
         if (container) {
