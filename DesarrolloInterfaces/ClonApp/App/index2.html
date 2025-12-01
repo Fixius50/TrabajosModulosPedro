@@ -302,6 +302,16 @@
             const [activePageId, setActivePageId] = useState(null);
             const [activeThemeId, setActiveThemeId] = useLocalStorage('notion_v82_active_theme', 'default');
 
+            const activeWorkspace = useMemo(() => {
+                const found = workspaces.find(w => w.id === activeWorkspaceId);
+                if (found) return found;
+                if (workspaces.length > 0) { setActiveWorkspaceId(workspaces[0].id); return workspaces[0]; }
+                return null;
+            }, [workspaces, activeWorkspaceId]);
+
+            const activePage = useMemo(() => activeWorkspace?.pages.find(p => p.id === activePageId), [activeWorkspace, activePageId]);
+            const activeTheme = useMemo(() => themes.find(t => t.id === activeThemeId) || DEFAULT_THEME, [themes, activeThemeId]);
+
             // Centralized State Exposure
             useEffect(() => {
                 window.appState = { workspaces, userProfile, themes, fonts, activeWorkspaceId, activePageId, activeThemeId };
@@ -324,16 +334,6 @@
                     if (themeLink) themeLink.remove();
                 }
             }, [activeTheme]);
-
-            const activeWorkspace = useMemo(() => {
-                const found = workspaces.find(w => w.id === activeWorkspaceId);
-                if (found) return found;
-                if (workspaces.length > 0) { setActiveWorkspaceId(workspaces[0].id); return workspaces[0]; }
-                return null;
-            }, [workspaces, activeWorkspaceId]);
-
-            const activePage = useMemo(() => activeWorkspace?.pages.find(p => p.id === activePageId), [activeWorkspace, activePageId]);
-            const activeTheme = useMemo(() => themes.find(t => t.id === activeThemeId) || DEFAULT_THEME, [themes, activeThemeId]);
 
             const actions = {
                 setActiveWorkspaceId, setActivePageId, setUserProfile, setActiveThemeId,
