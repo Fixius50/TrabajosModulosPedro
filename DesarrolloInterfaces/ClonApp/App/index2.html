@@ -293,6 +293,26 @@
             return [storedValue, setValue];
         };
 
+        // Helper Components
+        const Modal = ({ isOpen, onClose, title, children, transparent = false }) => {
+            if (!isOpen) return null;
+            return (
+                <AnimatePresence>
+                    {isOpen && (
+                        <>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]" />
+                            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className={clsx("fixed inset-0 m-auto h-fit max-h-[85vh] z-[70] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col", transparent ? "bg-transparent shadow-none" : "bg-white border border-zinc-200")}>
+                                {title && <div className="flex justify-between items-center p-4 border-b border-zinc-100 shrink-0 bg-white"><h2 className="text-sm font-semibold text-zinc-700">{title}</h2><button onClick={onClose} className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-600 transition-colors"><X size={18} /></button></div>}
+                                <div className="flex-1 overflow-y-auto">
+                                    {children}
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+            );
+        };
+
         const useAppStore = () => {
             const [workspaces, setWorkspaces] = useLocalStorage('notion_v82_ws', INITIAL_STATE.workspaces);
             const [userProfile, setUserProfile] = useLocalStorage('notion_v82_profile', INITIAL_STATE.profile);
@@ -493,45 +513,48 @@
             const fetchMarketData = async () => {
                 setLoadingMarket(true);
                 try {
-                    await utils.delay(1000);
-
-                    // 1. Simulate "Scanning" the folder (Virtual File System)
-                    const virtualFileSystem = [
-                        { name: 'medieval-theme.css', path: 'stylessApp/medieval-theme.css', type: 'file' },
-                        { name: 'gaming-theme.css', path: 'stylessApp/gaming-theme.css', type: 'file' },
-                        { name: 'rock-metal-theme.css', path: 'stylessApp/rock-metal-theme.css', type: 'file' },
-                        { name: 'default-theme.css', path: 'stylessApp/default-theme.css', type: 'file' },
-                        { name: 'readme.txt', path: 'stylessApp/readme.txt', type: 'file' }, // Should be ignored
-                        { name: 'config.json', path: 'stylessApp/config.json', type: 'file' } // Should be ignored if we only want CSS
+                    // List of potential files to "scan" for
+                    const candidateFiles = [
+                        'stylessApp/medieval-theme.css',
+                        'stylessApp/gaming-theme.css',
+                        'stylessApp/rock-metal-theme.css',
+                        'stylessApp/default-theme.css',
+                        'stylessApp/non-existent-theme.css' // To demonstrate filtering
                     ];
 
-                    // 2. Filter by Extension (Simulating backend logic)
-                    const cssFiles = virtualFileSystem.filter(f => f.name.endsWith('.css'));
+                    const foundStyles = [];
 
-                    // 3. Map to Market Data Structure
-                    const styles = cssFiles.map(f => {
-                        const id = f.name.replace('.css', '');
-                        // Infer metadata from filename (Simulation)
-                        return {
-                            id: id,
-                            name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
-                            author: 'Fixius50',
-                            type: 'css',
-                            url: f.path,
-                            colors: { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' } // Default fallback colors
-                        };
-                    });
+                    for (const filePath of candidateFiles) {
+                        // Simulate scanning delay per file
+                        await utils.delay(300);
 
-                    // Manual override for specific known themes to have correct preview colors (Optional polish)
-                    const enrichedStyles = styles.map(s => {
-                        if (s.id.includes('medieval')) return { ...s, colors: { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } };
-                        if (s.id.includes('gaming')) return { ...s, colors: { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } };
-                        if (s.id.includes('rock')) return { ...s, colors: { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } };
-                        return s;
-                    });
+                        try {
+                            // Try to fetch the file to see if it exists
+                            const response = await fetch(filePath);
+                            if (response.ok) {
+                                const id = filePath.split('/').pop().replace('.css', '');
+                                // In a real app, we might parse the CSS content to extract metadata.
+                                // Here we infer it from the filename.
+                                foundStyles.push({
+                                    id: id,
+                                    name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
+                                    author: 'Fixius50',
+                                    type: 'css',
+                                    url: filePath,
+                                    // Hardcoded colors for preview purposes since we can't easily parse CSS in browser JS without a parser
+                                    colors: id.includes('medieval') ? { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } :
+                                        id.includes('gaming') ? { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } :
+                                            id.includes('rock') ? { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } :
+                                                { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' }
+                                });
+                            }
+                        } catch (err) {
+                            console.warn(`Could not fetch ${filePath}`, err);
+                        }
+                    }
 
                     setMarketData({
-                        styles: enrichedStyles,
+                        styles: foundStyles,
                         fonts: [],
                         covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600"]
                     });
@@ -670,6 +693,38 @@
                                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="opacity-70">Estás en <strong>{activeWorkspace.name}</strong>.</motion.p>
                                 </div>
                             )}
+                            {ui.currentView === 'inbox' && (
+                                <div className="max-w-3xl mx-auto py-12 px-6">
+                                    <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Inbox size={24} /> Bandeja de Entrada</h1>
+                                    {inboxPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">📭</div>No tienes páginas nuevas.</div> : (<div className="grid gap-4">{inboxPages.map(page => (<SpotlightCard key={page.id} className="p-4 flex items-center justify-between cursor-pointer" onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }}><div className="flex items-center gap-4"><div className="text-2xl">{page.icon}</div><div><div className="font-bold text-zinc-800">{page.title}</div><div className="text-xs text-zinc-500">Generado {formatDistanceToNow(new Date(page.updatedAt))} ago</div></div></div><div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); actions.updatePage(page.id, { inInbox: false }); showNotify("Movido a páginas"); }} className="p-2 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600" title="Mover a páginas"><Archive size={16} /></button></div></SpotlightCard>))}</div>)}
+                                </div>
+                            )}
+                            {ui.currentView === 'trash' && (
+                                <div className="max-w-3xl mx-auto py-12 px-6">
+                                    <h1 className="text-2xl font-bold mb-8 text-current flex items-center gap-2"><Trash size={24} /> Papelera</h1>
+                                    <p className="text-sm opacity-60 mb-6">Las páginas aquí pueden ser restauradas o eliminadas para siempre.</p>
+                                    {trashPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">🗑️</div>Papelera vacía.</div> : (
+                                        <div className="grid gap-3">{trashPages.map(page => (<div key={page.id} className="p-3 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3 opacity-60"><div className="text-lg">{page.icon || <FileText size={16} />}</div><div><div className="font-medium text-sm text-zinc-900">{page.title || 'Sin título'}</div><div className="text-xs text-zinc-500">Borrado {formatDistanceToNow(new Date(page.deletedAt || new Date()))} ago</div></div></div><div className="flex gap-2"><button onClick={() => { actions.restorePage(page.id); showNotify("Página restaurada"); }} className="flex items-center gap-1 bg-zinc-100 text-zinc-700 text-xs px-3 py-1.5 rounded hover:bg-zinc-200"><Undo2 size={12} /> Restaurar</button><button onClick={() => { if (confirm("¿Borrar definitivamente?")) actions.permanentDeletePage(page.id); }} className="p-1.5 text-red-400 hover:bg-red-50 rounded"><Trash size={14} /></button></div></div>))}</div>
+                                    )}
+                                </div>
+                            )}
+                            {ui.currentView === 'settings' && (
+                                <div className="flex h-full">
+                                    <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => setUi(p => ({ ...p, settingsSection: 'themes' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button></div>
+                                    <div className="flex-1 overflow-y-auto px-12 py-12">
+                                        {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <Camera size={32} className="text-zinc-300" />}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({ ...p, name: e.target.value }))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors" /></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed" /></div></div></div></div>)}
+                                        {ui.settingsSection === 'themes' && (
+                                            <div className="max-w-2xl animate-in fade-in duration-300">
+                                                <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Apariencia</h1>
+                                                <div className="space-y-3">
+                                                    <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div><div><div className="font-bold text-sm text-zinc-900">stylessApp (Default)</div><div className="text-xs text-zinc-500">Tema original (Claro)</div></div></div><button onClick={() => actions.setActiveThemeId('default')} disabled={activeThemeId === 'default'} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === 'default' ? "Activo" : "Aplicar"}</button></div>
+                                                    {themes.filter(t => t.id !== 'default').map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => { actions.removeTheme(t.id); showNotify("Tema eliminado"); }} className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><Trash size={14} /></button><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                             {ui.currentView === 'page' && activePage && (
                                 <motion.div key={activePage.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto pb-48">
                                     <div className={clsx("group/cover relative w-full border-b border-zinc-100 transition-all", activePage.cover ? "h-48 md:h-72" : "h-0")}>
@@ -761,6 +816,23 @@
                                 </motion.div>
                             </>
                         )}
+                        {ui.modals.ai && (
+                            <Modal isOpen={true} onClose={() => toggleModal('ai', false)} title={null} transparent={true}>
+                                <div className="flex items-center justify-center h-full p-4">
+                                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-200">
+                                        <div className="p-6 bg-gradient-to-br from-indigo-50 to-white">
+                                            <h2 className="text-lg font-bold text-zinc-800 mb-2 flex items-center gap-2"><Sparkles size={18} className="text-indigo-500" /> Notion AI</h2>
+                                            <p className="text-sm text-zinc-500 mb-4">Describe lo que necesitas. La página se generará en segundo plano.</p>
+                                            <textarea autoFocus value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="Ej: Rutina de gimnasio para 3 días..." className="w-full bg-white border border-zinc-200 rounded-xl p-4 h-32 resize-none no-ring focus:border-zinc-400 transition-colors mb-4 text-zinc-700 text-sm" />
+                                            <div className="flex justify-end gap-2">
+                                                <button onClick={() => toggleModal('ai', false)} className="px-4 py-2 rounded-lg text-zinc-500 hover:bg-zinc-100 text-sm font-medium">Cancelar</button>
+                                                <button onClick={generatePageWithAI} disabled={isAiGenerating} className="px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-sm hover:bg-black transition-colors disabled:opacity-50 flex items-center gap-2">{isAiGenerating ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />} Generar</button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            </Modal>
+                        )}
                         {ui.modals.market && (
                             <>
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => toggleModal('market', false)} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]" />
@@ -770,7 +842,8 @@
                                         <FancyTabs tabs={[{ id: 'gallery', label: 'Galería' }, { id: 'styles', label: 'Estilos & Temas' }, { id: 'fonts', label: 'Fuentes' }]} activeTab={ui.marketTab} onTabChange={(id) => setUi(p => ({ ...p, marketTab: id }))} />
                                         <div className="mt-6">
                                             {ui.marketTab === 'gallery' && (<div className="grid grid-cols-2 md:grid-cols-4 gap-4">{marketData.covers.map((url, i) => (<SpotlightCard key={i} onClick={() => { actions.updatePage(activePageId, { cover: url }); toggleModal('market', false); }} className="h-32 cursor-pointer"><img src={url} className="w-full h-full object-cover" /></SpotlightCard>))}</div>)}
-                                            {/* Simplified for brevity, logic remains same as original but cleaner */}
+                                            {ui.marketTab === 'styles' && (<div className="grid grid-cols-1 md:grid-cols-3 gap-4">{marketData.styles.length === 0 ? <div className="col-span-full text-center py-12 text-zinc-400">No hay temas disponibles.</div> : marketData.styles.map(style => { const isInstalled = themes.some(t => t.id === style.id || t.name === style.name); return (<SpotlightCard key={style.id} className="p-4 flex flex-col justify-between bg-white h-full"><div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded bg-gradient-to-br from-zinc-100 to-zinc-200 flex items-center justify-center font-serif font-bold text-zinc-400">Aa</div><div><div className="font-bold text-sm text-zinc-800">{style.name}</div><div className="text-xs text-zinc-500">Remoto</div></div></div>{isInstalled ? <button onClick={() => { actions.removeTheme(style.id); showNotify("Tema desinstalado"); }} className="w-full flex justify-center items-center gap-1 bg-red-50 text-red-500 text-xs px-3 py-2 rounded hover:bg-red-100 font-medium transition-colors"><Trash size={12} /> Desinstalar</button> : <button onClick={() => { actions.addTheme({ ...style }); showNotify("Tema instalado"); }} className="w-full flex justify-center items-center gap-1 bg-zinc-900 text-white text-xs px-3 py-2 rounded hover:bg-black font-medium transition-colors"><Download size={12} /> Instalar</button>}</SpotlightCard>); })}</div>)}
+                                            {ui.marketTab === 'fonts' && (<div className="grid grid-cols-1 md:grid-cols-3 gap-4">{marketData.fonts.length === 0 ? <div className="col-span-full text-center py-12 text-zinc-400">No hay fuentes instaladas.</div> : marketData.fonts.map(f => (<div key={f.id} className="flex flex-col justify-between p-4 bg-white border border-zinc-200 rounded-lg h-32 hover:shadow-md transition-shadow"><div><div className="font-bold text-zinc-800 text-lg">{f.name}</div><div className="text-xs text-zinc-400">Local</div></div><button onClick={() => { actions.removeFont(f.id); showNotify("Fuente eliminada"); }} className="text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded w-fit">Eliminar</button></div>))}</div>)}
                                         </div>
                                     </div>
                                 </motion.div>
