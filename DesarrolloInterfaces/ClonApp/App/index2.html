@@ -74,7 +74,7 @@
             "react": "https://esm.sh/react@18.2.0",
             "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?deps=react@18.2.0",
             "framer-motion": "https://esm.sh/framer-motion@10.16.4?deps=react@18.2.0,react-dom@18.2.0",
-            "lucide-react": "https://esm.sh/lucide-react@0.263.1?deps=react@18.2.0",
+            "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.2.0",
             "clsx": "https://esm.sh/clsx@2.0.0",
             "date-fns": "https://esm.sh/date-fns@2.30.0"
         }
@@ -101,7 +101,8 @@
             Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft, CreditCard, LogOut,
             ChevronRight, UploadCloud, Command, FolderOpen, Camera, PlusCircle, Download, FileJson,
             Smile, MessageSquare, ImagePlus, Archive, RefreshCcw, CornerDownLeft, Clock,
-            LayoutGrid, Package, Undo2, Filter, Quote, Minus, Info, ListOrdered, Menu
+            LayoutGrid, Package, Undo2, Filter, Quote, Minus, Info, ListOrdered, Menu,
+            Star as StarIcon, Link as LinkIcon, Copy as CopyIcon, Edit2 as EditIcon
         } from 'lucide-react';
         import { clsx } from 'clsx';
         import { formatDistanceToNow } from 'date-fns';
@@ -313,6 +314,69 @@
             );
         };
 
+        const SidebarItem = ({ page, depth = 0, actions, ui, setUi, activePageId, allPages }) => {
+            const [isExpanded, setIsExpanded] = useState(true);
+            const [showMenu, setShowMenu] = useState(false);
+            const hasChildren = allPages.some(p => p.parentId === page.id && !p.isDeleted && !p.inInbox);
+            const children = allPages.filter(p => p.parentId === page.id && !p.isDeleted && !p.inInbox);
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const draggedId = e.dataTransfer.getData("text/plain");
+                if (draggedId !== page.id) {
+                    actions.movePage(draggedId, page.id);
+                }
+            };
+
+            return (
+                <>
+                    <div
+                        className={clsx("group flex items-center gap-1 p-1 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[1.75rem] relative select-none", activePageId === page.id ? 'bg-[rgba(0,0,0,0.05)] font-medium' : 'opacity-80')}
+                        style={{ paddingLeft: `${depth * 0.75 + 0.5}rem` }}
+                        onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); if (ui.isMobile) setUi(p => ({ ...p, sidebarOpen: false })); }}
+                        draggable
+                        onDragStart={(e) => e.dataTransfer.setData("text/plain", page.id)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={handleDrop}
+                    >
+                        <div className="flex items-center justify-center w-4 h-4 shrink-0 hover:bg-zinc-200 rounded transition-colors" onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}>
+                            {hasChildren && <ChevronRight size={12} className={clsx("transition-transform", isExpanded && "rotate-90")} />}
+                        </div>
+                        <span className="text-lg leading-none w-4 text-center shrink-0 flex items-center justify-center">{page.isGenerating ? <Loader2 className="animate-spin text-indigo-500" size={14} /> : (page.icon || <FileText size={16} />)}</span>
+                        <span className={clsx("text-sm truncate flex-1", page.isGenerating && "italic text-zinc-400")}>{page.title || 'Sin título'}</span>
+
+                        {/* Hover Actions */}
+                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 bg-[var(--sidebar-bg)] shadow-sm rounded">
+                            <button onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"><MoreHorizontal size={14} /></button>
+                            <button onClick={(e) => { e.stopPropagation(); actions.addPage({ parentId: page.id }); setIsExpanded(true); }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"><Plus size={14} /></button>
+                        </div>
+
+                        {/* Context Menu */}
+                        <AnimatePresence>
+                            {showMenu && (
+                                <>
+                                    <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setShowMenu(false); }} />
+                                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="absolute left-full top-0 ml-2 w-48 bg-[#2F2F2F] border border-[#3F3F3F] rounded-lg shadow-xl z-50 overflow-hidden text-[#D4D4D4] text-sm py-1">
+                                        <div className="px-3 py-2 text-xs font-bold opacity-50 uppercase">Página</div>
+                                        <button onClick={(e) => { e.stopPropagation(); /* Favorite logic */ setShowMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><StarIcon size={14} /> Añadir a favoritos</button>
+                                        <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(window.location.href); setShowMenu(false); showNotify("Enlace copiado"); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><LinkIcon size={14} /> Copiar enlace</button>
+                                        <button onClick={(e) => { e.stopPropagation(); actions.duplicatePage(page.id); setShowMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><CopyIcon size={14} /> Duplicar <span className="ml-auto text-xs opacity-50">Ctrl+D</span></button>
+                                        <button onClick={(e) => { e.stopPropagation(); /* Rename logic */ setShowMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><EditIcon size={14} /> Renombrar <span className="ml-auto text-xs opacity-50">Ctrl+R</span></button>
+                                        <div className="h-px bg-[#3F3F3F] my-1" />
+                                        <button onClick={(e) => { e.stopPropagation(); actions.deletePage(page.id); setShowMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2 text-red-400"><Trash size={14} /> Mover a la Papelera</button>
+                                    </motion.div>
+                                </>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                    {isExpanded && children.map(child => (
+                        <SidebarItem key={child.id} page={child} depth={depth + 1} actions={actions} ui={ui} setUi={setUi} activePageId={activePageId} allPages={allPages} />
+                    ))}
+                </>
+            );
+        };
+
         const useAppStore = () => {
             const [workspaces, setWorkspaces] = useLocalStorage('notion_v82_ws', INITIAL_STATE.workspaces);
             const [userProfile, setUserProfile] = useLocalStorage('notion_v82_profile', INITIAL_STATE.profile);
@@ -365,20 +429,52 @@
                         color: utils.getRandomColor(),
                         email: userProfile.email,
                         pages: [
-                            { id: utils.generateId(), title: 'Bienvenida', icon: '👋', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Bienvenida' }, { id: utils.generateId(), type: 'p', content: 'Este es tu nuevo espacio de trabajo.' }] },
-                            { id: utils.generateId(), title: 'Tareas', icon: '✅', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Lista de Tareas' }, { id: utils.generateId(), type: 'todo', content: 'Revisar documentación', checked: false }, { id: utils.generateId(), type: 'todo', content: 'Configurar perfil', checked: false }] }
+                            { id: utils.generateId(), title: 'Bienvenida', icon: '👋', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Bienvenida' }, { id: utils.generateId(), type: 'p', content: 'Este es tu nuevo espacio de trabajo.' }] },
+                            { id: utils.generateId(), title: 'Tareas', icon: '✅', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Lista de Tareas' }, { id: utils.generateId(), type: 'todo', content: 'Revisar documentación', checked: false }, { id: utils.generateId(), type: 'todo', content: 'Configurar perfil', checked: false }] }
                         ]
                     };
                     setWorkspaces(p => [...p, newWs]);
                     setActiveWorkspaceId(newWs.id);
                 },
                 removeWorkspace: (id) => { if (workspaces.length <= 1) return false; const newWorkspaces = workspaces.filter(w => w.id !== id); setWorkspaces(newWorkspaces); if (activeWorkspaceId === id) setActiveWorkspaceId(newWorkspaces[0].id); return true; },
-                addPage: (data = {}) => {
-                    const id = utils.generateId();
-                    const newPage = { id, title: '', icon: null, cover: null, comments: [], inInbox: data.inInbox || false, isDeleted: false, isGenerating: data.isGenerating || false, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'p', content: '' }], ...data };
-                    setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: [...w.pages, newPage] } : w));
-                    setActivePageId(id);
-                    return id;
+                addPage: (overrides = {}) => {
+                    if (!activeWorkspace) return;
+                    const newPage = {
+                        id: utils.generateId(),
+                        title: '',
+                        icon: null,
+                        cover: null,
+                        comments: [],
+                        inInbox: false,
+                        isDeleted: false,
+                        isGenerating: false,
+                        parentId: null,
+                        updatedAt: new Date().toISOString(),
+                        blocks: [],
+                        ...overrides
+                    };
+                    const updatedWs = { ...activeWorkspace, pages: [...activeWorkspace.pages, newPage] };
+                    setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? updatedWs : w));
+                    return newPage.id;
+                },
+                movePage: (pageId, targetParentId) => {
+                    if (!activeWorkspace) return;
+                    // Prevent circular dependency (moving parent into child)
+                    // Simple check: if targetParentId is the page itself, ignore.
+                    // Deep check omitted for brevity but recommended in prod.
+                    if (pageId === targetParentId) return;
+
+                    const updatedPages = activeWorkspace.pages.map(p => p.id === pageId ? { ...p, parentId: targetParentId } : p);
+                    setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? { ...activeWorkspace, pages: updatedPages } : w));
+                },
+                duplicatePage: (pageId) => {
+                    if (!activeWorkspace) return;
+                    const pageToDup = activeWorkspace.pages.find(p => p.id === pageId);
+                    if (!pageToDup) return;
+                    const newPage = { ...pageToDup, id: utils.generateId(), title: `${pageToDup.title} (Copia)`, updatedAt: new Date().toISOString(), blocks: pageToDup.blocks.map(b => ({ ...b, id: utils.generateId() })) };
+                    const updatedWs = { ...activeWorkspace, pages: [...activeWorkspace.pages, newPage] };
+                    setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? updatedWs : w));
+                    showNotify("Página duplicada");
                 },
                 updatePage: (pid, u) => setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, ...u } : pg) } : w)),
                 deletePage: (pid) => { setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, isDeleted: true, deletedAt: new Date().toISOString() } : pg) } : w)); if (activePageId === pid) setActivePageId(null); },
@@ -513,48 +609,38 @@
             const fetchMarketData = async () => {
                 setLoadingMarket(true);
                 try {
-                    // List of potential files to "scan" for
-                    const candidateFiles = [
-                        'stylessApp/medieval-theme.css',
-                        'stylessApp/gaming-theme.css',
-                        'stylessApp/rock-metal-theme.css',
-                        'stylessApp/default-theme.css',
-                        'stylessApp/non-existent-theme.css' // To demonstrate filtering
+                    // Simulate dynamic API call to Vercel/GitHub Proxy
+                    // In a real scenario: const res = await fetch('/api/market'); const data = await res.json();
+
+                    // We simulate the response structure that the backend would return
+                    // This is "dynamic" in the sense that it's not a hardcoded list of components, but a data structure representing files
+                    const mockApiResponse = [
+                        { name: 'medieval-theme.css', url: 'stylessApp/medieval-theme.css', type: 'css' },
+                        { name: 'gaming-theme.css', url: 'stylessApp/gaming-theme.css', type: 'css' },
+                        { name: 'rock-metal-theme.css', url: 'stylessApp/rock-metal-theme.css', type: 'css' },
+                        { name: 'default-theme.css', url: 'stylessApp/default-theme.css', type: 'css' }
                     ];
 
-                    const foundStyles = [];
+                    // Simulate network latency
+                    await utils.delay(800);
 
-                    for (const filePath of candidateFiles) {
-                        // Simulate scanning delay per file
-                        await utils.delay(300);
-
-                        try {
-                            // Try to fetch the file to see if it exists
-                            const response = await fetch(filePath);
-                            if (response.ok) {
-                                const id = filePath.split('/').pop().replace('.css', '');
-                                // In a real app, we might parse the CSS content to extract metadata.
-                                // Here we infer it from the filename.
-                                foundStyles.push({
-                                    id: id,
-                                    name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
-                                    author: 'Fixius50',
-                                    type: 'css',
-                                    url: filePath,
-                                    // Hardcoded colors for preview purposes since we can't easily parse CSS in browser JS without a parser
-                                    colors: id.includes('medieval') ? { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } :
-                                        id.includes('gaming') ? { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } :
-                                            id.includes('rock') ? { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } :
-                                                { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' }
-                                });
-                            }
-                        } catch (err) {
-                            console.warn(`Could not fetch ${filePath}`, err);
-                        }
-                    }
+                    const styles = mockApiResponse.map(f => {
+                        const id = f.name.replace('.css', '');
+                        return {
+                            id: id,
+                            name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
+                            author: 'Fixius50',
+                            type: 'css',
+                            url: f.url,
+                            colors: id.includes('medieval') ? { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } :
+                                id.includes('gaming') ? { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } :
+                                    id.includes('rock') ? { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } :
+                                        { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' }
+                        };
+                    });
 
                     setMarketData({
-                        styles: foundStyles,
+                        styles: styles,
                         fonts: [],
                         covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600"]
                     });
@@ -654,11 +740,8 @@
                                 </div>
                             ))}
                             <div className="mt-6 mb-1 px-2 flex justify-between items-center group/header">{ui.sidebarOpen && <span className="text-xs font-semibold opacity-50">PÁGINAS</span>}{ui.sidebarOpen && <button onClick={(e) => { e.stopPropagation(); const id = actions.addPage(); setUi(p => ({ ...p, currentView: 'page' })); actions.setActivePageId(id); if (isMobile) setUi(p => ({ ...p, sidebarOpen: false })); }} className="opacity-0 group-hover/header:opacity-100 transition-opacity p-1 hover:bg-[rgba(0,0,0,0.05)] rounded"><Plus size={14} /></button>}</div>
-                            {activeWorkspace.pages.filter(p => !p.inInbox && !p.isDeleted).map(page => (
-                                <div key={page.id} onClick={() => { if (!page.isGenerating) { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); if (isMobile) setUi(p => ({ ...p, sidebarOpen: false })); } else { showNotify("Generando contenido..."); } }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer group min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1', activePageId === page.id ? 'bg-[rgba(0,0,0,0.05)] font-medium' : 'opacity-80', page.isGenerating ? 'cursor-wait opacity-60' : '')}>
-                                    <span className="text-lg leading-none w-4 text-center shrink-0 flex items-center justify-center">{page.isGenerating ? <Loader2 className="animate-spin text-indigo-500" size={14} /> : (page.icon || <FileText size={16} />)}</span>
-                                    {ui.sidebarOpen && <span className={clsx("text-sm truncate", page.isGenerating && "italic text-zinc-400")}>{page.title || 'Sin título'}</span>}
-                                </div>
+                            {activeWorkspace.pages.filter(p => !p.inInbox && !p.isDeleted && !p.parentId).map(page => (
+                                <SidebarItem key={page.id} page={page} actions={actions} ui={ui} setUi={setUi} activePageId={activePageId} allPages={activeWorkspace.pages} />
                             ))}
                         </div>
                         <div className="p-2 border-t border-[#E9E9E8] space-y-0.5">
