@@ -307,24 +307,6 @@
                 window.appState = { workspaces, userProfile, themes, fonts, activeWorkspaceId, activePageId, activeThemeId };
             }, [workspaces, userProfile, themes, fonts, activeWorkspaceId, activePageId, activeThemeId]);
 
-            // CSS Theme Injection Logic
-            useEffect(() => {
-                const themeLink = document.getElementById('theme-stylesheet');
-                if (activeTheme && activeTheme.type === 'css' && activeTheme.url) {
-                    if (themeLink) {
-                        themeLink.href = activeTheme.url;
-                    } else {
-                        const link = document.createElement('link');
-                        link.id = 'theme-stylesheet';
-                        link.rel = 'stylesheet';
-                        link.href = activeTheme.url;
-                        document.head.appendChild(link);
-                    }
-                } else {
-                    if (themeLink) themeLink.remove();
-                }
-            }, [activeTheme]);
-
             const activeWorkspace = useMemo(() => {
                 const found = workspaces.find(w => w.id === activeWorkspaceId);
                 if (found) return found;
@@ -437,28 +419,14 @@
             const generatePageWithAI = async () => {
                 if (!aiPrompt.trim()) return;
                 setIsAiGenerating(true);
-
-                // 1. Create the Real Page (Sidebar)
-                const pageId = actions.addPage({
-                    title: "Generando...",
-                    icon: <Loader2 className="animate-spin" size={14} />,
-                    isGenerating: true,
-                    inInbox: false // Explicitly in Sidebar
-                });
-
-                // 2. Add Notification to Inbox (Temporary)
-                const notificationId = actions.addPage({
-                    title: `Notificación: Generando "${aiPrompt}"`,
-                    icon: '🔔',
-                    inInbox: true, // In Inbox
-                    blocks: [{ id: utils.generateId(), type: 'p', content: 'La IA está generando tu página. Te avisaremos cuando termine.' }]
-                });
-
+                // Ghost page with loading state
+                const tempId = actions.addPage({ title: "Generando...", icon: <Loader2 className="animate-spin" size={14} />, isGenerating: true, inInbox: false });
                 toggleModal('ai', false);
                 try {
                     let data;
                     if (USE_MOCK_API) {
                         await utils.delay(3000);
+                        // Simulate Gemini 1.5 Pro JSON response
                         const rawResponse = `\`\`\`json
 {
   "title": "${aiPrompt}",
@@ -471,67 +439,27 @@
   ]
 }
 \`\`\``;
+                        // Simulate cleanup logic (removing markdown code blocks)
                         const cleanJson = rawResponse.replace(/```json|```/g, '').trim();
                         data = JSON.parse(cleanJson);
                     }
-
-                    // Update Real Page
-                    actions.updatePage(pageId, { title: data.title, icon: data.icon, cover: data.cover, blocks: data.blocks?.map(b => ({ ...b, id: utils.generateId() })) || [], isGenerating: false });
-
-                    // Update Notification in Inbox
-                    actions.updatePage(notificationId, { title: `Completado: ${data.title}`, icon: '✅', blocks: [{ id: utils.generateId(), type: 'p', content: `La página "${data.title}" se ha generado correctamente en tu espacio de trabajo.` }] });
-
+                    actions.updatePage(tempId, { title: data.title, icon: data.icon, cover: data.cover, blocks: data.blocks?.map(b => ({ ...b, id: utils.generateId() })) || [], isGenerating: false });
                     showNotify("Página generada con Gemini ✨");
-                } catch (e) {
-                    actions.deletePage(pageId);
-                    actions.updatePage(notificationId, { title: `Error: ${aiPrompt}`, icon: '❌', blocks: [{ id: utils.generateId(), type: 'p', content: 'Hubo un error al generar la página.' }] });
-                    showNotify("Error generando página");
-                    console.error(e);
-                } finally { setIsAiGenerating(false); setAiPrompt(""); }
+                } catch (e) { actions.deletePage(tempId); showNotify("Error generando página"); console.error(e); } finally { setIsAiGenerating(false); setAiPrompt(""); }
             };
 
             const fetchMarketData = async () => {
                 setLoadingMarket(true);
                 try {
                     await utils.delay(1000);
-
-                    // 1. Simulate "Scanning" the folder (Virtual File System)
-                    const virtualFileSystem = [
-                        { name: 'medieval-theme.css', path: 'stylessApp/medieval-theme.css', type: 'file' },
-                        { name: 'gaming-theme.css', path: 'stylessApp/gaming-theme.css', type: 'file' },
-                        { name: 'rock-metal-theme.css', path: 'stylessApp/rock-metal-theme.css', type: 'file' },
-                        { name: 'default-theme.css', path: 'stylessApp/default-theme.css', type: 'file' },
-                        { name: 'readme.txt', path: 'stylessApp/readme.txt', type: 'file' }, // Should be ignored
-                        { name: 'config.json', path: 'stylessApp/config.json', type: 'file' } // Should be ignored if we only want CSS
+                    // Simulate GitHub Octokit response for 'stylessApp' folder scan
+                    // Returns list of themes found in the repo
+                    const mockGithubResponse = [
+                        { name: 'dark-mode.json', download_url: 'mock_url', content: { id: 'local-dark', name: 'Dark Mode', author: 'Mock', colors: { bg: '#1f1f22', text: '#ffffff', sidebar: '#18181b' } } },
+                        { name: 'sepia-mode.json', download_url: 'mock_url', content: { id: 'local-sepia', name: 'Sepia Mode', author: 'Mock', colors: { bg: '#f4ecd8', text: '#5b4636', sidebar: '#e4dcb8' } } }
                     ];
-
-                    // 2. Filter by Extension (Simulating backend logic)
-                    const cssFiles = virtualFileSystem.filter(f => f.name.endsWith('.css'));
-
-                    // 3. Map to Market Data Structure
-                    const styles = cssFiles.map(f => {
-                        const id = f.name.replace('.css', '');
-                        // Infer metadata from filename (Simulation)
-                        return {
-                            id: id,
-                            name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
-                            author: 'Fixius50',
-                            type: 'css',
-                            url: f.path,
-                            colors: { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' } // Default fallback colors
-                        };
-                    });
-
-                    // Manual override for specific known themes to have correct preview colors (Optional polish)
-                    const enrichedStyles = styles.map(s => {
-                        if (s.id.includes('medieval')) return { ...s, colors: { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } };
-                        if (s.id.includes('gaming')) return { ...s, colors: { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } };
-                        if (s.id.includes('rock')) return { ...s, colors: { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } };
-                        return s;
-                    });
-
                     setMarketData({
-                        styles: enrichedStyles,
+                        styles: mockGithubResponse.map(f => f.content),
                         fonts: [],
                         covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600"]
                     });
