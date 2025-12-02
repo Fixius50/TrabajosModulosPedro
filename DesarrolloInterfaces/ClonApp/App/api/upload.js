@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob';
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   // Configuración CORS estándar

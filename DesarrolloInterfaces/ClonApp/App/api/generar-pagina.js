@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   // CORS Headers
@@ -16,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') {
-     return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
