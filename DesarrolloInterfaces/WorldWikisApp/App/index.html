@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorldWikis | Architect Your Realm</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- DOMPurify -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Colors */
+            --bg-dark: #0f1115;
+            --bg-panel: #181b21;
+            --bg-input: #22262e;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #2d3748;
+            --success: #10b981;
+            --danger: #ef4444;
+
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        /* App Layout */
+        #app {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* View Switcher */
+        .view-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .switch-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            background: transparent;
+        }
+
+        .switch-btn.active {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .switch-btn:hover:not(.active) {
+            color: var(--text-main);
+        }
+
+        /* View Container & Transitions */
+        .views-container {
+            display: flex;
+            width: 200vw;
+            /* Explicitly 2 viewports wide */
+            height: 100vh;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .views-container.show-wiki {
+            transform: translateX(-50%);
+            /* Slide to show the second half */
+        }
+
+        .view-panel {
+            width: 100vw;
+            /* Each panel is full viewport width */
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            /* Allow internal flex layout */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 20rem;
+            background-color: #181b21;
+            /* Hardcoded to ensure dark mode */
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+            position: relative;
+            flex-shrink: 0;
+            color: var(--text-main);
+            /* Ensure text is visible */
+        }
+
+        .sidebar-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-md);
+        }
+
+        .sidebar-footer {
+            padding: var(--space-md);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Map Area */
+        .map-container {
+            flex: 1;
+            /* Take remaining space in the view-panel */
+            height: 100%;
+            background-color: #050505;
+            background-image: radial-gradient(#1f2937 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+            user-select: none;
+            position: relative;
+        }
+
+        .entity-node {
+            position: absolute;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: var(--space-sm);
+            min-width: 150px;
+            box-shadow: var(--shadow-md);
+            cursor: grab;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .entity-node:active {
+            cursor: grabbing;
+        }
+
+        .entity-node.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        .entity-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .entity-type-icon {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .entity-children {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .child-badge {
+            background-color: var(--bg-input);
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            color: var(--text-muted);
+        }
+
+        /* Wiki View */
+        .wiki-view {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            /* Light mode for Wiki readability */
+            color: #1f2937;
+            overflow-y: auto;
+            display: flex;
+        }
+
+        .wiki-sidebar {
+            width: 250px;
+            background-color: #f3f4f6;
+            border-right: 1px solid #e5e7eb;
+            padding: 2rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .wiki-content {
+            flex: 1;
+            padding: 4rem 6rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+        }
+
+        /* Wiki Styles */
+        .wiki-h1 {
+            font-size: 3rem;
+            border-bottom: 4px solid #1f2937;
+            padding-bottom: 1rem;
+            margin-bottom: 3rem;
+            font-family: 'Merriweather', serif;
+        }
+
+        .wiki-h2 {
+            font-size: 2rem;
+            color: #1f2937;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-top: 3rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+
+        .wiki-h3 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .wiki-link {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--accent);
+            cursor: pointer;
+        }
+
+        .wiki-link:hover {
+            background: #eff6ff;
+        }
+
+        .wiki-toc-link {
+            display: block;
+            padding: 0.25rem 0;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .wiki-toc-link:hover {
+            color: var(--accent);
+        }
+
+        .wiki-toc-sub {
+            margin-left: 1rem;
+            border-left: 2px solid #d1d5db;
+            padding-left: 0.5rem;
+        }
+
+        .wiki-infobox {
+            float: right;
+            width: 250px;
+            background: white;
+            border: 1px solid #d1d5db;
+            margin: 0 0 1rem 2rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .infobox-title {
+            background: #f3f4f6;
+            padding: 0.5rem;
+            font-weight: 700;
+            text-align: center;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        .infobox-row {
+            padding: 0.5rem;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .infobox-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Controls */
+        .btn {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--border);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-danger {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: transparent;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .label {
+            display: block;
+            margin-bottom: var(--space-xs);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .input,
+        .textarea,
+        .select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-family: inherit;
+        }
+
+        .input:focus,
+        .textarea:focus,
+        .select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .textarea {
+            resize: vertical;
+            min-height: 5rem;
+        }
+
+        /* Connections (SVG) */
+        .connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        path.connection {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 2;
+            transition: stroke 0.3s;
+        }
+
+        path.connection.active {
+            stroke: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- View Switcher (Top Right) -->
+        <div class="view-switcher">
+            <button class="switch-btn" :class="{ active: viewMode === 'editor' }" @click="viewMode = 'editor'">
+                <i class="ri-map-2-line"></i> Board
+            </button>
+            <button class="switch-btn" :class="{ active: viewMode === 'wiki' }" @click="viewMode = 'wiki'">
+                <i class="ri-book-open-line"></i> Wiki
+            </button>
+        </div>
+
+        <!-- Sliding Views Container -->
+        <div class="views-container" :class="{ 'show-wiki': viewMode === 'wiki' }">
+
+            <!-- View 1: Editor (Sidebar + Map) -->
+            <div class="view-panel">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="brand">
+                            <i class="ri-earth-line"></i> WorldWikis
+                        </div>
+                    </div>
+
+                    <div class="sidebar-content">
+                        <!-- Entity Editor -->
+                        <div v-if="selectedEntity" class="flex flex-col gap-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold">Edit Entity</h3>
+                                <button class="btn btn-danger" @click="deleteEntity(selectedEntity.id)">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Name</label>
+                                <input class="input" v-model="selectedEntity.name" placeholder="Entity Name">
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Type</label>
+                                <select class="select" v-model="selectedEntity.type">
+                                    <option value="zone">Zone/Location</option>
+                                    <option value="person">Person/Character</option>
+                                    <option value="creature">Creature</option>
+                                    <option value="item">Item/Artifact</option>
+                                    <option value="event">Event</option>
+                                    <option value="law">Law/Logic</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Description</label>
+                                <textarea class="textarea" v-model="selectedEntity.description"
+                                    placeholder="Write the lore..."></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Parent (Container)</label>
+                                <select class="select" v-model="selectedEntity.parentId">
+                                    <option :value="null">None (Root)</option>
+                                    <option v-for="ent in availableParents" :key="ent.id" :value="ent.id">
+                                        {{ ent.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div v-else class="text-center p-4 text-muted">
+                            <p>Select an entity to edit or create a new one.</p>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-footer flex flex-col gap-2">
+                        <button class="btn btn-primary w-full" @click="createEntity">
+                            <i class="ri-add-line"></i> New Entity
+                        </button>
+                        <button class="btn w-full" @click="loadExampleWorld">
+                            <i class="ri-magic-line"></i> Load Example
+                        </button>
+                        <button class="btn w-full" @click="clearWorld">
+                            <i class="ri-refresh-line"></i> Reset World
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Map -->
+                <main class="map-container" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+                    <!-- Connections SVG -->
+                    <svg class="connections-layer">
+                        <path v-for="conn in connections" :key="conn.id" :d="conn.path" class="connection"
+                            :class="{ active: conn.isActive }" />
+                    </svg>
+
+                    <!-- Entities -->
+                    <div v-for="entity in entities" :key="entity.id" class="entity-node"
+                        :class="{ selected: selectedId === entity.id }"
+                        :style="{ left: entity.x + 'px', top: entity.y + 'px' }"
+                        @mousedown.stop="startDrag($event, entity)" @click.stop="selectEntity(entity.id)">
+
+                        <div class="entity-header">
+                            <i :class="getTypeIcon(entity.type)" class="entity-type-icon"></i>
+                            <span>{{ entity.name }}</span>
+                        </div>
+                        <div class="text-sm text-muted"
+                            style="font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ entity.type.toUpperCase() }}
+                        </div>
+
+                        <!-- Children Indicators -->
+                        <div class="entity-children" v-if="getChildren(entity.id).length > 0">
+                            <span v-for="child in getChildren(entity.id)" :key="child.id" class="child-badge">
+                                {{ child.name }}
+                            </span>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- View 2: Wiki -->
+            <div class="view-panel">
+                <div class="wiki-view">
+                    <!-- TOC Sidebar -->
+                    <nav class="wiki-sidebar">
+                        <h3 style="margin-top: 0; margin-bottom: 1rem; color: #1f2937;">Contents</h3>
+                        <div v-for="root in rootEntities" :key="root.id">
+                            <a :href="'#wiki-entity-' + root.id" class="wiki-toc-link">{{ root.name }}</a>
+                            <div v-if="getChildren(root.id).length > 0" class="wiki-toc-sub">
+                                <a v-for="child in getChildren(root.id)" :key="child.id"
+                                    :href="'#wiki-entity-' + child.id" class="wiki-toc-link">
+                                    {{ child.name }}
+                                </a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <!-- Main Content -->
+                    <main class="wiki-content">
+                        <h1 class="wiki-h1">{{ worldName }}</h1>
+
+                        <div v-if="entities.length === 0" style="text-align: center; color: #6b7280; margin-top: 4rem;">
+                            <p>The world is empty. Go back to the Board to create history.</p>
+                        </div>
+
+                        <div v-for="rootEntity in rootEntities" :key="rootEntity.id" class="wiki-section">
+                            <!-- Root Entity -->
+                            <section :id="'wiki-entity-' + rootEntity.id">
+                                <aside class="wiki-infobox">
+                                    <div class="infobox-title">{{ rootEntity.name }}</div>
+                                    <div class="infobox-row"><span>Type</span> <strong>{{ rootEntity.type }}</strong>
+                                    </div>
+                                    <div class="infobox-row"><span>Children</span> <strong>{{
+                                            getChildren(rootEntity.id).length }}</strong></div>
+                                </aside>
+
+                                <h2 class="wiki-h2">{{ rootEntity.name }}</h2>
+                                <p class="wiki-p" v-html="formatDescription(rootEntity.description)"></p>
+                            </section>
+
+                            <!-- Children -->
+                            <div v-if="getChildren(rootEntity.id).length > 0" style="margin-left: 2rem;">
+                                <div v-for="child in getChildren(rootEntity.id)" :key="child.id"
+                                    style="margin-top: 2rem;">
+                                    <section :id="'wiki-entity-' + child.id">
+                                        <aside class="wiki-infobox">
+                                            <div class="infobox-title">{{ child.name }}</div>
+                                            <div class="infobox-row"><span>Type</span> <strong>{{ child.type }}</strong>
+                                            </div>
+                                            <div class="infobox-row"><span>Parent</span> <strong>{{ rootEntity.name
+                                                    }}</strong></div>
+                                        </aside>
+
+                                        <h3 class="wiki-h3">{{ child.name }}</h3>
+                                        <p class="wiki-p" v-html="formatDescription(child.description)"></p>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, reactive, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                // State
+                const viewMode = ref('editor'); // 'editor' | 'wiki'
+                const worldName = ref('Antigravity Realm');
+                const entities = ref([]);
+                const selectedId = ref(null);
+
+                // Dragging State
+                const isDragging = ref(false);
+                const dragOffset = reactive({ x: 0, y: 0 });
+                const draggedEntityId = ref(null);
+
+                // Initial Data / Persistence
+                onMounted(() => {
+                    const saved = localStorage.getItem('worldWikis_data');
+                    if (saved) {
+                        entities.value = JSON.parse(saved);
+                    } else {
+                        // Seed data
+                        entities.value = [
+                            { id: '1', name: 'Mystic Forest', type: 'zone', description: 'A forest shrouded in eternal mist.', x: 100, y: 100, parentId: null },
+                            { id: '2', name: 'Elder Tree', type: 'creature', description: 'The guardian of the forest.', x: 150, y: 250, parentId: '1' }
+                        ];
+                    }
+                });
+
+                // Watch for changes to save
+                watch(entities, (newVal) => {
+                    localStorage.setItem('worldWikis_data', JSON.stringify(newVal));
+                }, { deep: true });
+
+                // Computed
+                const selectedEntity = computed(() => {
+                    return entities.value.find(e => e.id === selectedId.value);
+                });
+
+                const rootEntities = computed(() => {
+                    return entities.value.filter(e => !e.parentId);
+                });
+
+                const availableParents = computed(() => {
+                    if (!selectedEntity.value) return [];
+                    return entities.value.filter(e => e.id !== selectedEntity.value.id);
+                });
+
+                const connections = computed(() => {
+                    const conns = [];
+                    entities.value.forEach(child => {
+                        if (child.parentId) {
+                            const parent = entities.value.find(p => p.id === child.parentId);
+                            if (parent) {
+                                const startX = child.x + 75;
+                                const startY = child.y;
+                                const endX = parent.x + 75;
+                                const endY = parent.y + 100;
+                                const path = `M ${startX} ${startY} C ${startX} ${startY - 50}, ${endX} ${endY + 50}, ${endX} ${endY}`;
+                                conns.push({
+                                    id: `${child.id}-${parent.id}`,
+                                    path: path,
+                                    isActive: selectedId.value === child.id || selectedId.value === parent.id
+                                });
+                            }
+                        }
+                    });
+                    return conns;
+                });
+
+                // Methods
+                const getTypeIcon = (type) => {
+                    const map = {
+                        'zone': 'ri-map-pin-line',
+                        'person': 'ri-user-line',
+                        'creature': 'ri-aliens-line',
+                        'item': 'ri-sword-line',
+                        'event': 'ri-calendar-event-line',
+                        'law': 'ri-scales-line'
+                    };
+                    return map[type] || 'ri-question-line';
+                };
+
+                const getChildren = (parentId) => {
+                    return entities.value.filter(e => e.parentId === parentId);
+                };
+
+                const createEntity = () => {
+                    const newId = Date.now().toString();
+                    entities.value.push({
+                        id: newId,
+                        name: 'New Entity',
+                        type: 'zone',
+                        description: '',
+                        x: Math.random() * (window.innerWidth - 300) + 50,
+                        y: Math.random() * (window.innerHeight - 200) + 50,
+                        parentId: null
+                    });
+                    selectedId.value = newId;
+                };
+
+                const deleteEntity = (id) => {
+                    if (!confirm('Are you sure? This will unlink children.')) return;
+                    entities.value.forEach(e => {
+                        if (e.parentId === id) e.parentId = null;
+                    });
+                    entities.value = entities.value.filter(e => e.id !== id);
+                    selectedId.value = null;
+                };
+
+                const selectEntity = (id) => {
+                    selectedId.value = id;
+                };
+
+                const clearWorld = () => {
+                    if (confirm('Delete everything?')) {
+                        entities.value = [];
+                        selectedId.value = null;
+                    }
+                };
+
+                const loadExampleWorld = () => {
+                    if (entities.value.length > 0 && !confirm('Overwrite current world with example?')) return;
+
+                    entities.value = [
+                        { id: 'z1', name: 'Kingdom of Aethelgard', type: 'zone', description: 'The central kingdom of humans, known for its high stone walls and the Iron Law.', x: 400, y: 50, parentId: null },
+                        { id: 'z2', name: 'Royal Capital', type: 'zone', description: 'The heart of Aethelgard.', x: 400, y: 250, parentId: 'z1' },
+                        { id: 'p1', name: 'King Alaric', type: 'person', description: 'The stern ruler of Aethelgard. He wields the Sunblade.', x: 300, y: 450, parentId: 'z2' },
+                        { id: 'i1', name: 'Sunblade', type: 'item', description: 'A legendary sword said to cut through darkness itself.', x: 300, y: 600, parentId: 'p1' },
+                        { id: 'z3', name: 'Whispering Woods', type: 'zone', description: 'A mysterious forest bordering the kingdom.', x: 800, y: 100, parentId: null },
+                        { id: 'c1', name: 'Forest Spirit', type: 'creature', description: 'An ethereal being that protects the Whispering Woods.', x: 800, y: 300, parentId: 'z3' },
+                        { id: 'l1', name: 'Law of Magic', type: 'law', description: 'Magic cannot be created, only borrowed from the earth.', x: 100, y: 100, parentId: null }
+                    ];
+                    selectedId.value = null;
+                };
+
+                const formatDescription = (text) => {
+                    if (!text) return '<i>No description available.</i>';
+
+                    // Sanitize first
+                    let clean = DOMPurify.sanitize(text);
+
+                    // Auto-link
+                    const sortedNames = entities.value.map(e => ({ name: e.name, id: e.id }))
+                        .sort((a, b) => b.name.length - a.name.length);
+
+                    sortedNames.forEach(({ name, id }) => {
+                        const regex = new RegExp(`\\b${name}\\b`, 'gi');
+                        // Use a special placeholder to avoid re-linking links
+                        clean = clean.replace(regex, (match) => `<a href="#" onclick="document.getElementById('wiki-entity-${id}').scrollIntoView({behavior: 'smooth'}); return false;" class="wiki-link">${match}</a>`);
+                    });
+
+                    return clean;
+                };
+
+                // Drag Logic
+                const startDrag = (event, entity) => {
+                    isDragging.value = true;
+                    draggedEntityId.value = entity.id;
+                    dragOffset.x = event.clientX - entity.x;
+                    dragOffset.y = event.clientY - entity.y;
+                    selectEntity(entity.id);
+                };
+
+                const onDrag = (event) => {
+                    if (!isDragging.value || !draggedEntityId.value) return;
+
+                    const entity = entities.value.find(e => e.id === draggedEntityId.value);
+                    if (entity) {
+                        entity.x = event.clientX - dragOffset.x;
+                        entity.y = event.clientY - dragOffset.y;
+                    }
+                };
+
+                const stopDrag = () => {
+                    isDragging.value = false;
+                    draggedEntityId.value = null;
+                };
+
+                // Expose to window for debugging
+                window.appState = {
+                    entities,
+                    viewMode,
+                    selectedId
+                };
+
+                return {
+                    viewMode,
+                    worldName,
+                    entities,
+                    selectedId,
+                    selectedEntity,
+                    rootEntities,
+                    availableParents,
+                    connections,
+                    getTypeIcon,
+                    getChildren,
+                    createEntity,
+                    deleteEntity,
+                    selectEntity,
+                    clearWorld,
+                    loadExampleWorld,
+                    formatDescription,
+                    startDrag,
+                    onDrag,
+                    stopDrag
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
