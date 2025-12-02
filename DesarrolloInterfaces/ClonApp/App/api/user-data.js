@@ -27,9 +27,9 @@ export default async function handler(req, res) {
 
     try {
         // 2. Inicializar Supabase en el contexto del SERVIDOR
-        // Usamos las variables de entorno de Vercel (SUPABASE_URL, SUPABASE_ANON_KEY)
-        const supabaseUrl = process.env.SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_ANON_KEY;
+        // Usamos las variables de entorno de Vercel (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+        const supabaseUrl = process.env.VITE_SUPABASE_URL;
+        const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
         if (!supabaseUrl || !supabaseKey) {
             throw new Error("Variables de entorno de Supabase no configuradas en el servidor.");
