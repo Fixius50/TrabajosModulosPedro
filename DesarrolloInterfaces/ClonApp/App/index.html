@@ -160,6 +160,57 @@
         };
 
         // ==========================================
+        // 0.1 BACKUP & DATA SERVICE
+        // ==========================================
+
+        const BackupService = {
+            // Keys to persist
+            STORAGE_KEYS: [
+                'notion_v82_ws',
+                'notion_v82_profile',
+                'notion_v82_themes',
+                'notion_v82_fonts',
+                'notion_v82_active_id',
+                'notion_v82_active_theme'
+            ],
+
+            saveBackup: (userId) => {
+                if (!userId) return;
+                const backup = {};
+                BackupService.STORAGE_KEYS.forEach(key => {
+                    const data = localStorage.getItem(key);
+                    if (data) backup[key] = JSON.parse(data);
+                });
+                // Simulate saving to "backups/" folder by using a prefixed localStorage key
+                // In a real app with fs access, this would write to c:\Users\Roberto\...\backups\backup_${userId}.json
+                const backupKey = `notion_backup_${userId}`;
+                localStorage.setItem(backupKey, JSON.stringify(backup));
+                console.log(`[Backup] Saved data for ${userId} to ${backupKey}`);
+            },
+
+            restoreBackup: (userId) => {
+                if (!userId) return false;
+                const backupKey = `notion_backup_${userId}`;
+                const backupData = localStorage.getItem(backupKey);
+
+                if (backupData) {
+                    const backup = JSON.parse(backupData);
+                    Object.keys(backup).forEach(key => {
+                        localStorage.setItem(key, JSON.stringify(backup[key]));
+                    });
+                    console.log(`[Backup] Restored data for ${userId}`);
+                    return true;
+                }
+                return false;
+            },
+
+            clearLocalData: () => {
+                BackupService.STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
+                console.log("[Backup] Local data cleared");
+            }
+        };
+
+        // ==========================================
         // 0. GLOBAL CONSTANTS & UTILS
         // ==========================================
 
@@ -599,7 +650,9 @@
                 removeTheme: (themeId) => { if (themeId === 'default') return; setThemes(p => p.filter(t => t.id !== themeId)); if (activeThemeId === themeId) setActiveThemeId('default'); },
                 addFont: (f) => { if (!f.name) return; setFonts(p => { const exists = p.find(ex => ex.id === f.id); if (exists) return p; return [...p, f]; }); },
                 removeFont: (fontId) => { setFonts(p => p.filter(f => f.id !== fontId)); },
-                addComment: (text) => { if (!activePage) return; const newComment = { id: utils.generateId(), author: userProfile.name, avatar: userProfile.avatar, text, createdAt: new Date().toISOString() }; const currentComments = activePage.comments || []; actions.updatePage(activePageId, { comments: [...currentComments, newComment] }); }
+                addComment: (text) => { if (!activePage) return; const newComment = { id: utils.generateId(), author: userProfile.name, avatar: userProfile.avatar, text, createdAt: new Date().toISOString() }; const currentComments = activePage.comments || []; actions.updatePage(activePageId, { comments: [...currentComments, newComment] }); },
+                // Internal setters for restoration
+                setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId
             };
 
             return { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils };
@@ -636,49 +689,75 @@
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
+            // Auth Session Handler
+            const handleSession = useCallback((session) => {
+                if (session) {
+                    // 1. Restore Data if exists for this user
+                    const userId = session.user.email;
+                    const restored = BackupService.restoreBackup(userId);
+
+                    // 2. Update UI State
+                    setUi(p => ({ ...p.modals, googleLogin: false }, { isAuthenticated: true }));
+
+                    // 3. Update Profile
+                    actions.setUserProfile(prev => ({
+                        ...prev,
+                        name: session.user.user_metadata.full_name || session.user.email,
+                        email: session.user.email,
+                        avatar: session.user.user_metadata.avatar_url
+                    }));
+
+                    // 4. Sync State with Restored Data
+                    if (restored) {
+                        const ws = JSON.parse(localStorage.getItem('notion_v82_ws'));
+                        const themes = JSON.parse(localStorage.getItem('notion_v82_themes'));
+                        const fonts = JSON.parse(localStorage.getItem('notion_v82_fonts'));
+                        const activeId = JSON.parse(localStorage.getItem('notion_v82_active_id'));
+                        const activeTheme = JSON.parse(localStorage.getItem('notion_v82_active_theme'));
+
+                        if (ws) actions.setWorkspaces(ws);
+                        if (themes) actions.setThemes(themes);
+                        if (fonts) actions.setFonts(fonts);
+                        if (activeId) actions.setActiveWorkspaceId(activeId);
+                        if (activeTheme) actions.setActiveThemeId(activeTheme);
+
+                        showNotify("Sesión restaurada correctamente");
+                    }
+                } else {
+                    setUi(p => ({ ...p.modals, googleLogin: true }, { isAuthenticated: false }));
+                }
+            }, [actions]);
+
             // Check authentication on load
             useEffect(() => {
-                if (supabase) {
-                    // Real Supabase Auth
-                    supabase.auth.getSession().then(({ data: { session } }) => {
-                        if (session) {
-                            setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: false }, isAuthenticated: true }));
-                            actions.setUserProfile(prev => ({
-                                ...prev,
-                                name: session.user.user_metadata.full_name || session.user.email,
-                                email: session.user.email,
-                                avatar: session.user.user_metadata.avatar_url
-                            }));
-                        } else {
-                            setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: true }, isAuthenticated: false }));
-                        }
-                    });
+                const initAuth = async () => {
+                    if (supabase) {
+                        const { data: { session } } = await supabase.auth.getSession();
+                        handleSession(session);
 
-                    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-                        if (session) {
-                            setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: false }, isAuthenticated: true }));
-                            actions.setUserProfile(prev => ({
-                                ...prev,
-                                name: session.user.user_metadata.full_name || session.user.email,
-                                email: session.user.email,
-                                avatar: session.user.user_metadata.avatar_url
-                            }));
-                        } else {
-                            setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: true }, isAuthenticated: false }));
-                        }
-                    });
+                        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                            handleSession(session);
+                        });
 
-                    return () => subscription.unsubscribe();
-                } else {
-                    // Mock Auth Fallback
-                    const hasAuth = localStorage.getItem('notion_mock_user');
-                    if (!hasAuth) {
-                        setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: true }, isAuthenticated: false }));
+                        return () => subscription.unsubscribe();
                     } else {
-                        setUi(p => ({ ...p, modals: { ...p.modals, googleLogin: false }, isAuthenticated: true }));
+                        const hasAuth = localStorage.getItem('notion_mock_user');
+                        if (hasAuth) {
+                            handleSession({ user: JSON.parse(hasAuth) });
+                        } else {
+                            handleSession(null);
+                        }
                     }
+                };
+                initAuth();
+            }, [handleSession]);
+
+            // Expose setters for restoration
+            useEffect(() => {
+                if (actions.internalSetters) {
+                    window.internalSetters = actions.internalSetters;
                 }
-            }, []);
+            }, [actions]);
 
             // Search Logic
             const filteredPages = useMemo(() => {
@@ -1027,7 +1106,16 @@
                                 <div className="flex h-full">
                                     <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => setUi(p => ({ ...p, settingsSection: 'themes' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button><button onClick={() => setUi(p => ({ ...p, settingsSection: 'marketplace' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'marketplace' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Marketplace</button></div>
                                     <div className="flex-1 overflow-y-auto px-12 py-12">
-                                        {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <Camera size={32} className="text-zinc-300" />}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({ ...p, name: e.target.value }))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors" /></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed" /></div></div></div><button onClick={async () => { await AuthService.logout(); showNotify("Sesión cerrada"); }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button></div>)}
+                                        {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <Camera size={32} className="text-zinc-300" />}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({ ...p, name: e.target.value }))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors" /></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed" /></div></div></div><button onClick={async () => {
+                                            // 1. Backup Data
+                                            BackupService.saveBackup(userProfile.email);
+                                            // 2. Logout
+                                            await AuthService.logout();
+                                            // 3. Clear Local Data
+                                            BackupService.clearLocalData();
+                                            // 4. Reload to reset state and show login
+                                            window.location.reload();
+                                        }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button></div>)}
                                         {ui.settingsSection === 'themes' && (
                                             <div className="max-w-2xl animate-in fade-in duration-300">
                                                 <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Apariencia</h1>
