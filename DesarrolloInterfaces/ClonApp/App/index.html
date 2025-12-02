@@ -697,7 +697,11 @@
                     const restored = BackupService.restoreBackup(userId);
 
                     // 2. Update UI State
-                    setUi(p => ({ ...p.modals, googleLogin: false }, { isAuthenticated: true }));
+                    setUi(p => ({
+                        ...p,
+                        modals: { ...p.modals, googleLogin: false },
+                        isAuthenticated: true
+                    }));
 
                     // 3. Update Profile
                     actions.setUserProfile(prev => ({
@@ -724,7 +728,11 @@
                         showNotify("Sesión restaurada correctamente");
                     }
                 } else {
-                    setUi(p => ({ ...p.modals, googleLogin: true }, { isAuthenticated: false }));
+                    setUi(p => ({
+                        ...p,
+                        modals: { ...p.modals, googleLogin: true },
+                        isAuthenticated: false
+                    }));
                 }
             }, [actions]);
 
