@@ -508,8 +508,6 @@
                     showNotify("Página duplicada");
                 },
                 updatePage: (pid, u) => setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, ...u } : pg) } : w)),
-                toggleFavorite: (pid) => setWorkspaces(p => p.map(w => w.id === activeWorkspaceId ? { ...w, pages: w.pages.map(pg => pg.id === pid ? { ...pg, isFavorite: !pg.isFavorite } : pg) } : w)),
-
                 deletePage: (pid) => {
                     setWorkspaces(p => p.map(w => {
                         if (w.id !== activeWorkspaceId) return w;
@@ -823,9 +821,22 @@
                         <div className="flex-1 overflow-y-auto px-2 space-y-0.5 fancy-scroll">
                             {[{ icon: Search, label: 'Buscar', action: () => toggleModal('search', true) }, { icon: SidebarIcon, label: 'Inicio', action: () => { setUi(p => ({ ...p, currentView: 'home' })); actions.setActivePageId(null); if (isMobile) setUi(p => ({ ...p, sidebarOpen: false })); } }, { icon: Inbox, label: 'Bandeja', action: () => { setUi(p => ({ ...p, currentView: 'inbox' })); actions.setActivePageId(null); if (isMobile) setUi(p => ({ ...p, sidebarOpen: false })); } }, { icon: Sparkles, label: 'IA Notion', action: () => toggleModal('ai', true), color: 'text-yellow-600' }].map((item, i) => (
                                 <div key={i} onClick={item.action} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}>
-                                    <div onClick={() => { setUi(p => ({ ...p, currentView: 'trash' })); actions.setActivePageId(null); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Trash size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Papelera</span>}</div>
-                                    <div onClick={() => setUi(p => ({ ...p, sidebarOpen: !p.sidebarOpen }))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer mt-2 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><ChevronsLeft size={18} className={`shrink-0 transition-transform opacity-50 ${!ui.sidebarOpen ? "rotate-180" : ""}`} /> {ui.sidebarOpen && <span className="text-sm opacity-60">Cerrar barra</span>}</div>
+                                    <item.icon size={18} className={clsx("shrink-0 opacity-70", item.color)} />
+                                    {ui.sidebarOpen && <span className="text-sm font-medium opacity-80">{item.label}</span>}
+                                    {item.label === 'Bandeja' && inboxPages.length > 0 && ui.sidebarOpen && (<div className="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full ml-auto">{inboxPages.length}</div>)}
                                 </div>
+                            ))}
+                            <div className="mt-6 mb-1 px-2 flex justify-between items-center group/header">{ui.sidebarOpen && <span className="text-xs font-semibold opacity-50">PÁGINAS</span>}{ui.sidebarOpen && <button onClick={(e) => { e.stopPropagation(); const id = actions.addPage(); setUi(p => ({ ...p, currentView: 'page' })); actions.setActivePageId(id); if (isMobile) setUi(p => ({ ...p, sidebarOpen: false })); }} className="opacity-0 group-hover/header:opacity-100 transition-opacity p-1 hover:bg-[rgba(0,0,0,0.05)] rounded"><Plus size={14} /></button>}</div>
+                            {activeWorkspace.pages.filter(p => !p.inInbox && !p.isDeleted && !p.parentId).map(page => (
+                                <SidebarItem key={page.id} page={page} actions={actions} ui={ui} setUi={setUi} activePageId={activePageId} allPages={activeWorkspace.pages} onContextMenu={handleContextMenu} />
+                            ))}
+                        </div>
+                        <div className="p-2 border-t border-[#E9E9E8] space-y-0.5">
+                            <div onClick={() => toggleModal('market', true)} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Palette size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Marketplace</span>}</div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Settings size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Configuración</span>}</div>
+                            <div onClick={() => { setUi(p => ({ ...p, currentView: 'trash' })); actions.setActivePageId(null); }} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><Trash size={18} className="shrink-0 opacity-70" /> {ui.sidebarOpen && <span className="text-sm opacity-80">Papelera</span>}</div>
+                            <div onClick={() => setUi(p => ({ ...p, sidebarOpen: !p.sidebarOpen }))} className={clsx("flex items-center gap-3 p-1.5 rounded-md hover:bg-[rgba(0,0,0,0.05)] cursor-pointer mt-2 min-h-[2rem]", !ui.sidebarOpen && 'justify-start pl-1')}><ChevronsLeft size={18} className={`shrink-0 transition-transform opacity-50 ${!ui.sidebarOpen ? "rotate-180" : ""}`} /> {ui.sidebarOpen && <span className="text-sm opacity-60">Cerrar barra</span>}</div>
+                        </div>
                     </motion.aside>
 
                     {/* MAIN CONTENT */}
@@ -1097,8 +1108,10 @@
                                     className="fixed w-48 bg-[#2F2F2F] border border-[#3F3F3F] rounded-lg shadow-xl z-[90] overflow-hidden text-[#D4D4D4] text-sm py-1"
                                 >
                                     <div className="px-3 py-2 text-xs font-bold opacity-50 uppercase">Página</div>
-                                    <button onClick={() => { actions.toggleFavorite(contextMenu.pageId); setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2">{activeWorkspace?.pages.find(p => p.id === contextMenu.pageId)?.isFavorite ? <Star size={14} fill="currentColor" /> : <Star size={14} />} {activeWorkspace?.pages.find(p => p.id === contextMenu.pageId)?.isFavorite ? 'Quitar de favoritos' : 'Añadir a favoritos'}</button>
+                                    <button onClick={() => { setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><StarIcon size={14} /> Añadir a favoritos</button>
+                                    <button onClick={() => { navigator.clipboard.writeText(window.location.href); setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); showNotify("Enlace copiado"); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><LinkIcon size={14} /> Copiar enlace</button>
                                     <button onClick={() => { actions.duplicatePage(contextMenu.pageId); setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><CopyIcon size={14} /> Duplicar <span className="ml-auto text-xs opacity-50">Ctrl+D</span></button>
+                                    <button onClick={() => { setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2"><EditIcon size={14} /> Renombrar <span className="ml-auto text-xs opacity-50">Ctrl+R</span></button>
                                     <div className="h-px bg-[#3F3F3F] my-1" />
                                     <button onClick={() => { actions.deletePage(contextMenu.pageId); setContextMenu({ isOpen: false, pageId: null, x: 0, y: 0 }); }} className="w-full text-left px-3 py-1.5 hover:bg-[#3F3F3F] flex items-center gap-2 text-red-400"><Trash size={14} /> Mover a la Papelera</button>
                                 </motion.div>
