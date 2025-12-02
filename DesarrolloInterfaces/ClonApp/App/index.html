@@ -443,7 +443,15 @@
 
         const useLocalStorage = (key, initialValue) => {
             const [storedValue, setStoredValue] = useState(() => { try { return JSON.parse(window.localStorage.getItem(key)) || initialValue; } catch { return initialValue; } });
-            const setValue = (value) => { const valueToStore = value instanceof Function ? value(storedValue) : value; setStoredValue(valueToStore); window.localStorage.setItem(key, JSON.stringify(valueToStore)); };
+
+            const setValue = useCallback((value) => {
+                setStoredValue(oldValue => {
+                    const valueToStore = value instanceof Function ? value(oldValue) : value;
+                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                    return valueToStore;
+                });
+            }, [key]);
+
             return [storedValue, setValue];
         };
 
@@ -655,7 +663,7 @@
                 setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId
             };
 
-            return { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils };
+            return { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId };
         };
 
         // ==========================================
@@ -663,7 +671,7 @@
         // ==========================================
 
         function App() {
-            const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils } = useAppStore();
+            const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId } = useAppStore();
             const [ui, setUi] = useState({ sidebarOpen: true, currentView: 'home', settingsSection: 'account', modals: { search: false, market: false, ai: false, workspaceMenu: false, iconPicker: false, iconPickerModal: false, coverGallery: false, pageOptions: false, createWorkspace: false, googleLogin: false }, marketTab: 'gallery', marketSubTab: 'store', iconPickerTab: 'emoji', notification: { show: false, message: '' }, isAuthenticated: true });
             const [showComments, setShowComments] = useState(false);
             const [searchQuery, setSearchQuery] = useState('');
@@ -704,7 +712,7 @@
                     }));
 
                     // 3. Update Profile
-                    actions.setUserProfile(prev => ({
+                    setUserProfile(prev => ({
                         ...prev,
                         name: session.user.user_metadata.full_name || session.user.email,
                         email: session.user.email,
@@ -719,11 +727,11 @@
                         const activeId = JSON.parse(localStorage.getItem('notion_v82_active_id'));
                         const activeTheme = JSON.parse(localStorage.getItem('notion_v82_active_theme'));
 
-                        if (ws) actions.setWorkspaces(ws);
-                        if (themes) actions.setThemes(themes);
-                        if (fonts) actions.setFonts(fonts);
-                        if (activeId) actions.setActiveWorkspaceId(activeId);
-                        if (activeTheme) actions.setActiveThemeId(activeTheme);
+                        if (ws) setWorkspaces(ws);
+                        if (themes) setThemes(themes);
+                        if (fonts) setFonts(fonts);
+                        if (activeId) setActiveWorkspaceId(activeId);
+                        if (activeTheme) setActiveThemeId(activeTheme);
 
                         showNotify("Sesión restaurada correctamente");
                     }
@@ -734,7 +742,7 @@
                         isAuthenticated: false
                     }));
                 }
-            }, [actions]);
+            }, [setUserProfile, setWorkspaces, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId]);
 
             // Check authentication on load
             useEffect(() => {
