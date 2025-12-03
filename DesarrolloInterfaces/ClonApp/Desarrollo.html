@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notion V28 DocSite</title>
-    
+
     <!-- 1. FUENTES & ICONOS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
+
     <!-- 2. SYNTAX HIGHLIGHTING (Prism.js Tomorrow Night) -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    
+
     <!-- 3. TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -46,36 +49,68 @@
 
     <style>
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 0.5rem; height: 0.5rem; }
-        ::-webkit-scrollbar-track { background: #0F1117; }
-        ::-webkit-scrollbar-thumb { background: #2D313E; border-radius: 0.25rem; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
+        ::-webkit-scrollbar {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0F1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2D313E;
+            border-radius: 0.25rem;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
         /* Hide scrollbar for clean UI but keep functionality */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
         /* Prism Overrides */
-        pre[class*="language-"] { border-radius: 0.75rem; border: 1px solid #2D313E; background: #161920 !important; margin: 0 !important; }
-        code[class*="language-"], pre[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; font-size: 0.875rem; }
+        pre[class*="language-"] {
+            border-radius: 0.75rem;
+            border: 1px solid #2D313E;
+            background: #161920 !important;
+            margin: 0 !important;
+        }
+
+        code[class*="language-"],
+        pre[class*="language-"] {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 
-<body class="bg-doc-bg text-doc-text antialiased h-screen flex overflow-hidden selection:bg-doc-primary/20 selection:text-doc-primary" x-data="docSite">
+<body
+    class="bg-doc-bg text-doc-text antialiased h-screen flex overflow-hidden selection:bg-doc-primary/20 selection:text-doc-primary"
+    x-data="docSite">
 
     <!-- SIDEBAR NAV -->
     <aside class="w-64 bg-doc-surface border-r border-doc-border flex-col hidden md:flex z-50">
         <div class="p-6 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-doc-primary to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-doc-primary/20">N</div>
+            <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-doc-primary to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-doc-primary/20">
+                N</div>
             <span class="font-bold text-lg tracking-tight">Notion V28 Docs</span>
         </div>
 
         <nav class="flex-1 overflow-y-auto px-4 space-y-1">
             <template x-for="item in navItems" :key="item.id">
-                <a :href="'#' + item.id" 
-                   @click="activeSection = item.id"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group"
-                   :class="activeSection === item.id ? 'bg-doc-primary/10 text-doc-primary' : 'text-doc-muted hover:bg-white/5 hover:text-white'">
+                <a :href="'#' + item.id" @click="activeSection = item.id"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group"
+                    :class="activeSection === item.id ? 'bg-doc-primary/10 text-doc-primary' : 'text-doc-muted hover:bg-white/5 hover:text-white'">
                     <span class="material-icons-round text-[1.25rem]" x-text="item.icon"></span>
                     <span class="text-sm font-medium" x-text="item.label"></span>
                 </a>
@@ -86,7 +121,7 @@
             <div class="text-xs text-doc-muted uppercase font-bold tracking-wider mb-3">Creado por</div>
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-doc-border flex items-center justify-center overflow-hidden">
-                   <span class="material-icons-round text-doc-muted">person</span>
+                    <span class="material-icons-round text-doc-muted">person</span>
                 </div>
                 <div>
                     <div class="text-sm font-medium text-white">Roberto Monedero Alonso</div>
@@ -97,7 +132,8 @@
     </aside>
 
     <!-- MOBILE HEADER -->
-    <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-doc-surface/80 backdrop-blur border-b border-doc-border z-50 flex items-center justify-between px-4">
+    <div
+        class="md:hidden fixed top-0 left-0 right-0 h-16 bg-doc-surface/80 backdrop-blur border-b border-doc-border z-50 flex items-center justify-between px-4">
         <div class="font-bold">Notion V28</div>
         <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-doc-text">
             <span class="material-icons-round">menu</span>
@@ -110,15 +146,18 @@
 
             <!-- HERO SECTION -->
             <section id="hero" class="min-h-[60vh] flex flex-col justify-center animate-fade-in">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-doc-primary/10 text-doc-primary text-xs font-medium w-fit mb-6 border border-doc-primary/20">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-doc-primary/10 text-doc-primary text-xs font-medium w-fit mb-6 border border-doc-primary/20">
                     <span class="w-2 h-2 rounded-full bg-doc-primary animate-pulse"></span>
                     Documentation Release v1.0
                 </div>
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent" x-text="data.title"></h1>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-white via-gray-200 to-gray-500 bg-clip-text text-transparent"
+                    x-text="data.title"></h1>
                 <p class="text-xl text-doc-muted max-w-2xl leading-relaxed mb-10" x-text="data.description"></p>
-                
+
                 <div class="flex gap-4">
-                    <a href="#prompts" class="px-6 py-3 bg-doc-primary hover:bg-indigo-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-doc-primary/25 flex items-center gap-2">
+                    <a href="#prompts"
+                        class="px-6 py-3 bg-doc-primary hover:bg-indigo-400 text-white rounded-lg font-medium transition-all shadow-lg shadow-doc-primary/25 flex items-center gap-2">
                         <span class="material-icons-round text-sm">code</span> Ver Prompts de Ingeniería
                     </a>
                 </div>
@@ -129,25 +168,30 @@
                 <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
                     <span class="text-doc-primary">#</span> Tech Stack & Credits
                 </h2>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Tech -->
                     <div class="bg-doc-surface border border-doc-border rounded-xl p-6">
                         <h3 class="text-sm font-bold text-doc-muted uppercase tracking-wider mb-4">Tecnologías</h3>
                         <div class="flex flex-wrap gap-2">
                             <template x-for="tech in data.stack" :key="tech">
-                                <span class="px-3 py-1.5 bg-black/30 border border-doc-border rounded-md text-sm text-doc-text font-mono" x-text="tech"></span>
+                                <span
+                                    class="px-3 py-1.5 bg-black/30 border border-doc-border rounded-md text-sm text-doc-text font-mono"
+                                    x-text="tech"></span>
                             </template>
                         </div>
                     </div>
-                    
+
                     <!-- AI -->
                     <div class="bg-doc-surface border border-doc-border rounded-xl p-6 relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+                        <div
+                            class="absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition-opacity">
+                        </div>
                         <h3 class="text-sm font-bold text-doc-muted uppercase tracking-wider mb-4">AI Powered By</h3>
                         <div class="flex flex-wrap gap-3">
                             <template x-for="ai in data.ias" :key="ai">
-                                <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 rounded-lg">
+                                <div
+                                    class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-900/50 to-pink-900/50 border border-purple-500/30 rounded-lg">
                                     <span class="material-icons-round text-purple-400 text-sm">auto_awesome</span>
                                     <span class="font-bold text-white" x-text="ai"></span>
                                 </div>
@@ -164,8 +208,10 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <template x-for="feature in data.features" :key="feature.title">
-                        <div class="bg-doc-surface border border-doc-border p-6 rounded-xl hover:border-doc-primary/50 transition-colors group">
-                            <div class="w-10 h-10 rounded-lg bg-doc-bg border border-doc-border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <div
+                            class="bg-doc-surface border border-doc-border p-6 rounded-xl hover:border-doc-primary/50 transition-colors group">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-doc-bg border border-doc-border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <span class="material-icons-round text-doc-primary" x-text="feature.icon"></span>
                             </div>
                             <h3 class="font-bold text-lg mb-2" x-text="feature.title"></h3>
@@ -182,29 +228,37 @@
                         <span class="text-doc-primary">#</span> Prompt Library
                     </h2>
                     <!-- Dynamic Counter -->
-                    <span class="text-xs font-mono bg-doc-surface px-2 py-1 rounded border border-doc-border text-doc-muted" x-text="data.prompts.length + ' Prompts Total'"></span>
+                    <span
+                        class="text-xs font-mono bg-doc-surface px-2 py-1 rounded border border-doc-border text-doc-muted"
+                        x-text="data.prompts.length + ' Prompts Total'"></span>
                 </div>
 
-                <div class="space-y-8 relative before:absolute before:left-4 md:before:left-8 before:top-0 before:bottom-0 before:w-px before:bg-doc-border">
+                <div
+                    class="space-y-8 relative before:absolute before:left-4 md:before:left-8 before:top-0 before:bottom-0 before:w-px before:bg-doc-border">
                     <template x-for="(prompt, index) in data.prompts" :key="index">
                         <div class="relative pl-12 md:pl-20">
                             <!-- Timeline Marker -->
-                            <div class="absolute left-2 md:left-6 top-0 w-4 h-4 rounded-full bg-doc-surface border-2 border-doc-primary z-10"></div>
-                            
+                            <div
+                                class="absolute left-2 md:left-6 top-0 w-4 h-4 rounded-full bg-doc-surface border-2 border-doc-primary z-10">
+                            </div>
+
                             <div class="bg-doc-surface border border-doc-border rounded-xl overflow-hidden shadow-sm">
-                                <div class="px-6 py-4 border-b border-doc-border bg-black/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div
+                                    class="px-6 py-4 border-b border-doc-border bg-black/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div>
                                         <h3 class="font-bold text-doc-text" x-text="prompt.title"></h3>
-                                        <div class="text-xs text-doc-muted font-mono mt-1">Prompt Phase <span x-text="index"></span></div>
+                                        <div class="text-xs text-doc-muted font-mono mt-1">Prompt Phase <span
+                                                x-text="index"></span></div>
                                     </div>
-                                    <button @click="copyPrompt(prompt.content, index)" 
-                                            class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
-                                            :class="copiedIndex === index ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-doc-bg border border-doc-border text-doc-muted hover:text-white hover:border-doc-muted'">
-                                        <span class="material-icons-round text-base" x-text="copiedIndex === index ? 'check' : 'content_copy'"></span>
+                                    <button @click="copyPrompt(prompt.content, index)"
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200"
+                                        :class="copiedIndex === index ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-doc-bg border border-doc-border text-doc-muted hover:text-white hover:border-doc-muted'">
+                                        <span class="material-icons-round text-base"
+                                            x-text="copiedIndex === index ? 'check' : 'content_copy'"></span>
                                         <span x-text="copiedIndex === index ? 'Copiado!' : 'Copiar Prompt'"></span>
                                     </button>
                                 </div>
-                                
+
                                 <div class="p-0 group relative">
                                     <pre><code class="language-markdown block p-6 overflow-x-auto text-sm leading-relaxed" x-text="prompt.content"></code></pre>
                                 </div>
@@ -216,7 +270,8 @@
 
             <!-- FOOTER -->
             <footer class="border-t border-doc-border pt-10 pb-20 text-center">
-                <p class="text-doc-muted text-sm">Generated by <span class="text-doc-text font-medium">Senior Technical Writer Agent</span></p>
+                <p class="text-doc-muted text-sm">Generated by <span class="text-doc-text font-medium">Senior Technical
+                        Writer Agent</span></p>
                 <p class="text-doc-muted text-xs mt-2">&copy; 2023 Notion Clone Documentation</p>
             </footer>
 
@@ -224,15 +279,19 @@
     </main>
 
     <!-- MOBILE MENU OVERLAY -->
-    <div x-show="mobileMenuOpen" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] md:hidden" x-transition.opacity>
-        <div class="absolute right-0 top-0 bottom-0 w-64 bg-doc-surface border-l border-doc-border p-6 shadow-2xl" @click.outside="mobileMenuOpen = false">
+    <div x-show="mobileMenuOpen" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] md:hidden"
+        x-transition.opacity>
+        <div class="absolute right-0 top-0 bottom-0 w-64 bg-doc-surface border-l border-doc-border p-6 shadow-2xl"
+            @click.outside="mobileMenuOpen = false">
             <div class="flex justify-between items-center mb-8">
                 <span class="font-bold text-lg">Menú</span>
-                <button @click="mobileMenuOpen = false" class="text-doc-muted"><span class="material-icons-round">close</span></button>
+                <button @click="mobileMenuOpen = false" class="text-doc-muted"><span
+                        class="material-icons-round">close</span></button>
             </div>
             <nav class="space-y-2">
                 <template x-for="item in navItems" :key="item.id">
-                    <a :href="'#' + item.id" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-lg text-doc-text hover:bg-white/5">
+                    <a :href="'#' + item.id" @click="mobileMenuOpen = false"
+                        class="block px-4 py-3 rounded-lg text-doc-text hover:bg-white/5">
                         <span x-text="item.label"></span>
                     </a>
                 </template>
@@ -243,7 +302,8 @@
     <!-- SCRIPTS & DATA -->
     <!-- PRISM JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
     <script>
         // ==========================================
@@ -254,11 +314,11 @@
             title: "Notion V28 (Nuclear Sortable Fix)",
             description: "Un clon de Notion robusto y local-first construido con Alpine.js y Tailwind. Incluye sistema de bloques drag-and-drop, gestión de workspaces y marketplace de temas conectado a GitHub.",
             stack: [
-                "Alpine.js (Reactivity)", 
-                "Tailwind CSS (Styling)", 
-                "Sortable.js (DnD)", 
-                "Octokit (GitHub API)", 
-                "Phosphor Icons", 
+                "Alpine.js (Reactivity)",
+                "Tailwind CSS (Styling)",
+                "Sortable.js (DnD)",
+                "Octokit (GitHub API)",
+                "Phosphor Icons",
                 "Material Design 3"
             ],
             ias: ["Gemini Pro 3.0"],
@@ -289,6 +349,10 @@
                 {
                     title: "🛠️ V4: Nuclear Fixes & Optimizaciones",
                     content: "Dedica esta versión a pulir y estabilizar el proyecto. Soluciona los problemas críticos de inicialización (ReferenceError) asegurando la carga correcta de Alpine.js y los scripts. Aplica una estrategia 'Nuclear' para resolver conflictos graves entre Alpine y SortableJS, garantizando un drag-and-drop fluido. Realiza optimizaciones para móviles, adaptando la barra lateral y el rendimiento visual (eliminando efectos costosos como el desenfoque), y corrige errores de lógica en la navegación y el filtrado de búsquedas para ofrecer una experiencia de usuario sólida y sin fallos."
+                },
+                {
+                    title: "🐛 Hotfix: Duplicate Identifier",
+                    content: "Corrige el error de compilación 'Identifier SpotlightCard has already been declared' en App.jsx. Se eliminó la definición local duplicada del componente SpotlightCard, ya que se importa correctamente desde ./components/UI."
                 }
             ]
         };
@@ -334,13 +398,14 @@
                         observer.observe(section);
                     });
                 },
-                
+
                 // Añadimos una función vacía por seguridad por si Alpine
                 // intenta buscarla en algún renderizado residual,
                 // aunque al quitar el atributo del HTML ya no debería llamarse.
-                onScroll() {}
+                onScroll() { }
             }));
         });
     </script>
 </body>
+
 </html>

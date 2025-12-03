@@ -25,14 +25,7 @@ import { SpotlightCard, FancyTabs, Modal, FancyText } from './components/UI';
 // Constants
 const API_ENDPOINTS = { MARKET: "/api/market", AI: "/api/generar-pagina", UPLOAD: "/api/upload" };
 
-// Spotlight Card Component
-function SpotlightCard({ children, className = "", onClick }) {
-    return (
-        <div onClick={onClick} className={`relative overflow-hidden bg-white border border-zinc-200 rounded-xl hover:shadow-md transition-all ${className}`}>
-            {children}
-        </div>
-    );
-}
+
 
 // Landing Page Component
 function LandingPage({ onLogin }) {
