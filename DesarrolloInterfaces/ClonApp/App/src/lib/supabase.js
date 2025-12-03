@@ -13,18 +13,18 @@ if (supabaseUrl && supabaseAnonKey) {
 export { supabase };
 
 export const AuthService = {
-    login: async () => {
+    signInWithGoogle: async () => {
         if (supabase) {
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin // Vite handles routing
+                    redirectTo: window.location.origin
                 }
             });
             if (error) throw error;
             return data;
         } else {
-            // Fallback Mock
+            // Fallback Mock for Google
             await new Promise(resolve => setTimeout(resolve, 1000));
             const mockUser = {
                 id: "user-mock",
@@ -36,6 +36,41 @@ export const AuthService = {
             };
             localStorage.setItem('notion_mock_user', JSON.stringify(mockUser));
             return { user: mockUser };
+        }
+    },
+    signInWithPassword: async (email, password) => {
+        if (supabase) {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+            if (error) throw error;
+            return data;
+        } else {
+            // Mock Email Login
+            await new Promise(resolve => setTimeout(resolve, 800));
+            if (email === "demo@ejemplo.com" && password === "demo") {
+                const mockUser = {
+                    id: "user-mock",
+                    email: "demo@ejemplo.com",
+                    user_metadata: { full_name: "Usuario Demo" }
+                };
+                localStorage.setItem('notion_mock_user', JSON.stringify(mockUser));
+                return { user: mockUser };
+            }
+            throw new Error("Credenciales inválidas (Mock: usa demo@ejemplo.com / demo)");
+        }
+    },
+    signUp: async (email, password) => {
+        if (supabase) {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password
+            });
+            if (error) throw error;
+            return data;
+        } else {
+            throw new Error("El registro requiere conexión real a Supabase.");
         }
     },
     logout: async () => {

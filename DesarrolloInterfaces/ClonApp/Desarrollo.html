@@ -327,7 +327,9 @@
                 { title: "Workspaces", desc: "Gestión completa de espacios de trabajo: crear, renombrar, eliminar y cambiar entre múltiples contextos.", icon: "workspaces" },
                 { title: "Assets Market", desc: "Conexión real a la API de GitHub para descargar temas, fuentes y portadas desde un repositorio remoto.", icon: "storefront" },
                 { title: "UI Reactiva", desc: "Interfaz completamente adaptativa (Mobile/Desktop) con Sidebar colapsable y transiciones suaves.", icon: "devices" },
-                { title: "Búsqueda Avanzada", desc: "Modal de búsqueda global con filtros por workspace y filtrado en tiempo real.", icon: "search" }
+                { title: "UI Reactiva", desc: "Interfaz completamente adaptativa (Mobile/Desktop) con Sidebar colapsable y transiciones suaves.", icon: "devices" },
+                { title: "Búsqueda Avanzada", desc: "Modal de búsqueda global con filtros por workspace y filtrado en tiempo real.", icon: "search" },
+                { title: "Auth System", desc: "Sistema de autenticación híbrido (Email/Password + Google OAuth) con soporte para Supabase y modo Mock local.", icon: "lock" }
             ],
             prompts: [
                 {
@@ -353,6 +355,10 @@
                 {
                     title: "🐛 Hotfix: Duplicate Identifier",
                     content: "Corrige el error de compilación 'Identifier SpotlightCard has already been declared' en App.jsx. Se eliminó la definición local duplicada del componente SpotlightCard, ya que se importa correctamente desde ./components/UI."
+                },
+                {
+                    title: "🔐 V5: Auth System & Login UI",
+                    content: "Implementa el sistema de login completo. Crea una interfaz de usuario moderna para el LandingPage con formulario de Email/Password y botón de Google OAuth. Actualiza `AuthService` en `supabase.js` para soportar `signInWithPassword` y `signUp`, manteniendo la compatibilidad con el modo Mock para desarrollo local sin conexión."
                 }
             ]
         };
