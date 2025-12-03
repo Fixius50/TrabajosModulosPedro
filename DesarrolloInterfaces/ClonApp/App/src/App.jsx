@@ -7,7 +7,7 @@ import {
     Wand2, Loader2, LayoutTemplate, Bell, ChevronsLeft, CreditCard, LogOut,
     ChevronRight, UploadCloud, Command, FolderOpen, Camera, PlusCircle, Download, FileJson,
     Smile, MessageSquare, ImagePlus, Archive, RefreshCcw, CornerDownLeft, Clock,
-    LayoutGrid, Package, Undo2, Filter, Quote, Minus, Info, ListOrdered,
+    LayoutGrid, Package, Undo2, Filter, Quote, Minus, Info, ListOrdered, Trash,
     Star as StarIcon, Link as LinkIcon, Copy as CopyIcon, Edit2 as EditIcon
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -140,7 +140,6 @@ function MainApp({ session, onLogout }) {
             if (restored && actions.internalSetters) {
                 // The store initializes from localStorage, so if restoreBackup updated localStorage, 
                 // we might need to force a reload or re-read. 
-                // However, useLocalStorage hook listens to window events or we can manually set.
                 // Ideally, we should update the state directly.
                 const ws = JSON.parse(localStorage.getItem('notion_v82_ws'));
                 const th = JSON.parse(localStorage.getItem('notion_v82_themes'));
@@ -158,6 +157,41 @@ function MainApp({ session, onLogout }) {
             }
         }
     }, [session, actions.internalSetters]);
+
+    const fetchMarketData = async () => {
+        setLoadingMarket(true);
+        try {
+            // Simulate dynamic API call
+            await utils.delay(800);
+            const mockApiResponse = [
+                { name: 'medieval-theme.css', url: 'stylessApp/medieval-theme.css', type: 'css' },
+                { name: 'gaming-theme.css', url: 'stylessApp/gaming-theme.css', type: 'css' },
+                { name: 'rock-metal-theme.css', url: 'stylessApp/rock-metal-theme.css', type: 'css' },
+                { name: 'default-theme.css', url: 'stylessApp/default-theme.css', type: 'css' }
+            ];
+
+            const styles = mockApiResponse.map(f => {
+                const id = f.name.replace('.css', '');
+                return {
+                    id: id,
+                    name: id.charAt(0).toUpperCase() + id.slice(1).replace('-theme', '').replace('-', ' '),
+                    author: 'Fixius50',
+                    type: 'css',
+                    url: f.url,
+                    colors: id.includes('medieval') ? { bg: '#f3e8c8', text: '#1a0f08', sidebar: '#26160c' } :
+                        id.includes('gaming') ? { bg: '#09090b', text: '#ffffff', sidebar: '#000000' } :
+                            id.includes('rock') ? { bg: '#1c1c1c', text: '#e0e0e0', sidebar: '#111111' } :
+                                { bg: '#ffffff', text: '#000000', sidebar: '#f0f0f0' }
+                };
+            });
+
+            setMarketData({
+                styles: styles,
+                fonts: [],
+                covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600"]
+            });
+        } catch { setMarketData({ styles: [], fonts: [], covers: [] }); } finally { setLoadingMarket(false); }
+    };
 
     // Helpers
     const showNotify = (msg) => {
@@ -274,8 +308,68 @@ function MainApp({ session, onLogout }) {
                 </header>
 
                 {/* Editor Area */}
+                {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto fancy-scroll relative">
-                    {activePage ? (
+                    {ui.currentView === 'home' && (() => {
+                        const visiblePages = activeWorkspace?.pages.filter(p => !p.isDeleted && !p.inInbox) || [];
+                        return visiblePages.length === 0 ? (
+                            <div className="max-w-2xl mx-auto h-full flex flex-col items-center justify-center p-8">
+                                <motion.div initial={{ scale: 0.8, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", duration: 0.8 }} className="text-center">
+                                    <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="text-6xl mb-6">✨</motion.div>
+                                    <h2 className="text-3xl font-bold mb-3 text-current">Empecemos a crear una página</h2>
+                                    <p className="text-zinc-500 mb-8 max-w-md">Crea tu primera página y comienza a organizar tus ideas, proyectos y notas.</p>
+                                    <motion.button onClick={() => { const id = actions.addPage(); actions.setActivePageId(id); setUi(p => ({ ...p, currentView: 'page' })); }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-black transition-colors flex items-center gap-2 mx-auto shadow-lg"><Plus size={18} /> Crear primera página</motion.button>
+                                </motion.div>
+                            </div>
+                        ) : (
+                            <div className="max-w-6xl mx-auto py-12 px-6">
+                                <div className="mb-8"><h1 className="text-2xl font-bold mb-2 text-current">Hola, {userProfile.name}</h1><p className="text-zinc-500">Continúa donde lo dejaste</p></div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {visiblePages.slice(0, 12).map(page => (
+                                        <motion.div key={page.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, scale: 1.02 }} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }} className="bg-white border border-zinc-200 rounded-lg overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all">
+                                            <div className="h-32 relative" style={{ background: page.cover?.includes('http') ? 'transparent' : (page.cover || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)') }}>{page.cover?.includes('http') && <img src={page.cover} className="w-full h-full object-cover" />}</div>
+                                            <div className="p-4"><div className="flex items-start gap-3"><div className="text-3xl shrink-0">{page.icon || '📄'}</div><div className="flex-1 min-w-0"><h3 className="font-semibold text-zinc-900 truncate mb-1">{page.title || 'Sin título'}</h3><p className="text-xs text-zinc-400">Editado {formatDistanceToNow(new Date(page.updatedAt))} ago</p></div></div></div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {ui.currentView === 'inbox' && (
+                        <div className="max-w-3xl mx-auto py-12 px-6">
+                            <div className="flex items-center justify-between mb-8"><h1 className="text-2xl font-bold text-current flex items-center gap-2"><Inbox size={24} /> Bandeja de Entrada</h1>{inboxPages.length > 0 && (<button onClick={() => { if (confirm("¿Estás seguro de que quieres borrar todo permanentemente?")) actions.emptyInbox(); }} className="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2"><Trash size={14} /> Borrar todo</button>)}</div>
+                            {inboxPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">📬</div>No tienes notificaciones.</div> : (<div className="grid gap-4">{inboxPages.map(page => (<SpotlightCard key={page.id} className="p-4 flex items-center justify-between cursor-pointer" onClick={() => { actions.updatePage(page.id, { inInbox: false }); }}><div className="flex items-center gap-4"><div className="text-2xl">{page.icon}</div><div><div className="font-bold text-zinc-800">{page.title}</div><div className="text-xs text-zinc-500">{formatDistanceToNow(new Date(page.updatedAt))} ago</div></div></div><div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); actions.deletePage(page.id); }} className="p-2 hover:bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600" title="Eliminar"><X size={16} /></button></div></SpotlightCard>))}</div>)}
+                        </div>
+                    )}
+
+                    {ui.currentView === 'trash' && (
+                        <div className="max-w-3xl mx-auto py-12 px-6">
+                            <div className="flex items-center justify-between mb-8"><h1 className="text-2xl font-bold text-current flex items-center gap-2"><Trash size={24} /> Papelera</h1>{trashPages.length > 0 && (<button onClick={() => { if (confirm("¿Estás seguro de que quieres vaciar la papelera permanentemente?")) actions.emptyTrash(); }} className="text-red-500 hover:bg-red-50 px-3 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-2"><Trash size={14} /> Vaciar papelera</button>)}</div>
+                            <p className="text-sm opacity-60 mb-6">Las páginas aquí pueden ser restauradas o eliminadas para siempre.</p>
+                            {trashPages.length === 0 ? <div className="text-center py-12 opacity-50"><div className="mb-2 text-4xl">🗑️</div>Papelera vacía.</div> : (<div className="grid gap-3">{trashPages.map(page => (<div key={page.id} className="p-3 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3 opacity-60"><div className="text-lg">{page.icon || <FileText size={16} />}</div><div><div className="font-medium text-sm text-zinc-900">{page.title || 'Sin título'}</div><div className="text-xs text-zinc-500">Borrado {formatDistanceToNow(new Date(page.deletedAt || new Date()))} ago</div></div></div><div className="flex gap-2"><button onClick={() => { actions.restorePage(page.id); showNotify("Página restaurada"); }} className="flex items-center gap-1 bg-zinc-100 text-zinc-700 text-xs px-3 py-1.5 rounded hover:bg-zinc-200"><Undo2 size={12} /> Restaurar</button><button onClick={() => { if (confirm("¿Borrar definitivamente?")) actions.permanentDeletePage(page.id); }} className="p-1.5 text-red-400 hover:bg-red-50 rounded"><Trash size={14} /></button></div></div>))}</div>)}
+                        </div>
+                    )}
+
+                    {ui.currentView === 'settings' && (
+                        <div className="flex h-full">
+                            <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => { setUi(p => ({ ...p, settingsSection: 'themes' })); fetchMarketData(); }} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button><button onClick={() => { setUi(p => ({ ...p, settingsSection: 'marketplace' })); fetchMarketData(); }} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'marketplace' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Marketplace</button></div>
+                            <div className="flex-1 overflow-y-auto px-12 py-12">
+                                {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <Camera size={32} className="text-zinc-300" />}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({ ...p, name: e.target.value }))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors" /></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed" /></div></div></div><button onClick={async () => { BackupService.saveBackup(userProfile.email); await AuthService.logout(); BackupService.clearLocalData(); window.location.reload(); }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button></div>)}
+                                {ui.settingsSection === 'themes' && (
+                                    <div className="max-w-2xl animate-in fade-in duration-300">
+                                        <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Apariencia</h1>
+                                        <div className="space-y-3">
+                                            <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div><div><div className="font-bold text-sm text-zinc-900">stylessApp (Default)</div><div className="text-xs text-zinc-500">Tema original (Claro)</div></div></div><button onClick={() => actions.setActiveThemeId('default')} disabled={activeThemeId === 'default'} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === 'default' ? "Activo" : "Aplicar"}</button></div>
+                                            {marketData.styles.map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {ui.currentView === 'page' && (activePage ? (
                         <div className="max-w-3xl mx-auto px-4 py-12 pb-32">
                             {/* Cover & Icon */}
                             <div className="group relative mb-8">
@@ -306,7 +400,7 @@ function MainApp({ session, onLogout }) {
                             <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4"><FileText size={32} /></div>
                             <p>Selecciona o crea una página</p>
                         </div>
-                    )}
+                    ))}
                 </div>
             </main>
 
@@ -322,9 +416,13 @@ function MainApp({ session, onLogout }) {
 
             {/* Context Menu */}
             {contextMenu.isOpen && (
-                <div className="fixed z-[100] bg-white border border-zinc-200 rounded-lg shadow-lg py-1 w-48" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                    <button onClick={() => { actions.duplicatePage(contextMenu.pageId); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-1.5 text-sm hover:bg-zinc-100 flex items-center gap-2"><CopyIcon size={14} /> Duplicar</button>
-                    <button onClick={() => { actions.deletePage(contextMenu.pageId); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-1.5 text-sm hover:bg-zinc-100 text-red-600 flex items-center gap-2"><Trash size={14} /> Eliminar</button>
+                <div className="fixed z-[100] bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl py-1 w-56 text-zinc-200 overflow-hidden" style={{ top: contextMenu.y, left: contextMenu.x }}>
+                    <button onClick={() => { showNotify("Añadido a favoritos"); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><StarIcon size={14} /> Añadir a favoritos</button>
+                    <button onClick={() => { navigator.clipboard.writeText(window.location.href); showNotify("Enlace copiado"); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><LinkIcon size={14} /> Copiar enlace</button>
+                    <button onClick={() => { actions.setActivePageId(contextMenu.pageId); setUi(p => ({ ...p, currentView: 'page' })); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><EditIcon size={14} /> Renombrar</button>
+                    <button onClick={() => { actions.duplicatePage(contextMenu.pageId); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><CopyIcon size={14} /> Duplicar</button>
+                    <div className="h-px bg-zinc-700 my-1" />
+                    <button onClick={() => { actions.deletePage(contextMenu.pageId); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-900/30 text-red-400 flex items-center gap-2 transition-colors"><Trash size={14} /> Eliminar</button>
                 </div>
             )}
 
