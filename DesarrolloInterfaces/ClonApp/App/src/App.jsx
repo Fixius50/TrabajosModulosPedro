@@ -8,7 +8,7 @@ import {
     ChevronRight, UploadCloud, Command, FolderOpen, Camera, PlusCircle, Download, FileJson,
     Smile, MessageSquare, ImagePlus, Archive, RefreshCcw, CornerDownLeft, Clock,
     LayoutGrid, Package, Undo2, Filter, Quote, Minus, Info, ListOrdered, Trash,
-    Star as StarIcon, Link as LinkIcon, Copy as CopyIcon, Edit2 as EditIcon
+    Star as StarIcon, Link as LinkIcon, Copy as CopyIcon, Edit2 as EditIcon, Image as ImageIcon, Calendar
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,6 +24,15 @@ import { SpotlightCard, FancyTabs, Modal, FancyText } from './components/UI';
 
 // Constants
 const API_ENDPOINTS = { MARKET: "/api/market", AI: "/api/generar-pagina", UPLOAD: "/api/upload" };
+
+// Spotlight Card Component
+function SpotlightCard({ children, className = "", onClick }) {
+    return (
+        <div onClick={onClick} className={`relative overflow-hidden bg-white border border-zinc-200 rounded-xl hover:shadow-md transition-all ${className}`}>
+            {children}
+        </div>
+    );
+}
 
 // Landing Page Component
 function LandingPage({ onLogin }) {
@@ -82,7 +91,7 @@ function LandingPage({ onLogin }) {
 
 // Main App Component
 function MainApp({ session, onLogout }) {
-    const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId } = useAppStore();
+    const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, activeFontId, actions, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId } = useAppStore();
 
     // UI State
     const [ui, setUi] = useState({
@@ -110,7 +119,7 @@ function MainApp({ session, onLogout }) {
 
     const [showComments, setShowComments] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchFilters, setSearchFilters] = useState({ scope: 'current', sort: 'newest' });
+    const [searchFilters, setSearchFilters] = useState({ scope: 'all', sort: 'newest', date: 'any' });
     const [aiPrompt, setAiPrompt] = useState("");
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [marketData, setMarketData] = useState({ styles: [], fonts: [], covers: [] });
@@ -163,14 +172,21 @@ function MainApp({ session, onLogout }) {
         try {
             // Simulate dynamic API call
             await utils.delay(800);
-            const mockApiResponse = [
+            const mockThemes = [
                 { name: 'medieval-theme.css', url: 'stylessApp/medieval-theme.css', type: 'css' },
                 { name: 'gaming-theme.css', url: 'stylessApp/gaming-theme.css', type: 'css' },
                 { name: 'rock-metal-theme.css', url: 'stylessApp/rock-metal-theme.css', type: 'css' },
                 { name: 'default-theme.css', url: 'stylessApp/default-theme.css', type: 'css' }
             ];
 
-            const styles = mockApiResponse.map(f => {
+            const mockTemplates = [
+                { id: 'tpl-1', name: 'Plan de Marketing', description: 'Estrategia completa para Q4', icon: '📈', blocks: [{ type: 'h1', content: 'Plan de Marketing' }, { type: 'todo', content: 'Definir KPIs' }] },
+                { id: 'tpl-2', name: 'Roadmap de Producto', description: 'Planificación trimestral', icon: '🗺️', blocks: [{ type: 'h1', content: 'Roadmap' }, { type: 'h2', content: 'Q1 Goals' }] },
+                { id: 'tpl-3', name: 'Diario Personal', description: 'Reflexiones y gratitud', icon: '📔', blocks: [{ type: 'h1', content: 'Diario' }, { type: 'quote', content: 'Querido diario...' }] },
+                { id: 'tpl-4', name: 'Meeting Notes', description: 'Plantilla para reuniones', icon: '📝', blocks: [{ type: 'h1', content: 'Reunión de Equipo' }, { type: 'h3', content: 'Asistentes' }] }
+            ];
+
+            const styles = mockThemes.map(f => {
                 const id = f.name.replace('.css', '');
                 return {
                     id: id,
@@ -187,10 +203,11 @@ function MainApp({ session, onLogout }) {
 
             setMarketData({
                 styles: styles,
+                templates: mockTemplates,
                 fonts: [],
                 covers: ["https://images.unsplash.com/photo-1497436072909-60f360e1d4b0?w=600"]
             });
-        } catch { setMarketData({ styles: [], fonts: [], covers: [] }); } finally { setLoadingMarket(false); }
+        } catch { setMarketData({ styles: [], templates: [], fonts: [], covers: [] }); } finally { setLoadingMarket(false); }
     };
 
     // Helpers
@@ -208,6 +225,13 @@ function MainApp({ session, onLogout }) {
         else if (activeWorkspace) activeWorkspace.pages.forEach(p => { if (!p.isDeleted) pagesToSearch.push({ ...p, workspaceName: activeWorkspace.name, workspaceId: activeWorkspace.id }); });
         let results = pagesToSearch;
         if (searchQuery.trim()) results = results.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        // Date Filter
+        const now = new Date();
+        if (searchFilters.date === 'today') results = results.filter(p => new Date(p.updatedAt) >= new Date(now.setHours(0, 0, 0, 0)));
+        else if (searchFilters.date === 'week') results = results.filter(p => new Date(p.updatedAt) >= new Date(now.setDate(now.getDate() - 7)));
+        else if (searchFilters.date === 'month') results = results.filter(p => new Date(p.updatedAt) >= new Date(now.setMonth(now.getMonth() - 1)));
+
         results.sort((a, b) => searchFilters.sort === 'newest' ? new Date(b.updatedAt) - new Date(a.updatedAt) : searchFilters.sort === 'oldest' ? new Date(a.updatedAt) - new Date(b.updatedAt) : a.title.localeCompare(b.title));
         return results;
     }, [searchQuery, activeWorkspace, workspaces, searchFilters]);
@@ -324,11 +348,8 @@ function MainApp({ session, onLogout }) {
                             <div onClick={() => actions.addPage()} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Plus size={14} /> <span>Nueva página</span>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
-                                <LayoutTemplate size={14} /> <span>Plantillas</span>
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
-                                <Download size={14} /> <span>Importar</span>
+                            <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, marketplace: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <Package size={14} /> <span>Marketplace</span>
                             </div>
                             <div onClick={() => setUi(p => ({ ...p, currentView: 'trash' }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Trash size={14} /> <span>Papelera</span>
@@ -500,6 +521,21 @@ function MainApp({ session, onLogout }) {
                         <Search className="absolute left-3 top-2.5 text-zinc-400" size={18} />
                         <input type="text" placeholder="Buscar páginas..." className="w-full pl-10 pr-4 py-2 bg-zinc-100 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} autoFocus />
                     </div>
+                    <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar">
+                        <button onClick={() => setSearchFilters(p => ({ ...p, scope: p.scope === 'all' ? 'current' : 'all' }))} className={clsx("px-3 py-1 rounded-full text-xs border flex items-center gap-1 shrink-0", searchFilters.scope === 'current' ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "border-zinc-200 text-zinc-500")}>
+                            {searchFilters.scope === 'all' ? <Globe size={12} /> : <FileText size={12} />}
+                            {searchFilters.scope === 'all' ? 'Todo el workspace' : 'Página actual'}
+                        </button>
+                        <button onClick={() => setSearchFilters(p => ({ ...p, date: p.date === 'any' ? 'week' : p.date === 'week' ? 'month' : 'any' }))} className={clsx("px-3 py-1 rounded-full text-xs border flex items-center gap-1 shrink-0", searchFilters.date !== 'any' ? "bg-indigo-50 border-indigo-200 text-indigo-700" : "border-zinc-200 text-zinc-500")}>
+                            <Calendar size={12} />
+                            {searchFilters.date === 'any' ? 'Cualquier fecha' : searchFilters.date === 'today' ? 'Hoy' : searchFilters.date === 'week' ? 'Última semana' : 'Último mes'}
+                        </button>
+                        <select value={searchFilters.sort} onChange={(e) => setSearchFilters(p => ({ ...p, sort: e.target.value }))} className="px-3 py-1 rounded-full text-xs border border-zinc-200 text-zinc-500 bg-transparent outline-none shrink-0">
+                            <option value="newest">Más recientes</option>
+                            <option value="oldest">Más antiguos</option>
+                            <option value="alpha">A-Z</option>
+                        </select>
+                    </div>
                     <div className="space-y-1 max-h-[60vh] overflow-y-auto">
                         {filteredPages.map(page => (
                             <div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, modals: { ...p.modals, search: false } })); }} className="flex items-center gap-3 p-2 hover:bg-zinc-100 rounded-lg cursor-pointer">
@@ -588,6 +624,54 @@ function MainApp({ session, onLogout }) {
                     </div>
                 </div>
             )}
+
+            {/* Marketplace Modal */}
+            <Modal isOpen={ui.modals.marketplace} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, marketplace: false } }))} title="Marketplace">
+                <div className="flex flex-col h-[80vh]">
+                    <div className="p-4 border-b border-zinc-100 flex gap-4">
+                        <button onClick={() => setUi(p => ({ ...p, marketTab: 'themes' }))} className={clsx("px-4 py-2 rounded-lg text-sm font-medium transition-colors", ui.marketTab === 'themes' ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-100")}>Temas</button>
+                        <button onClick={() => setUi(p => ({ ...p, marketTab: 'templates' }))} className={clsx("px-4 py-2 rounded-lg text-sm font-medium transition-colors", ui.marketTab === 'templates' ? "bg-zinc-900 text-white" : "text-zinc-500 hover:bg-zinc-100")}>Plantillas</button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-6">
+                        {loadingMarket ? (
+                            <div className="flex items-center justify-center h-full text-zinc-400 gap-2"><Loader2 className="animate-spin" /> Cargando marketplace...</div>
+                        ) : (
+                            <>
+                                {ui.marketTab === 'themes' && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {marketData.styles.map(t => (
+                                            <div key={t.id} className="border border-zinc-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer group" onClick={() => { actions.setActiveThemeId(t.id); setUi(p => ({ ...p, modals: { ...p.modals, marketplace: false } })); }}>
+                                                <div className="h-32 rounded-md mb-3 flex items-center justify-center text-4xl font-bold text-white shadow-inner relative overflow-hidden" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>
+                                                    Aa
+                                                    {activeThemeId === t.id && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Check size={32} className="text-white" /></div>}
+                                                </div>
+                                                <div className="font-bold text-zinc-900">{t.name}</div>
+                                                <div className="text-xs text-zinc-500">Por {t.author}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {ui.marketTab === 'templates' && (
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {marketData.templates?.map(t => (
+                                            <div key={t.id} className="border border-zinc-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer flex items-center gap-4" onClick={() => { actions.addPage({ title: t.name, icon: t.icon, blocks: t.blocks }); setUi(p => ({ ...p, modals: { ...p.modals, marketplace: false } })); showNotify("Plantilla aplicada"); }}>
+                                                <div className="w-12 h-12 bg-zinc-100 rounded-lg flex items-center justify-center text-2xl">{t.icon}</div>
+                                                <div className="flex-1">
+                                                    <div className="font-bold text-zinc-900">{t.name}</div>
+                                                    <div className="text-sm text-zinc-500">{t.description}</div>
+                                                </div>
+                                                <button className="px-3 py-1.5 bg-zinc-900 text-white text-xs rounded hover:bg-black">Usar</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </Modal>
 
             {/* Create Workspace Modal */}
             <Modal isOpen={ui.modals.createWorkspace} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))} title="Crear Workspace">
