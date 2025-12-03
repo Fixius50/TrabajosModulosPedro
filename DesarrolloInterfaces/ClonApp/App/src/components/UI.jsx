@@ -39,14 +39,14 @@ export const FancyTabs = ({ tabs, activeTab, onTabChange }) => (
     </div>
 );
 
-export const Modal = ({ isOpen, onClose, title, children, transparent = false }) => {
+export const Modal = ({ isOpen, onClose, title, children, transparent = false, className = "max-w-lg" }) => {
     if (!isOpen) return null;
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]" />
-                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className={clsx("fixed inset-0 m-auto h-fit max-h-[85vh] z-[70] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col", transparent ? "bg-transparent shadow-none" : "bg-white border border-zinc-200")}>
+                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className={clsx("fixed inset-0 m-auto h-fit max-h-[85vh] z-[70] w-full rounded-xl shadow-2xl overflow-hidden flex flex-col", transparent ? "bg-transparent shadow-none" : "bg-white border border-zinc-200", className)}>
                         {title && <div className="flex justify-between items-center p-4 border-b border-zinc-100 shrink-0 bg-white"><h2 className="text-sm font-semibold text-zinc-700">{title}</h2><button onClick={onClose} className="p-1 hover:bg-zinc-100 rounded text-zinc-400 hover:text-zinc-600 transition-colors"><X size={18} /></button></div>}
                         <div className="flex-1 overflow-y-auto">
                             {children}
