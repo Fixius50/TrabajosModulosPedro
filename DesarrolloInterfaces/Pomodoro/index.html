@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Pomodoro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Teko:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Pomodoro.css">
+</head>
+<script src="Pomodoro.js"></script>
+<body>
+    <img src="https://i.gifer.com/origin/85/85ea721e355c6e83141f12253a633364_w200.gif" class="corner-gif top-left-gif" alt="Spinning coin">
+    <img src="https://i.gifer.com/origin/85/85ea721e355c6e83141f12253a633364_w200.gif" class="corner-gif top-right-gif" alt="Spinning coin">
+    <img src="https://i.gifer.com/origin/85/85ea721e355c6e83141f12253a633364_w200.gif" class="corner-gif bottom-left-gif" alt="Spinning coin">
+    <img src="https://i.gifer.com/origin/85/85ea721e355c6e83141f12253a633364_w200.gif" class="corner-gif bottom-right-gif" alt="Spinning coin">
+
+
+    <div id="custom-alert" class="hidden"></div>
+
+    <button id="settings-toggle-btn">⚙️</button>
+    <div id="settings-panel">
+        <h3>🎨 Temas</h3>
+        <div class="theme-options">
+            <button class="theme-btn btn btn-secondary" data-theme="dark">Clásico Oscuro</button>
+            <button class="theme-btn btn btn-secondary" data-theme="light">Claro Elegante</button>
+            <button class="theme-btn btn btn-secondary" data-theme="green">Mesa de Juego</button>
+        </div>
+        <h3 style="margin-top: 2rem;">✒️ Color de Fuente</h3>
+        <div class="form-group" style="margin-bottom: 0;">
+            <input type="color" id="font-color-picker" class="form-control" style="padding: 0.2rem; height: 3rem;">
+        </div>
+        <!-- NUEVO BOTÓN PARA LA TIENDA -->
+        <h3 style="margin-top: 2rem;">💰 Tienda</h3>
+        <button id="open-shop-btn" class="btn btn-secondary" style="width: 100%;">Canjear Fichas</button>
+    </div>
+
+
+    <!-- Pantalla de Configuración Inicial -->
+    <div id="setup-container" class="card hidden">
+        <div id="resume-session-container"></div>
+        <h2>Bienvenido al Casino Pomodoro</h2>
+        
+        <div id="setup-layout">
+            <div id="top-tabs-container">
+                <div id="create-tab-btn" class="top-tab-card active">
+                    <h4>Crear Sala</h4>
+                </div>
+                <div id="join-tab-btn" class="top-tab-card">
+                    <h4>Unirse a Sala</h4>
+                </div>
+            </div>
+            
+            <div id="form-content-wrapper">
+                <div id="create-content" class="tab-pane active">
+                    <form id="create-form">
+                        <div class="form-group">
+                            <label for="player-name-create">Nombre del Jugador</label>
+                            <input type="text" id="player-name-create" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="session-title">Nombre de la Sesión</label>
+                            <input type="text" id="session-title" class="form-control" required>
+                        </div>
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="pomodoro-speed">Velocidad</label>
+                                <input type="number" id="pomodoro-speed" class="form-control" min="0.1" step="0.1" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="game-selection">Juego</label>
+                                <select id="game-selection" class="form-control">
+                                    <option value="roulette">Ruleta</option>
+                                    <option value="poker">Póker</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="chips-per-interval">Fichas Ganadas por Intervalo</label>
+                                <input type="number" id="chips-per-interval" class="form-control" min="1" value="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="chip-interval">Tiempo del Intervalo (segundos)</label>
+                                <input type="number" id="chip-interval" class="form-control" min="1" value="60" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Crear Sala</button>
+                    </form>
+                </div>
+                
+                <div id="join-content" class="tab-pane">
+                    <div class="form-group">
+                        <label for="player-name-join">Tu Nombre de Jugador</label>
+                        <input type="text" id="player-name-join" class="form-control" required>
+                    </div>
+                    <h4>Salas Públicas</h4>
+                    <div id="public-rooms-list"></div>
+                    <hr>
+                     <form id="join-form">
+                         <p>O únete con un código:</p>
+                        <div class="form-group">
+                            <label for="room-code-join">Código de la Sala</label>
+                            <input type="text" id="room-code-join" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Unirse con Código</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal del Pomodoro -->
+    <div id="pomodoro-container" class="pomodoro-container hidden">
+      <div id="pomodoro-layout">
+        <div id="main-column">
+            
+            <div class="card" id="timer-card-layout">
+                <div id="timer-main-content">
+                    <h1 id="main-title">Casino Pomodoro</h1>
+                    <h2 id="chips-display">TUS FICHAS: <span id="chips-count">0</span></h2>
+                    <div id="timer-display">00:00:00</div>
+                    <div class="controls">
+                        <button id="start-pause-btn" class="btn btn-primary">Iniciar</button>
+                        <button id="reset-btn" class="btn btn-danger" disabled>Reiniciar</button>
+                    </div>
+                </div>
+                <div id="timer-stats-column">
+                    <h3>Estadísticas</h3>
+                    <div class="stat-item">
+                        <span>Tiempo de Foco</span>
+                        <strong>00:00:00</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Fichas Ganadas</span>
+                        <strong>0</strong>
+                    </div>
+                    <div class="stat-item">
+                        <span>Racha Actual</span>
+                        <strong>0 Días</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Herramientas</h3>
+                <div class="session-controls">
+                    <button id="toggle-notes-btn" class="btn">Apuntes</button>
+                    <button id="back-to-main-btn" class="btn">Volver al Inicio</button>
+                    <button id="reset-pomodoro-btn" class="btn btn-danger">Salir de Sesión</button>
+                </div>
+            </div>
+            
+            <div id="gambling-card" class="card hidden">
+                <h3>¡Hagan sus apuestas!</h3>
+                <p>El temporizador está en pausa y tienes fichas. ¿Te sientes con suerte?</p>
+                <button id="play-game-btn" class="btn btn-primary">Jugar</button>
+            </div>
+
+            <div id="team-stats-card" class="card hidden">
+                <h3 id="team-stats-name">Estadísticas del Equipo</h3>
+                <ul>
+                    <li><strong>Tiempo Total:</strong> <span id="team-stats-time"></span></li>
+                    <li><strong>Fichas Totales:</strong> <span id="team-stats-chips"></span></li>
+                    <li><strong>Miembros:</strong> <span id="team-stats-members"></span></li>
+                </ul>
+            </div>
+            
+            <div id="notes-container" class="card hidden">
+                <div class="notes-header">
+                    <h3>Cuaderno de Apuntes</h3>
+                </div>
+                <textarea id="notes-textarea" placeholder="Escribe tus notas aquí..."></textarea>
+            </div>
+
+        </div>
+        <div id="lobby-column">
+            <div class="card">
+                <div class="lobby-section">
+                    <h3>Sala de Juego</h3>
+                    <div id="room-code"></div>
+                </div>
+
+                <div class="lobby-section">
+                    <h3>Equipos</h3>
+                     <div id="invitations-container" class="hidden">
+                        <h4>Invitaciones</h4>
+                        <ul id="invitations-list"></ul>
+                    </div>
+                     <div class="team-management form-group">
+                        <input type="text" id="team-name-input" class="form-control" placeholder="Nombre del equipo...">
+                        <button id="create-team-btn" class="btn btn-secondary">Crear</button>
+                    </div>
+                    <ul id="team-list"></ul>
+                    <div id="join-requests-container" class="hidden">
+                        <h4>Solicitudes Pendientes</h4>
+                        <ul id="join-requests-list"></ul>
+                    </div>
+                    <div id="bank-display">Banca: <span>0</span></div>
+                </div>
+                
+                <div class="lobby-section">
+                    <h3>Jugadores</h3>
+                    <div id="player-cards-container"></div>
+                    <button id="simulate-join-btn" class="btn btn-secondary" style="width:100%; margin-top: 1rem;">Añadir Jugador (Sim)</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal de la Ruleta -->
+    <div id="roulette-overlay" class="game-overlay hidden">
+        <div id="roulette-modal" class="game-modal">
+            <button id="close-roulette-btn" class="close-game-btn">&times;</button>
+            <h3>¡Hagan sus apuestas!</h3>
+            <div id="roulette-wheel-container">
+                 <div id="roulette-pointer"></div>
+                 <div id="roulette-wheel"></div>
+            </div>
+            <div id="roulette-result"></div>
+            <div class="betting-controls">
+                <label for="bet-amount-roulette" style="font-size:1.5rem;">Apuesta:</label>
+                <input type="number" id="bet-amount-roulette" class="form-control" min="1" value="1">
+            </div>
+            <div class="betting-options">
+                <button class="btn btn-red" onclick="playRoulette('red')">Rojo</button>
+                <button class="btn btn-black" onclick="playRoulette('black')">Negro</button>
+                <button class="btn btn-green" onclick="playRoulette('green')">Verde</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal del Póker -->
+    <div id="poker-overlay" class="game-overlay hidden">
+        <div id="poker-modal" class="game-modal">
+            <button id="close-poker-btn" class="close-game-btn">&times;</button>
+            <h3>Póker de Cinco Cartas</h3>
+            <div id="poker-table">
+                <div id="poker-result"></div>
+                <div id="poker-hand"></div>
+                <div class="betting-controls">
+                     <label for="bet-amount-poker" style="font-size:1.5rem;">Apuesta:</label>
+                     <input type="number" id="bet-amount-poker" class="form-control" min="1" value="1">
+                </div>
+                <div id="poker-controls">
+                    <button id="poker-deal-btn" class="btn btn-primary">Apostar y Repartir</button>
+                    <button id="poker-draw-btn" class="btn btn-secondary" disabled>Descartar</button>
+                </div>
+                <div id="poker-payouts">
+                    <strong>Tabla de Pagos:</strong> Jacks or Better (x1), Dos Pares (x2), Trío (x3), Escalera (x4), Color (x6), Full (x9), Póker (x25), Escalera de Color (x50)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVO MODAL PARA LA TIENDA -->
+    <div id="shop-overlay" class="game-overlay hidden">
+        <div id="shop-modal" class="game-modal">
+            <button id="close-shop-btn" class="close-game-btn">&times;</button>
+            <h3>Tienda de Fichas</h3>
+            <p id="exchange-rate">Tasa de cambio: 100 Fichas = 1€ (Simulado)</p>
+            <p>Tus Fichas: <span id="shop-chips-count">0</span></p>
+
+            <div class="form-group">
+                <label for="chips-to-redeem">Fichas a Canjear</label>
+                <input type="number" id="chips-to-redeem" class="form-control" min="1" value="100">
+            </div>
+
+            <p>Recibirás (aprox):</p>
+            <div id="real-money-display">1.00 €</div>
+
+            <div class="form-group">
+                <label for="bank-account">Número de Cuenta (Simulado)</label>
+                <input type="text" id="bank-account" class="form-control" placeholder="ES00 0000 0000 0000 0000 0000">
+            </div>
+            
+            <button id="redeem-chips-btn" class="btn btn-primary">Canjear Fichas</button>
+
+            <p class="disclaimer">Esto es solo una simulación. No se realizarán transferencias de dinero real.</p>
+        </div>
+    </div>
+</body>
+</html>

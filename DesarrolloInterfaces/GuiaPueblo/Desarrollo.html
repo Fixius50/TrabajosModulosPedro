@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Guía del Pueblo</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f4f4f4;
+        }
+        main {
+            flex: 1 0 auto;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #424242;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        /* Tarjetas Tecnología */
+        .tech-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .tech-card {
+            width: 12rem;
+            min-height: 15rem;
+            transition: box-shadow 0.3s ease-out;
+            border-radius: 0.5rem;
+        }
+        .tech-card:hover {
+            box-shadow: 0 0.5rem 1rem 0 rgba(0,0,0,0.2);
+        }
+        .tech-card .card-image img {
+            border-radius: 0.5rem 0.5rem 0 0;
+            background-color: #eee;
+        }
+        .tech-card .card-content {
+            padding: 1.5rem;
+        }
+
+        /* Estilos para las Pestañas y Contenido */
+        .tabs {
+            background-color: transparent;
+            margin-bottom: 2rem;
+        }
+        .tabs .tab a {
+            color: #5e35b1; /* deep-purple darken-1 */
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .tabs .tab a:hover, .tabs .tab a.active {
+            color: #4527a0; /* deep-purple darken-3 */
+            background-color: rgba(94, 53, 177, 0.1);
+        }
+        .tabs .indicator {
+            background-color: #4527a0;
+        }
+
+        /* Contenedor del contenido de cada versión */
+        .version-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            margin-top: 1rem;
+        }
+        
+        .version-content p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .screenshot-gallery {
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .screenshot-gallery h4 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #616161;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* CARRUSEL */
+        .carousel {
+            height: 400px; /* Altura aumentada para ver mejor las capturas verticales */
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Estilo para cada item individual */
+        .carousel .carousel-item {
+            width: 300px; /* Ancho ajustado para capturas tipo móvil */
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+        }
+
+        /* La imagen dentro del item */
+        .carousel .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* contain para ver la imagen entera sin recortes */
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            /* border: 1px solid #e0e0e0; Eliminado borde para mejor estética en capturas */
+            background-color: transparent;
+            pointer-events: none;
+        }
+
+        .prompt-code {
+            background-color: #263238;
+            color: #eceff1;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-wrapper deep-purple darken-2">
+            <div class="container">
+                <a href="#" class="brand-logo">Documentación: Guía del Pueblo</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <section id="tecnologias">
+                <h2><i class="material-icons" style="font-size: 2.5rem; margin-right: 1rem;">memory</i>Tecnologías Utilizadas</h2>
+                <p>Tecnologías, librerías y herramientas usadas en el código de la aplicación "Guía Interactiva".</p>
+                <div class="tech-card-container">
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/E44D26/FFFFFF?text=HTML5&font=roboto"></div><div class="card-content"><span class="card-title">HTML5</span></div></div>
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/264DE4/FFFFFF?text=CSS3&font=roboto"></div><div class="card-content"><span class="card-title">CSS3</span></div></div>
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/F0DB4F/000000?text=Vanilla+JS&font=roboto"></div><div class="card-content"><span class="card-title">Vanilla JS</span></div></div>
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/38BDF8/FFFFFF?text=Tailwind+CSS&font=roboto"></div><div class="card-content"><span class="card-title">Tailwind CSS</span></div></div>
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/4285F4/FFFFFF?text=Google+Fonts&font=roboto"></div><div class="card-content"><span class="card-title">Google Fonts</span></div></div>
+                    <div class="card tech-card"><div class="card-image"><img src="https://placehold.co/200x150/E0B620/FFFFFF?text=OMDb+API&font=roboto"></div><div class="card-content"><span class="card-title">OMDb API</span></div></div>
+                </div>
+            </section>
+
+            <div class="divider" style="margin: 3rem 0;"></div>
+
+            <section id="versiones">
+                <h2><i class="material-icons" style="font-size: 2.5rem; margin-right: 1rem;">history</i>Historial de Versiones (Prompts)</h2>
+                
+                <!-- SISTEMA DE PESTAÑAS -->
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="tabs z-depth-1">
+                            <li class="tab col s6"><a class="active" href="#version1"><i class="material-icons tiny">filter_1</i> V1: Estructura Base</a></li>
+                            <li class="tab col s6"><a href="#version2"><i class="material-icons tiny">filter_2</i> V2: Estilo Romano</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- CONTENIDO V1 -->
+                    <div id="version1" class="col s12 version-content">
+                        <p><strong>Explicación:</strong> Estructura inicial de la SPA (Single Page Application) utilizando Tailwind CSS para el diseño base y navegación por pestañas oculta con JS.</p>
+                        <strong>Prompt Utilizado:</strong>
+                        <div class="prompt-code">**Rol y Experiencia:**
+Actúa como un desarrollador web *frontend* senior experto, con al menos 15 años de experiencia, especializado en la creación de aplicaciones web robustas, eficientes y mantenibles.
+
+**Filosofía de Desarrollo (Vanilla-First):**
+Tu enfoque principal es **"vanilla-first"**. Priorizas el uso de HTML5 semántico, CSS3 moderno (Flexbox, Grid, Custom Properties) y JavaScript (ES6+). Evitas por completo el uso de *frameworks* pesados (como React, Angular, Vue, Svelte, etc.).
+
+**Uso de Librerías (Restringido):**
+1.  **Permitido:** Puedes usar librerías externas de terceros *solo* para tareas muy específicas que serían demasiado complejas o tediosas de implementar desde cero (por ejemplo, `date-fns` para manipulación avanzada de fechas, `chart.js` para gráficos complejos, o `anime.js` para animaciones de alto rendimiento).
+2.  **Contingencia:** Si una librería sugerida introduce *bugs*, tiene dependencias conflictivas o resulta ser inestable, tu deber es:
+    * Primero, intentar sustituirla por una alternativa ligera y fiable.
+    * Si no existe una alternativa viable, implementar la funcionalidad necesaria directamente en vanilla JavaScript.
+
+**Formato de Entrega (Requisito Estricto):**
+El producto final debe ser **un único archivo `index.html`**.
+* Todo el código HTML debe estar en el cuerpo del archivo.
+* Todo el código CSS debe estar autocontenido dentro de etiquetas style en el head.
+* Todo el código JavaScript debe estar autocontenido dentro de etiquetas script al final del body (justo antes de body).
+
+**Refactorización y Revisión:**
+Además de generar código nuevo, también estás capacitado para revisar y refactorizar código existente. Puedo proporcionarte bloques de código (incluso si son repetitivos o parecen "copia y pega") y tu tarea será analizarlos, limpiarlos, eliminar redundancias y optimizarlos, siempre adhiriéndote a los principios "vanilla-first" y manteniendo la funcionalidad intacta.
+
+---
+
+**Mi Solicitud:**
+
+Hacer una aplicación que muestre información sobre:
+
+Mi pueblo
+Mi barrio
+Mi Instituto
+Guía de coches
+Películas o series
+Mi país
+...
+Una especie de guía de viaje, sitios turísticos, restaurantes, deportes, …
+Tiene que tener cambio entre modo claro y oscuro.
+Se trata de practicar maquetación, apps multipantalla, cards, transiciones, ...</div>
+                        
+                        <div class="screenshot-gallery">
+                            <h4>Capturas de Pantalla (V1)</h4>
+                            <div class="carousel">
+                                <a class="carousel-item" href="#v1-1"><img src="App/v1/Captura de pantalla 2025-11-11 210056.png" alt="Captura 1"></a>
+                                <a class="carousel-item" href="#v1-2"><img src="App/v1/Captura de pantalla 2025-11-11 210124.png" alt="Captura 2"></a>
+                                <a class="carousel-item" href="#v1-3"><img src="App/v1/Captura de pantalla 2025-11-11 210135.png" alt="Captura 3"></a>
+                                <a class="carousel-item" href="#v1-4"><img src="App/v1/Captura de pantalla 2025-11-11 210144.png" alt="Captura 4"></a>
+                                <a class="carousel-item" href="#v1-5"><img src="App/v1/Captura de pantalla 2025-11-11 210153.png" alt="Captura 5"></a>
+                                <a class="carousel-item" href="#v1-6"><img src="App/v1/Captura de pantalla 2025-11-11 210201.png" alt="Captura 6"></a>
+                                <a class="carousel-item" href="#v1-7"><img src="App/v1/Captura de pantalla 2025-11-11 210221.png" alt="Captura 7"></a>
+                                <a class="carousel-item" href="#v1-8"><img src="App/v1/Captura de pantalla 2025-11-11 210236.png" alt="Captura 8"></a>
+                                <a class="carousel-item" href="#v1-9"><img src="App/v1/Captura de pantalla 2025-11-11 210241.png" alt="Captura 9"></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTENIDO V2 -->
+                    <div id="version2" class="col s12 version-content">
+                        <p><strong>Explicación:</strong> Rediseño visual completo a un estilo "Clásico/Romano". Implementación de fuentes <em>Cinzel</em> y <em>Lato</em>. Navegación experimental con formas SVG (Jarrones). Integración de la <strong>OMDb API</strong> para la sección de Cine y creación de la sección Teatro.</p>
+                        <strong>Prompt Utilizado:</strong>
+                        <div class="prompt-code">Actúa como un Desarrollador Frontend Senior y Diseñador UI/UX experto en CSS creativo y JavaScript Vanilla, adoptando una filosofía "Vanilla-First" pero permitiendo el uso estratégico de librerías ligeras. Tu objetivo es crear una Single Page Application (SPA) completa contenida en un único archivo index.html sobre el municipio de Valdemoro (Madrid), diseñada bajo una temática visual "Greco-Romana Peninsular". El stack tecnológico obligatorio incluye HTML5 semántico, Tailwind CSS vía CDN para la maquetación general, CSS personalizado en etiquetas style para efectos avanzados, Materialize CSS vía CDN únicamente para la funcionalidad del componente Carousel gestionando sus conflictos de estilo, JavaScript 100% Vanilla (ES6+) sin frameworks reactivos, iconos de Feather Icons y las fuentes de Google Fonts "Cinzel" para títulos y "Lato" para el cuerpo de texto.
+La identidad visual debe evocar la antigüedad clásica utilizando una paleta de colores específica compuesta por Oro Antiguo (#C5A059), Rojo Pompeyano (#8E352E), Azul Imperial (#2C3E50), Marfil o Mármol (#F2F0E6) y Negro para contrastes. Debes implementar texturas de fondo con ruido sutil y estilizar las tarjetas con un efecto de bloque de mármol, aplicando sombras profundas y bordes dobles dorados para simular relieves arquitectónicos. Al inicio del script, crea un objeto constante llamado APP_CONFIG para centralizar la configuración, incluyendo un placeholder para la API KEY de OMDB/TMDb y todas las URLs de las imágenes organizadas por sección, utilizando placehold.co con textos temáticos para facilitar la sustitución futura.
+Desarrolla un Header o encabezado con estilo de "Friso Romano" en azul oscuro con borde dorado que contenga el logo a la izquierda, un botón "VOLVER" que permanezca oculto en la página de inicio y regrese a ella desde otras secciones, un buscador global funcional que indexe las secciones internas y redirija al usuario, y botones de acción a la derecha para cambiar entre modo claro/oscuro y un botón de estrella para acceder a una sección secreta. Asegúrate de que la etiqueta nav de Materialize no inyecte sus estilos predeterminados, utilizando divs o reseteos CSS específicos para mantener la integridad del diseño de Tailwind.
+Para la pantalla de inicio, implementa una narrativa visual jerárquica que muestre dos "Murales" o imágenes enmarcadas como cuadros de museo representando a España y Madrid, seguidos de una tarjeta descriptiva de Valdemoro. La navegación principal debe ser un Carrusel Horizontal implementado con Materialize pero altamente personalizado mediante CSS avanzado para que las tarjetas de navegación tengan forma de Vasijas Romanas (ánforas o cráteras) utilizando border-radius asimétricos y pseudo-elementos para las asas. Este carrusel debe incluir flechas de navegación manual a los lados para desplazar los elementos paso a paso y debe reinicializarse correctamente al volver a la pantalla de inicio para evitar errores de renderizado.
+Construye las secciones internas transformando el concepto de listados simples en guías de servicios y entretenimiento. La pantalla de Servicios de Automoción debe funcionar como un directorio con pestañas estilo bloque de piedra, ofreciendo un buscador con filtros tipo select para gasolineras, talleres y concesionarios, además de una pestaña para enlaces a portales externos. La pantalla de Entretenimiento debe dividir su contenido en Cine y Teatro; la sección de Cine debe conectarse a la API de OMDB (con un fallback de datos locales robusto si falla) para mostrar carteleras reales y modales con detalles, mientras que la de Teatro mostrará una cartelera local ficticia. La pantalla de "Mi Pueblo" debe ser un grid de tarjetas de mármol con los servicios principales del Ayuntamiento y enlaces a su web oficial.
+Finalmente, implementa la pantalla secreta "Astra Valdemori", accesible desde el botón de estrella del header. Esta sección debe tener un diseño inmersivo que ocupe toda la pantalla con posicionamiento fijo, forzando un fondo negro independientemente del tema elegido. Debe incluir un GIF de fondo de una antorcha o fuego con un overlay oscuro para garantizar la legibilidad, y mostrar una leyenda épica sobre el origen mítico de Valdemoro con una tipografía cuidada. Todo el código debe ser robusto, manejando errores de carga de imágenes o APIs mediante datos de respaldo locales para asegurar que la aplicación siempre sea funcional y visualmente atractiva.</div>
+                        
+                        <div class="screenshot-gallery">
+                            <h4>Capturas de Pantalla (V2)</h4>
+                            <div class="carousel">
+                                <a class="carousel-item" href="#v2-1"><img src="App/v2/1.png"></a>
+                                <a class="carousel-item" href="#v2-2"><img src="App/v2/2.png"></a>
+                                <a class="carousel-item" href="#v2-3"><img src="App/v2/3.png"></a>
+                                <a class="carousel-item" href="#v2-4"><img src="App/v2/4.png"></a>
+                                <a class="carousel-item" href="#v2-1"><img src="App/v2/5.png"></a>
+                                <a class="carousel-item" href="#v2-2"><img src="App/v2/6.png"></a>
+                                <a class="carousel-item" href="#v2-3"><img src="App/v2/7.png"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="page-footer deep-purple darken-3">
+        <div class="container">
+            <div class="row"><div class="col s12"><p class="grey-text text-lighten-4">Proyecto de documentación.</p></div></div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuración común para todos los carruseles
+            const carouselOptions = {
+                fullWidth: false, 
+                indicators: true, 
+                dist: 0,          
+                shift: 20,        
+                padding: 20,      
+                numVisible: 5
+            };
+
+            // 1. Inicializar Tabs con lógica de RE-INICIALIZACIÓN
+            M.Tabs.init(document.querySelectorAll('.tabs'), {
+                onShow: function(tabContent) {
+                    const carouselEl = tabContent.querySelector('.carousel');
+                    if (carouselEl) {
+                        setTimeout(() => {
+                            const instance = M.Carousel.getInstance(carouselEl);
+                            if (instance) {
+                                instance.destroy();
+                            }
+                            M.Carousel.init(carouselEl, carouselOptions);
+                        }, 50);
+                    }
+                }
+            });
+            
+            // 2. Inicializar solo el carrusel visible al inicio (V1)
+            M.Carousel.init(document.querySelectorAll('.carousel'), carouselOptions);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Proyecto de Reproductor Local Multimedia con Calendario - por Roberto Monedero Alonso" />
+  <title>Reproductor Local Multimedia con Calendario</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ================== HEADER ================== -->
+  <header>
+    <div class="container">
+      <h1>🎧 Reproductor Local Multimedia con Calendario</h1>
+      <br>
+      <p class="author">Autor: Roberto Monedero Alonso</p>
+    </div>
+  </header>
+
+  <!-- ================== NAVIGATION ================== -->
+  <nav>
+    <ul>
+      <li><a href="#introduccion">Introducción</a></li>
+      <li><a href="#tecnologias">Tecnologías</a></li>
+      <li><a href="#proceso">Proceso de desarrollo</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================== INTRODUCCIÓN ================== -->
+  <section id="introduccion" class="section">
+    <div class="container">
+      <h2>Introducción</h2>
+      <p>
+        Este proyecto consiste en el desarrollo de un <strong>reproductor multimedia local</strong> que permita gestionar y reproducir música desde el propio navegador, 
+        acompañado de un <strong>calendario interactivo</strong> para organizar eventos musicales o recordatorios personales.
+      </p>
+      <p>
+        El objetivo de esta web es documentar cada paso del desarrollo, desde la idea inicial hasta la implementación final, 
+        explicando qué tecnologías se han utilizado y por qué.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================== TECNOLOGÍAS ================== -->
+  <section id="tecnologias" class="section dark">
+    <div class="container">
+      <h2>Tecnologías utilizadas</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h3>HTML5</h3>
+          <p>Estructura semántica de la página, incluyendo el uso de <code>&lt;svg&gt;</code> para gráficos dinámicos.</p>
+        </div>
+        <div class="tech-card">
+          <h3>CSS3</h3>
+          <p>Diseño moderno y adaptable (responsive) usando Flexbox, Grid, variables CSS (Custom Properties) para temas, y animaciones <code>transition</code> y <code>transform</code>.</p>
+        </div>
+        <div class="tech-card">
+          <h3>JavaScript (ES6+)</h3>
+          <p>Toda la lógica de la aplicación, manipulación del DOM, gestión de eventos y estado, y renderizado de componentes sin frameworks.</p>
+        </div>
+      </div>
+    </div>
+    <br>
+    <div class="container">
+        <div class="tech-grid">
+            <div class="tech-card">
+                <h3>IndexedDB</h3>
+                <p>Utilizado como base de datos del navegador para almacenar de forma persistente la biblioteca de sonidos, tareas, ajustes y estadísticas de escucha.</p>
+            </div>
+            <div class="tech-card">
+                <h3>Howler.js</h3>
+                <p>Librería de audio para una reproducción de sonido fiable, gestión de la pausa, reproducción, bucles y control de volumen.</p>
+            </div>
+            <div class="tech-card">
+                <h3>Day.js</h3>
+                <p>Librería ligera para la manipulación y el formato de fechas, usada para construir el calendario y el selector de meses.</p>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+      <div class="tech-grid">
+        <div class="tech-card">
+          <h3>Google Gemini PRO</h3>
+          <p>Diseño y previsualización del contendio y desarrollo de previos prototipos.</p>
+        </div>
+        <div class="tech-card">
+          <h3>Perplexity AI PRO</h3>
+          <p>Retoques y detallado para la resolución y finalización del trabajo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== PROCESO ================== -->
+  <section id="proceso" class="section">
+    <div class="container" id="contenido">
+      <h2>Proceso de desarrollo</h2>
+
+      <!-- Contenido de documentación rediseñado -->
+      <ol class="step-list">
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 1: Navegación por Menú Desplegable</h3>
+            <p>Se implementó la navegación principal como una Aplicación de Página Única (SPA). Se añadió un botón "hamburguesa" (<code>#menu-toggle-btn</code>) fijo en la esquina superior izquierda. Al hacer clic, este botón utiliza JavaScript para mostrar u ocultar el panel de navegación (<code>#sidebar-nav</code>) y un fondo superpuesto (<code>#menu-overlay</code>). El panel de navegación aparece desde debajo del botón con una animación de fundido y traslación.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 164905.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 165105.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/1/Captura de pantalla 2025-10-30 165145.png" alt="" srcset="">
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 2: Almacenamiento Persistente con IndexedDB</h3>
+            <p>Para guardar los datos del usuario (música, tareas, ajustes) de forma permanente en el navegador, se utilizó IndexedDB. La función <code>initDB</code> se encarga de crear la base de datos y los "almacenes" (object stores) necesarios: <code>sounds</code>, <code>tasks</code>, <code>settings</code> y <code>listeningLog</code>.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/2/Captura de pantalla 2025-10-30 165429.png" alt="" srcset="">
+          </div>
+        </li>
+        
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 3: Biblioteca de Sonidos y Placeholders</h3>
+            <p>Se desarrolló la pestaña "Música". La función <code>handleFileSelection</code> permite subir audios, que se guardan en IndexedDB usando <code>saveSoundToDB</code>. Al crear el sonido, los campos <code>artist</code> y <code>genre</code> se guardan como <code>''</code> (cadenas vacías). Luego, <code>renderLibraryModalContent</code> usa el atributo <code>placeholder</code> de HTML para mostrar "Artista" y "Género" como "letras fantasma" en los campos vacíos.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/3/Captura de pantalla 2025-10-30 165522.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/3/Captura de pantalla 2025-10-30 165640.png" alt="" srcset="">
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 4: Calendario Avanzado y Tareas</h3>
+            <p>El calendario se hizo interactivo. Al hacer clic en el título del mes (<code>#month-year-display</code>), <code>toggleCalendarView</code> cambia a la vista <code>renderMonthSelector</code>. Al hacer clic en un día, <code>openDayModal</code> permite añadir tareas. Las nuevas tareas se añaden dinámicamente al DOM sin recargar el modal. Cada tarea existente (<code>.task-item</code>) tiene su propio botón de adjuntar (<code>.attach-task-btn</code>) que asigna un sonido a esa tarea específica.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/4/Captura de pantalla 2025-10-30 170007.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/4/Captura de pantalla 2025-10-30 170024.png" alt="" srcset="">
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 5: Filtro de Tareas (Todas / Por Día)</h3>
+            <p>La pestaña "Tareas" se hizo dinámica. Por defecto (<code>state.tasks.filterDate === null</code>), muestra todas las tareas (pasadas, presentes y futuras) agrupadas por día. Se añadieron controles (un <code>&lt;input type="date"&gt;</code> y un botón "Ver Todas") que permiten al usuario filtrar la vista para mostrar solo las tareas de un día específico. La función <code>renderTasks</code> comprueba este estado para decidir qué conjunto de tareas mostrar.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/5/Captura de pantalla 2025-10-30 170217.png" alt="" srcset="">
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 6: Gráfica de Estadísticas Dinámica (Vanilla SVG)</h3>
+            <p>Se creó una gráfica de curvas usando solo JavaScript y SVG, sin librerías. La función <code>renderStatsPage</code>:
+            <br>1. Filtra los datos para mostrar solo días con tiempo de escucha (<code>seconds > 0</code>).
+            <br>2. Añade dinámicamente el tiempo de la sesión actual (<code>state.sessionStartTime</code>) a los datos de "hoy".
+            <br>3. Dibuja un <code>&lt;svg&gt;</code> con <code>&lt;polyline&gt;</code> (la curva) y <code>&lt;path&gt;</code> (el área).
+            <br>4. Dibuja un segmento de línea y área separado, usando el color <code>--danger-color</code>, para resaltar la actividad del día de hoy.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170526.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170755.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170805.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/6/Captura de pantalla 2025-10-30 170816.png" alt="" srcset="">
+          </div>
+        </li>
+
+        <li class="step">
+          <div class="step-text">
+            <h3>Paso 7: Personalización de Tema con Previsualización y Advertencia</h3>
+            <p>El modal de "Ajustes" permite una previsualización dinámica. Al cambiar el color o el modo, <code>applyThemePreview()</code> aplica los cambios visualmente sin guardar. Si el usuario intenta cerrar (<code>closeModal()</code>) tras hacer cambios (<code>state.modal.themeChangesMade === true</code>), se activa <code>openConfirmModal()</code>. Si descarta, <code>forceCloseModal()</code> revierte los cambios visuales volviendo a aplicar el tema guardado en <code>initialThemeSettings</code>.</p>
+          </div>
+          <div class="step-image">
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170914.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170928.png" alt="" srcset="">
+            <img src="./imagenesDesarrollo/7/Captura de pantalla 2025-10-30 170948.png" alt="" srcset="">
+          </div>
+        </li>
+        
+      </ol>
+      <!-- FIN DEL CONTENIDO -->
+
+    </div>
+  </section>
+
+  <!-- ================== FOOTER ================== -->
+  <footer>
+    <p>© 2025 Roberto Monedero Alonso — Proyecto académico / personal</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

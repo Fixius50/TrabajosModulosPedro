@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Interactiva | Estilo Clásico</title>
+    
+    <!-- Importamos fuente Cinzel para el toque romano -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Librerías -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Lato', 'sans-serif'],
+                    },
+                    colors: {
+                        roman: {
+                            gold: '#C5A059',
+                            red: '#8E352E',
+                            ivory: '#F2F0E6',
+                            marble: '#E6E2D3',
+                            blue: '#2C3E50',
+                            dark: '#1a1a1a'
+                        }
+                    },
+                    boxShadow: {
+                        'mural': '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
+                        'stone': 'inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        body { font-family: 'Lato', sans-serif; }
+        h1, h2, h3, .roman-font { font-family: 'Cinzel', serif; }
+        
+        /* Textura Base (Modo Claro/Oscuro Automático) */
+        .bg-texture {
+            background-color: #F2F0E6; /* Beige claro por defecto */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4d1c2' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .dark .bg-texture {
+            background-color: #1a1a1a;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23333' fill-opacity='0.2' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Header Romano Específico (Siempre Azul Oscuro) */
+        .header-roman {
+            background-color: #2C3E50 !important; /* Forzamos azul oscuro siempre */
+            border-bottom: 4px solid #C5A059;
+        }
+        .dark .header-roman {
+            background-color: #111827 !important; 
+        }
+
+        /* Fondo Estrellas (Siempre Oscuro) */
+        .bg-stars {
+            background-color: #0a0a0a !important; /* Forzamos negro siempre */
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E") !important;
+            color: #ffffff !important;
+        }
+
+        .marble-block { background: linear-gradient(145deg, #f7f5eb, #e6e2d3); border: 1px solid #d1ccb8; }
+        .dark .marble-block { background: linear-gradient(145deg, #2d3748, #1a202c); border: 1px solid #4a5568; }
+        
+        /* Carrusel Materialize Ajustado */
+        .sections-carousel {
+            height: 200px !important;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+            perspective: 1000px;
+        }
+        .carousel .carousel-item {
+            width: 250px !important;
+            height: 160px;
+            opacity: 1 !important;
+        }
+        
+        /* Tarjetas Navegación */
+        .carousel-item a.nav-card {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            text-align: center;
+            transition: transform 0.4s, box-shadow 0.4s, filter 0.6s;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #C5A059;
+            border-radius: 8px;
+            overflow: hidden;
+            filter: grayscale(80%) brightness(70%) sepia(20%);
+        }
+        .carousel-item a.nav-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(197, 160, 89, 0.4);
+            filter: grayscale(0%) brightness(100%) sepia(0%);
+            z-index: 10;
+        }
+        
+        .mural-frame { border: 8px double #C5A059; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background-color: #fff; padding: 10px; transition: transform 0.3s; }
+        .mural-frame:hover { transform: translateY(-5px); }
+        .mural-image { filter: sepia(0.3) contrast(1.1); }
+
+        .app-screen { display: none; }
+        .app-screen.active { display: block; animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #C5A059; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .dark .text-primary-DEFAULT { color: #C5A059; }
+        .select-input-style {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #D1D5DB;
+            background-color: #FFFFFF;
+            color: #1F2937;
+        }
+        .dark .select-input-style {
+            border-color: #4B5563;
+            background-color: #1F2937;
+            color: #F3F4F6;
+        }
+        option { color: #333; background-color: #fff; }
+
+        .tab-button.active-tab { border-bottom-width: 3px; border-bottom-color: #3b82f6; color: #3b82f6; }
+        .dark .tab-button.active-tab { color: #60a5fa; border-bottom-color: #60a5fa; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Reset específico para cualquier nav de Materialize que se nos escape */
+        nav { background-color: transparent !important; box-shadow: none !important; height: auto !important; line-height: inherit !important; }
+    </style>
+</head>
+<body class="bg-texture text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+
+    <!-- HEADER CORREGIDO: Usamos DIV en lugar de NAV para evitar estilos de Materialize -->
+    <header class="header-roman shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 group" data-target="screen-home">
+                <div class="p-2 bg-roman-gold rounded-full group-hover:rotate-45 transition-transform duration-300">
+                    <span data-feather="columns" class="text-white w-6 h-6"></span>
+                </div>
+                <div>
+                    <span class="block text-white font-serif text-lg leading-none tracking-widest">GUÍA</span>
+                    <span class="block text-roman-gold font-serif text-xs tracking-widest">VALDEMORO</span>
+                </div>
+            </a>
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors" data-target="screen-stars" title="Ver las Estrellas"><span data-feather="star" class="w-6 h-6"></span></button>
+                <button id="theme-toggle" class="p-2 rounded-full text-roman-gold hover:bg-white/10 transition-colors"><span id="theme-icon-sun" data-feather="sun" class="hidden w-6 h-6"></span><span id="theme-icon-moon" data-feather="moon" class="hidden w-6 h-6"></span></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
+
+        <!-- HOME -->
+        <section id="screen-home" class="app-screen active">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-serif text-roman-red dark:text-roman-gold mb-4 drop-shadow-md">CIVITAS VALDEMORO</h1>
+                <div class="h-1 w-32 bg-roman-gold mx-auto rounded-full"></div>
+                <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 italic font-serif">"Historia, Cultura y Vida en el Sur de Madrid"</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
+                <div class="flex flex-col items-center">
+                    <div class="mural-frame bg-white dark:bg-gray-800 w-full aspect-video relative overflow-hidden">
+                        <img src="https://placehold.co/800x500/8E352E/FFFFFF?text=HISPANIA" class="w-full h-full object-cover mural-image">
+                        <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]"></div>
+                    </div>
+                    <div class="mt-4 text-center max-w-sm">
+                        <h2 class="text-2xl font-serif text-roman-blue dark:text-roman-ivory border-b-2 border-roman-gold inline-block px-4 pb-1 mb-2">ESPAÑA</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Tierra de historia milenaria, cruce de civilizaciones.</p>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="mural-frame bg-white dark:bg-gray-800 w-full aspect-video relative overflow-hidden">
+                        <img src="https://placehold.co/800x500/2C3E50/FFFFFF?text=MADRID" class="w-full h-full object-cover mural-image">
+                        <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]"></div>
+                    </div>
+                    <div class="mt-4 text-center max-w-sm">
+                        <h2 class="text-2xl font-serif text-roman-blue dark:text-roman-ivory border-b-2 border-roman-gold inline-block px-4 pb-1 mb-2">MADRID</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Corazón de la península, región de contrastes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto mb-10">
+                <div class="marble-block p-8 rounded-lg shadow-stone relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-roman-red"><span data-feather="map-pin" class="w-24 h-24"></span></div>
+                    <div class="relative z-10 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-3xl font-serif text-roman-red dark:text-roman-gold mb-2">VALDEMORO</h2>
+                            <p class="text-md text-gray-700 dark:text-gray-300 leading-relaxed">Villa histórica y dinámica. Explora sus dominios a continuación.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARRUSEL DE NAVEGACIÓN -->
+            <div class="carousel sections-carousel">
+                <div class="carousel-item"><a href="#" data-target="screen-town" class="nav-card group" style="background-image: url('https://placehold.co/400x300/2C3E50/C5A059?text=MI+PUEBLO');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="home" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">MI PUEBLO</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-cars" class="nav-card group" style="background-image: url('https://placehold.co/400x300/8E352E/C5A059?text=GUÍA+COCHES');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="truck" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">GUÍA COCHES</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-movies" class="nav-card group" style="background-image: url('https://placehold.co/400x300/C5A059/2C3E50?text=CINE');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="film" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">CINE Y SERIES</span></div></a></div>
+                <div class="carousel-item"><a href="#" data-target="screen-country" class="nav-card group" style="background-image: url('https://placehold.co/400x300/1a1a1a/C5A059?text=MI+PAÍS');"><div class="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col justify-center items-center p-3"><span data-feather="map" class="w-8 h-8 text-white mb-1"></span><span class="text-white font-serif font-bold text-lg">MI PAÍS</span></div></a></div>
+            </div>
+        </section>
+
+        <!-- MI PUEBLO -->
+        <section id="screen-town" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO (INICIO)</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Servicios de Valdemoro</h1>
+            <div id="town-services-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- COCHES -->
+        <section id="screen-cars" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Coches en Valdemoro</h1>
+            <div class="mb-6 overflow-x-auto">
+                <div class="flex justify-center border-b-2 border-roman-gold/30" id="car-tabs">
+                    <button data-tab-target="car-tab-content-buscador" class="tab-button active-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red transition-colors">Buscador</button>
+                    <button data-tab-target="car-tab-content-portales" class="tab-button px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red transition-colors">Portales</button>
+                </div>
+            </div>
+            <div id="car-tab-content-buscador" class="tab-content active">
+                <div class="flex flex-col sm:flex-row gap-4 mb-6 select-input-style">
+                    <input type="text" id="car-search-input" placeholder="Modelo..." class="w-full select-input-style">
+                    <select id="car-filter-radius" class="w-full sm:w-1/3 select-input-style">
+                        <option value="all">¿Dónde? (Toda la zona)</option><option value="0">Solo Valdemoro</option><option value="10">+10 km</option><option value="20">+20 km</option>
+                    </select>
+                    <select id="car-filter-year" class="w-full sm:w-1/4 select-input-style"><option value="">Año</option></select>
+                    <button id="car-filter-reset-btn" class="p-3 bg-roman-red text-white rounded font-serif font-bold hover:bg-red-800">Limpiar</button>
+                </div>
+                <div id="car-loading" class="hidden text-center py-10"><div class="loader mx-auto"></div><p class="mt-4 text-roman-gold font-serif">Consultando inventario...</p></div>
+                <div id="car-search-results" class="flex flex-col gap-6 min-h-[300px]"></div>
+            </div>
+            <div id="car-tab-content-portales" class="tab-content">
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <a href="https://www.coches.net/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group"><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Coches.net</h2><p class="text-sm">Ocasión.</p></a>
+                    <a href="https://www.milanuncios.com/" target="_blank" class="marble-block p-6 rounded-lg shadow-md hover:shadow-xl group"><h2 class="text-xl font-serif font-bold text-roman-blue group-hover:text-roman-red">Milanuncios</h2><p class="text-sm">Particulares.</p></a>
+                 </div>
+            </div>
+        </section>
+
+        <!-- PELÍCULAS -->
+        <section id="screen-movies" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold border-b-2 border-roman-gold inline-block pr-8">Teatro y Espectáculos</h1>
+            <div class="mb-6 overflow-x-auto">
+                <div class="flex justify-center border-b-2 border-roman-gold/30" id="movie-tabs">
+                    <button data-tab-target="movie-filter-area" data-tab-filter="available" class="tab-button movie-tab active-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Cartelera</button>
+                    <button data-tab-target="movie-filter-area" data-tab-filter="upcoming" class="tab-button movie-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Próximamente</button>
+                    <button data-tab-target="movie-filter-area" data-tab-filter="past" class="tab-button movie-tab px-6 py-3 font-serif font-bold text-gray-600 dark:text-gray-400 hover:text-roman-red">Clásicos</button>
+                </div>
+            </div>
+            <div id="movie-filter-area" class="tab-content active">
+                <div id="movies-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]"></div>
+            </div>
+        </section>
+
+        <!-- MI PAÍS -->
+        <section id="screen-country" class="app-screen">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-red hover:underline transition-colors mb-6 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>VOLVER AL FORO</span></a>
+            <h1 class="text-3xl font-serif font-bold mb-6 text-roman-blue dark:text-roman-gold">Hispania</h1>
+            <p class="text-lg italic">"Non plus ultra."</p>
+        </section>
+
+    </main>
+
+    <!-- ESTRELLAS - Fuera del Main para cubrir todo -->
+    <section id="screen-stars" class="app-screen bg-stars fixed inset-0 z-[100] overflow-y-auto">
+        <div class="container mx-auto p-6">
+            <a href="#" class="inline-flex items-center space-x-2 text-sm text-roman-gold hover:text-white transition-colors mb-8 font-serif font-bold" data-target="screen-home"><span data-feather="arrow-left" class="w-4 h-4"></span><span>REGRESAR</span></a>
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-4xl md:text-6xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-200 mb-8 animate-pulse">ASTRA VALDEMORI</h1>
+                <div class="relative w-full aspect-square md:aspect-[16/9] rounded-full md:rounded-lg overflow-hidden shadow-[0_0_50px_rgba(255,215,0,0.2)] border border-roman-gold mx-auto mb-12 group">
+                    <img src="https://placehold.co/1200x675/0a0a0a/FFFFFF?text=MAPA+ESTELAR" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-1000 group-hover:scale-105 transform">
+                    <div class="absolute top-0 left-0 w-full h-full pointer-events-none mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                </div>
+                <article class="prose prose-invert prose-lg mx-auto font-serif text-gray-300">
+                    <h2 class="text-2xl text-roman-gold mb-6 border-b border-gray-700 pb-4">La Leyenda de los Valles Moros</h2>
+                    <p class="italic text-gray-400 mb-6">"Escuchad, viajeros, la antigua crónica..."</p>
+                    
+                    <p class="mb-4 text-lg leading-relaxed">
+                        Hace eones, cuando los dioses caminaban entre los mortales, un titán llamado <strong>Valdemor</strong>, hijo de la tierra y el fuego, buscó descanso en estas llanuras. Fatigado por la guerra contra los cielos, se recostó donde hoy yace la Plaza de la Constitución. Su aliento se convirtió en el viento que mece los campos de cereales, y su escudo, olvidado en la batalla, se transformó en la fuente de la Villa.
+                    </p>
+                    
+                    <p class="mb-4 text-lg leading-relaxed">
+                        Se cuenta que las estrellas que veis sobre vosotros no son meros astros, sino las joyas de su corona, esparcidas por el firmamento para guiar a los viajeros hacia el refugio de sus valles. Quien bebe de las aguas de Valdemoro bajo la luz de Orión, se dice, nunca olvidará el camino de regreso a casa, pues el espíritu del titán protege a todos los que buscan paz en sus dominios.
+                    </p>
+
+                    <p class="text-lg leading-relaxed">
+                        Y así perdura la leyenda, susurrada por el viento entre los olivos y grabada en el mármol de nuestras calles.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL CINE -->
+    <div id="movie-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-texture w-full max-w-3xl rounded shadow-2xl border-4 border-roman-gold overflow-hidden relative max-h-[90vh] flex flex-col">
+            <button id="movie-modal-close-btn" class="absolute top-2 right-2 z-20 p-2 bg-roman-red text-white rounded-full hover:bg-red-700"><span data-feather="x"></span></button>
+            <div class="relative z-10 overflow-y-auto p-6" id="movie-modal-scroll-content">
+                <div id="movie-modal-inner-content">
+                     <div class="flex flex-col md:flex-row gap-6">
+                        <img id="movie-modal-poster" class="w-full md:w-1/3 rounded shadow-lg border-2 border-roman-gold">
+                        <div class="md:w-2/3">
+                            <h2 id="movie-modal-title" class="text-3xl font-serif font-bold text-roman-blue dark:text-roman-gold mb-4"></h2>
+                            <p id="movie-modal-description" class="text-gray-800 dark:text-gray-200 mb-6 leading-relaxed font-serif"></p>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COCHES -->
+    <div id="car-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-texture w-full max-w-3xl rounded shadow-2xl border-4 border-roman-gold overflow-hidden relative max-h-[90vh] flex flex-col">
+            <button id="car-modal-close-btn" class="absolute top-2 right-2 z-20 p-2 bg-roman-red text-white rounded-full hover:bg-red-700"><span data-feather="x"></span></button>
+            <div id="car-modal-backdrop-image" class="absolute inset-0 opacity-10 bg-cover bg-center"></div>
+            <div class="relative z-10 overflow-y-auto p-6">
+                <div class="flex flex-col md:flex-row gap-6">
+                     <img id="car-modal-poster" class="w-full md:w-1/3 rounded shadow-lg border-2 border-roman-gold">
+                     <div class="md:w-2/3">
+                        <h2 id="car-modal-title" class="text-3xl font-serif font-bold text-roman-blue dark:text-roman-gold mb-4"></h2>
+                        <p id="car-modal-description" class="text-gray-800 dark:text-gray-200 mb-6"></p>
+                        <div id="car-modal-specs" class="mb-6 font-mono text-sm bg-white/50 p-4 rounded border border-gray-300 text-gray-800"></div>
+                        <div id="car-modal-links" class="space-y-2"></div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        feather.replace();
+
+        // UTILS
+        const show = (id) => document.getElementById(id)?.classList.remove('hidden');
+        const hide = (id) => document.getElementById(id)?.classList.add('hidden');
+
+        // 1. BASE
+        (function() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('theme-toggle');
+            const updateIcons = (dark) => {
+                document.getElementById('theme-icon-sun').style.display = dark ? 'block' : 'none';
+                document.getElementById('theme-icon-moon').style.display = dark ? 'none' : 'block';
+            };
+            const dark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            html.classList.toggle('dark', dark);
+            updateIcons(dark);
+            toggle.onclick = () => { const d = html.classList.toggle('dark'); localStorage.setItem('theme', d?'dark':'light'); updateIcons(d); };
+
+            // Inicializar Carrusel al cargar
+            document.addEventListener('DOMContentLoaded', function() {
+                M.Carousel.init(document.querySelectorAll('.sections-carousel'), { fullWidth: false, indicators: false, padding: 10 });
+            });
+
+            document.querySelectorAll('[data-target]').forEach(l => l.onclick = e => {
+                e.preventDefault();
+                const targetId = l.dataset.target;
+                
+                // Ocultar todas y mostrar la nueva
+                document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+                const targetScreen = document.getElementById(targetId);
+                if (targetScreen) targetScreen.classList.add('active');
+                
+                window.scrollTo(0,0);
+                
+                // *** CORRECCIÓN DEL BUG DEL CARRUSEL ***
+                // Si volvemos a home, forzamos la reinicialización del carrusel
+                // con un pequeño retardo para asegurar que el contenedor ya tiene dimensiones.
+                if (targetId === 'screen-home') {
+                    setTimeout(() => {
+                        const carouselEl = document.querySelector('.sections-carousel');
+                        if (carouselEl && window.M) {
+                            // Destruir instancia anterior si existe para evitar duplicados
+                            const instance = M.Carousel.getInstance(carouselEl);
+                            if (instance) instance.destroy();
+                            
+                            // Re-inicializar limpio
+                            M.Carousel.init(carouselEl, { fullWidth: false, indicators: false, padding: 10 });
+                        }
+                    }, 50); // 50ms es suficiente para que el DOM se pinte
+                }
+
+                document.body.dispatchEvent(new CustomEvent('screenchange', {detail:{screenId:targetId}}));
+            });
+        })();
+
+        // 2. CINE
+        (function() {
+            const API_KEY = 'TU_API_KEY_V3_AQUI'; 
+            const BASE_URL = 'https://api.themoviedb.org/3';
+            const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+            let loaded = false;
+
+            async function fetchApi(ep, p={}) {
+                try {
+                    const q = new URLSearchParams({ api_key: API_KEY, language: 'es-ES', region: 'ES', ...p });
+                    const r = await fetch(`${BASE_URL}/${ep}?${q}`);
+                    return r.ok ? await r.json() : null;
+                } catch { return null; }
+            }
+
+            async function loadMovies() {
+                if(loaded) return;
+                const [now, up, pop] = await Promise.all([fetchApi('movie/now_playing'), fetchApi('movie/upcoming'), fetchApi('movie/popular')]);
+                const lists = { available: now?.results||[], upcoming: up?.results||[], past: pop?.results||[] };
+                
+                const render = (filter) => {
+                    if (!filter || !lists[filter]) return;
+                    const grid = document.getElementById('movies-grid');
+                    grid.innerHTML = lists[filter].map(m => `
+                        <div class="movie-card bg-white dark:bg-gray-800 rounded shadow group cursor-pointer overflow-hidden" onclick="openMovie(${m.id})">
+                            <img src="${m.poster_path?IMG_URL+m.poster_path:'https://placehold.co/500x750'}" class="w-full aspect-[2/3] object-cover">
+                            <div class="p-2"><h3 class="font-bold truncate text-roman-blue dark:text-roman-gold">${m.title}</h3></div>
+                        </div>
+                    `).join('');
+                };
+                
+                render('available');
+                loaded = true;
+
+                document.getElementById('movie-tabs').onclick = e => {
+                    if(e.target.classList.contains('tab-button')) {
+                        document.querySelectorAll('#movie-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-blue'));
+                        e.target.classList.add('active-tab');
+                        document.querySelectorAll('#screen-movies .tab-content').forEach(c => c.classList.remove('active'));
+                        if(e.target.dataset.tabTarget) document.getElementById(e.target.dataset.tabTarget).classList.add('active');
+                        if(e.target.dataset.filter) render(e.target.dataset.filter);
+                    }
+                };
+                
+                window.openMovie = async (id) => {
+                    show('movie-modal');
+                    const d = await fetchApi(`movie/${id}`);
+                    if(d) {
+                        document.getElementById('movie-modal-title').textContent = d.title;
+                        document.getElementById('movie-modal-description').textContent = d.overview;
+                        document.getElementById('movie-modal-poster').src = d.poster_path ? IMG_URL+d.poster_path : '';
+                    }
+                };
+            }
+            document.getElementById('movie-modal-close-btn').onclick = () => hide('movie-modal');
+            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-movies') loadMovies(); });
+        })();
+
+        // 3. COCHES
+        (function() {
+            const FALLBACK_CARS = [
+                { id: 1, make: 'Porsche', model: '911 GT3', year: 2022, image: 'https://placehold.co/600x400/8E352E/FFF?text=Porsche' },
+                { id: 2, make: 'Tesla', model: 'Model S', year: 2023, image: 'https://placehold.co/600x400/2C3E50/FFF?text=Tesla' },
+                { id: 3, make: 'Ford', model: 'Mustang', year: 1968, image: 'https://placehold.co/600x400/C5A059/FFF?text=Mustang' }
+            ];
+            const LOCATIONS = [{city:'Valdemoro',dist:0}, {city:'Pinto',dist:6}, {city:'Madrid',dist:28}];
+            let allCars = [], loaded = false;
+
+            async function loadCars() {
+                if(loaded) return;
+                show('car-loading');
+                let rawData = [];
+                try {
+                    const res = await fetch('https://freetestapi.com/api/v1/cars');
+                    if (!res.ok) throw new Error('Fallo API');
+                    rawData = await res.json();
+                    rawData = rawData.slice(0, 30);
+                } catch (err) {
+                    console.warn('Usando respaldo:', err);
+                    rawData = FALLBACK_CARS;
+                }
+                allCars = rawData.map(c => ({
+                    ...c, 
+                    id: c.id || crypto.randomUUID(),
+                    price: c.price || Math.floor(Math.random()*50000+10000),
+                    location: c.location || LOCATIONS[Math.floor(Math.random()*LOCATIONS.length)],
+                    image: c.image || `https://placehold.co/600x400/2C3E50/FFF?text=${c.make}`,
+                    engine: c.engine || 'V6', horsepower: c.horsepower || 200, transmission: c.transmission || 'Auto', color: c.color || 'Negro'
+                }));
+                populate(); filter(); hide('car-loading'); loaded = true;
+            }
+
+            function populate() {
+                const yf = document.getElementById('car-filter-year');
+                yf.innerHTML = '<option value="">Año</option>';
+                [...new Set(allCars.map(c=>c.year))].sort().reverse().forEach(y => yf.innerHTML += `<option value="${y}">${y}</option>`);
+            }
+
+            function filter() {
+                const txt = document.getElementById('car-search-input').value.toLowerCase();
+                const rad = document.getElementById('car-filter-radius').value;
+                const yr = document.getElementById('car-filter-year').value;
+                const res = allCars.filter(c => {
+                    const dist = rad === 'all' ? 999 : parseInt(rad);
+                    return (c.make.toLowerCase().includes(txt) || c.model.toLowerCase().includes(txt)) && (c.location.dist <= dist) && (!yr || c.year == yr);
+                });
+                document.getElementById('car-search-results').innerHTML = res.map(c => `
+                    <div class="flex bg-white dark:bg-gray-800 rounded shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <div class="w-1/3 relative"><div class="absolute top-2 left-2 px-2 py-1 text-xs font-bold bg-green-600 text-white rounded shadow z-10">${c.location.dist===0?'En Valdemoro':c.location.city}</div><img src="${c.image}" class="w-full h-full object-cover"></div>
+                        <div class="w-2/3 p-4">
+                            <h3 class="font-serif font-bold text-xl text-roman-blue dark:text-roman-gold">${c.make} ${c.model}</h3>
+                            <p class="text-sm text-gray-500 my-2">${c.year} | ${c.transmission}</p>
+                            <div class="flex justify-between items-center mt-4">
+                                <span class="font-bold text-roman-red">${c.price.toLocaleString()} €</span>
+                                <button onclick="openCarModal('${c.id}')" class="px-3 py-1 bg-roman-blue text-white rounded text-sm hover:bg-blue-900">Ver Detalles</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            window.openCarModal = (id) => {
+                const c = allCars.find(x => x.id == id);
+                if(!c) return;
+                show('car-modal');
+                document.getElementById('car-modal-title').textContent = `${c.make} ${c.model}`;
+                document.getElementById('car-modal-description').textContent = `Disponible en ${c.location.city}.`;
+                document.getElementById('car-modal-poster').src = c.image;
+                document.getElementById('car-modal-specs').innerHTML = `Precio: ${c.price}€ | HP: ${c.horsepower}`;
+            };
+
+            document.getElementById('car-search-input').oninput = filter;
+            document.getElementById('car-filter-radius').onchange = filter;
+            document.getElementById('car-filter-year').onchange = filter;
+            document.getElementById('car-filter-reset-btn').onclick = () => {
+                document.getElementById('car-search-input').value = '';
+                document.getElementById('car-filter-radius').value = 'all';
+                document.getElementById('car-filter-year').value = '';
+                filter();
+            };
+            document.getElementById('car-modal-close-btn').onclick = () => hide('car-modal');
+            document.getElementById('car-tabs').onclick = e => {
+                if(e.target.classList.contains('tab-button')) {
+                    document.querySelectorAll('#car-tabs .tab-button').forEach(b => b.classList.remove('active-tab', 'text-roman-red'));
+                    e.target.classList.add('active-tab', 'text-roman-red');
+                    document.querySelectorAll('#screen-cars .tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(e.target.dataset.tabTarget).classList.add('active');
+                }
+            };
+            document.body.addEventListener('screenchange', e => { if(e.detail.screenId==='screen-cars') loadCars(); });
+        })();
+
+        // 6. MI PUEBLO
+        (function() {
+            const srv = [
+                { name: "Ayuntamiento", loc: "Pza. Constitución", img: "https://placehold.co/600x400/8E352E/FFF?text=Ayto" },
+                { name: "Hospital", loc: "Av. Reyes Católicos", img: "https://placehold.co/600x400/2C3E50/FFF?text=Hospital" }
+            ];
+            const g = document.getElementById('town-services-grid');
+            if(g) g.innerHTML = srv.map(s => `
+                <div class="marble-block rounded shadow overflow-hidden group hover:shadow-xl transition-all duration-300">
+                    <div class="h-48 overflow-hidden relative"><img src="${s.img}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 sepia-[.2] group-hover:sepia-0"><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-12"><p class="text-white text-xs font-bold">${s.loc}</p></div></div>
+                    <div class="p-6"><h2 class="text-xl font-serif font-bold text-roman-red">${s.name}</h2></div>
+                </div>
+            `).join('');
+        })();
+    </script>
+</body>
+</html>
