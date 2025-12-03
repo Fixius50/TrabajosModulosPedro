@@ -16,6 +16,7 @@ import HomeView from './components/Views/HomeView';
 import InboxView from './components/Views/InboxView';
 import TrashView from './components/Views/TrashView';
 import PageView from './components/Views/PageView';
+import DatabaseView from './components/Views/DatabaseView';
 import { SettingsModal } from './components/SettingsModal';
 import SearchModal from './components/Modals/SearchModal';
 import AIModal from './components/Modals/AIModal';
@@ -243,7 +244,8 @@ function MainApp({ session, onLogout }) {
                     {ui.currentView === 'home' && <HomeView activeWorkspace={activeWorkspace} userProfile={userProfile} actions={actions} setUi={setUi} />}
                     {ui.currentView === 'inbox' && <InboxView inboxPages={inboxPages} actions={actions} />}
                     {ui.currentView === 'trash' && <TrashView trashPages={trashPages} actions={actions} showNotify={showNotify} />}
-                    {ui.currentView === 'page' && <PageView activePage={activePage} activePageId={activePageId} actions={actions} setUi={setUi} showComments={showComments} setShowComments={setShowComments} />}
+                    {ui.currentView === 'page' && activePage?.type === 'database' && <DatabaseView activePage={activePage} activePageId={activePageId} actions={actions} />}
+                    {ui.currentView === 'page' && activePage?.type !== 'database' && <PageView activePage={activePage} activePageId={activePageId} actions={actions} setUi={setUi} showComments={showComments} setShowComments={setShowComments} />}
                 </div>
             </main>
 
