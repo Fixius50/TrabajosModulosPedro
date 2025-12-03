@@ -23,6 +23,7 @@ export const useAppStore = () => {
     const [activeWorkspaceId, setActiveWorkspaceId] = useLocalStorage('notion_v82_active_id', 'ws-demo');
     const [activePageId, setActivePageId] = useState(null);
     const [activeThemeId, setActiveThemeId] = useLocalStorage('notion_v82_active_theme', 'default');
+    const [activeFontId, setActiveFontId] = useLocalStorage('notion_v82_active_font', 'sans');
 
     const activeWorkspace = useMemo(() => {
         const found = workspaces.find(w => w.id === activeWorkspaceId);
@@ -33,6 +34,7 @@ export const useAppStore = () => {
 
     const activePage = useMemo(() => activeWorkspace?.pages.find(p => p.id === activePageId), [activeWorkspace, activePageId]);
     const activeTheme = useMemo(() => themes.find(t => t.id === activeThemeId) || DEFAULT_THEME, [themes, activeThemeId]);
+    const activeFont = useMemo(() => fonts.find(f => f.id === activeFontId) || { id: 'sans', name: 'Sans Serif', value: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif' }, [fonts, activeFontId]);
 
     // Centralized State Exposure
     useEffect(() => {
@@ -57,6 +59,11 @@ export const useAppStore = () => {
         }
     }, [activeTheme]);
 
+    // Font Injection Logic
+    useEffect(() => {
+        document.documentElement.style.setProperty('--font-main', activeFont?.value || 'ui-sans-serif, system-ui, sans-serif');
+    }, [activeFont]);
+
     const actions = {
         setActiveWorkspaceId, setActivePageId, setUserProfile, setActiveThemeId,
         addWorkspace: (name) => {
@@ -67,8 +74,8 @@ export const useAppStore = () => {
                 color: utils.getRandomColor(),
                 email: userProfile.email,
                 pages: [
-                    { id: utils.generateId(), title: 'Bienvenida', icon: '👋', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Bienvenida' }, { id: utils.generateId(), type: 'p', content: 'Este es tu nuevo espacio de trabajo.' }] },
-                    { id: utils.generateId(), title: 'Tareas', icon: '✅', cover: null, comments: [], inInbox: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Lista de Tareas' }, { id: utils.generateId(), type: 'todo', content: 'Revisar documentación', checked: false }, { id: utils.generateId(), type: 'todo', content: 'Configurar perfil', checked: false }] }
+                    { id: utils.generateId(), title: 'Bienvenida', icon: '👋', cover: null, comments: [], inInbox: false, isFavorite: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Bienvenida' }, { id: utils.generateId(), type: 'p', content: 'Este es tu nuevo espacio de trabajo.' }] },
+                    { id: utils.generateId(), title: 'Tareas', icon: '✅', cover: null, comments: [], inInbox: false, isFavorite: false, isDeleted: false, isGenerating: false, parentId: null, updatedAt: new Date().toISOString(), blocks: [{ id: utils.generateId(), type: 'h1', content: 'Lista de Tareas' }, { id: utils.generateId(), type: 'todo', content: 'Revisar documentación', checked: false }, { id: utils.generateId(), type: 'todo', content: 'Configurar perfil', checked: false }] }
                 ]
             };
             setWorkspaces(p => [...p, newWs]);
@@ -84,6 +91,7 @@ export const useAppStore = () => {
                 cover: null,
                 comments: [],
                 inInbox: false,
+                isFavorite: false,
                 isDeleted: false,
                 isGenerating: false,
                 parentId: null,
@@ -160,5 +168,11 @@ export const useAppStore = () => {
         setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId
     };
 
-    return { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, actions, utils, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId };
+    return {
+        workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId,
+        themes, activeTheme, activeThemeId,
+        fonts, activeFont, activeFontId,
+        actions, utils,
+        setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId
+    };
 };

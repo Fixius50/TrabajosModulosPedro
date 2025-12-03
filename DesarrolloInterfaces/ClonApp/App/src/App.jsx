@@ -227,7 +227,7 @@ function MainApp({ session, onLogout }) {
 
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[var(--bg-color)] text-[var(--text-color)] font-sans">
+        <div className="flex h-screen w-full overflow-hidden bg-[var(--bg-color)] text-[var(--text-color)]" style={{ fontFamily: 'var(--font-main)' }}>
             {/* Sidebar */}
             <AnimatePresence mode="wait">
                 {ui.sidebarOpen && (
@@ -256,6 +256,12 @@ function MainApp({ session, onLogout }) {
                             <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, ai: true } }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Sparkles size={14} /> <span>Fixius AI</span>
                             </div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'home' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <LayoutGrid size={14} /> <span>Inicio</span>
+                            </div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'inbox' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <Inbox size={14} /> <span>Bandeja</span>
+                            </div>
                             <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Settings size={14} /> <span>Configuración</span>
                             </div>
@@ -263,27 +269,69 @@ function MainApp({ session, onLogout }) {
 
                         {/* Sidebar Content */}
                         <div className="flex-1 overflow-y-auto fancy-scroll px-2 pb-4">
+                            {/* Favorites Section */}
+                            {activeWorkspace?.pages.some(p => p.isFavorite && !p.isDeleted) && (
+                                <div className="mb-2">
+                                    <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between group cursor-pointer hover:bg-zinc-200/30 rounded" onClick={() => setUi(p => ({ ...p, favoritesOpen: !p.favoritesOpen }))}>
+                                        <span>Favoritos</span>
+                                    </div>
+                                    {ui.favoritesOpen !== false && (
+                                        <div>
+                                            {activeWorkspace.pages.filter(p => p.isFavorite && !p.isDeleted).map(page => (
+                                                <SidebarItem
+                                                    key={page.id}
+                                                    page={page}
+                                                    actions={actions}
+                                                    ui={ui}
+                                                    setUi={setUi}
+                                                    activePageId={activePageId}
+                                                    allPages={activeWorkspace.pages}
+                                                    onContextMenu={handleContextMenu}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Pages Section */}
                             <div className="mb-4">
-                                <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Páginas</div>
-                                {activeWorkspace?.pages.filter(p => !p.parentId && !p.isDeleted && !p.inInbox).map(page => (
-                                    <SidebarItem
-                                        key={page.id}
-                                        page={page}
-                                        actions={actions}
-                                        ui={ui}
-                                        setUi={setUi}
-                                        activePageId={activePageId}
-                                        allPages={activeWorkspace.pages}
-                                        onContextMenu={handleContextMenu}
-                                    />
-                                ))}
+                                <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between group cursor-pointer hover:bg-zinc-200/30 rounded" onClick={() => setUi(p => ({ ...p, pagesOpen: !p.pagesOpen }))}>
+                                    <span>Páginas</span>
+                                    <div onClick={(e) => { e.stopPropagation(); actions.addPage(); }} className="opacity-0 group-hover:opacity-100 hover:bg-zinc-300 rounded p-0.5 transition-all"><Plus size={12} /></div>
+                                </div>
+                                {ui.pagesOpen !== false && (
+                                    <div>
+                                        {activeWorkspace?.pages.filter(p => !p.parentId && !p.isDeleted && !p.inInbox && !p.isFavorite).map(page => (
+                                            <SidebarItem
+                                                key={page.id}
+                                                page={page}
+                                                actions={actions}
+                                                ui={ui}
+                                                setUi={setUi}
+                                                activePageId={activePageId}
+                                                allPages={activeWorkspace.pages}
+                                                onContextMenu={handleContextMenu}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         {/* Sidebar Footer */}
-                        <div className="p-2 border-t border-zinc-200">
+                        <div className="p-2 border-t border-zinc-200 space-y-0.5">
                             <div onClick={() => actions.addPage()} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Plus size={14} /> <span>Nueva página</span>
+                            </div>
+                            <div className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <LayoutTemplate size={14} /> <span>Plantillas</span>
+                            </div>
+                            <div className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <Download size={14} /> <span>Importar</span>
+                            </div>
+                            <div onClick={() => setUi(p => ({ ...p, currentView: 'trash' }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                                <Trash size={14} /> <span>Papelera</span>
                             </div>
                         </div>
                     </motion.aside>
@@ -353,12 +401,31 @@ function MainApp({ session, onLogout }) {
 
                     {ui.currentView === 'settings' && (
                         <div className="flex h-full">
-                            <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => { setUi(p => ({ ...p, settingsSection: 'themes' })); fetchMarketData(); }} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button><button onClick={() => { setUi(p => ({ ...p, settingsSection: 'marketplace' })); fetchMarketData(); }} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'marketplace' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Marketplace</button></div>
+                            <div className="w-48 bg-[var(--sidebar-bg)] border-r border-[rgba(0,0,0,0.05)] pt-8 px-2 space-y-1"><div className="px-3 py-2 text-xs font-bold opacity-50 uppercase mb-2">Cuenta</div><button onClick={() => setUi(p => ({ ...p, settingsSection: 'account' }))} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'account' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Mi Perfil</button><button onClick={() => { setUi(p => ({ ...p, settingsSection: 'themes' })); fetchMarketData(); }} className={clsx("w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors", ui.settingsSection === 'themes' ? "bg-[rgba(0,0,0,0.05)] font-medium" : "opacity-70 hover:opacity-100 hover:bg-[rgba(0,0,0,0.02)]")}>Temas & Apariencia</button></div>
                             <div className="flex-1 overflow-y-auto px-12 py-12">
                                 {ui.settingsSection === 'account' && (<div className="max-w-2xl animate-in fade-in duration-300"><h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Mi Perfil</h1><div className="flex items-start gap-6 mb-8"><div onClick={() => triggerUpload('avatar')} className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity overflow-hidden border border-zinc-200 shrink-0">{userProfile.avatar ? <img src={userProfile.avatar} className="w-full h-full object-cover" /> : <Camera size={32} className="text-zinc-300" />}</div><div className="flex-1 space-y-4"><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Nombre preferido</label><input value={userProfile.name} onChange={e => actions.setUserProfile(p => ({ ...p, name: e.target.value }))} className="w-full p-2 border border-zinc-200 rounded text-sm outline-none focus:border-zinc-400 bg-transparent transition-colors" /></div><div><label className="text-xs font-bold opacity-50 uppercase block mb-1">Correo electrónico</label><input value={userProfile.email} disabled className="w-full p-2 border border-zinc-200 rounded text-sm bg-[rgba(0,0,0,0.02)] opacity-60 cursor-not-allowed" /></div></div></div><button onClick={async () => { BackupService.saveBackup(userProfile.email); await AuthService.logout(); BackupService.clearLocalData(); window.location.reload(); }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button></div>)}
                                 {ui.settingsSection === 'themes' && (
                                     <div className="max-w-2xl animate-in fade-in duration-300">
                                         <h1 className="text-xl font-bold mb-6 pb-2 border-b border-[rgba(0,0,0,0.1)]">Apariencia</h1>
+
+                                        {/* Fonts Section */}
+                                        <div className="mb-8">
+                                            <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Tipografía</h2>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {[
+                                                    { id: 'sans', name: 'Sans Serif', value: 'ui-sans-serif, system-ui, sans-serif', preview: 'Aa' },
+                                                    { id: 'serif', name: 'Serif', value: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif', preview: 'Aa' },
+                                                    { id: 'mono', name: 'Mono', value: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', preview: 'Aa' }
+                                                ].map(font => (
+                                                    <button key={font.id} onClick={() => actions.setActiveFontId(font.id)} className={clsx("p-3 border rounded-lg text-left transition-all", activeFontId === font.id ? "border-zinc-900 ring-1 ring-zinc-900 bg-zinc-50" : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50")}>
+                                                        <div className="text-2xl mb-2" style={{ fontFamily: font.value }}>{font.preview}</div>
+                                                        <div className="text-sm font-medium text-zinc-900">{font.name}</div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Temas</h2>
                                         <div className="space-y-3">
                                             <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div><div><div className="font-bold text-sm text-zinc-900">stylessApp (Default)</div><div className="text-xs text-zinc-500">Tema original (Claro)</div></div></div><button onClick={() => actions.setActiveThemeId('default')} disabled={activeThemeId === 'default'} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === 'default' ? "Activo" : "Aplicar"}</button></div>
                                             {marketData.styles.map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
@@ -417,7 +484,7 @@ function MainApp({ session, onLogout }) {
             {/* Context Menu */}
             {contextMenu.isOpen && (
                 <div className="fixed z-[100] bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl py-1 w-56 text-zinc-200 overflow-hidden" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                    <button onClick={() => { showNotify("Añadido a favoritos"); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><StarIcon size={14} /> Añadir a favoritos</button>
+                    <button onClick={() => { actions.updatePage(contextMenu.pageId, { isFavorite: !activeWorkspace.pages.find(p => p.id === contextMenu.pageId)?.isFavorite }); showNotify(activeWorkspace.pages.find(p => p.id === contextMenu.pageId)?.isFavorite ? "Eliminado de favoritos" : "Añadido a favoritos"); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><StarIcon size={14} fill={activeWorkspace.pages.find(p => p.id === contextMenu.pageId)?.isFavorite ? "currentColor" : "none"} /> {activeWorkspace.pages.find(p => p.id === contextMenu.pageId)?.isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}</button>
                     <button onClick={() => { navigator.clipboard.writeText(window.location.href); showNotify("Enlace copiado"); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><LinkIcon size={14} /> Copiar enlace</button>
                     <button onClick={() => { actions.setActivePageId(contextMenu.pageId); setUi(p => ({ ...p, currentView: 'page' })); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><EditIcon size={14} /> Renombrar</button>
                     <button onClick={() => { actions.duplicatePage(contextMenu.pageId); setContextMenu({ ...contextMenu, isOpen: false }); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-700 flex items-center gap-2 transition-colors"><CopyIcon size={14} /> Duplicar</button>
@@ -458,10 +525,78 @@ function MainApp({ session, onLogout }) {
                     <h3 className="text-lg font-semibold mb-2">Generar Página con IA</h3>
                     <p className="text-zinc-500 text-sm mb-6">Describe qué tipo de página necesitas y la IA la creará por ti.</p>
                     <textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} className="w-full p-3 bg-zinc-50 border border-zinc-200 rounded-lg mb-4 h-32 outline-none focus:border-indigo-500 resize-none" placeholder="Ej: Plan de marketing para Q4..." />
-                    <button onClick={() => { setIsAiGenerating(true); setTimeout(() => { setIsAiGenerating(false); setUi(p => ({ ...p, modals: { ...p.modals, ai: false } })); showNotify("Página generada (Simulación)"); }, 2000); }} disabled={!aiPrompt.trim() || isAiGenerating} className="w-full py-2 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button onClick={() => {
+                        const newPageId = actions.addPage({ title: 'Generando...', isGenerating: true, icon: '✨' });
+                        setUi(p => ({ ...p, modals: { ...p.modals, ai: false } }));
+                        setIsAiGenerating(true);
+
+                        // Simulate AI Generation
+                        setTimeout(() => {
+                            const generatedContent = [
+                                { id: utils.generateId(), type: 'h1', content: aiPrompt || 'Página Generada' },
+                                { id: utils.generateId(), type: 'p', content: 'Esta página ha sido generada automáticamente por Fixius AI basándose en tu descripción.' },
+                                { id: utils.generateId(), type: 'callout', content: `Prompt original: "${aiPrompt}"` },
+                                { id: utils.generateId(), type: 'h2', content: 'Contenido Sugerido' },
+                                { id: utils.generateId(), type: 'todo', content: 'Revisar el contenido generado', checked: false },
+                                { id: utils.generateId(), type: 'todo', content: 'Personalizar los bloques', checked: false },
+                                { id: utils.generateId(), type: 'quote', content: 'La creatividad es la inteligencia divirtiéndose. - Albert Einstein' }
+                            ];
+
+                            actions.updatePage(newPageId, {
+                                title: aiPrompt ? aiPrompt.slice(0, 20) + (aiPrompt.length > 20 ? '...' : '') : 'Página Generada',
+                                isGenerating: false,
+                                blocks: generatedContent,
+                                icon: '🤖'
+                            });
+                            setIsAiGenerating(false);
+                            showNotify("Página generada con éxito");
+                        }, 3000);
+                    }} disabled={!aiPrompt.trim() || isAiGenerating} className="w-full py-2 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 disabled:opacity-50 flex items-center justify-center gap-2">
                         {isAiGenerating ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
                         {isAiGenerating ? 'Generando...' : 'Generar Página'}
                     </button>
+                </div>
+            </Modal>
+
+            {/* Workspace Menu Modal */}
+            {ui.modals.workspaceMenu && (
+                <div className="fixed inset-0 z-[100] flex items-start justify-start" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } }))}>
+                    <div className="absolute top-14 left-4 w-72 bg-white border border-zinc-200 rounded-lg shadow-xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="p-2 border-b border-zinc-100">
+                            <div className="text-xs font-semibold text-zinc-500 px-2 py-1 mb-1">Workspaces de {userProfile.email}</div>
+                            {workspaces.filter(w => w.email === userProfile.email).map(ws => (
+                                <div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } })); }} className="flex items-center justify-between px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer group">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold ${ws.id === activeWorkspaceId ? 'ring-2 ring-offset-1 ring-zinc-400' : ''}`} style={{ background: ws.color || '#666' }}>{ws.initial}</div>
+                                        <span className={`text-sm ${ws.id === activeWorkspaceId ? 'font-medium text-zinc-900' : 'text-zinc-600'}`}>{ws.name}</span>
+                                    </div>
+                                    {ws.id === activeWorkspaceId && <Check size={14} className="text-zinc-600" />}
+                                    {workspaces.length > 1 && ws.id !== activeWorkspaceId && (
+                                        <button onClick={(e) => { e.stopPropagation(); if (confirm(`¿Eliminar workspace "${ws.name}"?`)) actions.removeWorkspace(ws.id); }} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 text-red-500 rounded"><Trash size={12} /></button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-2">
+                            <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false, createWorkspace: true } }))} className="flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer text-zinc-600 text-sm">
+                                <PlusCircle size={16} /> <span>Crear nuevo workspace</span>
+                            </div>
+                            <div onClick={onLogout} className="flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer text-zinc-600 text-sm border-t border-zinc-100 mt-1 pt-2">
+                                <LogOut size={16} /> <span>Cerrar sesión</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Workspace Modal */}
+            <Modal isOpen={ui.modals.createWorkspace} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))} title="Crear Workspace">
+                <div className="p-4">
+                    <input autoFocus value={newWorkspaceName} onChange={e => setNewWorkspaceName(e.target.value)} placeholder="Nombre del espacio de trabajo" className="w-full p-2 border border-zinc-200 rounded mb-4 outline-none focus:border-black" />
+                    <div className="flex justify-end gap-2">
+                        <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))} className="px-4 py-2 text-zinc-500 hover:bg-zinc-100 rounded">Cancelar</button>
+                        <button onClick={() => { if (newWorkspaceName.trim()) { actions.addWorkspace(newWorkspaceName); setNewWorkspaceName(''); setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } })); } }} disabled={!newWorkspaceName.trim()} className="px-4 py-2 bg-zinc-900 text-white rounded hover:bg-zinc-800 disabled:opacity-50">Crear</button>
+                    </div>
                 </div>
             </Modal>
 
@@ -491,6 +626,57 @@ function MainApp({ session, onLogout }) {
                     </div>
                 </div>
             </Modal>
+
+            {/* Page Options / Context Menu (Top Right) */}
+            {ui.modals.pageOptions && (
+                <div className="fixed inset-0 z-[100] flex items-start justify-end pr-4 pt-12" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } }))}>
+                    <div className="bg-white border border-zinc-200 rounded-lg shadow-xl w-64 overflow-hidden text-zinc-700" onClick={e => e.stopPropagation()}>
+                        {ui.currentView === 'page' && activePage ? (
+                            <div className="py-1">
+                                <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Estilo</div>
+                                <div className="px-2 pb-2 flex gap-1">
+                                    <button className="flex-1 py-1.5 border border-zinc-200 rounded hover:bg-zinc-50 text-xs font-sans">Default</button>
+                                    <button className="flex-1 py-1.5 border border-zinc-200 rounded hover:bg-zinc-50 text-xs font-serif">Serif</button>
+                                    <button className="flex-1 py-1.5 border border-zinc-200 rounded hover:bg-zinc-50 text-xs font-mono">Mono</button>
+                                </div>
+                                <div className="h-px bg-zinc-100 my-1" />
+                                <div className="px-3 py-2 flex items-center justify-between hover:bg-zinc-50 cursor-pointer">
+                                    <span className="text-sm">Texto pequeño</span>
+                                    <div className="w-8 h-4 bg-zinc-200 rounded-full relative"><div className="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm" /></div>
+                                </div>
+                                <div className="px-3 py-2 flex items-center justify-between hover:bg-zinc-50 cursor-pointer">
+                                    <span className="text-sm">Ancho completo</span>
+                                    <div className="w-8 h-4 bg-zinc-200 rounded-full relative"><div className="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm" /></div>
+                                </div>
+                                <div className="h-px bg-zinc-100 my-1" />
+                                <button onClick={() => { actions.updatePage(activePageId, { isFavorite: !activePage.isFavorite }); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
+                                    <StarIcon size={16} fill={activePage.isFavorite ? "currentColor" : "none"} className={activePage.isFavorite ? "text-yellow-400" : "text-zinc-400"} />
+                                    {activePage.isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
+                                </button>
+                                <button onClick={() => { navigator.clipboard.writeText(window.location.href); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); showNotify("Enlace copiado"); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
+                                    <LinkIcon size={16} className="text-zinc-400" /> Copiar enlace
+                                </button>
+                                <div className="h-px bg-zinc-100 my-1" />
+                                <button onClick={() => { if (confirm("¿Eliminar página?")) { actions.deletePage(activePageId); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
+                                    <Trash size={16} /> Eliminar página
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="py-1">
+                                <div className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Espacio de trabajo</div>
+                                <div className="px-3 py-2 text-sm text-zinc-600">
+                                    <div className="font-medium text-zinc-900 mb-1">{activeWorkspace?.name}</div>
+                                    <div className="text-xs">{userProfile.email}</div>
+                                </div>
+                                <div className="h-px bg-zinc-100 my-1" />
+                                <button onClick={() => { if (confirm("¿Estás seguro de que quieres eliminar este espacio de trabajo permanentemente?")) { actions.removeWorkspace(activeWorkspaceId); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
+                                    <Trash size={16} /> Eliminar workspace
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
