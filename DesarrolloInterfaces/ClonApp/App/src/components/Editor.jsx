@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'https://esm.sh/react@18.2.0';
-import { motion } from 'https://esm.sh/framer-motion@10.16.4';
-import { clsx } from 'https://esm.sh/clsx@2.0.0';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { motion } from 'framer-motion';
+import { clsx } from 'clsx';
 import {
     List, CheckSquare, Quote, Info, Minus, Type, GripVertical, Check
-} from 'https://esm.sh/lucide-react@0.292.0';
+} from 'lucide-react';
 
 export const SlashMenu = ({ query, onSelect, onClose }) => {
     const [activeCategory, setActiveCategory] = useState('basicos');

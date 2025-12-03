@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'https://esm.sh/react@18.2.0';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { utils, DEFAULT_THEME, INITIAL_STATE } from '../lib/utils.js';
 
 const useLocalStorage = (key, initialValue) => {

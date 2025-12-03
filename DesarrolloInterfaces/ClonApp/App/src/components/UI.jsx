@@ -1,7 +1,7 @@
-import React from 'https://esm.sh/react@18.2.0';
-import { motion, AnimatePresence, useMotionTemplate, useMotionValue } from 'https://esm.sh/framer-motion@10.16.4';
-import { clsx } from 'https://esm.sh/clsx@2.0.0';
-import { X } from 'https://esm.sh/lucide-react@0.292.0';
+import React from 'react';
+import { motion, AnimatePresence, useMotionTemplate, useMotionValue } from 'framer-motion';
+import { clsx } from 'clsx';
+import { X } from 'lucide-react';
 
 export function SpotlightCard({ children, className = "", onClick }) {
     const mouseX = useMotionValue(0);

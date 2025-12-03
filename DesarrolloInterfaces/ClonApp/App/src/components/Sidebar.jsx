@@ -1,8 +1,8 @@
-import React, { useState } from 'https://esm.sh/react@18.2.0';
-import { clsx } from 'https://esm.sh/clsx@2.0.0';
+import React, { useState } from 'react';
+import { clsx } from 'clsx';
 import {
     ChevronRight, FileText, Loader2, MoreHorizontal, Plus
-} from 'https://esm.sh/lucide-react@0.292.0';
+} from 'lucide-react';
 
 export const SidebarItem = ({ page, depth = 0, actions, ui, setUi, activePageId, allPages, onContextMenu }) => {
     const [isExpanded, setIsExpanded] = useState(true);

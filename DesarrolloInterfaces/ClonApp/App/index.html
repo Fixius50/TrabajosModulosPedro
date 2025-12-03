@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Notion Clone V82 - Welcome</title>
-
-    <!-- Tailwind CSS -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notion Clone V82</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,91 +15,60 @@
                     colors: {
                         zinc: { 850: '#1f1f22', 900: '#18181b', 950: '#09090b' },
                         notion: { hover: '#EFEFEE', select: '#E8F3FF', text: '#37352f', dim: '#9B9A97' }
+                    },
+                    boxShadow: {
+                        'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0,0,0,0.05)',
+                        'popover': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0,0,0,0.05)'
                     }
                 }
             }
         }
     </script>
-
-    <!-- Babel Standalone -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-</head>
-
-<body class="bg-white text-zinc-900 flex flex-col min-h-screen">
-    <div id="root"></div>
-
-    <script type="text/babel" data-type="module" data-presets="react">
-        import React from 'https://esm.sh/react@18.2.0';
-        import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
-        import { motion } from 'https://esm.sh/framer-motion@10.16.4';
-        import { ArrowRight, Sparkles } from 'https://esm.sh/lucide-react@0.292.0';
-
-        // Import components
-        import { SpotlightCard, FancyText } from './src/components/UI.jsx';
-        import { AuthService } from './src/lib/supabase.js';
-
-        function LandingPage() {
-            const handleLogin = async () => {
-                await AuthService.login();
-                window.location.href = 'app.html';
-            };
-
-            return (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b from-white to-zinc-50">
-                    <div className="max-w-4xl w-full text-center space-y-12">
-                        {/* Hero */}
-                        <div className="space-y-6">
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium border border-indigo-100">
-                                <Sparkles size={14} />
-                                <span>Nueva Arquitectura V82</span>
-                            </motion.div>
-                            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-zinc-900">
-                                Tu espacio de trabajo,<br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">reimaginado.</span>
-                            </h1>
-                            <p className="text-xl text-zinc-500 max-w-2xl mx-auto">
-                                Escribe, planifica y organiza en un solo lugar. Ahora con una arquitectura modular y escalable.
-                            </p>
-                            <div className="flex justify-center gap-4">
-                                <button onClick={handleLogin} className="px-8 py-3 bg-zinc-900 text-white rounded-lg font-medium hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                                    Entrar a Fixius
-                                    <ArrowRight size={18} />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Features */}
-                        <div className="grid md:grid-cols-3 gap-6 text-left">
-                            <SpotlightCard className="p-6 h-full">
-                                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
-                                    <Sparkles size={20} />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2">Modular</h3>
-                                <p className="text-zinc-500 text-sm">Arquitectura basada en componentes reutilizables y ES Modules nativos.</p>
-                            </SpotlightCard>
-                            <SpotlightCard className="p-6 h-full">
-                                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 mb-4">
-                                    <ArrowRight size={20} />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2">Rápido</h3>
-                                <p className="text-zinc-500 text-sm">Sin tiempos de compilación. Desarrollo instantáneo en el navegador.</p>
-                            </SpotlightCard>
-                            <SpotlightCard className="p-6 h-full">
-                                <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center text-pink-600 mb-4">
-                                    <Sparkles size={20} />
-                                </div>
-                                <h3 className="text-lg font-semibold mb-2">Estético</h3>
-                                <p className="text-zinc-500 text-sm">Diseño premium con animaciones fluidas y micro-interacciones.</p>
-                            </SpotlightCard>
-                        </div>
-                    </div>
-                </div>
-            );
+    <style>
+        :root {
+            --sidebar-width: 15rem;
+            --sidebar-collapsed: 3.5rem;
+            --bg-color: #ffffff;
+            --text-color: #37352f;
+            --sidebar-bg: #F7F7F5;
+            --item-hover: rgba(0, 0, 0, 0.05);
         }
 
-        const root = createRoot(document.getElementById('root'));
-        root.render(<LandingPage />);
-    </script>
+        @media (max-width: 48rem) {
+            :root {
+                --sidebar-width: 100%;
+            }
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .fancy-scroll::-webkit-scrollbar {
+            width: 0.5rem;
+            height: 0.5rem;
+        }
+
+        .fancy-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .fancy-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 0.25rem;
+        }
+
+        .fancy-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
 </body>
 
 </html>
