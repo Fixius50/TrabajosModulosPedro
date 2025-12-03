@@ -148,7 +148,11 @@ export const useAppStore = () => {
         addBlock: (idx, data) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), { id: utils.generateId(), type: 'p', content: '', ...data }, ...activePage.blocks.slice(idx)] }),
         deleteBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), ...activePage.blocks.slice(idx + 1)] }),
         addTheme: (t) => { if (!t.name) return; setThemes(p => { const exists = p.find(ex => ex.id === t.id); if (exists) return p.map(ex => ex.id === t.id ? t : ex); return [...p, t]; }); },
-        removeTheme: (themeId) => { if (themeId === 'default') return; setThemes(p => p.filter(t => t.id !== themeId)); if (activeThemeId === themeId) setActiveThemeId('default'); },
+        removeTheme: (themeId) => {
+            if (themeId === 'default') return;
+            setThemes(p => p.filter(t => t.id !== themeId));
+            if (activeThemeId === themeId) setActiveThemeId('default');
+        },
         addFont: (f) => { if (!f.name) return; setFonts(p => { const exists = p.find(ex => ex.id === f.id); if (exists) return p; return [...p, f]; }); },
         removeFont: (fontId) => { setFonts(p => p.filter(f => f.id !== fontId)); },
         addComment: (text) => { if (!activePage) return; const newComment = { id: utils.generateId(), author: userProfile.name, avatar: userProfile.avatar, text, createdAt: new Date().toISOString() }; const currentComments = activePage.comments || []; actions.updatePage(activePageId, { comments: [...currentComments, newComment] }); },

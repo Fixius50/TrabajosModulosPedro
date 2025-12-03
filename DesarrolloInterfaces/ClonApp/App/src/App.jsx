@@ -240,10 +240,9 @@ function MainApp({ session, onLogout }) {
             // Simulate dynamic API call
             await utils.delay(800);
             const mockThemes = [
-                { name: 'medieval-theme.css', url: 'stylessApp/medieval-theme.css', type: 'css' },
-                { name: 'gaming-theme.css', url: 'stylessApp/gaming-theme.css', type: 'css' },
-                { name: 'rock-metal-theme.css', url: 'stylessApp/rock-metal-theme.css', type: 'css' },
-                { name: 'default-theme.css', url: 'stylessApp/default-theme.css', type: 'css' }
+                { name: 'medieval-theme.css', url: '/stylessApp/medieval-theme.css', type: 'css' },
+                { name: 'gaming-theme.css', url: '/stylessApp/gaming-theme.css', type: 'css' },
+                { name: 'rock-metal-theme.css', url: '/stylessApp/rock-metal-theme.css', type: 'css' }
             ];
 
             const mockTemplates = [
@@ -412,9 +411,7 @@ function MainApp({ session, onLogout }) {
 
                         {/* Sidebar Footer */}
                         <div className="p-2 border-t border-zinc-200 space-y-0.5">
-                            <div onClick={() => actions.addPage()} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
-                                <Plus size={14} /> <span>Nueva página</span>
-                            </div>
+
                             <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, marketplace: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                                 <Package size={14} /> <span>Marketplace</span>
                             </div>
@@ -513,10 +510,10 @@ function MainApp({ session, onLogout }) {
                                             </div>
                                         </div>
 
-                                        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Temas</h2>
+                                        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Temas Instalados</h2>
                                         <div className="space-y-3">
                                             <div className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 bg-white border border-zinc-200 rounded-md flex items-center justify-center text-lg font-serif">Aa</div><div><div className="font-bold text-sm text-zinc-900">stylessApp (Default)</div><div className="text-xs text-zinc-500">Tema original (Claro)</div></div></div><button onClick={() => actions.setActiveThemeId('default')} disabled={activeThemeId === 'default'} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === 'default' ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === 'default' ? "Activo" : "Aplicar"}</button></div>
-                                            {marketData.styles.map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
+                                            {themes.filter(t => t.id !== 'default').map(t => (<div key={t.id} className="p-4 border border-zinc-200 rounded-lg flex justify-between items-center bg-white shadow-sm"><div className="flex items-center gap-3"><div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>Aa</div><div><div className="font-bold text-sm text-zinc-900">{t.name}</div><div className="text-xs text-zinc-500">Por {t.author}</div></div></div><div className="flex gap-2"><button onClick={() => actions.removeTheme(t.id)} className="px-3 py-1.5 rounded text-xs transition-colors bg-red-50 text-red-600 hover:bg-red-100">Desinstalar</button><button onClick={() => actions.setActiveThemeId(t.id)} disabled={activeThemeId === t.id} className={clsx("px-3 py-1.5 rounded text-xs transition-colors", activeThemeId === t.id ? "bg-green-100 text-green-700 cursor-default font-medium" : "bg-zinc-900 text-white hover:bg-black")}>{activeThemeId === t.id ? "Activo" : "Aplicar"}</button></div></div>))}
                                         </div>
                                     </div>
                                 )}
@@ -707,16 +704,28 @@ function MainApp({ session, onLogout }) {
                             <>
                                 {ui.marketTab === 'themes' && (
                                     <div className="grid grid-cols-2 gap-4">
-                                        {marketData.styles.map(t => (
-                                            <div key={t.id} className="border border-zinc-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer group" onClick={() => { actions.setActiveThemeId(t.id); setUi(p => ({ ...p, modals: { ...p.modals, marketplace: false } })); }}>
-                                                <div className="h-32 rounded-md mb-3 flex items-center justify-center text-4xl font-bold text-white shadow-inner relative overflow-hidden" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>
-                                                    Aa
-                                                    {activeThemeId === t.id && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Check size={32} className="text-white" /></div>}
+                                        {marketData.styles.map(t => {
+                                            const isInstalled = themes.some(th => th.id === t.id);
+                                            return (
+                                                <div key={t.id} className="border border-zinc-200 rounded-lg p-4 hover:shadow-md transition-shadow group">
+                                                    <div className="h-32 rounded-md mb-3 flex items-center justify-center text-4xl font-bold text-white shadow-inner relative overflow-hidden" style={{ backgroundColor: t.colors?.bg || '#333', color: t.colors?.text || '#fff' }}>
+                                                        Aa
+                                                        {isInstalled && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Check size={32} className="text-white" /></div>}
+                                                    </div>
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <div className="font-bold text-zinc-900">{t.name}</div>
+                                                            <div className="text-xs text-zinc-500">Por {t.author}</div>
+                                                        </div>
+                                                        {isInstalled ? (
+                                                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">Instalado</span>
+                                                        ) : (
+                                                            <button onClick={() => { actions.addTheme(t); showNotify("Tema descargado"); }} className="text-xs bg-zinc-900 text-white px-2 py-1 rounded hover:bg-black flex items-center gap-1"><Download size={12} /> Descargar</button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="font-bold text-zinc-900">{t.name}</div>
-                                                <div className="text-xs text-zinc-500">Por {t.author}</div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
 
