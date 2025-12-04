@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion V28 DocSite</title>
+    <title>Notion Clone V82 Documentation</title>
 
     <!-- 1. FUENTES & ICONOS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -311,24 +311,23 @@
         // ==========================================
 
         const DOC_DATA = {
-            title: "Notion V28 (Nuclear Sortable Fix)",
-            description: "Un clon de Notion robusto y local-first construido con Alpine.js y Tailwind. Incluye sistema de bloques drag-and-drop, gestión de workspaces y marketplace de temas conectado a GitHub.",
+            title: "Notion Clone V82 Documentation",
+            description: "Un clon de Notion robusto y moderno construido con React, Vite y Tailwind. Incluye sistema de bloques, gestión de workspaces y autenticación con Supabase.",
             stack: [
-                "Alpine.js (Reactivity)",
+                "React 18 (UI Library)",
+                "Vite (Build Tool)",
                 "Tailwind CSS (Styling)",
-                "Sortable.js (DnD)",
-                "Octokit (GitHub API)",
-                "Phosphor Icons",
-                "Material Design 3"
+                "Supabase (Backend/Auth)",
+                "Framer Motion (Animations)",
+                "Lucide React (Icons)"
             ],
             ias: ["Gemini Pro 3.0"],
             features: [
-                { title: "Block Editor", desc: "Editor de texto basado en bloques con soporte Drag & Drop (SortableJS) y reversión nuclear del DOM para integridad de datos.", icon: "edit_note" },
+                { title: "React Architecture", desc: "Arquitectura basada en componentes con React 18 y Vite para un rendimiento óptimo.", icon: "code" },
+                { title: "Block Editor", desc: "Editor de texto basado en bloques con soporte Drag & Drop y reversión nuclear del DOM para integridad de datos.", icon: "edit_note" },
                 { title: "Workspaces", desc: "Gestión completa de espacios de trabajo: crear, renombrar, eliminar y cambiar entre múltiples contextos.", icon: "workspaces" },
                 { title: "Assets Market", desc: "Conexión real a la API de GitHub para descargar temas, fuentes y portadas desde un repositorio remoto.", icon: "storefront" },
                 { title: "UI Reactiva", desc: "Interfaz completamente adaptativa (Mobile/Desktop) con Sidebar colapsable y transiciones suaves.", icon: "devices" },
-                { title: "UI Reactiva", desc: "Interfaz completamente adaptativa (Mobile/Desktop) con Sidebar colapsable y transiciones suaves.", icon: "devices" },
-                { title: "Búsqueda Avanzada", desc: "Modal de búsqueda global con filtros por workspace y filtrado en tiempo real.", icon: "search" },
                 { title: "Búsqueda Avanzada", desc: "Modal de búsqueda global con filtros por workspace y filtrado en tiempo real.", icon: "search" },
                 { title: "Auth System", desc: "Sistema de autenticación híbrido (Email/Password + Google OAuth) con soporte para Supabase y modo Mock local.", icon: "lock" },
                 { title: "Theme System V2", desc: "Gestión avanzada de temas: Marketplace vs Instalados, carga dinámica de CSS y desinstalación.", icon: "palette" }

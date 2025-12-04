@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Loader2, Info } from 'lucide-react';
-import { AuthService } from '../lib/supabase';
+import { AuthService } from '../../lib/supabase';
 
 export function LandingPage({ onLoginSuccess }) {
     const [email, setEmail] = useState("");

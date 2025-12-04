@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageIcon, FileText, Plus } from 'lucide-react';
-import { FancyEditable, EditorBlock } from '../Editor';
+import { FancyEditable, EditorBlock } from '../../components/Editor';
 
 export function PageView({ activePage, activePageId, ui, setUi, actions }) {
     if (!activePage) {

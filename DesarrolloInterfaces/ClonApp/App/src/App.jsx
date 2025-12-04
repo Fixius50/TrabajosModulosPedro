@@ -10,7 +10,7 @@ import { utils, ICONS_LIST, COVER_COLORS, COVER_IMAGES } from './lib/utils';
 import { useAppStore } from './store/useAppStore';
 
 // Components
-import { LandingPage } from './components/LandingPage';
+import { LandingPage } from './components/Views/LandingPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import { Modal } from './components/UI';
 
@@ -93,19 +93,24 @@ function MainApp({ session, onLogout }) {
             const restored = BackupService.restoreBackup(userId);
 
             if (restored && actions.internalSetters) {
-                const ws = JSON.parse(localStorage.getItem('notion_v82_ws'));
-                const th = JSON.parse(localStorage.getItem('notion_v82_themes'));
-                const fn = JSON.parse(localStorage.getItem('notion_v82_fonts'));
-                const aid = JSON.parse(localStorage.getItem('notion_v82_active_id'));
-                const ath = JSON.parse(localStorage.getItem('notion_v82_active_theme'));
+                try {
+                    const ws = JSON.parse(localStorage.getItem('notion_v82_ws'));
+                    const th = JSON.parse(localStorage.getItem('notion_v82_themes'));
+                    const fn = JSON.parse(localStorage.getItem('notion_v82_fonts'));
+                    const aid = JSON.parse(localStorage.getItem('notion_v82_active_id'));
+                    const ath = JSON.parse(localStorage.getItem('notion_v82_active_theme'));
 
-                if (ws) actions.internalSetters.setWorkspaces(ws);
-                if (th) actions.internalSetters.setThemes(th);
-                if (fn) actions.internalSetters.setFonts(fn);
-                if (aid) actions.internalSetters.setActiveWorkspaceId(aid);
-                if (ath) actions.internalSetters.setActiveThemeId(ath);
+                    if (ws) actions.internalSetters.setWorkspaces(ws);
+                    if (th) actions.internalSetters.setThemes(th);
+                    if (fn) actions.internalSetters.setFonts(fn);
+                    if (aid) actions.internalSetters.setActiveWorkspaceId(aid);
+                    if (ath) actions.internalSetters.setActiveThemeId(ath);
 
-                showNotify("Sesión restaurada correctamente");
+                    showNotify("Sesión restaurada correctamente");
+                } catch (e) {
+                    console.error("Error restoring backup:", e);
+                    showNotify("Error al restaurar la copia de seguridad");
+                }
             }
         }
     }, [session, actions.internalSetters]);
