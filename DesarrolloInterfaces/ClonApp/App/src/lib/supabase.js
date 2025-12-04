@@ -5,7 +5,13 @@ const supabaseAnonKey = import.meta.env?.VITE_SUPABASE_ANON_KEY || window.VITE_S
 
 let supabase = null;
 if (supabaseUrl && supabaseAnonKey) {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // If the key is the invalid Google one, force mock mode
+    if (supabaseAnonKey.startsWith('GOCSPX')) {
+        console.warn("Invalid Supabase key detected (looks like Google secret). Forcing Mock Mode.");
+        supabase = null;
+    } else {
+        supabase = createClient(supabaseUrl, supabaseAnonKey);
+    }
 } else {
     console.warn("Supabase credentials missing. Auth will act as Mock.");
 }
@@ -27,10 +33,10 @@ export const AuthService = {
             // Fallback Mock for Google
             await new Promise(resolve => setTimeout(resolve, 1000));
             const mockUser = {
-                id: "user-mock",
-                email: "demo@ejemplo.com",
+                id: "user-mock-google",
+                email: "google-user@ejemplo.com",
                 user_metadata: {
-                    full_name: "Usuario Demo",
+                    full_name: "Usuario Google Mock",
                     avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
                 }
             };
@@ -39,6 +45,34 @@ export const AuthService = {
         }
     },
     signInWithPassword: async (email, password) => {
+        // 1. Check Hardcoded Demo User
+        if (email === "demo@ejemplo.com" && password === "demo") {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const mockUser = {
+                id: "user-mock-demo",
+                email: "demo@ejemplo.com",
+                user_metadata: { full_name: "Usuario Demo" }
+            };
+            localStorage.setItem('notion_mock_user', JSON.stringify(mockUser));
+            return { user: mockUser };
+        }
+
+        // 2. Check "Mock Database" (localStorage)
+        const mockUsers = JSON.parse(localStorage.getItem('notion_mock_db_users') || '[]');
+        const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+
+        if (foundUser) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const sessionUser = {
+                id: foundUser.id,
+                email: foundUser.email,
+                user_metadata: { full_name: foundUser.email.split('@')[0] }
+            };
+            localStorage.setItem('notion_mock_user', JSON.stringify(sessionUser));
+            return { user: sessionUser };
+        }
+
+        // 3. Try Real Supabase (if configured)
         if (supabase) {
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
@@ -46,20 +80,9 @@ export const AuthService = {
             });
             if (error) throw error;
             return data;
-        } else {
-            // Mock Email Login
-            await new Promise(resolve => setTimeout(resolve, 800));
-            if (email === "demo@ejemplo.com" && password === "demo") {
-                const mockUser = {
-                    id: "user-mock",
-                    email: "demo@ejemplo.com",
-                    user_metadata: { full_name: "Usuario Demo" }
-                };
-                localStorage.setItem('notion_mock_user', JSON.stringify(mockUser));
-                return { user: mockUser };
-            }
-            throw new Error("Credenciales inválidas (Mock: usa demo@ejemplo.com / demo)");
         }
+
+        throw new Error("Credenciales inválidas (Mock: usa demo@ejemplo.com / demo o regístrate)");
     },
     signUp: async (email, password) => {
         if (supabase) {
@@ -70,7 +93,33 @@ export const AuthService = {
             if (error) throw error;
             return data;
         } else {
-            throw new Error("El registro requiere conexión real a Supabase.");
+            // Mock Registration
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const mockUsers = JSON.parse(localStorage.getItem('notion_mock_db_users') || '[]');
+
+            if (mockUsers.find(u => u.email === email)) {
+                throw new Error("El usuario ya existe (Mock DB)");
+            }
+
+            const newUser = {
+                id: `user-mock-${Date.now()}`,
+                email,
+                password // In a real app, never store passwords plain text!
+            };
+
+            mockUsers.push(newUser);
+            localStorage.setItem('notion_mock_db_users', JSON.stringify(mockUsers));
+
+            // Auto-login after sign up
+            const sessionUser = {
+                id: newUser.id,
+                email: newUser.email,
+                user_metadata: { full_name: email.split('@')[0] }
+            };
+            localStorage.setItem('notion_mock_user', JSON.stringify(sessionUser));
+
+            return { user: sessionUser };
         }
     },
     logout: async () => {

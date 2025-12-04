@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 import { BackupService } from '../../lib/backup';
 import { AuthService } from '../../lib/supabase';
 
-export function SettingsView({ ui, setUi, userProfile, actions, themes, activeThemeId, activeFontId, fetchMarketData }) {
+export function SettingsView({ ui, setUi, userProfile, actions, themes, activeThemeId, activeFontId, fetchMarketData, activeWorkspaceId }) {
     const fileInputRef = useRef(null);
 
     const triggerUpload = () => {
@@ -49,7 +49,11 @@ export function SettingsView({ ui, setUi, userProfile, actions, themes, activeTh
                                 </div>
                             </div>
                         </div>
-                        <button onClick={async () => { BackupService.saveBackup(userProfile.email); await AuthService.logout(); BackupService.clearLocalData(); window.location.reload(); }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button>
+                        <div className="space-y-3 pt-4 border-t border-zinc-200">
+                            <button onClick={async () => { BackupService.saveBackup(userProfile.email); await AuthService.logout(); BackupService.clearLocalData(); window.location.reload(); }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium flex items-center gap-2"><LogOut size={16} /> Cerrar Sesión</button>
+                            <button onClick={() => { if (confirm("¿Estás seguro de que quieres borrar todas las páginas del workspace actual? Esta acción no se puede deshacer.")) { actions.deleteAllPages(); } }} className="text-orange-600 border border-orange-200 px-4 py-2 rounded hover:bg-orange-50 text-sm font-medium w-full">Borrar todas las páginas</button>
+                            <button onClick={() => { if (confirm("¿Estás seguro de que quieres eliminar este workspace? Esta acción no se puede deshacer.")) { if (actions.removeWorkspace(ui.activeWorkspaceId)) { window.location.reload(); } else { alert("No puedes eliminar el último workspace"); } } }} className="text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 text-sm font-medium w-full">Eliminar Workspace</button>
+                        </div>
                     </div>
                 )}
                 {ui.settingsSection === 'themes' && (

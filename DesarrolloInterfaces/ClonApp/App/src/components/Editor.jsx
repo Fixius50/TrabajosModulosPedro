@@ -143,6 +143,9 @@ export const FancyEditable = ({ tagName: Tag, html, className, onChange, onKeyDo
 };
 
 export const EditorBlock = ({ block, index, actions }) => {
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -172,6 +175,37 @@ export const EditorBlock = ({ block, index, actions }) => {
         actions.updateBlock(block.id, { content: val });
     };
 
+    // Drag & Drop handlers
+    const handleDragStart = (e) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index.toString());
+        setIsDragging(true);
+    };
+
+    const handleDragEnd = () => {
+        setIsDragging(false);
+        setDragOverIndex(null);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverIndex(index);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverIndex(null);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+        if (fromIndex !== index && actions.reorderBlocks) {
+            actions.reorderBlocks(fromIndex, index);
+        }
+        setDragOverIndex(null);
+    };
+
     const showSlashMenu = block.type === 'p' && block.content.startsWith('/');
     const slashQuery = showSlashMenu ? block.content.substring(1) : '';
 
@@ -179,7 +213,23 @@ export const EditorBlock = ({ block, index, actions }) => {
     const firstUrl = urlMatch ? urlMatch[0] : null;
 
     return (
-        <motion.div id={block.id} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="group relative flex items-start pl-2 md:pl-6 mb-1 py-0.5">
+        <motion.div
+            id={block.id}
+            layout
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={clsx(
+                "group relative flex items-start pl-2 md:pl-6 mb-1 py-0.5 transition-colors",
+                isDragging && "opacity-50",
+                dragOverIndex === index && "border-t-2 border-indigo-500"
+            )}
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+        >
             <div className="absolute left-0 top-1.5 p-0.5 text-zinc-300 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing hover:text-zinc-500 transition-opacity touch-none hidden md:block"><GripVertical size={16} /></div>
             <div className="w-full relative">
                 {showSlashMenu && <SlashMenu query={slashQuery} onSelect={(type) => actions.updateBlock(block.id, { type, content: '' })} onClose={() => { }} />}

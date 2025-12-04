@@ -68,10 +68,11 @@ export const useAppStore = () => {
     const actions = {
         setActiveWorkspaceId, setActivePageId, setUserProfile, setActiveThemeId,
         addWorkspace: (name) => {
+            const wsName = name || (userProfile?.email ? `${userProfile.email.split('@')[0]}'s Workspace` : 'New Workspace');
             const newWs = {
                 id: utils.generateId(),
-                name,
-                initial: name[0].toUpperCase(),
+                name: wsName,
+                initial: wsName[0].toUpperCase(),
                 color: utils.getRandomColor(),
                 email: userProfile.email,
                 pages: [
@@ -148,6 +149,13 @@ export const useAppStore = () => {
         updateBlock: (bid, u) => activePage && actions.updatePage(activePageId, { blocks: activePage.blocks.map(b => b.id === bid ? { ...b, ...u } : b) }),
         addBlock: (idx, data) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), { id: utils.generateId(), type: 'p', content: '', ...data }, ...activePage.blocks.slice(idx)] }),
         deleteBlock: (idx) => activePage && actions.updatePage(activePageId, { blocks: [...activePage.blocks.slice(0, idx), ...activePage.blocks.slice(idx + 1)] }),
+        reorderBlocks: (fromIndex, toIndex) => {
+            if (!activePage) return;
+            const blocks = [...activePage.blocks];
+            const [moved] = blocks.splice(fromIndex, 1);
+            blocks.splice(toIndex, 0, moved);
+            actions.updatePage(activePageId, { blocks });
+        },
         addTheme: (t) => { if (!t.name) return; setThemes(p => { const exists = p.find(ex => ex.id === t.id); if (exists) return p.map(ex => ex.id === t.id ? t : ex); return [...p, t]; }); },
         removeTheme: (themeId) => {
             if (themeId === 'default') return;
@@ -168,6 +176,13 @@ export const useAppStore = () => {
                 if (w.id !== activeWorkspaceId) return w;
                 return { ...w, pages: w.pages.filter(pg => !pg.isDeleted) };
             }));
+        },
+        deleteAllPages: () => {
+            setWorkspaces(p => p.map(w => {
+                if (w.id !== activeWorkspaceId) return w;
+                return { ...w, pages: [] };
+            }));
+            setActivePageId(null);
         },
         // Internal setters for restoration
         setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId

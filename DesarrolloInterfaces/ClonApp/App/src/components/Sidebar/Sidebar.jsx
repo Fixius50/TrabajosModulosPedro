@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 import { SidebarItem } from './SidebarItem';
 
 const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, actions, userProfile, workspaces, handleContextMenu }) => {
+    const userName = userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario';
     return (
         <AnimatePresence mode="wait">
             {ui.sidebarOpen && (
@@ -19,9 +20,11 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                     {/* Sidebar Header */}
                     <div className="p-3 hover:bg-zinc-200/50 transition-colors cursor-pointer m-2 rounded-lg flex items-center gap-2 group" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: true } }))}>
                         <div className={`w-6 h-6 rounded bg-gradient-to-br ${activeWorkspace?.color || 'from-gray-500 to-gray-600'} flex items-center justify-center text-white text-xs font-bold shadow-sm`}>
-                            {activeWorkspace?.initial || 'W'}
+                            {activeWorkspace?.initial || (userProfile?.email ? userProfile.email[0].toUpperCase() : 'W')}
                         </div>
-                        <span className="font-medium text-sm truncate flex-1">{activeWorkspace?.name || 'Workspace'}</span>
+                        <span className="font-medium text-sm truncate flex-1">
+                            {activeWorkspace?.name || (userProfile?.email ? `${userProfile.email.split('@')[0]}'s Workspace` : 'Workspace')}
+                        </span>
                         <div className="w-4 h-4 flex items-center justify-center text-zinc-400 group-hover:text-zinc-600"><ChevronDown size={12} /></div>
                     </div>
 
@@ -31,7 +34,7 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                             <Search size={14} /> <span className="flex-1">Buscar</span> <span className="text-xs border border-zinc-300 rounded px-1 opacity-0 group-hover:opacity-100 transition-opacity">Ctrl+K</span>
                         </div>
                         <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, ai: true } }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
-                            <Sparkles size={14} /> <span>Fixius AI</span>
+                            <Sparkles size={14} /> <span>{userName} AI</span>
                         </div>
                         <div onClick={() => setUi(p => ({ ...p, currentView: 'home' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <LayoutGrid size={14} /> <span>Inicio</span>
@@ -98,7 +101,7 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
 
                     {/* Sidebar Footer */}
                     <div className="p-2 border-t border-zinc-200 space-y-0.5">
-                        <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, marketplace: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                        <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, market: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Package size={14} /> <span>Marketplace</span>
                         </div>
                         <div onClick={() => setUi(p => ({ ...p, currentView: 'trash' }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">

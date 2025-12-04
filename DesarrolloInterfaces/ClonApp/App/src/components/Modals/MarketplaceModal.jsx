@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Check, Download } from 'lucide-react';
+import { Loader2, Check, Download, Package } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Modal } from '../UI';
 
@@ -14,10 +14,21 @@ export function MarketplaceModal({ ui, setUi, loadingMarket, marketData, themes,
 
                 <div className="flex-1 overflow-y-auto p-6">
                     {loadingMarket ? (
-                        <div className="flex items-center justify-center h-full text-zinc-400 gap-2"><Loader2 className="animate-spin" /> Cargando marketplace...</div>
+                        <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-3">
+                            <Loader2 className="animate-spin" size={32} />
+                            <p className="text-sm font-medium">Cargando marketplace...</p>
+                        </div>
                     ) : (
                         <>
-                            {ui.marketTab === 'themes' && (
+                            {/* Empty State Check */}
+                            {(!marketData.styles?.length && !marketData.templates?.length) && (
+                                <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-2">
+                                    <Package size={48} className="opacity-20" />
+                                    <p>No hay contenido disponible</p>
+                                </div>
+                            )}
+
+                            {ui.marketTab === 'themes' && marketData.styles?.length > 0 && (
                                 <div className="grid grid-cols-2 gap-4">
                                     {marketData.styles.map(t => {
                                         const isInstalled = themes.some(th => th.id === t.id);
@@ -44,7 +55,7 @@ export function MarketplaceModal({ ui, setUi, loadingMarket, marketData, themes,
                                 </div>
                             )}
 
-                            {ui.marketTab === 'templates' && (
+                            {ui.marketTab === 'templates' && marketData.templates?.length > 0 && (
                                 <div className="grid grid-cols-1 gap-4">
                                     {marketData.templates?.map(t => (
                                         <div key={t.id} className="border border-zinc-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer flex items-center gap-4" onClick={() => { actions.addPage({ title: t.name, icon: t.icon, blocks: t.blocks }); setUi(p => ({ ...p, modals: { ...p.modals, marketplace: false } })); showNotify("Plantilla aplicada"); }}>

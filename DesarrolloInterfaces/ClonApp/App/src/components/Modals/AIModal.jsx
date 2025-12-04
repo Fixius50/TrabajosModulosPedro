@@ -3,9 +3,10 @@ import { Sparkles, Wand2, Loader2 } from 'lucide-react';
 import { Modal } from '../UI';
 import { utils } from '../../lib/utils';
 
-export function AIModal({ ui, setUi, aiPrompt, setAiPrompt, isAiGenerating, setIsAiGenerating, actions, showNotify }) {
+export function AIModal({ ui, setUi, aiPrompt, setAiPrompt, isAiGenerating, setIsAiGenerating, actions, showNotify, userProfile }) {
+    const userName = userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario';
     return (
-        <Modal isOpen={ui.modals.ai} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, ai: false } }))} title="Fixius AI">
+        <Modal isOpen={ui.modals.ai} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, ai: false } }))} title={`${userName} AI`}>
             <div className="p-6 text-center">
                 <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4"><Sparkles size={24} /></div>
                 <h3 className="text-lg font-semibold mb-2">Generar Página con IA</h3>
@@ -20,7 +21,7 @@ export function AIModal({ ui, setUi, aiPrompt, setAiPrompt, isAiGenerating, setI
                     setTimeout(() => {
                         const generatedContent = [
                             { id: utils.generateId(), type: 'h1', content: aiPrompt || 'Página Generada' },
-                            { id: utils.generateId(), type: 'p', content: 'Esta página ha sido generada automáticamente por Fixius AI basándose en tu descripción.' },
+                            { id: utils.generateId(), type: 'p', content: `Esta página ha sido generada automáticamente por ${userName} AI basándose en tu descripción.` },
                             { id: utils.generateId(), type: 'callout', content: `Prompt original: "${aiPrompt}"` },
                             { id: utils.generateId(), type: 'h2', content: 'Contenido Sugerido' },
                             { id: utils.generateId(), type: 'todo', content: 'Revisar el contenido generado', checked: false },

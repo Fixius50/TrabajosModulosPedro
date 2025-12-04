@@ -13,6 +13,7 @@ import { useAppStore } from './store/useAppStore';
 import { LandingPage } from './components/Views/LandingPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import { Modal } from './components/UI';
+import { ContextMenu } from './components/ContextMenu';
 
 // Views
 import { HomeView } from './components/Views/HomeView';
@@ -20,6 +21,7 @@ import { InboxView } from './components/Views/InboxView';
 import { TrashView } from './components/Views/TrashView';
 import { SettingsView } from './components/Views/SettingsView';
 import { PageView } from './components/Views/PageView';
+import { EmptyWorkspaceView } from './components/Views/EmptyWorkspaceView';
 
 // Modals
 import { SearchModal } from './components/Modals/SearchModal';
@@ -56,14 +58,19 @@ function MainApp({ session, onLogout }) {
             createWorkspace: false,
             googleLogin: false
         },
-        marketTab: 'gallery',
-        marketSubTab: 'store',
         iconPickerTab: 'emoji',
         notification: { show: false, message: '' },
         isAuthenticated: true,
         favoritesOpen: true,
         pagesOpen: true
     });
+
+    // Trigger Market Fetch when modal opens
+    useEffect(() => {
+        if (ui.modals.market) {
+            fetchMarketData();
+        }
+    }, [ui.modals.market]);
 
     const [showComments, setShowComments] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -152,14 +159,79 @@ function MainApp({ session, onLogout }) {
         return () => window.removeEventListener('click', closeMenu);
     }, [contextMenu]);
 
+    const handleCreateWorkspaceWithTemplate = (workspaceName, templateId) => {
+        const templatePages = {
+            personal: [
+                { title: 'Tareas', icon: '✅', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Mis Tareas' }, { id: utils.generateId(), type: 'todo', content: 'Organizar escritorio', checked: false }] },
+                { title: 'Notas', icon: '📝', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Notas Rápidas' }] },
+                { title: 'Diario', icon: '📔', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Mi Diario' }] },
+            ],
+            work: [
+                { title: 'Proyectos', icon: '💼', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Proyectos Activos' }] },
+                { title: 'Reuniones', icon: '🤝', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Ac tas de Reuniones' }] },
+                { title: 'Ideas', icon: '💡', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Ideas Nuevas' }] },
+                { title: 'Recursos', icon: '📚', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Enlaces y Herramientas' }] },
+            ],
+            study: [
+                { title: 'Apuntes', icon: '📖', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Resum en de Clases' }] },
+                { title: 'Tareas', icon: '✏️', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Tareas Pendientes' }] },
+                { title: 'Recursos', icon: '🔖', blocks: [{ id: utils.generateId(), type: 'h1', content: 'Material de Estudio' }] },
+            ],
+        };
+
+        const pages = templateId && templatePages[templateId] ? templatePages[templateId].map(p => ({
+            id: utils.generateId(),
+            title: p.title,
+            icon: p.icon,
+            cover: null,
+            comments: [],
+            inInbox: false,
+            isFavorite: false,
+            isDeleted: false,
+            isGenerating: false,
+            parentId: null,
+            updatedAt: new Date().toISOString(),
+            blocks: p.blocks || []
+        })) : [];
+
+        const newWs = {
+            id: utils.generateId(),
+            name: workspaceName,
+            initial: workspaceName[0].toUpperCase(),
+            color: 'from-indigo-500 to-purple-500',
+            email: userProfile.email,
+            pages
+        };
+        setWorkspaces(p => [...p, newWs]);
+        setActiveWorkspaceId(newWs.id);
+    };
+
     const fetchMarketData = async () => {
-        // Mock implementation for now
         setLoadingMarket(true);
-        await utils.delay(500);
+        await utils.delay(800);
+        setMarketData({
+            styles: [
+                { id: 'theme-dark', name: 'Dark Mode', author: userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario', colors: { bg: '#18181b', text: '#fafafa' } },
+                { id: 'theme-sepia', name: 'Sepia Reading', author: 'Reader', colors: { bg: '#fdf6e3', text: '#5f4b32' } },
+                { id: 'theme-ocean', name: 'Ocean Blue', author: 'Nature', colors: { bg: '#f0f9ff', text: '#0c4a6e' } },
+                { id: 'theme-forest', name: 'Forest Green', author: 'Nature', colors: { bg: '#f0fdf4', text: '#14532d' } }
+            ],
+            templates: [
+                { id: 'tmpl-marketing', name: 'Plan de Marketing', icon: '📈', description: 'Estrategia completa para Q4', blocks: [{ id: 'b1', type: 'h1', content: 'Plan de Marketing' }, { id: 'b2', type: 'todo', content: 'Definir KPIs', checked: false }] },
+                { id: 'tmpl-journal', name: 'Diario Personal', icon: '📔', description: 'Plantilla para reflexiones diarias', blocks: [{ id: 'b1', type: 'h1', content: 'Diario' }, { id: 'b2', type: 'p', content: 'Hoy me siento...' }] },
+                { id: 'tmpl-meeting', name: 'Notas de Reunión', icon: '🤝', description: 'Estructura para actas de reuniones', blocks: [{ id: 'b1', type: 'h1', content: 'Reunión de Equipo' }, { id: 'b2', type: 'h2', content: 'Asistentes' }, { id: 'b3', type: 'todo', content: 'Juan', checked: true }] }
+            ],
+            covers: []
+        });
         setLoadingMarket(false);
     };
 
     // --- RENDER ---
+    // Show Empty Workspace View if no workspaces exist
+    if (workspaces.length === 0) {
+        return <EmptyWorkspaceView onCreateWorkspace={handleCreateWorkspaceWithTemplate} />;
+    }
+
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[var(--bg-color)] text-[var(--text-color)]" style={{ fontFamily: 'var(--font-main)' }}>
             <Sidebar
@@ -184,12 +256,40 @@ function MainApp({ session, onLogout }) {
                             setUi={setUi}
                         />
                     )}
-                    {ui.currentView === 'inbox' && <InboxView />}
-                    {ui.currentView === 'trash' && <TrashView />}
-                    {ui.currentView === 'settings' && <SettingsView onLogout={onLogout} />}
+                    {ui.currentView === 'inbox' && (
+                        <InboxView
+                            activeWorkspace={activeWorkspace}
+                            actions={actions}
+                        />
+                    )}
+                    {ui.currentView === 'trash' && (
+                        <TrashView
+                            activeWorkspace={activeWorkspace}
+                            actions={actions}
+                            showNotify={showNotify}
+                        />
+                    )}
+                    {ui.currentView === 'settings' && (
+                        <SettingsView
+                            ui={ui}
+                            setUi={setUi}
+                            userProfile={userProfile}
+                            actions={actions}
+                            themes={themes}
+                            activeThemeId={activeThemeId}
+                            activeFontId={activeFontId}
+                            fetchMarketData={fetchMarketData}
+                            onLogout={onLogout}
+                            activeWorkspaceId={activeWorkspaceId}
+                        />
+                    )}
                     {ui.currentView === 'page' && (
                         <PageView
-                            pageId={activePageId}
+                            activePage={activePage}
+                            activePageId={activePageId}
+                            ui={ui}
+                            setUi={setUi}
+                            actions={actions}
                             isMobile={isMobile}
                             toggleSidebar={toggleSidebar}
                         />
@@ -200,21 +300,109 @@ function MainApp({ session, onLogout }) {
                 <AnimatePresence>
                     {ui.modals.search && (
                         <SearchModal
-                            isOpen={ui.modals.search}
-                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, search: false } }))}
+                            ui={ui}
+                            setUi={setUi}
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
+                            searchFilters={searchFilters}
+                            setSearchFilters={setSearchFilters}
                             filteredPages={filteredPages}
+                            actions={actions}
                         />
                     )}
-                    {ui.modals.ai && <AIModal isOpen={ui.modals.ai} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, ai: false } }))} />}
-                    {ui.modals.workspaceMenu && <WorkspaceMenu isOpen={ui.modals.workspaceMenu} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } }))} />}
-                    {ui.modals.market && <MarketplaceModal isOpen={ui.modals.market} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, market: false } }))} />}
-                    {ui.modals.createWorkspace && <CreateWorkspaceModal isOpen={ui.modals.createWorkspace} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))} />}
-                    {ui.modals.iconPicker && <IconPickerModal isOpen={ui.modals.iconPicker} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, iconPicker: false } }))} />}
-                    {ui.modals.coverGallery && <CoverGalleryModal isOpen={ui.modals.coverGallery} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: false } }))} />}
-                    {ui.modals.pageOptions && <PageOptionsModal isOpen={ui.modals.pageOptions} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } }))} />}
+                    {ui.modals.ai && (
+                        <AIModal
+                            ui={ui}
+                            setUi={setUi}
+                            aiPrompt={aiPrompt}
+                            setAiPrompt={setAiPrompt}
+                            isAiGenerating={isAiGenerating}
+                            setIsAiGenerating={setIsAiGenerating}
+                            actions={actions}
+                            showNotify={showNotify}
+                            userProfile={userProfile}
+                        />
+                    )}
+                    {ui.modals.workspaceMenu && (
+                        <WorkspaceMenu
+                            isOpen={ui.modals.workspaceMenu}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            workspaces={workspaces}
+                            activeWorkspaceId={activeWorkspaceId}
+                            actions={actions}
+                            userProfile={userProfile}
+                        />
+                    )}
+                    {ui.modals.market && (
+                        <MarketplaceModal
+                            isOpen={ui.modals.market}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, market: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            loadingMarket={loadingMarket}
+                            marketData={marketData}
+                            themes={themes}
+                            actions={actions}
+                            showNotify={showNotify}
+                        />
+                    )}
+                    {ui.modals.createWorkspace && (
+                        <CreateWorkspaceModal
+                            isOpen={ui.modals.createWorkspace}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            actions={actions}
+                            newWorkspaceName={newWorkspaceName}
+                            setNewWorkspaceName={setNewWorkspaceName}
+                        />
+                    )}
+                    {ui.modals.iconPicker && (
+                        <IconPickerModal
+                            isOpen={ui.modals.iconPicker}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, iconPicker: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            actions={actions}
+                            activePageId={activePageId}
+                        />
+                    )}
+                    {ui.modals.coverGallery && (
+                        <CoverGalleryModal
+                            isOpen={ui.modals.coverGallery}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            actions={actions}
+                            activePageId={activePageId}
+                            marketData={marketData}
+                        />
+                    )}
+                    {ui.modals.pageOptions && (
+                        <PageOptionsModal
+                            isOpen={ui.modals.pageOptions}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } }))}
+                            ui={ui}
+                            setUi={setUi}
+                            actions={actions}
+                            activePage={activePage}
+                            activePageId={activePageId}
+                        />
+                    )}
                 </AnimatePresence>
+
+                {/* Context Menu */}
+                <ContextMenu
+                    isOpen={contextMenu.isOpen}
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    pageId={contextMenu.pageId}
+                    onClose={() => setContextMenu({ ...contextMenu, isOpen: false })}
+                    actions={actions}
+                    activeWorkspace={activeWorkspace}
+                />
             </main>
         </div>
     );

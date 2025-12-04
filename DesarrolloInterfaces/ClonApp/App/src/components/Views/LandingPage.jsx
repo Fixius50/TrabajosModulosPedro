@@ -56,7 +56,7 @@ export function LandingPage({ onLoginSuccess }) {
                         <span>Nueva Arquitectura V82</span>
                     </motion.div>
                     <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
-                        Bienvenido a <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Fixius</span>
+                        Bienvenido
                     </h1>
                     <p className="text-zinc-500">
                         Tu espacio de trabajo, reimaginado.
@@ -124,6 +124,16 @@ export function LandingPage({ onLoginSuccess }) {
                         <button onClick={() => setIsSignUp(!isSignUp)} className="ml-1 font-medium text-indigo-600 hover:text-indigo-500">
                             {isSignUp ? "Inicia sesión" : "Regístrate"}
                         </button>
+                    </div>
+
+                    {/* Mock Mode Note */}
+                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800">
+                        <p className="font-bold mb-1">🔧 Modo de Prueba (Mock)</p>
+                        <p>Si tienes problemas con la API, usa estas credenciales para probar la app localmente:</p>
+                        <div className="mt-2 font-mono bg-yellow-100 p-2 rounded">
+                            <p>Email: <strong>demo@ejemplo.com</strong></p>
+                            <p>Pass: <strong>demo</strong></p>
+                        </div>
                     </div>
                 </div>
             </div>
