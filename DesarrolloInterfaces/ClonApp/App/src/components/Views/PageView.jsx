@@ -1,10 +1,8 @@
 import React from 'react';
-import { Smile, ImageIcon, MessageSquare, FileText, Plus } from 'lucide-react';
-import { clsx } from 'clsx';
-import { EditorBlock, FancyEditable } from '../Editor';
-import TableOfContents from '../TableOfContents';
+import { ImageIcon, FileText, Plus } from 'lucide-react';
+import { FancyEditable, EditorBlock } from '../Editor';
 
-const PageView = ({ activePage, activePageId, actions, setUi, showComments, setShowComments }) => {
+export function PageView({ activePage, activePageId, ui, setUi, actions }) {
     if (!activePage) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-zinc-400">
@@ -20,9 +18,7 @@ const PageView = ({ activePage, activePageId, actions, setUi, showComments, setS
             <div className="group relative mb-8">
                 {activePage.cover && <div className="h-48 w-full rounded-xl bg-cover bg-center mb-8 shadow-sm" style={{ backgroundImage: activePage.cover.startsWith('http') ? `url(${activePage.cover})` : activePage.cover }} />}
                 {!activePage.cover && <div className="h-12 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                    <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, iconPickerModal: true } }))} className="hover:bg-zinc-100 px-2 py-1 rounded flex items-center gap-1"><Smile size={14} /> Añadir icono</button>
-                    <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: true } }))} className="hover:bg-zinc-100 px-2 py-1 rounded flex items-center gap-1"><ImageIcon size={14} /> Añadir portada</button>
-                    <button onClick={() => setShowComments(!showComments)} className={clsx("hover:bg-zinc-100 px-2 py-1 rounded flex items-center gap-1", showComments && "text-zinc-900 bg-zinc-100")}><MessageSquare size={14} /> {showComments ? "Ocultar comentarios" : "Añadir comentario"}</button>
+                    <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: true } }))} className="hover:bg-zinc-100 px-2 py-1 rounded flex items-center gap-1"><ImageIcon size={12} /> Añadir portada</button>
                 </div>}
 
                 <div className="text-7xl mb-4 group relative w-fit cursor-pointer" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, iconPickerModal: true } }))}>
@@ -41,9 +37,6 @@ const PageView = ({ activePage, activePageId, actions, setUi, showComments, setS
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity">Haz clic para añadir un bloque</span>
                 </div>
             </div>
-            <TableOfContents blocks={activePage.blocks} />
         </div>
     );
-};
-
-export default PageView;
+}

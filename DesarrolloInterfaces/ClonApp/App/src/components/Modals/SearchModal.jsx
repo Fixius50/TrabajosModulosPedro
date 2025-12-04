@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Search, Globe, FileText, Calendar } from 'lucide-react';
 import { clsx } from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
 import { Modal } from '../UI';
 
-const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery, searchFilters, setSearchFilters, filteredPages, onPageSelect }) => {
+export function SearchModal({ ui, setUi, searchQuery, setSearchQuery, searchFilters, setSearchFilters, filteredPages, actions }) {
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Buscar">
+        <Modal isOpen={ui.modals.search} onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, search: false } }))} title="Buscar">
             <div className="p-4">
                 <div className="relative mb-4">
                     <Search className="absolute left-3 top-2.5 text-zinc-400" size={18} />
@@ -29,7 +29,7 @@ const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery, searchFilte
                 </div>
                 <div className="space-y-1 max-h-[60vh] overflow-y-auto">
                     {filteredPages.map(page => (
-                        <div key={page.id} onClick={() => onPageSelect(page.id)} className="flex items-center gap-3 p-2 hover:bg-zinc-100 rounded-lg cursor-pointer">
+                        <div key={page.id} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, modals: { ...p.modals, search: false } })); }} className="flex items-center gap-3 p-2 hover:bg-zinc-100 rounded-lg cursor-pointer">
                             <div className="w-8 h-8 flex items-center justify-center bg-white border border-zinc-200 rounded text-lg">{page.icon || <FileText size={14} />}</div>
                             <div className="flex-1 min-w-0">
                                 <div className="font-medium truncate">{page.title || 'Sin título'}</div>
@@ -46,6 +46,4 @@ const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery, searchFilte
             </div>
         </Modal>
     );
-};
-
-export default SearchModal;
+}

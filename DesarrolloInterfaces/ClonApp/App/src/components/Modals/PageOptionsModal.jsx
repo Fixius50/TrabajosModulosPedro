@@ -1,11 +1,11 @@
 import React from 'react';
 import { Star as StarIcon, Link as LinkIcon, Trash } from 'lucide-react';
 
-const PageOptionsModal = ({ isOpen, onClose, ui, setUi, activePage, activePageId, activeWorkspace, activeWorkspaceId, userProfile, actions, showNotify }) => {
-    if (!isOpen) return null;
+export function PageOptionsModal({ ui, setUi, activePage, activePageId, activeWorkspace, activeWorkspaceId, userProfile, actions, showNotify }) {
+    if (!ui.modals.pageOptions) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-start justify-end pr-4 pt-12" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-start justify-end pr-4 pt-12" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } }))}>
             <div className="bg-white border border-zinc-200 rounded-lg shadow-xl w-64 overflow-hidden text-zinc-700" onClick={e => e.stopPropagation()}>
                 {ui.currentView === 'page' && activePage ? (
                     <div className="py-1">
@@ -25,15 +25,15 @@ const PageOptionsModal = ({ isOpen, onClose, ui, setUi, activePage, activePageId
                             <div className="w-8 h-4 bg-zinc-200 rounded-full relative"><div className="w-3 h-3 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm" /></div>
                         </div>
                         <div className="h-px bg-zinc-100 my-1" />
-                        <button onClick={() => { actions.updatePage(activePageId, { isFavorite: !activePage.isFavorite }); onClose(); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
+                        <button onClick={() => { actions.updatePage(activePageId, { isFavorite: !activePage.isFavorite }); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
                             <StarIcon size={16} fill={activePage.isFavorite ? "currentColor" : "none"} className={activePage.isFavorite ? "text-yellow-400" : "text-zinc-400"} />
                             {activePage.isFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
                         </button>
-                        <button onClick={() => { navigator.clipboard.writeText(window.location.href); onClose(); showNotify("Enlace copiado"); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
+                        <button onClick={() => { navigator.clipboard.writeText(window.location.href); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); showNotify("Enlace copiado"); }} className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 flex items-center gap-2">
                             <LinkIcon size={16} className="text-zinc-400" /> Copiar enlace
                         </button>
                         <div className="h-px bg-zinc-100 my-1" />
-                        <button onClick={() => { if (confirm("¿Eliminar página?")) { actions.deletePage(activePageId); onClose(); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
+                        <button onClick={() => { if (confirm("¿Eliminar página?")) { actions.deletePage(activePageId); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
                             <Trash size={16} /> Eliminar página
                         </button>
                     </div>
@@ -45,7 +45,7 @@ const PageOptionsModal = ({ isOpen, onClose, ui, setUi, activePage, activePageId
                             <div className="text-xs">{userProfile.email}</div>
                         </div>
                         <div className="h-px bg-zinc-100 my-1" />
-                        <button onClick={() => { if (confirm("¿Estás seguro de que quieres eliminar este espacio de trabajo permanentemente?")) { actions.removeWorkspace(activeWorkspaceId); onClose(); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
+                        <button onClick={() => { if (confirm("¿Estás seguro de que quieres eliminar este espacio de trabajo permanentemente?")) { actions.removeWorkspace(activeWorkspaceId); setUi(p => ({ ...p, modals: { ...p.modals, pageOptions: false } })); } }} className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-500 flex items-center gap-2">
                             <Trash size={16} /> Eliminar workspace
                         </button>
                     </div>
@@ -53,6 +53,4 @@ const PageOptionsModal = ({ isOpen, onClose, ui, setUi, activePage, activePageId
             </div>
         </div>
     );
-};
-
-export default PageOptionsModal;
+}

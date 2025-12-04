@@ -39,7 +39,7 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                         <div onClick={() => setUi(p => ({ ...p, currentView: 'inbox' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Inbox size={14} /> <span>Bandeja</span>
                         </div>
-                        <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, settings: true } }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                        <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Settings size={14} /> <span>Configuración</span>
                         </div>
                     </div>

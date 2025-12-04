@@ -1,16 +1,16 @@
 import React from 'react';
 import { Check, Trash, PlusCircle, LogOut } from 'lucide-react';
 
-const WorkspaceMenu = ({ isOpen, onClose, userProfile, workspaces, activeWorkspaceId, actions, setUi, onLogout }) => {
-    if (!isOpen) return null;
+export function WorkspaceMenu({ ui, setUi, workspaces, userProfile, activeWorkspaceId, actions, onLogout }) {
+    if (!ui.modals.workspaceMenu) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-start justify-start" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-start justify-start" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } }))}>
             <div className="absolute top-14 left-4 w-72 bg-white border border-zinc-200 rounded-lg shadow-xl overflow-hidden" onClick={e => e.stopPropagation()}>
                 <div className="p-2 border-b border-zinc-100">
                     <div className="text-xs font-semibold text-zinc-500 px-2 py-1 mb-1">Workspaces de {userProfile.email}</div>
                     {workspaces.filter(w => w.email === userProfile.email).map(ws => (
-                        <div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); onClose(); }} className="flex items-center justify-between px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer group">
+                        <div key={ws.id} onClick={() => { actions.setActiveWorkspaceId(ws.id); setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } })); }} className="flex items-center justify-between px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer group">
                             <div className="flex items-center gap-2">
                                 <div className={`w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold ${ws.id === activeWorkspaceId ? 'ring-2 ring-offset-1 ring-zinc-400' : ''}`} style={{ background: ws.color || '#666' }}>{ws.initial}</div>
                                 <span className={`text-sm ${ws.id === activeWorkspaceId ? 'font-medium text-zinc-900' : 'text-zinc-600'}`}>{ws.name}</span>
@@ -23,7 +23,7 @@ const WorkspaceMenu = ({ isOpen, onClose, userProfile, workspaces, activeWorkspa
                     ))}
                 </div>
                 <div className="p-2">
-                    <div onClick={() => { onClose(); setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: true } })); }} className="flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer text-zinc-600 text-sm">
+                    <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false, createWorkspace: true } }))} className="flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer text-zinc-600 text-sm">
                         <PlusCircle size={16} /> <span>Crear nuevo workspace</span>
                     </div>
                     <div onClick={onLogout} className="flex items-center gap-2 px-2 py-1.5 hover:bg-zinc-100 rounded cursor-pointer text-zinc-600 text-sm border-t border-zinc-100 mt-1 pt-2">
@@ -33,6 +33,4 @@ const WorkspaceMenu = ({ isOpen, onClose, userProfile, workspaces, activeWorkspa
             </div>
         </div>
     );
-};
-
-export default WorkspaceMenu;
+}
