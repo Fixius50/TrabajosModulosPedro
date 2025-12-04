@@ -26,6 +26,7 @@ export const useAppStore = () => {
     const [activeFontId, setActiveFontId] = useLocalStorage('notion_v82_active_font', 'sans');
 
     const activeWorkspace = useMemo(() => {
+        if (!Array.isArray(workspaces)) return null;
         const found = workspaces.find(w => w.id === activeWorkspaceId);
         if (found) return found;
         if (workspaces.length > 0) { setActiveWorkspaceId(workspaces[0].id); return workspaces[0]; }
