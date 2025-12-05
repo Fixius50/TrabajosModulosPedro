@@ -30,5 +30,9 @@ export const INITIAL_STATE = {
     workspaces: [{ id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com', pages: [] }],
     profile: { name: "Usuario Fixius", email: "usuario@ejemplo.com", bio: "Productivity enthusiast.", avatar: null },
     themes: [DEFAULT_THEME],
-    fonts: []
+    fonts: [
+        { id: 'sans', name: 'Sans Serif', value: 'ui-sans-serif, system-ui, sans-serif', preview: 'Aa' },
+        { id: 'serif', name: 'Serif', value: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif', preview: 'Aa' },
+        { id: 'mono', name: 'Mono', value: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', preview: 'Aa' }
+    ]
 };

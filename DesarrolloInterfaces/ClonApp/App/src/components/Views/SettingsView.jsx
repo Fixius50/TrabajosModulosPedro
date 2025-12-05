@@ -4,7 +4,7 @@ import { clsx } from 'clsx';
 import { BackupService } from '../../lib/backup';
 import { AuthService } from '../../lib/supabase';
 
-export function SettingsView({ ui, setUi, userProfile, actions, themes, activeThemeId, activeFontId, fetchMarketData, activeWorkspaceId }) {
+export function SettingsView({ ui, setUi, userProfile, actions, themes, activeThemeId, fonts, activeFontId, fetchMarketData, activeWorkspaceId }) {
     const fileInputRef = useRef(null);
 
     const triggerUpload = () => {
@@ -64,13 +64,9 @@ export function SettingsView({ ui, setUi, userProfile, actions, themes, activeTh
                         <div className="mb-8">
                             <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Tipografía</h2>
                             <div className="grid grid-cols-3 gap-3">
-                                {[
-                                    { id: 'sans', name: 'Sans Serif', value: 'ui-sans-serif, system-ui, sans-serif', preview: 'Aa' },
-                                    { id: 'serif', name: 'Serif', value: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif', preview: 'Aa' },
-                                    { id: 'mono', name: 'Mono', value: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', preview: 'Aa' }
-                                ].map(font => (
+                                {fonts.map(font => (
                                     <button key={font.id} onClick={() => actions.setActiveFontId(font.id)} className={clsx("p-3 border rounded-lg text-left transition-all", activeFontId === font.id ? "border-zinc-900 ring-1 ring-zinc-900 bg-zinc-50" : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50")}>
-                                        <div className="text-2xl mb-2" style={{ fontFamily: font.value }}>{font.preview}</div>
+                                        <div className="text-2xl mb-2" style={{ fontFamily: font.value }}>{font.preview || 'Aa'}</div>
                                         <div className="text-sm font-medium text-zinc-900">{font.name}</div>
                                     </button>
                                 ))}

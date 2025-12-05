@@ -1,8 +1,6 @@
 import { Octokit } from "@octokit/rest";
-import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
-  // Configuración CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -13,52 +11,69 @@ export default async function handler(req, res) {
     return;
   }
 
-  // El token se lee del servidor (Vercel), NO del cliente
   const GITHUB_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
+  // Fallback for public repos if no token (rate limits apply but works for demo)
+  const octokit = new Octokit(GITHUB_TOKEN ? { auth: GITHUB_TOKEN } : {});
 
-  if (!GITHUB_TOKEN) {
-    return res.status(500).json({ error: 'Server configuration error: Missing GitHub Token' });
-  }
+  const OWNER = "Fixius50";
+  const REPO = "TrabajosModulosPedro";
+  const BASE_PATH = "DesarrolloInterfaces/ClonApp/App/assets";
 
   try {
-    const octokit = new Octokit({ auth: GITHUB_TOKEN });
+    const fetchFolder = async (folder, type) => {
+      try {
+        const { data } = await octokit.rest.repos.getContent({
+          owner: OWNER,
+          repo: REPO,
+          path: `${BASE_PATH}/${folder}`
+        });
 
-    // Hardcodeamos tus rutas para mayor seguridad
-    const OWNER = "Fixius50";
-    const REPO = "TrabajosModulosPedro";
-    const PATH = "DesarrolloInterfaces/ClonApp/App";
+        if (!Array.isArray(data)) return [];
 
-    // Obtener el contenido raíz
-    const { data: rootContents } = await octokit.rest.repos.getContent({
-      owner: OWNER,
-      repo: REPO,
-      path: PATH
-    });
-
-    // Aquí podrías filtrar y procesar los datos antes de enviarlos al front
-    // Para simplificar, enviamos la estructura cruda o una simplificada
-    // Nota: En un caso real, aquí haríamos el bucle para obtener subcarpetas
-    // pero por rendimiento, quizás sea mejor devolver solo la raíz y que el front pida detalles,
-    // o hacer todo el barrido aquí (puede tardar unos segundos).
-
-    // Simularemos el barrido rápido para Estilos y Fuentes
-    let marketData = { styles: [], fonts: [], covers: {} };
-
-    // Lógica simplificada de tu fetchMarketData original pero en servidor
-    for (const item of rootContents) {
-      if (item.type === 'dir') {
-        if (item.name === 'stylessApp') {
-          const { data: files } = await octokit.rest.repos.getContent({ owner: OWNER, repo: REPO, path: item.path });
-          for (const f of files) if (f.name.match(/\.(css|json)$/i)) marketData.styles.push({ id: f.sha, name: f.name.replace(/\.(css|json)$/, ''), author: 'Fixius50', color: 'bg-zinc-100', download_url: f.download_url });
-        }
-        // ... Añadir lógica de fuentes y covers si es necesario
+        return data.map(file => ({
+          id: file.sha,
+          name: file.name.split('.')[0].replace(/-/g, ' '),
+          author: 'Fixius50',
+          download_url: file.download_url,
+          preview: type === 'font' ? 'Aa' : type === 'icon' ? '📦' : file.download_url,
+          type: type
+        }));
+      } catch (e) {
+        console.error(`Error fetching ${folder}:`, e);
+        return [];
       }
-    }
+    };
+
+    const [styles, icons, fonts] = await Promise.all([
+      fetchFolder('themesApp', 'theme'),
+      fetchFolder('iconsApp', 'icon'),
+      fetchFolder('tipographyApp', 'font')
+    ]);
+
+    // Enhance styles with metadata if possible, or default colors
+    const enhancedStyles = styles.map(s => ({
+      ...s,
+      colors: { bg: '#f4f4f5', text: '#18181b' }
+    }));
+
+    const marketData = {
+      styles: enhancedStyles,
+      icons,
+      fonts,
+      templates: [
+        { id: 'tmpl-marketing', name: 'Plan de Marketing', icon: '📈', description: 'Estrategia completa para Q4', blocks: [{ id: 'b1', type: 'h1', content: 'Plan de Marketing' }, { id: 'b2', type: 'todo', content: 'Definir KPIs', checked: false }] },
+        { id: 'tmpl-journal', name: 'Diario Personal', icon: '📔', description: 'Plantilla para reflexiones diarias', blocks: [{ id: 'b1', type: 'h1', content: 'Diario' }, { id: 'b2', type: 'p', content: 'Hoy me siento...' }] }
+      ],
+      covers: [
+        { id: 'cover-nature', name: 'Nature Pack', author: 'Unsplash', count: 12, preview: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=100&h=100&fit=crop' },
+        { id: 'cover-arch', name: 'Architecture', author: 'ArchDaily', count: 8, preview: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop' }
+      ]
+    };
 
     res.status(200).json(marketData);
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error conectando con GitHub Marketplace' });
+    res.status(500).json({ error: 'Error connecting to Marketplace API' });
   }
 }

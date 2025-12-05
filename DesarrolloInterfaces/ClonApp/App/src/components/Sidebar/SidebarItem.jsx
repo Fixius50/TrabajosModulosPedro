@@ -32,7 +32,14 @@ export const SidebarItem = ({ page, depth = 0, actions, ui, setUi, activePageId,
                 <div className="flex items-center justify-center w-4 h-4 shrink-0 hover:bg-zinc-200 rounded transition-colors" onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}>
                     {hasChildren && <ChevronRight size={12} className={clsx("transition-transform", isExpanded && "rotate-90")} />}
                 </div>
-                <span className="text-lg leading-none w-4 text-center shrink-0 flex items-center justify-center">{page.isGenerating ? <Loader2 className="animate-spin text-indigo-500" size={14} /> : (page.icon || <FileText size={16} />)}</span>
+                <span className="text-lg leading-none w-4 text-center shrink-0 flex items-center justify-center">
+                    {page.isGenerating ? <Loader2 className="animate-spin text-indigo-500" size={14} /> :
+                        (page.icon?.startsWith('http') || page.icon?.startsWith('data:') ?
+                            <img src={page.icon} alt="" className="w-4 h-4 object-contain" /> :
+                            (page.icon || <FileText size={16} />)
+                        )
+                    }
+                </span>
                 <span className={clsx("text-sm truncate flex-1", page.isGenerating && "italic text-zinc-400")}>{page.title || 'Sin título'}</span>
 
                 {/* Hover Actions */}

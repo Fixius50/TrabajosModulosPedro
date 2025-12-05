@@ -65,13 +65,6 @@ function MainApp({ session, onLogout }) {
         pagesOpen: true
     });
 
-    // Trigger Market Fetch when modal opens
-    useEffect(() => {
-        if (ui.modals.market) {
-            fetchMarketData();
-        }
-    }, [ui.modals.market]);
-
     const [showComments, setShowComments] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchFilters, setSearchFilters] = useState({ scope: 'all', sort: 'newest', date: 'any' });
@@ -82,6 +75,83 @@ function MainApp({ session, onLogout }) {
     const [newWorkspaceName, setNewWorkspaceName] = useState("");
     const [contextMenu, setContextMenu] = useState({ isOpen: false, pageId: null, x: 0, y: 0 });
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    // Local Market Data Fetcher
+    const fetchMarketData = async () => {
+        setLoadingMarket(true);
+        try {
+            // Themes (JSON Styles)
+            const themes = Object.entries(import.meta.glob('../assets/stylesApp/*.json', { eager: true, as: 'raw' })).map(([path, content]) => {
+                try {
+                    const theme = JSON.parse(content);
+                    return { ...theme, preview: '🎨', type: 'theme' };
+                } catch (e) {
+                    console.error("Error parsing theme:", path, e);
+                    return null;
+                }
+            }).filter(Boolean);
+
+            // Covers (Images)
+            const covers = Object.entries(import.meta.glob('../assets/coversApp/*.*', { eager: true, as: 'url' })).map(([path, url]) => {
+                const name = path.split('/').pop().split('.')[0].replace(/-/g, ' ');
+                return {
+                    id: name,
+                    name: name,
+                    author: 'Local',
+                    preview: url,
+                    type: 'cover'
+                };
+            });
+
+            // Icons
+            const icons = Object.entries(import.meta.glob('../assets/iconsApp/*.svg', { eager: true, as: 'url' })).map(([path, url]) => {
+                const name = path.split('/').pop().split('.')[0].replace(/-/g, ' ');
+                return {
+                    id: name,
+                    name: name,
+                    author: 'Local',
+                    preview: '📦',
+                    type: 'icon',
+                    url: url
+                };
+            });
+
+            // Fonts
+            const fonts = Object.entries(import.meta.glob('../assets/tipographyApp/**/*.otf', { eager: true, as: 'url' })).map(([path, url]) => {
+                const parts = path.split('/');
+                const fontName = parts[parts.length - 2];
+                return {
+                    id: fontName,
+                    name: fontName,
+                    author: 'Local',
+                    preview: 'Aa',
+                    type: 'font',
+                    url: url
+                };
+            });
+            const uniqueFonts = Array.from(new Map(fonts.map(item => [item.name, item])).values());
+
+            setMarketData({
+                styles: themes,
+                icons: icons,
+                fonts: uniqueFonts,
+                covers: covers,
+                templates: []
+            });
+
+        } catch (error) {
+            console.error("Error fetching local market data:", error);
+        } finally {
+            setLoadingMarket(false);
+        }
+    };
+
+    // Trigger Market Fetch when modal opens
+    useEffect(() => {
+        if (ui.modals.market) {
+            fetchMarketData();
+        }
+    }, [ui.modals.market]);
 
     // Mobile Check
     useEffect(() => {
@@ -206,26 +276,6 @@ function MainApp({ session, onLogout }) {
         setActiveWorkspaceId(newWs.id);
     };
 
-    const fetchMarketData = async () => {
-        setLoadingMarket(true);
-        await utils.delay(800);
-        setMarketData({
-            styles: [
-                { id: 'theme-dark', name: 'Dark Mode', author: userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario', colors: { bg: '#18181b', text: '#fafafa' } },
-                { id: 'theme-sepia', name: 'Sepia Reading', author: 'Reader', colors: { bg: '#fdf6e3', text: '#5f4b32' } },
-                { id: 'theme-ocean', name: 'Ocean Blue', author: 'Nature', colors: { bg: '#f0f9ff', text: '#0c4a6e' } },
-                { id: 'theme-forest', name: 'Forest Green', author: 'Nature', colors: { bg: '#f0fdf4', text: '#14532d' } }
-            ],
-            templates: [
-                { id: 'tmpl-marketing', name: 'Plan de Marketing', icon: '📈', description: 'Estrategia completa para Q4', blocks: [{ id: 'b1', type: 'h1', content: 'Plan de Marketing' }, { id: 'b2', type: 'todo', content: 'Definir KPIs', checked: false }] },
-                { id: 'tmpl-journal', name: 'Diario Personal', icon: '📔', description: 'Plantilla para reflexiones diarias', blocks: [{ id: 'b1', type: 'h1', content: 'Diario' }, { id: 'b2', type: 'p', content: 'Hoy me siento...' }] },
-                { id: 'tmpl-meeting', name: 'Notas de Reunión', icon: '🤝', description: 'Estructura para actas de reuniones', blocks: [{ id: 'b1', type: 'h1', content: 'Reunión de Equipo' }, { id: 'b2', type: 'h2', content: 'Asistentes' }, { id: 'b3', type: 'todo', content: 'Juan', checked: true }] }
-            ],
-            covers: []
-        });
-        setLoadingMarket(false);
-    };
-
     // --- RENDER ---
     // Show Empty Workspace View if no workspaces exist
     if (workspaces.length === 0) {
@@ -277,6 +327,7 @@ function MainApp({ session, onLogout }) {
                             actions={actions}
                             themes={themes}
                             activeThemeId={activeThemeId}
+                            fonts={fonts}
                             activeFontId={activeFontId}
                             fetchMarketData={fetchMarketData}
                             onLogout={onLogout}
@@ -319,20 +370,8 @@ function MainApp({ session, onLogout }) {
                             isAiGenerating={isAiGenerating}
                             setIsAiGenerating={setIsAiGenerating}
                             actions={actions}
-                            showNotify={showNotify}
-                            userProfile={userProfile}
-                        />
-                    )}
-                    {ui.modals.workspaceMenu && (
-                        <WorkspaceMenu
-                            isOpen={ui.modals.workspaceMenu}
-                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, workspaceMenu: false } }))}
-                            ui={ui}
-                            setUi={setUi}
-                            workspaces={workspaces}
-                            activeWorkspaceId={activeWorkspaceId}
-                            actions={actions}
-                            userProfile={userProfile}
+                            newWorkspaceName={newWorkspaceName}
+                            setNewWorkspaceName={setNewWorkspaceName}
                         />
                     )}
                     {ui.modals.market && (
@@ -346,17 +385,7 @@ function MainApp({ session, onLogout }) {
                             themes={themes}
                             actions={actions}
                             showNotify={showNotify}
-                        />
-                    )}
-                    {ui.modals.createWorkspace && (
-                        <CreateWorkspaceModal
-                            isOpen={ui.modals.createWorkspace}
-                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createWorkspace: false } }))}
-                            ui={ui}
-                            setUi={setUi}
-                            actions={actions}
-                            newWorkspaceName={newWorkspaceName}
-                            setNewWorkspaceName={setNewWorkspaceName}
+                            activePageId={activePageId}
                         />
                     )}
                     {ui.modals.iconPicker && (

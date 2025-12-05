@@ -22,7 +22,10 @@ export function PageView({ activePage, activePageId, ui, setUi, actions }) {
                 </div>}
 
                 <div className="text-7xl mb-4 group relative w-fit cursor-pointer" onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, iconPickerModal: true } }))}>
-                    {activePage.icon || <FileText size={64} className="text-zinc-200" />}
+                    {activePage.icon?.startsWith('http') || activePage.icon?.startsWith('data:') ?
+                        <img src={activePage.icon} alt="" className="w-20 h-20 object-contain" /> :
+                        (activePage.icon || <FileText size={64} className="text-zinc-200" />)
+                    }
                 </div>
                 <FancyEditable tagName="h1" html={activePage.title} className="text-4xl font-bold text-zinc-900 placeholder:text-zinc-300 mb-8 outline-none break-words" placeholder="Título de la página" onChange={(val) => actions.updatePage(activePageId, { title: val })} />
             </div>
