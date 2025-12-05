@@ -8,6 +8,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
     const themeInputRef = useRef(null);
     const fontInputRef = useRef(null);
     const iconInputRef = useRef(null);
+    const coverInputRef = useRef(null);
 
     // Reset tab when modal opens
     useEffect(() => {
@@ -27,6 +28,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         if (type === 'theme') themeInputRef.current?.click();
         if (type === 'font') fontInputRef.current?.click();
         if (type === 'icon') iconInputRef.current?.click();
+        if (type === 'cover') coverInputRef.current?.click();
     };
 
     const handleImportFile = async (e, type) => {
@@ -72,13 +74,27 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
             } else if (type === 'icon') {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    if (activePageId) {
-                        actions.updatePage(activePageId, { icon: e.target.result });
-                        showNotify("Icono aplicado a la página actual");
-                        onClose();
-                    } else {
-                        showNotify("Abre una página para aplicar el icono");
-                    }
+                    actions.addDownloadedIcon({
+                        id: 'local-' + Date.now(),
+                        data: e.target.result,
+                        name: file.name,
+                        source: 'local'
+                    });
+                    showNotify("Icon guardado en biblioteca");
+                    setActiveTab('icons');
+                };
+                reader.readAsDataURL(file);
+            } else if (type === 'cover') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    actions.addDownloadedCover({
+                        id: 'local-' + Date.now(),
+                        url: e.target.result,
+                        name: file.name,
+                        source: 'local'
+                    });
+                    showNotify("Portada guardada en biblioteca");
+                    setActiveTab('covers');
                 };
                 reader.readAsDataURL(file);
             }
@@ -148,6 +164,11 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                             <span className="font-medium text-sm">Iconos</span>
                             <span className="text-xs text-zinc-400">.svg, .png</span>
                         </div>
+                        <div onClick={() => handleImportClick('cover')} className="border-2 border-dashed border-zinc-200 rounded-xl p-6 flex flex-col items-center gap-3 hover:border-zinc-400 hover:bg-zinc-50 transition-colors cursor-pointer group">
+                            <div className="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><ImageIcon size={24} /></div>
+                            <span className="font-medium text-sm">Portadas</span>
+                            <span className="text-xs text-zinc-400">.jpg, .png</span>
+                        </div>
                         <div onClick={() => handleImportClick('theme')} className="border-2 border-dashed border-zinc-200 rounded-xl p-6 flex flex-col items-center gap-3 hover:border-zinc-400 hover:bg-zinc-50 transition-colors cursor-pointer group">
                             <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><Palette size={24} /></div>
                             <span className="font-medium text-sm">Temas</span>
@@ -164,6 +185,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                     <input type="file" ref={themeInputRef} accept=".css" onChange={(e) => handleImportFile(e, 'theme')} className="hidden" />
                     <input type="file" ref={fontInputRef} accept=".woff2,.ttf,.otf" onChange={(e) => handleImportFile(e, 'font')} className="hidden" />
                     <input type="file" ref={iconInputRef} accept=".svg,.png,.jpg,.jpeg,.gif" onChange={(e) => handleImportFile(e, 'icon')} className="hidden" />
+                    <input type="file" ref={coverInputRef} accept=".jpg,.jpeg,.png,.gif,.webp" onChange={(e) => handleImportFile(e, 'cover')} className="hidden" />
                 </div>
             );
         }

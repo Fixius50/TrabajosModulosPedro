@@ -20,7 +20,7 @@ export function PageView({ activePage, activePageId, ui, setUi, actions, downloa
             {/* Cover - Full Width */}
             {activePage.cover && (
                 <div className="w-full h-60 relative overflow-hidden mb-8">
-                    {activePage.cover.startsWith('http') || activePage.cover.startsWith('data:image') ? (
+                    {(activePage.cover.startsWith('http') || activePage.cover.startsWith('data:') || activePage.cover.startsWith('blob:')) ? (
                         <img src={activePage.cover} alt="Cover" className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full" style={{ background: activePage.cover }} />

@@ -345,6 +345,12 @@ export const useAppStore = () => {
             }));
             setActivePageId(null);
         },
+        deleteAllDatabases: () => {
+            setWorkspaces(p => p.map(w => {
+                if (w.id !== activeWorkspaceId) return w;
+                return { ...w, databases: [] };
+            }));
+        },
         // Downloads management
         addDownloadedIcon: (icon) => {
             setDownloads(prev => ({
