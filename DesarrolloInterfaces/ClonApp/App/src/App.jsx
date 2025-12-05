@@ -355,6 +355,7 @@ function MainApp({ session, onLogout }) {
                             ui={ui}
                             setUi={setUi}
                             actions={actions}
+                            downloads={downloads}
                             isMobile={isMobile}
                             toggleSidebar={toggleSidebar}
                         />

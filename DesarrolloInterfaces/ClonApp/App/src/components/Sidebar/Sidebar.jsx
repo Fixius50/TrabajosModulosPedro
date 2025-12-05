@@ -117,9 +117,16 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                                             <span>{database.icon || '📊'}</span>
                                             <span className="flex-1 truncate">{database.title}</span>
 
-                                            {/* Hover Actions */}
                                             <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 bg-[var(--sidebar-bg)] shadow-sm rounded">
-                                                <button onClick={(e) => { e.stopPropagation(); /* TODO: onContextMenu for database */ }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"><MoreHorizontal size={14} /></button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        alert(`Opciones para: ${database.title}\n\nFuncionalidad pendiente:\n• Renombrar\n• Duplicar\n• Eliminar`);
+                                                    }}
+                                                    className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"
+                                                >
+                                                    <MoreHorizontal size={14} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
