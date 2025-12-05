@@ -324,7 +324,7 @@ export const useAppStore = () => {
             if (activeThemeId === themeId) setActiveThemeId('default');
         },
         addFont: (f) => { if (!f.name) return; setFonts(p => { const exists = p.find(ex => ex.id === f.id); if (exists) return p; return [...p, f]; }); },
-        removeFont: (fontId) => { setFonts(p => p.filter(f => f.id !== fontId)); },
+        removeFont: (fontId) => { setFonts(p => p.filter(f => f.id !== fontId)); if (activeFontId === fontId) setActiveFontId('sans'); },
         addComment: (text) => { if (!activePage) return; const newComment = { id: utils.generateId(), author: userProfile.name, avatar: userProfile.avatar, text, createdAt: new Date().toISOString() }; const currentComments = activePage.comments || []; actions.updatePage(activePageId, { comments: [...currentComments, newComment] }); },
         emptyInbox: () => {
             setWorkspaces(p => p.map(w => {
@@ -360,6 +360,12 @@ export const useAppStore = () => {
         },
         isDownloaded: (type, id) => {
             return downloads[type]?.some(item => item.id === id) || false;
+        },
+        clearDownloadedIcons: () => {
+            setDownloads(prev => ({ ...prev, icons: [] }));
+        },
+        clearDownloadedCovers: () => {
+            setDownloads(prev => ({ ...prev, covers: [] }));
         },
         // Internal setters for restoration
         setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId

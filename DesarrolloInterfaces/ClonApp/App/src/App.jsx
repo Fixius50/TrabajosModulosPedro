@@ -449,6 +449,7 @@ function MainApp({ session, onLogout }) {
                             actions={actions}
                             activePageId={activePageId}
                             marketData={marketData}
+                            downloads={downloads}
                         />
                     )}
                     {ui.modals.pageOptions && (

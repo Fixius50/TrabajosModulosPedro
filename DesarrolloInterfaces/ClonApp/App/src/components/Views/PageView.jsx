@@ -60,8 +60,9 @@ export function PageView({ activePage, activePageId, ui, setUi, actions, downloa
                 <FancyEditable tagName="h1" html={activePage.title} className="text-4xl font-bold text-zinc-900 placeholder:text-zinc-300 mb-8 outline-none break-words" placeholder="Título de la página" onChange={(val) => actions.updatePage(activePageId, { title: val })} />
             </div>
 
+
             {/* Blocks */}
-            <div className="space-y-1">
+            <div className="max-w-3xl mx-auto px-4 space-y-1">
                 {activePage.blocks.map((block, index) => (
                     <EditorBlock key={block.id} block={block} index={index} actions={actions} />
                 ))}

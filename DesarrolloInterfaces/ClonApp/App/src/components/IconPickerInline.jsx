@@ -40,7 +40,7 @@ export function IconPickerInline({ onSelect, onClose, downloads }) {
             className="absolute top-full left-0 mt-2 z-50 w-80 bg-white border border-zinc-200 rounded-lg shadow-xl"
         >
             {/* Header with search */}
-            <div className="p-3 border-b border-zinc-200">
+            <div className="p-3 pb-2 border-b border-zinc-200">
                 <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-sm font-semibold flex-1">Seleccionar Icono</h3>
                     <button
@@ -51,17 +51,14 @@ export function IconPickerInline({ onSelect, onClose, downloads }) {
                     </button>
                 </div>
 
-                <div className="relative">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                    <input
-                        type="text"
-                        placeholder="Buscar emoji..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-zinc-200 rounded-md focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                        autoFocus
-                    />
-                </div>
+                <input
+                    type="text"
+                    placeholder="Buscar emoji..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full px-3 py-1.5 text-sm border border-zinc-200 rounded-md focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    autoFocus
+                />
             </div>
 
             {/* Icon grid */}

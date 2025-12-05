@@ -185,15 +185,39 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
 
         return (
             <div className="space-y-4">
-                {/* Install All Button */}
+                {/* Delete All Button */}
                 {(activeTab === 'themes' || activeTab === 'fonts' || activeTab === 'icons' || activeTab === 'covers') && (
                     <div className="flex justify-end">
                         <button
-                            onClick={handleInstallAll}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                            onClick={() => {
+                                if (window.confirm('¿Estás seguro de eliminar todos los elementos de esta sección?')) {
+                                    if (activeTab === 'themes') {
+                                        const installedThemes = themes.filter(th => th.source === 'marketplace');
+                                        installedThemes.forEach(item => actions.removeTheme(item.id));
+                                        showNotify(`${installedThemes.length} temas eliminados`);
+                                    } else if (activeTab === 'fonts') {
+                                        const installedFonts = fonts.filter(f => f.source === 'marketplace');
+                                        installedFonts.forEach(item => actions.removeFont(item.id));
+                                        showNotify(`${installedFonts.length} fuentes eliminadas`);
+                                    } else if (activeTab === 'icons') {
+                                        const count = downloads.icons?.length || 0;
+                                        if (actions.clearDownloadedIcons) {
+                                            actions.clearDownloadedIcons();
+                                            showNotify(`${count} iconos eliminados`);
+                                        }
+                                    } else if (activeTab === 'covers') {
+                                        const count = downloads.covers?.length || 0;
+                                        if (actions.clearDownloadedCovers) {
+                                            actions.clearDownloadedCovers();
+                                            showNotify(`${count} portadas eliminadas`);
+                                        }
+                                    }
+                                }
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 font-medium"
                         >
-                            <Download size={16} />
-                            Instalar Todo
+                            <X size={16} />
+                            Eliminar Todo
                         </button>
                     </div>
                 )}
