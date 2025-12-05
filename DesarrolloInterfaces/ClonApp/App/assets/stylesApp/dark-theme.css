@@ -1,0 +1,259 @@
+/* =================================================================
+   THEME: DARK MODE - V82 COMPATIBLE
+   ================================================================= */
+
+:root {
+    /* --- DARK PALETTE --- */
+    
+    /* Backgrounds */
+    --bg-main: #1a1a1a;
+    --bg-panel: #222222;
+    --bg-input: #2a2a2a;
+    --bg-hover: #333333;
+    
+    /* Text */
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-dim: #707070;
+    
+    /* Borders */
+    --border-color: #3a3a3a;
+    --border-hover: #4a4a4a;
+    
+    /* Accents */
+    --accent-primary: #6366f1;
+    --accent-hover: #4f46e5;
+    
+    /* --- TAILWIND OVERRIDES --- */
+    --bg-color: var(--bg-main) !important;
+    --text-color: var(--text-primary) !important;
+    --sidebar-bg: #181818 !important;
+}
+
+/* =========================================
+   GLOBAL STRUCTURE
+   ========================================= */
+
+body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+}
+
+/* =========================================
+   SIDEBAR
+   ========================================= */
+
+aside, .group\/sidebar {
+    background-color: var(--sidebar-bg) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+/* Sidebar items */
+aside div[class*="hover\:bg"]:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+aside .text-zinc-900,
+aside .text-zinc-800,
+aside .text-zinc-700,
+aside .text-zinc-600,
+aside .text-zinc-500,
+aside span,
+aside div {
+    color: var(--text-primary) !important;
+}
+
+aside .opacity-60,
+aside .opacity-70 {
+    color: var(--text-dim) !important;
+}
+
+/* =========================================
+   MAIN CONTENT
+   ========================================= */
+
+main {
+    background-color: var(--bg-main) !important;
+}
+
+/* Headers */
+header {
+    background-color: var(--bg-panel) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Inputs */
+input:not([type="checkbox"]),
+textarea,
+select {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent-primary) !important;
+    background-color: var(--bg-panel) !important;
+}
+
+::placeholder {
+    color: var(--text-dim) !important;
+}
+
+/* =========================================
+   MODALS
+   ========================================= */
+
+/* Modal backdrop */
+.fixed.inset-0 {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Modal windows */
+div.fixed.bg-white,
+div[role="dialog"] > div.bg-white,
+.bg-white {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Modal titles */
+.bg-white h1,
+.bg-white h2,
+.bg-white h3,
+.font-semibold {
+    color: var(--text-primary) !important;
+}
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+/* Primary button */
+button.bg-zinc-900,
+button.bg-black {
+    background-color: var(--accent-primary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+button.bg-zinc-900:hover,
+button.bg-black:hover {
+    background-color: var(--accent-hover) !important;
+}
+
+/* Secondary buttons */
+button.bg-zinc-100,
+.bg-zinc-100 {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+button.bg-zinc-100:hover {
+    background-color: var(--bg-input) !important;
+}
+
+/* =========================================
+   CARDS
+   ========================================= */
+
+.bg-white.rounded-xl,
+.bg-white.rounded-lg {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.bg-white .text-zinc-800,
+.bg-white .text-zinc-900 {
+    color: var(--text-primary) !important;
+}
+
+.bg-white .text-zinc-500,
+.bg-white .text-zinc-600 {
+    color: var(--text-secondary) !important;
+}
+
+.bg-white .text-zinc-400 {
+    color: var(--text-dim) !important;
+}
+
+/* Hover states */
+.group:hover .bg-white,
+.group.relative:hover {
+    border-color: var(--accent-primary) !important;
+    background-color: var(--bg-hover) !important;
+}
+
+/* =========================================
+   BORDERS & SEPARATORS
+   ========================================= */
+
+.border-zinc-200,
+.border-zinc-300,
+.border-zinc-100,
+.border-b,
+hr {
+    border-color: var(--border-color) !important;
+}
+
+/* =========================================
+   HOVER BACKGROUNDS
+   ========================================= */
+
+.hover\:bg-zinc-100:hover,
+.hover\:bg-zinc-200:hover,
+.hover\:bg-zinc-50:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* =========================================
+   SCROLLBARS
+   ========================================= */
+
+::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 0.25rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* =========================================
+   SPECIFIC OVERRIDES
+   ========================================= */
+
+/* Zinc backgrounds to dark */
+.bg-zinc-50,
+.bg-zinc-100 {
+    background-color: var(--bg-panel) !important;
+}
+
+/* Text colors */
+.text-zinc-900,
+.text-zinc-800 {
+    color: var(--text-primary) !important;
+}
+
+.text-zinc-700,
+.text-zinc-600 {
+    color: var(--text-secondary) !important;
+}
+
+.text-zinc-500,
+.text-zinc-400 {
+    color: var(--text-dim) !important;
+}

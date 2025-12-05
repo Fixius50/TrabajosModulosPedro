@@ -42,9 +42,6 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                         <div onClick={() => setUi(p => ({ ...p, currentView: 'inbox' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Inbox size={14} /> <span>Bandeja</span>
                         </div>
-                        <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
-                            <Settings size={14} /> <span>Configuración</span>
-                        </div>
                     </div>
 
                     {/* Sidebar Content */}
@@ -103,6 +100,9 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                     <div className="p-2 border-t border-zinc-200 space-y-0.5">
                         <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, market: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Package size={14} /> <span>Marketplace</span>
+                        </div>
+                        <div onClick={() => setUi(p => ({ ...p, currentView: 'settings' }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                            <Settings size={14} /> <span>Configuración</span>
                         </div>
                         <div onClick={() => setUi(p => ({ ...p, currentView: 'trash' }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Trash size={14} /> <span>Papelera</span>

@@ -80,16 +80,19 @@ function MainApp({ session, onLogout }) {
     const fetchMarketData = async () => {
         setLoadingMarket(true);
         try {
-            // Themes (JSON Styles)
-            const themes = Object.entries(import.meta.glob('../assets/stylesApp/*.json', { eager: true, as: 'raw' })).map(([path, content]) => {
-                try {
-                    const theme = JSON.parse(content);
-                    return { ...theme, preview: '🎨', type: 'theme' };
-                } catch (e) {
-                    console.error("Error parsing theme:", path, e);
-                    return null;
-                }
-            }).filter(Boolean);
+            // Themes (CSS only)
+            const themes = Object.entries(import.meta.glob('../assets/stylesApp/*.css', { eager: true, as: 'url' })).map(([path, url]) => {
+                const name = path.split('/').pop().split('.')[0].replace(/-/g, ' ');
+                return {
+                    id: name.toLowerCase().replace(/\s+/g, '-'),
+                    name: name.charAt(0).toUpperCase() + name.slice(1),
+                    author: 'Local',
+                    preview: '🎨',
+                    type: 'css',
+                    url: url,
+                    colors: { bg: '#1a1a1a', text: '#ffffff' }
+                };
+            });
 
             // Covers (Images)
             const covers = Object.entries(import.meta.glob('../assets/coversApp/*.*', { eager: true, as: 'url' })).map(([path, url]) => {
@@ -383,6 +386,7 @@ function MainApp({ session, onLogout }) {
                             loadingMarket={loadingMarket}
                             marketData={marketData}
                             themes={themes}
+                            fonts={fonts}
                             actions={actions}
                             showNotify={showNotify}
                             activePageId={activePageId}

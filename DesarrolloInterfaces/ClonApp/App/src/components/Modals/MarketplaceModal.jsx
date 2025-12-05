@@ -3,7 +3,7 @@ import { Loader2, Check, Download, Package, Upload, Image as ImageIcon, Type, Sm
 import { clsx } from 'clsx';
 import { Modal, FancyTabs } from '../UI';
 
-export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, marketData, themes, actions, showNotify, activePageId }) {
+export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, marketData, themes, fonts, actions, showNotify, activePageId }) {
     const [activeTab, setActiveTab] = useState('themes');
     const themeInputRef = useRef(null);
     const fontInputRef = useRef(null);
@@ -36,11 +36,22 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         try {
             if (type === 'theme') {
                 const text = await file.text();
-                const theme = JSON.parse(text);
-                if (!theme.id || !theme.name || !theme.colors) throw new Error("Formato de tema inválido");
-                actions.addTheme({ ...theme, type: 'json', author: 'Importado' });
-                showNotify("Tema importado correctamente");
-                setActiveTab('themes');
+                // Expect CSS files now
+                const themeName = file.name.split('.')[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const theme = {
+                        id: themeName.toLowerCase().replace(/\s+/g, '-'),
+                        name: themeName,
+                        type: 'css',
+                        author: 'Importado',
+                        url: e.target.result
+                    };
+                    actions.addTheme(theme);
+                    showNotify("Tema importado correctamente");
+                    setActiveTab('themes');
+                };
+                reader.readAsDataURL(file);
             } else if (type === 'font') {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -50,7 +61,8 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                         name: fontName,
                         value: `url('${e.target.result}')`,
                         type: 'custom',
-                        author: 'Importado'
+                        author: 'Importado',
+                        preview: 'Aa'
                     };
                     actions.addFont(font);
                     showNotify("Fuente importada correctamente");
@@ -91,6 +103,14 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
             } else {
                 showNotify("Abre una página para usar este icono");
             }
+        } else if (activeTab === 'covers') {
+            if (activePageId) {
+                actions.updatePage(activePageId, { cover: item.preview });
+                showNotify("Portada aplicada");
+                onClose();
+            } else {
+                showNotify("Abre una página para usar esta portada");
+            }
         }
     };
 
@@ -121,7 +141,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                         <div onClick={() => handleImportClick('theme')} className="border-2 border-dashed border-zinc-200 rounded-xl p-6 flex flex-col items-center gap-3 hover:border-zinc-400 hover:bg-zinc-50 transition-colors cursor-pointer group">
                             <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><Palette size={24} /></div>
                             <span className="font-medium text-sm">Temas</span>
-                            <span className="text-xs text-zinc-400">.json</span>
+                            <span className="text-xs text-zinc-400">.css</span>
                         </div>
                         <div onClick={() => handleImportClick('font')} className="border-2 border-dashed border-zinc-200 rounded-xl p-6 flex flex-col items-center gap-3 hover:border-zinc-400 hover:bg-zinc-50 transition-colors cursor-pointer group">
                             <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"><Type size={24} /></div>
@@ -131,7 +151,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                     </div>
 
                     {/* Hidden Inputs */}
-                    <input type="file" ref={themeInputRef} accept=".json" onChange={(e) => handleImportFile(e, 'theme')} className="hidden" />
+                    <input type="file" ref={themeInputRef} accept=".css" onChange={(e) => handleImportFile(e, 'theme')} className="hidden" />
                     <input type="file" ref={fontInputRef} accept=".woff2,.ttf,.otf" onChange={(e) => handleImportFile(e, 'font')} className="hidden" />
                     <input type="file" ref={iconInputRef} accept=".svg,.png,.jpg,.jpeg,.gif" onChange={(e) => handleImportFile(e, 'icon')} className="hidden" />
                 </div>
@@ -156,22 +176,35 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data.map(item => {
-                    const isInstalled = activeTab === 'themes' && themes.some(th => th.id === item.id);
+                    // Check if item is installed
+                    const isThemeInstalled = activeTab === 'themes' && themes.some(th => th.id === item.id);
+                    const isFontInstalled = activeTab === 'fonts' && fonts.some(f => f.id === item.id);
+                    const isInstalled = isThemeInstalled || isFontInstalled;
 
                     return (
-                        <div key={item.id} className="border border-zinc-200 rounded-xl p-4 hover:shadow-lg transition-all group bg-white cursor-pointer"
+                        <div
+                            key={item.id}
+                            className={clsx(
+                                "border rounded-xl p-4 transition-all group cursor-pointer",
+                                isInstalled
+                                    ? "border-green-300 bg-green-50 hover:shadow-md"
+                                    : "border-zinc-200 bg-white hover:shadow-lg hover:border-zinc-300"
+                            )}
                             onClick={() => {
                                 if (activeTab === 'templates') {
                                     actions.addPage({ title: item.name, icon: item.icon, blocks: item.blocks });
                                     onClose();
                                     showNotify("Plantilla aplicada");
-                                } else {
+                                } else if (!isInstalled) {
                                     handleGet(item);
                                 }
                             }}>
 
                             {/* Preview Area */}
-                            <div className="h-32 rounded-lg mb-4 flex items-center justify-center text-4xl font-bold shadow-sm relative overflow-hidden bg-zinc-50">
+                            <div className={clsx(
+                                "h-32 rounded-lg mb-4 flex items-center justify-center text-4xl font-bold shadow-sm relative overflow-hidden",
+                                isInstalled ? "bg-green-100" : "bg-zinc-50"
+                            )}>
                                 {activeTab === 'themes' && (
                                     <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: item.colors?.bg || '#333', color: item.colors?.text || '#fff' }}>
                                         <Palette size={48} />
@@ -182,7 +215,7 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                                 {activeTab === 'covers' && <img src={item.preview} alt={item.name} className="w-full h-full object-cover" />}
                                 {activeTab === 'fonts' && <span className="text-6xl" style={{ fontFamily: item.name }}>Aa</span>}
 
-                                {isInstalled && <div className="absolute inset-0 bg-black/20 flex items-center justify-center"><Check size={32} className="text-white drop-shadow-md" /></div>}
+                                {isInstalled && <div className="absolute inset-0 bg-green-600/20 flex items-center justify-center"><Check size={32} className="text-green-700 drop-shadow-md" /></div>}
                             </div>
 
                             {/* Info Area */}
@@ -194,17 +227,11 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                                     {item.type && <div className="text-xs text-zinc-400 mt-1">{item.type}</div>}
                                 </div>
 
-                                {activeTab !== 'templates' && !isInstalled && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleGet(item); }} className="text-xs bg-zinc-900 text-white px-3 py-1.5 rounded-full hover:bg-black flex items-center gap-1 transition-transform active:scale-95">
-                                        <Download size={12} /> {activeTab === 'icons' ? 'Usar' : 'Obtener'}
-                                    </button>
-                                )}
-                                {isInstalled && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-medium">Instalado</span>}
+                                {isInstalled && <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-medium">Instalado</span>}
                             </div>
                         </div>
                     );
-                })}
-            </div>
+                })}</div>
         );
     };
 
