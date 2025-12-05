@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { ICONS_LIST } from '../lib/utils';
 
-export function IconPickerInline({ onSelect, onClose }) {
+export function IconPickerInline({ onSelect, onClose, downloads }) {
     const [search, setSearch] = useState('');
     const pickerRef = useRef(null);
 
@@ -52,13 +52,13 @@ export function IconPickerInline({ onSelect, onClose }) {
                 </div>
 
                 <div className="relative">
-                    <Search size={16} className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400" />
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
                     <input
                         type="text"
                         placeholder="Buscar emoji..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 text-sm border border-zinc-200 rounded-md focus:outline-none focus:border-blue-500"
+                        className="w-full pl-9 pr-3 py-1.5 text-sm border border-zinc-200 rounded-md focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                         autoFocus
                     />
                 </div>
@@ -66,32 +66,59 @@ export function IconPickerInline({ onSelect, onClose }) {
 
             {/* Icon grid */}
             <div className="p-3 max-h-64 overflow-y-auto">
-                <div className="grid grid-cols-8 gap-1">
-                    {filteredIcons.map((icon, index) => (
-                        <button
-                            key={index}
-                            onClick={() => {
-                                onSelect(icon);
-                                onClose();
-                            }}
-                            className="text-2xl p-2 hover:bg-zinc-100 rounded transition-colors cursor-pointer"
-                            title={icon}
-                        >
-                            {icon}
-                        </button>
-                    ))}
-                </div>
-
-                {filteredIcons.length === 0 && (
-                    <div className="text-center py-8 text-sm text-zinc-400">
-                        No se encontraron emojis
+                {/* Downloaded Icons Section */}
+                {downloads?.icons && downloads.icons.length > 0 && (
+                    <div className="mb-4 pb-3 border-b border-zinc-200">
+                        <h4 className="text-xs font-semibold text-zinc-500 uppercase mb-2 px-1">📥 Descargados</h4>
+                        <div className="grid grid-cols-8 gap-1">
+                            {downloads.icons.map(icon => (
+                                <button
+                                    key={icon.id}
+                                    onClick={() => { onSelect(icon.data); onClose(); }}
+                                    className="p-2 hover:bg-indigo-50 rounded transition-colors cursor-pointer flex items-center justify-center"
+                                    title={icon.name}
+                                >
+                                    {icon.data.startsWith('http') || icon.data.startsWith('data:') ? (
+                                        <img src={icon.data} alt="" className="w-6 h-6 object-contain" />
+                                    ) : (
+                                        <span className="text-2xl">{icon.data}</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
+
+                {/* Emoji Grid */}
+                <div>
+                    {downloads?.icons && downloads.icons.length > 0 && (
+                        <h4 className="text-xs font-semibold text-zinc-500 uppercase mb-2 px-1">😊 Emojis</h4>
+                    )}
+                    <div className="grid grid-cols-8 gap-1">
+                        {filteredIcons.map((icon, index) => (
+                            <button
+                                key={index}
+                                onClick={() => { onSelect(icon); onClose(); }}
+                                className="text-2xl p-2 hover:bg-indigo-50 rounded transition-colors cursor-pointer"
+                                title={icon}
+                            >
+                                {icon}
+                            </button>
+                        ))}
+                    </div>
+
+                    {filteredIcons.length === 0 && (
+                        <div className="text-center py-8 text-sm text-zinc-400">
+                            No se encontraron emojis
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Footer */}
             <div className="px-3 py-2 border-t border-zinc-200 text-xs text-zinc-400">
                 {filteredIcons.length} emojis disponibles
+                {downloads?.icons && downloads.icons.length > 0 && ` • ${downloads.icons.length} descargados`}
             </div>
         </div>
     );

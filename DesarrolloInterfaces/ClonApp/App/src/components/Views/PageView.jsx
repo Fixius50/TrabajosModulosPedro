@@ -3,7 +3,7 @@ import { ImageIcon, FileText, Plus } from 'lucide-react';
 import { FancyEditable, EditorBlock } from '../../components/Editor';
 import { IconPickerInline } from '../IconPickerInline';
 
-export function PageView({ activePage, activePageId, ui, setUi, actions }) {
+export function PageView({ activePage, activePageId, ui, setUi, actions, downloads }) {
     const [showIconPicker, setShowIconPicker] = useState(false);
 
     if (!activePage) {
@@ -53,6 +53,7 @@ export function PageView({ activePage, activePageId, ui, setUi, actions }) {
                                 setShowIconPicker(false);
                             }}
                             onClose={() => setShowIconPicker(false)}
+                            downloads={downloads}
                         />
                     )}
                 </div>
