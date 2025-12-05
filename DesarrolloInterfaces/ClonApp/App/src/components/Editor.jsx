@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { ReferenceBlock } from './ReferenceBlock';
 import { useAppStore } from '../store/useAppStore';
+import { InlineDatabaseBlock } from './InlineDatabaseBlock';
 
 const LinkPreview = ({ url }) => {
     const [showConfirm, setShowConfirm] = useState(false);
@@ -80,6 +81,7 @@ export const SlashMenu = ({ query, onSelect, onClose, pages = [], databases = []
                 { id: 'quote', label: 'Cita', icon: <Quote size={16} />, desc: 'Captura una cita' },
                 { id: 'callout', label: 'Destacado', icon: <Info size={16} />, desc: 'Resalta información' },
                 { id: 'divider', label: 'Divisor', icon: <Minus size={16} />, desc: 'Separa visualmente' },
+                { id: 'database', label: 'Base de Datos', icon: <span className="text-base">📊</span>, desc: 'Database inline' },
             ]
         },
         referencias: {
@@ -216,6 +218,17 @@ export const EditorBlock = ({ block, index, actions }) => {
                 referenceTitle: item.referenceTitle,
                 referenceIcon: item.referenceIcon
             });
+        } else if (item.id === 'database' || item === 'database') {
+            // Create inline database
+            const databaseName = `Database ${new Date().toLocaleDateString()}`;
+            const databaseId = actions.addDatabase(databaseName, 'inline', null);
+
+            // Convert block to database block
+            actions.updateBlock(block.id, {
+                type: 'database',
+                content: '',
+                databaseId: databaseId
+            });
         } else {
             // Normal block type selection
             actions.updateBlock(block.id, { type: item.id || item, content: '' });
@@ -331,6 +344,18 @@ export const EditorBlock = ({ block, index, actions }) => {
                             }}
                         />
                     </div>
+                )}
+                {block.type === 'database' && (
+                    <InlineDatabaseBlock
+                        databaseId={block.databaseId}
+                        onDelete={() => {
+                            // Delete the database and the block
+                            if (block.databaseId) {
+                                actions.deleteDatabase(block.databaseId);
+                            }
+                            actions.deleteBlock(index);
+                        }}
+                    />
                 )}
             </div>
         </motion.div>
