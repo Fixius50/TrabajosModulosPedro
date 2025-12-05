@@ -8,6 +8,7 @@ import { supabase, AuthService } from './lib/supabase';
 import { BackupService } from './lib/backup';
 import { utils, ICONS_LIST, COVER_COLORS, COVER_IMAGES } from './lib/utils';
 import { useAppStore } from './store/useAppStore';
+import { useCSSVariables, themeToVariables } from './hooks/useCSSVariables';
 
 // Components
 import { LandingPage } from './components/Views/LandingPage';
@@ -42,6 +43,10 @@ const API_ENDPOINTS = { MARKET: "/api/market", AI: "/api/generar-pagina", UPLOAD
 function MainApp({ session, onLogout }) {
     // Hooks and State
     const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, activeFontId, actions, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId } = useAppStore();
+
+    // Apply CSS variables from active theme
+    const themeVariables = useMemo(() => themeToVariables(activeTheme), [activeTheme]);
+    useCSSVariables(themeVariables);
 
     // UI State
     const [ui, setUi] = useState({
