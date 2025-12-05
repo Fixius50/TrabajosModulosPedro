@@ -156,6 +156,166 @@ export const useAppStore = () => {
             blocks.splice(toIndex, 0, moved);
             actions.updatePage(activePageId, { blocks });
         },
+        // Database Actions
+        addDatabase: (name, type = 'fullpage', parentPageId = null) => {
+            if (!activeWorkspace) return null;
+            const defaultView = {
+                id: utils.generateId(),
+                name: 'Tabla',
+                type: 'table',
+                filters: [],
+                sorts: [],
+                visibleProperties: []
+            };
+            const titleProperty = {
+                id: utils.generateId(),
+                name: 'Nombre',
+                type: 'title',
+                visible: true,
+                order: 0
+            };
+            const newDatabase = {
+                id: utils.generateId(),
+                title: name || 'Nueva Base de Datos',
+                icon: '📊',
+                type,
+                parentPageId,
+                properties: [titleProperty],
+                items: [],
+                views: [defaultView],
+                activeViewId: defaultView.id
+            };
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? { ...w, databases: [...(w.databases || []), newDatabase] } : w));
+            return newDatabase.id;
+        },
+        updateDatabase: (databaseId, updates) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? { ...w, databases: (w.databases || []).map(db => db.id === databaseId ? { ...db, ...updates } : db) } : w));
+        },
+        deleteDatabase: (databaseId) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? { ...w, databases: (w.databases || []).filter(db => db.id !== databaseId) } : w));
+        },
+        addDatabaseItem: (databaseId, title = '') => {
+            if (!activeWorkspace) return null;
+            const database = (activeWorkspace.databases || []).find(db => db.id === databaseId);
+            if (!database) return null;
+
+            // Crear página para el item
+            const pageId = actions.addPage({ title: title || 'Sin título', isDatabaseItem: true, databaseId });
+
+            const titleProperty = database.properties.find(p => p.type === 'title');
+            const newItem = {
+                id: utils.generateId(),
+                pageId,
+                values: {
+                    [titleProperty.id]: title || 'Sin título'
+                }
+            };
+
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? { ...db, items: [...db.items, newItem] } : db)
+            } : w));
+            return newItem.id;
+        },
+        updateDatabaseItem: (databaseId, itemId, propertyId, value) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    items: db.items.map(item => item.id === itemId ? {
+                        ...item,
+                        values: { ...item.values, [propertyId]: value }
+                    } : item)
+                } : db)
+            } : w));
+        },
+        deleteDatabaseItem: (databaseId, itemId) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    items: db.items.filter(item => item.id !== itemId)
+                } : db)
+            } : w));
+        },
+        addProperty: (databaseId, property) => {
+            const database = (activeWorkspace?.databases || []).find(db => db.id === databaseId);
+            if (!database) return null;
+
+            const newProperty = {
+                id: utils.generateId(),
+                name: property.name || 'Nueva Propiedad',
+                type: property.type || 'text',
+                visible: true,
+                order: database.properties.length,
+                config: property.config || {}
+            };
+
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    properties: [...db.properties, newProperty]
+                } : db)
+            } : w));
+            return newProperty.id;
+        },
+        updateProperty: (databaseId, propertyId, updates) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    properties: db.properties.map(p => p.id === propertyId ? { ...p, ...updates } : p)
+                } : db)
+            } : w));
+        },
+        deleteProperty: (databaseId, propertyId) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    properties: db.properties.filter(p => p.id !== propertyId && p.type !== 'title')
+                } : db)
+            } : w));
+        },
+        addView: (databaseId, view) => {
+            const newView = {
+                id: utils.generateId(),
+                name: view.name || 'Nueva Vista',
+                type: view.type || 'table',
+                filters: [],
+                sorts: [],
+                visibleProperties: []
+            };
+
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    views: [...db.views, newView]
+                } : db)
+            } : w));
+            return newView.id;
+        },
+        updateView: (databaseId, viewId, updates) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    views: db.views.map(v => v.id === viewId ? { ...v, ...updates } : v)
+                } : db)
+            } : w));
+        },
+        deleteView: (databaseId, viewId) => {
+            setWorkspaces(workspaces.map(w => w.id === activeWorkspaceId ? {
+                ...w,
+                databases: (w.databases || []).map(db => db.id === databaseId ? {
+                    ...db,
+                    views: db.views.filter(v => v.id !== viewId),
+                    activeViewId: db.activeViewId === viewId ? db.views[0]?.id : db.activeViewId
+                } : db)
+            } : w));
+        },
         addTheme: (t) => { if (!t.name) return; setThemes(p => { const exists = p.find(ex => ex.id === t.id); if (exists) return p.map(ex => ex.id === t.id ? t : ex); return [...p, t]; }); },
         removeTheme: (themeId) => {
             if (themeId === 'default') return;

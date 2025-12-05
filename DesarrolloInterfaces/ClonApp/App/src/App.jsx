@@ -22,6 +22,7 @@ import { TrashView } from './components/Views/TrashView';
 import { SettingsView } from './components/Views/SettingsView';
 import { PageView } from './components/Views/PageView';
 import { EmptyWorkspaceView } from './components/Views/EmptyWorkspaceView';
+import { DatabaseView } from './components/Database/DatabaseView';
 
 // Modals
 import { SearchModal } from './components/Modals/SearchModal';
@@ -32,6 +33,7 @@ import { CreateWorkspaceModal } from './components/Modals/CreateWorkspaceModal';
 import { IconPickerModal } from './components/Modals/IconPickerModal';
 import { CoverGalleryModal } from './components/Modals/CoverGalleryModal';
 import { PageOptionsModal } from './components/Modals/PageOptionsModal';
+import { CreateDatabaseModal } from './components/Modals/CreateDatabaseModal';
 
 // Constants
 const API_ENDPOINTS = { MARKET: "/api/market", AI: "/api/generar-pagina", UPLOAD: "/api/upload" };
@@ -56,6 +58,7 @@ function MainApp({ session, onLogout }) {
             coverGallery: false,
             pageOptions: false,
             createWorkspace: false,
+            createDatabase: false,
             googleLogin: false
         },
         iconPickerTab: 'emoji',
@@ -65,6 +68,7 @@ function MainApp({ session, onLogout }) {
         pagesOpen: true
     });
 
+    const [activeDatabaseId, setActiveDatabaseId] = useState(null);
     const [showComments, setShowComments] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchFilters, setSearchFilters] = useState({ scope: 'all', sort: 'newest', date: 'any' });
@@ -297,6 +301,7 @@ function MainApp({ session, onLogout }) {
                 userProfile={userProfile}
                 workspaces={workspaces}
                 handleContextMenu={handleContextMenu}
+                setActiveDatabaseId={setActiveDatabaseId}
             />
 
             <main className="flex-1 h-full relative flex flex-col min-w-0 bg-[var(--bg-color)]">
@@ -346,6 +351,11 @@ function MainApp({ session, onLogout }) {
                             actions={actions}
                             isMobile={isMobile}
                             toggleSidebar={toggleSidebar}
+                        />
+                    )}
+                    {ui.currentView === 'database' && activeDatabaseId && (
+                        <DatabaseView
+                            databaseId={activeDatabaseId}
                         />
                     )}
                     {ui.modals.createWorkspace && (
@@ -462,6 +472,15 @@ function MainApp({ session, onLogout }) {
                             activeWorkspaceId={activeWorkspaceId}
                             actions={actions}
                             onLogout={onLogout}
+                        />
+                    )}
+                    {ui.modals.createDatabase && (
+                        <CreateDatabaseModal
+                            isOpen={ui.modals.createDatabase}
+                            onClose={() => setUi(p => ({ ...p, modals: { ...p.modals, createDatabase: false } }))}
+                            actions={actions}
+                            setActiveDatabaseId={setActiveDatabaseId}
+                            setUi={setUi}
                         />
                     )}
                 </AnimatePresence>

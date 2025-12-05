@@ -27,7 +27,105 @@ export const COVER_IMAGES = [
 export const DEFAULT_THEME = { id: 'default', name: 'Original', author: 'System', colors: { bg: '#ffffff', text: '#37352f', sidebar: '#F7F7F5' } };
 
 export const INITIAL_STATE = {
-    workspaces: [{ id: 'ws-demo', name: 'Fixius Workspace', initial: 'F', color: 'from-indigo-500 to-purple-500', email: 'user@example.com', pages: [] }],
+    workspaces: [{
+        id: 'ws-demo',
+        name: 'Fixius Workspace',
+        initial: 'F',
+        color: 'from-indigo-500 to-purple-500',
+        email: 'user@example.com',
+        pages: [],
+        databases: [{
+            id: 'db-demo-proyectos',
+            title: 'Proyectos',
+            icon: '📊',
+            type: 'fullpage',
+            parentPageId: null,
+            properties: [
+                { id: 'prop-title', name: 'Nombre', type: 'title', visible: true, order: 0 },
+                {
+                    id: 'prop-estado',
+                    name: 'Estado',
+                    type: 'select',
+                    visible: true,
+                    order: 1,
+                    config: {
+                        options: [
+                            { label: 'Por Hacer', color: '#6b7280' },
+                            { label: 'En Progreso', color: '#3b82f6' },
+                            { label: 'Terminado', color: '#22c55e' }
+                        ]
+                    }
+                },
+                {
+                    id: 'prop-prioridad',
+                    name: 'Prioridad',
+                    type: 'select',
+                    visible: true,
+                    order: 2,
+                    config: {
+                        options: [
+                            { label: 'Alta', color: '#ef4444' },
+                            { label: 'Media', color: '#f97316' },
+                            { label: 'Baja', color: '#22c55e' }
+                        ]
+                    }
+                },
+                { id: 'prop-fecha', name: 'Fecha Límite', type: 'date', visible: true, order: 3 }
+            ],
+            items: [
+                {
+                    id: 'item-1',
+                    pageId: 'page-db-1',
+                    values: {
+                        'prop-title': 'Diseño de UI/UX',
+                        'prop-estado': 'En Progreso',
+                        'prop-prioridad': 'Alta',
+                        'prop-fecha': '2025-12-15'
+                    }
+                },
+                {
+                    id: 'item-2',
+                    pageId: 'page-db-2',
+                    values: {
+                        'prop-title': 'Implementar Base de Datos',
+                        'prop-estado': 'Terminado',
+                        'prop-prioridad': 'Alta',
+                        'prop-fecha': '2025-12-05'
+                    }
+                },
+                {
+                    id: 'item-3',
+                    pageId: 'page-db-3',
+                    values: {
+                        'prop-title': 'Pruebas de Usuario',
+                        'prop-estado': 'Por Hacer',
+                        'prop-prioridad': 'Media',
+                        'prop-fecha': '2025-12-20'
+                    }
+                }
+            ],
+            views: [
+                {
+                    id: 'view-table',
+                    name: 'Tabla',
+                    type: 'table',
+                    filters: [],
+                    sorts: [],
+                    visibleProperties: []
+                },
+                {
+                    id: 'view-board',
+                    name: 'Tablero',
+                    type: 'board',
+                    groupBy: 'prop-estado',
+                    filters: [],
+                    sorts: [],
+                    visibleProperties: []
+                }
+            ],
+            activeViewId: 'view-table'
+        }]
+    }],
     profile: { name: "Usuario Fixius", email: "usuario@ejemplo.com", bio: "Productivity enthusiast.", avatar: null },
     themes: [DEFAULT_THEME],
     fonts: [

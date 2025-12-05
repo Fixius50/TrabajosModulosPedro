@@ -4,7 +4,7 @@ import { ChevronDown, Smile, ImageIcon, MessageSquare, Search, Sparkles, LayoutG
 import { clsx } from 'clsx';
 import { SidebarItem } from './SidebarItem';
 
-const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, actions, userProfile, workspaces, handleContextMenu }) => {
+const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, actions, userProfile, workspaces, handleContextMenu, setActiveDatabaseId }) => {
     const userName = userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario';
     return (
         <AnimatePresence mode="wait">
@@ -96,8 +96,38 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                         </div>
                     </div>
 
+                    {/* Databases Section */}
+                    {(activeWorkspace?.databases || []).filter(db => db.type === 'fullpage').length > 0 && (
+                        <div className="mb-4">
+                            <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>Bases de Datos</span>
+                            </div>
+                            <div>
+                                {(activeWorkspace?.databases || []).filter(db => db.type === 'fullpage').map(database => (
+                                    <div
+                                        key={database.id}
+                                        onClick={() => {
+                                            setUi(p => ({ ...p, currentView: 'database' }));
+                                            setActiveDatabaseId(database.id);
+                                        }}
+                                        className={`px-3 py-1.5 text-sm rounded hover:bg-zinc-200/50 cursor-pointer flex items-center gap-2`}
+                                    >
+                                        <span>{database.icon || '📊'}</span>
+                                        <span>{database.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Sidebar Footer */}
                     <div className="p-2 border-t border-zinc-200 space-y-0.5">
+                        <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, createDatabase: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                            </svg>
+                            <span>Nueva Base de Datos</span>
+                        </div>
                         <div onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, market: true } }))} className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-500 hover:bg-zinc-200/50 rounded-md cursor-pointer">
                             <Package size={14} /> <span>Marketplace</span>
                         </div>
