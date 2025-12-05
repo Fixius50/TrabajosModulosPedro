@@ -4,6 +4,8 @@ import { clsx } from 'clsx';
 import {
     List, CheckSquare, Quote, Info, Minus, Type, GripVertical, Check, ExternalLink, Play
 } from 'lucide-react';
+import { ReferenceBlock } from './ReferenceBlock';
+import { useAppStore } from '../store/useAppStore';
 
 const LinkPreview = ({ url }) => {
     const [showConfirm, setShowConfirm] = useState(false);
@@ -58,7 +60,7 @@ const LinkPreview = ({ url }) => {
     );
 };
 
-export const SlashMenu = ({ query, onSelect, onClose }) => {
+export const SlashMenu = ({ query, onSelect, onClose, pages = [], databases = [] }) => {
     const [activeCategory, setActiveCategory] = useState('basicos');
 
     const categories = {
@@ -79,6 +81,33 @@ export const SlashMenu = ({ query, onSelect, onClose }) => {
                 { id: 'callout', label: 'Destacado', icon: <Info size={16} />, desc: 'Resalta información' },
                 { id: 'divider', label: 'Divisor', icon: <Minus size={16} />, desc: 'Separa visualmente' },
             ]
+        },
+        referencias: {
+            label: 'Referencias',
+            items: [
+                ...pages.map(p => ({
+                    id: `ref-page-${p.id}`,
+                    label: p.title || 'Sin título',
+                    icon: <span className="text-base">{p.icon || '📄'}</span>,
+                    desc: 'Página',
+                    type: 'reference',
+                    referenceType: 'page',
+                    referenceId: p.id,
+                    referenceTitle: p.title || 'Sin título',
+                    referenceIcon: p.icon || '📄'
+                })),
+                ...databases.map(db => ({
+                    id: `ref-db-${db.id}`,
+                    label: db.title,
+                    icon: <span className="text-base">{db.icon || '📊'}</span>,
+                    desc: 'Database',
+                    type: 'reference',
+                    referenceType: 'database',
+                    referenceId: db.id,
+                    referenceTitle: db.title,
+                    referenceIcon: db.icon || '📊'
+                }))
+            ]
         }
     };
 
@@ -91,7 +120,7 @@ export const SlashMenu = ({ query, onSelect, onClose }) => {
         const handleKeyDown = (e) => {
             if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIndex(prev => (prev + 1) % filtered.length); }
             else if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIndex(prev => (prev - 1 + filtered.length) % filtered.length); }
-            else if (e.key === 'Enter') { e.preventDefault(); onSelect(filtered[selectedIndex].id); }
+            else if (e.key === 'Enter') { e.preventDefault(); onSelect(filtered[selectedIndex]); }
             else if (e.key === 'Escape') { onClose(); }
         };
         document.addEventListener('keydown', handleKeyDown);
@@ -125,7 +154,7 @@ export const SlashMenu = ({ query, onSelect, onClose }) => {
             <div className="p-1.5 space-y-0.5 max-h-80 overflow-y-auto">
                 {query && <div className="text-xs font-bold text-zinc-400 px-2 py-1 uppercase">Resultados</div>}
                 {filtered.map((item, i) => (
-                    <div key={item.id} onClick={() => onSelect(item.id)} className={clsx("flex items-center gap-3 px-2 py-1.5 rounded cursor-pointer transition-colors", i === selectedIndex ? "bg-zinc-100" : "hover:bg-zinc-50")}>
+                    <div key={item.id} onClick={() => onSelect(item)} className={clsx("flex items-center gap-3 px-2 py-1.5 rounded cursor-pointer transition-colors", i === selectedIndex ? "bg-zinc-100" : "hover:bg-zinc-50")}>
                         <div className="w-10 h-10 rounded border border-zinc-200 bg-white flex items-center justify-center text-zinc-600 shrink-0 shadow-sm">{item.icon}</div>
                         <div><div className="text-sm font-medium text-zinc-800">{item.label}</div><div className="text-xs text-zinc-400">{item.desc}</div></div>
                     </div>
@@ -143,6 +172,7 @@ export const FancyEditable = ({ tagName: Tag, html, className, onChange, onKeyDo
 };
 
 export const EditorBlock = ({ block, index, actions }) => {
+    const { activeWorkspace } = useAppStore();
     const [isDragging, setIsDragging] = useState(false);
     const [dragOverIndex, setDragOverIndex] = useState(null);
 
@@ -173,6 +203,23 @@ export const EditorBlock = ({ block, index, actions }) => {
             if (shortcuts[val]) { actions.updateBlock(block.id, { type: shortcuts[val], content: '' }); return; }
         }
         actions.updateBlock(block.id, { content: val });
+    };
+
+    const handleSlashMenuSelect = (item) => {
+        if (item.type === 'reference') {
+            // Convert current block to reference block
+            actions.updateBlock(block.id, {
+                type: 'reference',
+                content: '',
+                referenceType: item.referenceType,
+                referenceId: item.referenceId,
+                referenceTitle: item.referenceTitle,
+                referenceIcon: item.referenceIcon
+            });
+        } else {
+            // Normal block type selection
+            actions.updateBlock(block.id, { type: item.id || item, content: '' });
+        }
     };
 
     // Drag & Drop handlers
@@ -232,7 +279,13 @@ export const EditorBlock = ({ block, index, actions }) => {
         >
             <div className="absolute left-0 top-1.5 p-0.5 text-zinc-300 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing hover:text-zinc-500 transition-opacity touch-none hidden md:block"><GripVertical size={16} /></div>
             <div className="w-full relative">
-                {showSlashMenu && <SlashMenu query={slashQuery} onSelect={(type) => actions.updateBlock(block.id, { type, content: '' })} onClose={() => { }} />}
+                {showSlashMenu && <SlashMenu
+                    query={slashQuery}
+                    onSelect={handleSlashMenuSelect}
+                    onClose={() => { }}
+                    pages={activeWorkspace?.pages || []}
+                    databases={activeWorkspace?.databases || []}
+                />}
                 {block.type === 'h1' && <FancyEditable tagName="h1" html={block.content} className="text-3xl font-bold text-zinc-800 mb-2 mt-6" placeholder="Encabezado 1" onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
                 {block.type === 'h2' && <FancyEditable tagName="h2" html={block.content} className="text-2xl font-semibold text-zinc-800 mb-1 mt-4" placeholder="Encabezado 2" onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
                 {block.type === 'h3' && <FancyEditable tagName="h3" html={block.content} className="text-xl font-semibold text-zinc-800 mb-1 mt-3" placeholder="Encabezado 3" onKeyDown={handleKeyDown} onChange={handleChange} autoFocus />}
@@ -257,6 +310,28 @@ export const EditorBlock = ({ block, index, actions }) => {
                 {block.type === 'quote' && <div className="flex items-start gap-3 pl-4 border-l-4 border-zinc-900 my-2"><FancyEditable tagName="p" html={block.content} className="text-lg italic text-zinc-700" placeholder="Cita..." onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>}
                 {block.type === 'divider' && <div className="py-4"><div className="h-px bg-zinc-200 w-full" /></div>}
                 {block.type === 'callout' && <div className="p-4 bg-zinc-50 rounded-lg flex gap-3 border border-zinc-200 my-2"><Info size={20} className="text-zinc-500 shrink-0" /><FancyEditable tagName="p" html={block.content} className="text-base text-zinc-800" placeholder="Destacado..." onKeyDown={handleKeyDown} onChange={(val) => actions.updateBlock(block.id, { content: val })} autoFocus /></div>}
+                {block.type === 'reference' && (
+                    <div className="my-2">
+                        <ReferenceBlock
+                            reference={{
+                                type: block.referenceType,
+                                id: block.referenceId,
+                                title: block.referenceTitle,
+                                icon: block.referenceIcon
+                            }}
+                            onClick={(ref) => {
+                                if (ref.type === 'page') {
+                                    actions.setActivePageId(ref.id);
+                                } else if (ref.type === 'database') {
+                                    // Navigate to database
+                                    if (actions.setActiveDatabaseId) {
+                                        actions.setActiveDatabaseId(ref.id);
+                                    }
+                                }
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </motion.div>
     );
