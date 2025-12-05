@@ -45,7 +45,6 @@ export const SidebarItem = ({ page, depth = 0, actions, ui, setUi, activePageId,
                 {/* Hover Actions */}
                 <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 bg-[var(--sidebar-bg)] shadow-sm rounded">
                     <button onClick={(e) => { e.stopPropagation(); onContextMenu(page.id, e); }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"><MoreHorizontal size={14} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); actions.addPage({ parentId: page.id, type: 'database', icon: '🗃️' }); setIsExpanded(true); }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500" title="Nueva Base de Datos"><Database size={14} /></button>
                     <button onClick={(e) => { e.stopPropagation(); actions.addPage({ parentId: page.id }); setIsExpanded(true); }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500" title="Nueva Página"><Plus size={14} /></button>
                 </div>
             </div>

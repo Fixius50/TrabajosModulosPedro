@@ -22,14 +22,73 @@ export function HomeView({ activeWorkspace, actions, setUi, userProfile }) {
     return (
         <div className="max-w-6xl mx-auto py-12 px-6">
             <div className="mb-8"><h1 className="text-2xl font-bold mb-2 text-current">Hola, {userProfile?.name}</h1><p className="text-zinc-500">Continúa donde lo dejaste</p></div>
+
+            {/* Pages Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {visiblePages.slice(0, 12).map(page => (
                     <motion.div key={page.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -4, scale: 1.02 }} onClick={() => { actions.setActivePageId(page.id); setUi(p => ({ ...p, currentView: 'page' })); }} className="bg-white border border-zinc-200 rounded-lg overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all">
-                        <div className="h-32 relative" style={{ background: page.cover?.includes('http') ? 'transparent' : (page.cover || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)') }}>{page.cover?.includes('http') && <img src={page.cover} className="w-full h-full object-cover" />}</div>
-                        <div className="p-4"><div className="flex items-start gap-3"><div className="text-3xl shrink-0">{page.icon || '📄'}</div><div className="flex-1 min-w-0"><h3 className="font-semibold text-zinc-900 truncate mb-1">{page.title || 'Sin título'}</h3><p className="text-xs text-zinc-400">Editado {formatDistanceToNow(new Date(page.updatedAt))} ago</p></div></div></div>
+                        <div className="h-32 relative overflow-hidden">
+                            {page.cover ? (
+                                (page.cover.startsWith('http') || page.cover.startsWith('data:image')) ? (
+                                    <img src={page.cover} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full" style={{ background: page.cover }} />
+                                )
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600" />
+                            )}
+                        </div>
+                        <div className="p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="text-3xl shrink-0">
+                                    {page.icon?.startsWith('http') || page.icon?.startsWith('data:') ?
+                                        <img src={page.icon} alt="" className="w-8 h-8 object-contain" /> :
+                                        (page.icon || '📄')
+                                    }
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-semibold text-zinc-900 truncate mb-1">{page.title || 'Sin título'}</h3>
+                                    <p className="text-xs text-zinc-400">Editado {formatDistanceToNow(new Date(page.updatedAt))} ago</p>
+                                </div>
+                            </div>
+                        </div>
                     </motion.div>
                 ))}
             </div>
+
+            {/* Databases Section */}
+            {activeWorkspace?.databases && activeWorkspace.databases.length > 0 && (
+                <div className="mt-12">
+                    <h2 className="text-xl font-semibold mb-4 text-current">Bases de Datos</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {activeWorkspace.databases.slice(0, 12).map(database => (
+                            <motion.div
+                                key={database.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                whileHover={{ y: -4, scale: 1.02 }}
+                                onClick={() => {
+                                    actions.setActiveDatabaseId(database.id);
+                                    setUi(p => ({ ...p, currentView: 'database' }));
+                                }}
+                                className="bg-white border border-zinc-200 rounded-lg overflow-hidden cursor-pointer shadow-sm hover:shadow-md transition-all"
+                            >
+                                <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <div className="text-6xl">{database.icon || '📊'}</div>
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-zinc-900 truncate mb-1">{database.title}</h3>
+                                            <p className="text-xs text-zinc-400">{database.items?.length || 0} elementos</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

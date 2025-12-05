@@ -29,8 +29,8 @@ export const DEFAULT_THEME = { id: 'default', name: 'Original', author: 'System'
 export const INITIAL_STATE = {
     workspaces: [{
         id: 'ws-demo',
-        name: 'Fixius Workspace',
-        initial: 'F',
+        name: 'usuario Workspace',  // Will be replaced on first login with email prefix
+        initial: 'U',
         color: 'from-indigo-500 to-purple-500',
         email: 'user@example.com',
         pages: [],

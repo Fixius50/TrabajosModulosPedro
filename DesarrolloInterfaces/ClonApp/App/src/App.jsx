@@ -42,7 +42,7 @@ const API_ENDPOINTS = { MARKET: "/api/market", AI: "/api/generar-pagina", UPLOAD
 // Main App Component
 function MainApp({ session, onLogout }) {
     // Hooks and State
-    const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, activeFontId, actions, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId } = useAppStore();
+    const { workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId, themes, activeTheme, activeThemeId, fonts, activeFontId, downloads, actions, setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId } = useAppStore();
 
     // Apply CSS variables from active theme
     const themeVariables = useMemo(() => themeToVariables(activeTheme), [activeTheme]);
@@ -302,6 +302,7 @@ function MainApp({ session, onLogout }) {
                 activeWorkspace={activeWorkspace}
                 activeWorkspaceId={activeWorkspaceId}
                 activePageId={activePageId}
+                activeDatabaseId={activeDatabaseId}
                 actions={actions}
                 userProfile={userProfile}
                 workspaces={workspaces}
@@ -425,6 +426,7 @@ function MainApp({ session, onLogout }) {
                             actions={actions}
                             showNotify={showNotify}
                             activePageId={activePageId}
+                            downloads={downloads}
                         />
                     )}
                     {ui.modals.iconPicker && (

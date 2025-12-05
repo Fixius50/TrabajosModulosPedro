@@ -3,7 +3,7 @@ import { Loader2, Check, Download, Package, Upload, Image as ImageIcon, Type, Sm
 import { clsx } from 'clsx';
 import { Modal, FancyTabs } from '../UI';
 
-export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, marketData, themes, fonts, actions, showNotify, activePageId }) {
+export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, marketData, themes, fonts, actions, showNotify, activePageId, downloads }) {
     const [activeTab, setActiveTab] = useState('themes');
     const themeInputRef = useRef(null);
     const fontInputRef = useRef(null);
@@ -96,21 +96,11 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
             actions.addFont({ ...item, value: `url('${item.url}')` });
             showNotify("Fuente instalada");
         } else if (activeTab === 'icons') {
-            if (activePageId) {
-                actions.updatePage(activePageId, { icon: item.url });
-                showNotify("Icono aplicado");
-                onClose();
-            } else {
-                showNotify("Abre una página para usar este icono");
-            }
+            actions.addDownloadedIcon({ id: item.id, data: item.url, name: item.name, source: 'marketplace' });
+            showNotify("Icono guardado en biblioteca");
         } else if (activeTab === 'covers') {
-            if (activePageId) {
-                actions.updatePage(activePageId, { cover: item.preview });
-                showNotify("Portada aplicada");
-                onClose();
-            } else {
-                showNotify("Abre una página para usar esta portada");
-            }
+            actions.addDownloadedCover({ id: item.id, url: item.preview, name: item.name, source: 'marketplace' });
+            showNotify("Portada guardada en biblioteca");
         }
     };
 
@@ -186,10 +176,12 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {data.map(item => {
-                    // Check if item is installed
+                    // Check if item is installed/downloaded
                     const isThemeInstalled = activeTab === 'themes' && themes.some(th => th.id === item.id);
                     const isFontInstalled = activeTab === 'fonts' && fonts.some(f => f.id === item.id);
-                    const isInstalled = isThemeInstalled || isFontInstalled;
+                    const isIconDownloaded = activeTab === 'icons' && actions.isDownloaded('icons', item.id);
+                    const isCoverDownloaded = activeTab === 'covers' && actions.isDownloaded('covers', item.id);
+                    const isInstalled = isThemeInstalled || isFontInstalled || isIconDownloaded || isCoverDownloaded;
 
                     return (
                         <div

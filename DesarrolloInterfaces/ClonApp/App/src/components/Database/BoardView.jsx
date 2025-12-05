@@ -18,7 +18,25 @@ export function BoardView({ database, items, actions, activeView }) {
     return (
         <div className="flex gap-4 overflow-x-auto pb-4">
             {columns.map(option => (
-                <div key={option.label} className="flex-shrink-0 w-72">
+                <div
+                    key={option.label}
+                    className="flex-shrink-0 w-72"
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.add('bg-blue-50');
+                    }}
+                    onDragLeave={(e) => {
+                        e.currentTarget.classList.remove('bg-blue-50');
+                    }}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove('bg-blue-50');
+                        const itemId = e.dataTransfer.getData('itemId');
+                        if (itemId) {
+                            actions.updateDatabaseItem(database.id, itemId, groupBy, option.label);
+                        }
+                    }}
+                >
                     <div className="bg-zinc-100 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="font-medium text-sm">{option.label}</h3>
@@ -31,8 +49,16 @@ export function BoardView({ database, items, actions, activeView }) {
                                 return (
                                     <div
                                         key={item.id}
+                                        draggable
+                                        onDragStart={(e) => {
+                                            e.dataTransfer.setData('itemId', item.id);
+                                            e.currentTarget.style.opacity = '0.5';
+                                        }}
+                                        onDragEnd={(e) => {
+                                            e.currentTarget.style.opacity = '1';
+                                        }}
                                         onClick={() => actions.setActivePageId(item.pageId)}
-                                        className="bg-white rounded p-3 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                        className="bg-white rounded p-3 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
                                     >
                                         <div className="font-medium text-sm mb-2">
                                             {item.values[titleProp.id] || 'Sin título'}

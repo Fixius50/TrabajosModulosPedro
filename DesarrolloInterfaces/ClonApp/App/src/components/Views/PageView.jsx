@@ -16,11 +16,22 @@ export function PageView({ activePage, activePageId, ui, setUi, actions }) {
     }
 
     return (
-        <div className="max-w-3xl mx-auto px-4 py-12 pb-32">
-            {/* Cover & Icon */}
-            <div className="group relative mb-8">
-                {activePage.cover && <div className="h-48 w-full rounded-xl bg-cover bg-center mb-8 shadow-sm" style={{ backgroundImage: activePage.cover.startsWith('http') ? `url(${activePage.cover})` : activePage.cover }} />}
-                {!activePage.cover && <div className="h-12 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-xs text-zinc-400 mb-4">
+        <div className="w-full">
+            {/* Cover - Full Width */}
+            {activePage.cover && (
+                <div className="w-full h-60 relative overflow-hidden mb-8">
+                    {activePage.cover.startsWith('http') || activePage.cover.startsWith('data:image') ? (
+                        <img src={activePage.cover} alt="Cover" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full" style={{ background: activePage.cover }} />
+                    )}
+                    <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: true } }))} className="absolute top-4 right-4 hover:bg-white/90 bg-white/70 px-2 py-1 rounded flex items-center gap-1 text-sm"><ImageIcon size={12} /> Cambiar portada</button>
+                </div>
+            )}
+
+            <div className="max-w-3xl mx-auto px-4 pb-32">
+                {/* Add Cover Button */}
+                {!activePage.cover && <div className="h-12 opacity-0 hover:opacity-100 transition-opacity flex items-center gap-2 text-xs text-zinc-400 mb-4">
                     <button onClick={() => setUi(p => ({ ...p, modals: { ...p.modals, coverGallery: true } }))} className="hover:bg-zinc-100 px-2 py-1 rounded flex items-center gap-1"><ImageIcon size={12} /> Añadir portada</button>
                 </div>}
 

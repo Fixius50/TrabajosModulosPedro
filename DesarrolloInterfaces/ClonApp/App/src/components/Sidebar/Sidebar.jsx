@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Smile, ImageIcon, MessageSquare, Search, Sparkles, LayoutGrid, Inbox, Settings, Package, Trash, Plus } from 'lucide-react';
+import { ChevronDown, Smile, ImageIcon, MessageSquare, Search, Sparkles, LayoutGrid, Inbox, Settings, Package, Trash, Plus, MoreHorizontal } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarItem } from './SidebarItem';
 
-const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, actions, userProfile, workspaces, handleContextMenu, setActiveDatabaseId }) => {
+const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, activeDatabaseId, actions, userProfile, workspaces, handleContextMenu, setActiveDatabaseId }) => {
     const userName = userProfile?.email ? userProfile.email.split('@')[0] : 'Usuario';
     return (
         <AnimatePresence mode="wait">
@@ -99,24 +99,32 @@ const Sidebar = ({ ui, setUi, activeWorkspace, activeWorkspaceId, activePageId, 
                     {/* Databases Section */}
                     {(activeWorkspace?.databases || []).filter(db => db.type === 'fullpage').length > 0 && (
                         <div className="mb-4">
-                            <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                            <div className="px-3 py-1 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1 flex items-center justify-between group cursor-pointer hover:bg-zinc-200/30 rounded" onClick={() => setUi(p => ({ ...p, databasesOpen: !p.databasesOpen }))}>
                                 <span>Bases de Datos</span>
+                                <div onClick={(e) => { e.stopPropagation(); const name = 'Nueva Base de Datos'; actions.addDatabase(name, 'fullpage'); }} className="opacity-0 group-hover:opacity-100 hover:bg-zinc-300 rounded p-0.5 transition-all"><Plus size={12} /></div>
                             </div>
-                            <div>
-                                {(activeWorkspace?.databases || []).filter(db => db.type === 'fullpage').map(database => (
-                                    <div
-                                        key={database.id}
-                                        onClick={() => {
-                                            setUi(p => ({ ...p, currentView: 'database' }));
-                                            setActiveDatabaseId(database.id);
-                                        }}
-                                        className={`px-3 py-1.5 text-sm rounded hover:bg-zinc-200/50 cursor-pointer flex items-center gap-2`}
-                                    >
-                                        <span>{database.icon || '📊'}</span>
-                                        <span>{database.title}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            {ui.databasesOpen !== false && (
+                                <div>
+                                    {(activeWorkspace?.databases || []).filter(db => db.type === 'fullpage').map(database => (
+                                        <div
+                                            key={database.id}
+                                            onClick={() => {
+                                                setUi(p => ({ ...p, currentView: 'database' }));
+                                                setActiveDatabaseId(database.id);
+                                            }}
+                                            className={`group flex items-center gap-2 px-3 py-1.5 text-sm rounded hover:bg-zinc-200/50 cursor-pointer relative ${activeDatabaseId === database.id ? 'bg-zinc-200/50 font-medium' : 'opacity-80'}`}
+                                        >
+                                            <span>{database.icon || '📊'}</span>
+                                            <span className="flex-1 truncate">{database.title}</span>
+
+                                            {/* Hover Actions */}
+                                            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 bg-[var(--sidebar-bg)] shadow-sm rounded">
+                                                <button onClick={(e) => { e.stopPropagation(); /* TODO: onContextMenu for database */ }} className="p-0.5 hover:bg-zinc-200 rounded text-zinc-500"><MoreHorizontal size={14} /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
 

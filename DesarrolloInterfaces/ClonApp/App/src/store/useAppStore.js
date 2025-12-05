@@ -24,6 +24,7 @@ export const useAppStore = () => {
     const [activePageId, setActivePageId] = useState(null);
     const [activeThemeId, setActiveThemeId] = useLocalStorage('notion_v82_active_theme', 'default');
     const [activeFontId, setActiveFontId] = useLocalStorage('notion_v82_active_font', 'sans');
+    const [downloads, setDownloads] = useLocalStorage('notion_v82_downloads', { icons: [], covers: [] });
 
     const activeWorkspace = useMemo(() => {
         if (!Array.isArray(workspaces)) return null;
@@ -344,6 +345,22 @@ export const useAppStore = () => {
             }));
             setActivePageId(null);
         },
+        // Downloads management
+        addDownloadedIcon: (icon) => {
+            setDownloads(prev => ({
+                ...prev,
+                icons: [...(prev.icons || []), { ...icon, downloadedAt: Date.now() }]
+            }));
+        },
+        addDownloadedCover: (cover) => {
+            setDownloads(prev => ({
+                ...prev,
+                covers: [...(prev.covers || []), { ...cover, downloadedAt: Date.now() }]
+            }));
+        },
+        isDownloaded: (type, id) => {
+            return downloads[type]?.some(item => item.id === id) || false;
+        },
         // Internal setters for restoration
         setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId
     };
@@ -352,6 +369,7 @@ export const useAppStore = () => {
         workspaces, userProfile, activeWorkspace, activeWorkspaceId, activePage, activePageId,
         themes, activeTheme, activeThemeId,
         fonts, activeFont, activeFontId,
+        downloads,
         actions, utils,
         setWorkspaces, setUserProfile, setThemes, setFonts, setActiveWorkspaceId, setActiveThemeId, setActiveFontId
     };
