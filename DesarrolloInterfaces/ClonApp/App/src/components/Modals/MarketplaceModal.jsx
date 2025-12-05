@@ -104,13 +104,23 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         }
     };
 
-    const handleUninstall = (item) => {
+    const handleInstallAll = () => {
         if (activeTab === 'themes') {
-            actions.removeTheme(item.id);
-            showNotify("Tema desinstalado");
+            const notInstalled = marketData.styles?.filter(item => !themes.some(th => th.id === item.id)) || [];
+            notInstalled.forEach(item => actions.addTheme(item));
+            showNotify(`${notInstalled.length} temas instalados`);
         } else if (activeTab === 'fonts') {
-            actions.removeFont(item.id);
-            showNotify("Fuente desinstalada");
+            const notInstalled = marketData.fonts?.filter(item => !fonts.some(f => f.id === item.id)) || [];
+            notInstalled.forEach(item => actions.addFont({ ...item, value: `url('${item.url}')` }));
+            showNotify(`${notInstalled.length} fuentes instaladas`);
+        } else if (activeTab === 'icons') {
+            const notDownloaded = marketData.icons?.filter(item => !actions.isDownloaded('icons', item.id)) || [];
+            notDownloaded.forEach(item => actions.addDownloadedIcon({ id: item.id, data: item.url, name: item.name, source: 'marketplace' }));
+            showNotify(`${notDownloaded.length} iconos guardados`);
+        } else if (activeTab === 'covers') {
+            const notDownloaded = marketData.covers?.filter(item => !actions.isDownloaded('covers', item.id)) || [];
+            notDownloaded.forEach(item => actions.addDownloadedCover({ id: item.id, url: item.preview, name: item.name, source: 'marketplace' }));
+            showNotify(`${notDownloaded.length} portadas guardadas`);
         }
     };
 
@@ -174,80 +184,83 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         }
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {data.map(item => {
-                    // Check if item is installed/downloaded
-                    const isThemeInstalled = activeTab === 'themes' && themes.some(th => th.id === item.id);
-                    const isFontInstalled = activeTab === 'fonts' && fonts.some(f => f.id === item.id);
-                    const isIconDownloaded = activeTab === 'icons' && actions.isDownloaded('icons', item.id);
-                    const isCoverDownloaded = activeTab === 'covers' && actions.isDownloaded('covers', item.id);
-                    const isInstalled = isThemeInstalled || isFontInstalled || isIconDownloaded || isCoverDownloaded;
+            <div className="space-y-4">
+                {/* Install All Button */}
+                {(activeTab === 'themes' || activeTab === 'fonts' || activeTab === 'icons' || activeTab === 'covers') && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={handleInstallAll}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                        >
+                            <Download size={16} />
+                            Instalar Todo
+                        </button>
+                    </div>
+                )}
 
-                    return (
-                        <div
-                            key={item.id}
-                            className={clsx(
-                                "border rounded-xl p-4 transition-all group relative",
-                                isInstalled
-                                    ? "border-green-300 bg-green-50 cursor-default"
-                                    : "border-zinc-200 bg-white hover:shadow-lg hover:border-zinc-300 cursor-pointer"
-                            )}
-                            onClick={() => {
-                                if (activeTab === 'templates') {
-                                    actions.addPage({ title: item.name, icon: item.icon, blocks: item.blocks });
-                                    onClose();
-                                    showNotify("Plantilla aplicada");
-                                } else if (!isInstalled) {
-                                    handleGet(item);
-                                }
-                            }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {data.map(item => {
+                        // Check if item is installed/downloaded
+                        const isThemeInstalled = activeTab === 'themes' && themes.some(th => th.id === item.id);
+                        const isFontInstalled = activeTab === 'fonts' && fonts.some(f => f.id === item.id);
+                        const isIconDownloaded = activeTab === 'icons' && actions.isDownloaded('icons', item.id);
+                        const isCoverDownloaded = activeTab === 'covers' && actions.isDownloaded('covers', item.id);
+                        const isInstalled = isThemeInstalled || isFontInstalled || isIconDownloaded || isCoverDownloaded;
 
-                            {/* Uninstall button for installed items */}
-                            {isInstalled && (activeTab === 'themes' || activeTab === 'fonts') && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleUninstall(item);
-                                    }}
-                                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
-                                    title="Desinstalar"
-                                >
-                                    <X size={14} />
-                                </button>
-                            )}
-
-                            {/* Preview Area */}
-                            <div className={clsx(
-                                "h-32 rounded-lg mb-4 flex items-center justify-center text-4xl font-bold shadow-sm relative overflow-hidden",
-                                isInstalled ? "bg-green-100" : "bg-zinc-50"
-                            )}>
-                                {activeTab === 'themes' && (
-                                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: item.colors?.bg || '#333', color: item.colors?.text || '#fff' }}>
-                                        <Palette size={48} />
-                                    </div>
+                        return (
+                            <div
+                                key={item.id}
+                                className={clsx(
+                                    "border rounded-xl p-4 transition-all group relative",
+                                    isInstalled
+                                        ? "border-green-300 bg-green-50 cursor-default"
+                                        : "border-zinc-200 bg-white hover:shadow-lg hover:border-zinc-300 cursor-pointer"
                                 )}
-                                {activeTab === 'templates' && <span className="text-6xl">{item.icon}</span>}
-                                {activeTab === 'icons' && <img src={item.url} alt={item.name} className="w-16 h-16 object-contain" />}
-                                {activeTab === 'covers' && <img src={item.preview} alt={item.name} className="w-full h-full object-cover" />}
-                                {activeTab === 'fonts' && <span className="text-6xl" style={{ fontFamily: item.name }}>Aa</span>}
+                                onClick={() => {
+                                    if (activeTab === 'templates') {
+                                        actions.addPage({ title: item.name, icon: item.icon, blocks: item.blocks });
+                                        onClose();
+                                        showNotify("Plantilla aplicada");
+                                    } else if (!isInstalled) {
+                                        handleGet(item);
+                                    }
+                                }}>
 
-                                {isInstalled && <div className="absolute inset-0 bg-green-600/20 flex items-center justify-center"><Check size={32} className="text-green-700 drop-shadow-md" /></div>}
-                            </div>
 
-                            {/* Info Area */}
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <div className="font-bold text-zinc-900">{item.name}</div>
-                                    <div className="text-xs text-zinc-500">Por {item.author || 'Comunidad'}</div>
-                                    {item.count && <div className="text-xs text-zinc-400 mt-1">{item.count} elementos</div>}
-                                    {item.type && <div className="text-xs text-zinc-400 mt-1">{item.type}</div>}
+
+                                {/* Preview Area */}
+                                <div className={clsx(
+                                    "h-32 rounded-lg mb-4 flex items-center justify-center text-4xl font-bold shadow-sm relative overflow-hidden",
+                                    isInstalled ? "bg-green-100" : "bg-zinc-50"
+                                )}>
+                                    {activeTab === 'themes' && (
+                                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: item.colors?.bg || '#333', color: item.colors?.text || '#fff' }}>
+                                            <Palette size={48} />
+                                        </div>
+                                    )}
+                                    {activeTab === 'templates' && <span className="text-6xl">{item.icon}</span>}
+                                    {activeTab === 'icons' && <img src={item.url} alt={item.name} className="w-16 h-16 object-contain" />}
+                                    {activeTab === 'covers' && <img src={item.preview} alt={item.name} className="w-full h-full object-cover" />}
+                                    {activeTab === 'fonts' && <span className="text-6xl" style={{ fontFamily: item.name }}>Aa</span>}
+
+                                    {isInstalled && <div className="absolute inset-0 bg-green-600/20 flex items-center justify-center"><Check size={32} className="text-green-700 drop-shadow-md" /></div>}
                                 </div>
 
-                                {isInstalled && <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-medium">Instalado</span>}
+                                {/* Info Area */}
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-bold text-zinc-900">{item.name}</div>
+                                        <div className="text-xs text-zinc-500">Por {item.author || 'Comunidad'}</div>
+                                        {item.count && <div className="text-xs text-zinc-400 mt-1">{item.count} elementos</div>}
+                                        {item.type && <div className="text-xs text-zinc-400 mt-1">{item.type}</div>}
+                                    </div>
+
+                                    {isInstalled && <span className="text-xs bg-green-600 text-white px-2 py-1 rounded font-medium">Instalado</span>}
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
         );
     };
