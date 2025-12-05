@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Check, Download, Package, Upload, Image as ImageIcon, Type, Smile, Layout, Palette } from 'lucide-react';
+import { Loader2, Check, Download, Package, Upload, Image as ImageIcon, Type, Smile, Layout, Palette, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Modal, FancyTabs } from '../UI';
 
@@ -35,17 +35,17 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
 
         try {
             if (type === 'theme') {
-                const text = await file.text();
-                // Expect CSS files now
-                const themeName = file.name.split('.')[0];
+                // CSS files
                 const reader = new FileReader();
                 reader.onload = (e) => {
+                    const themeName = file.name.split('.')[0];
                     const theme = {
                         id: themeName.toLowerCase().replace(/\s+/g, '-'),
                         name: themeName,
                         type: 'css',
                         author: 'Importado',
-                        url: e.target.result
+                        url: e.target.result,
+                        colors: { bg: '#1a1a1a', text: '#ffffff' }
                     };
                     actions.addTheme(theme);
                     showNotify("Tema importado correctamente");
@@ -114,12 +114,22 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
         }
     };
 
+    const handleUninstall = (item) => {
+        if (activeTab === 'themes') {
+            actions.removeTheme(item.id);
+            showNotify("Tema desinstalado");
+        } else if (activeTab === 'fonts') {
+            actions.removeFont(item.id);
+            showNotify("Fuente desinstalada");
+        }
+    };
+
     const renderContent = () => {
         if (loadingMarket) {
             return (
                 <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-3">
                     <Loader2 className="animate-spin" size={32} />
-                    <p className="text-sm font-medium">Conectando con el servidor...</p>
+                    <p className="text-sm font-medium">Cargando marketplace...</p>
                 </div>
             );
         }
@@ -185,10 +195,10 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                         <div
                             key={item.id}
                             className={clsx(
-                                "border rounded-xl p-4 transition-all group cursor-pointer",
+                                "border rounded-xl p-4 transition-all group relative",
                                 isInstalled
-                                    ? "border-green-300 bg-green-50 hover:shadow-md"
-                                    : "border-zinc-200 bg-white hover:shadow-lg hover:border-zinc-300"
+                                    ? "border-green-300 bg-green-50 cursor-default"
+                                    : "border-zinc-200 bg-white hover:shadow-lg hover:border-zinc-300 cursor-pointer"
                             )}
                             onClick={() => {
                                 if (activeTab === 'templates') {
@@ -199,6 +209,20 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                                     handleGet(item);
                                 }
                             }}>
+
+                            {/* Uninstall button for installed items */}
+                            {isInstalled && (activeTab === 'themes' || activeTab === 'fonts') && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleUninstall(item);
+                                    }}
+                                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                                    title="Desinstalar"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
 
                             {/* Preview Area */}
                             <div className={clsx(
@@ -231,7 +255,8 @@ export function MarketplaceModal({ isOpen, onClose, ui, setUi, loadingMarket, ma
                             </div>
                         </div>
                     );
-                })}</div>
+                })}
+            </div>
         );
     };
 

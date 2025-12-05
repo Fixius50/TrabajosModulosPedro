@@ -348,6 +348,26 @@ function MainApp({ session, onLogout }) {
                             toggleSidebar={toggleSidebar}
                         />
                     )}
+                    {ui.modals.createWorkspace && (
+                        <CreateWorkspaceModal
+                            ui={ui}
+                            setUi={setUi}
+                            newWorkspaceName={newWorkspaceName}
+                            setNewWorkspaceName={setNewWorkspaceName}
+                            actions={actions}
+                        />
+                    )}
+                    {ui.modals.workspaceMenu && (
+                        <WorkspaceMenu
+                            ui={ui}
+                            setUi={setUi}
+                            workspaces={workspaces}
+                            userProfile={userProfile}
+                            activeWorkspaceId={activeWorkspaceId}
+                            actions={actions}
+                            onLogout={onLogout}
+                        />
+                    )}
                 </AnimatePresence>
 
                 {/* Modals */}
@@ -422,6 +442,26 @@ function MainApp({ session, onLogout }) {
                             actions={actions}
                             activePage={activePage}
                             activePageId={activePageId}
+                        />
+                    )}
+                    {ui.modals.createWorkspace && (
+                        <CreateWorkspaceModal
+                            ui={ui}
+                            setUi={setUi}
+                            newWorkspaceName={newWorkspaceName}
+                            setNewWorkspaceName={setNewWorkspaceName}
+                            actions={actions}
+                        />
+                    )}
+                    {ui.modals.workspaceMenu && (
+                        <WorkspaceMenu
+                            ui={ui}
+                            setUi={setUi}
+                            workspaces={workspaces}
+                            userProfile={userProfile}
+                            activeWorkspaceId={activeWorkspaceId}
+                            actions={actions}
+                            onLogout={onLogout}
                         />
                     )}
                 </AnimatePresence>
