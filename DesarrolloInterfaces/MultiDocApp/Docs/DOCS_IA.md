@@ -91,3 +91,13 @@ Este documento registra los Prompts, Modelos de IA y el orden de aplicación par
     *   **Búsqueda y Filtros**: Se añadió barra de búsqueda en tiempo real y selectores de filtro por tipo en el Dashboard.
     *   **Empty States**: Diseño pulido para cuando no hay documentos (o no hay resultados de búsqueda), guiando al usuario a crear uno o limpiar filtros.
     *   **Librerías**: Integración de `uuid` para generación segura de IDs.
+
+### Prompt 13: Sidebar & Configuración
+*   **Solicitud**: "El lateral tiene opciones no acabadas".
+*   **Acciones**:
+    *   **Navegación**: Se activaron los botones "Documentos" (redirige a Dashboard) y "Configuración".
+    *   **Nueva Vista**: Se creó componente `Settings.tsx` integrado en `App.tsx`.
+    *   **Funcionalidad**:
+        *   **Tema**: Toggle real Light/Dark mode.
+        *   **Datos**: Botón "Borrar Todos los Datos" para limpiar IndexedDB (Zona de Peligro).
+*   **Resultado**: Barra lateral 100% funcional.

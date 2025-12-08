@@ -14,13 +14,13 @@ export interface Document {
 }
 
 interface AppState {
-    view: 'dashboard' | 'editor'
+    view: 'dashboard' | 'editor' | 'settings'
     documents: Document[]
     activeDocId: string | null
     isLoading: boolean
 
     // Actions
-    setView: (view: 'dashboard' | 'editor') => void
+    setView: (view: 'dashboard' | 'editor' | 'settings') => void
     addDocument: (doc: Document) => void
     setActiveDoc: (id: string | null) => void
     updateDocument: (id: string, updates: Partial<Document>) => void

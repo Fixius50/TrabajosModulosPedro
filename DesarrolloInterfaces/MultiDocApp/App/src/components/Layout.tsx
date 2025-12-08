@@ -29,11 +29,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <NavItem
                         icon={<FolderOpen size={20} />}
                         label="Documentos"
+                        active={view === 'dashboard'}
+                        onClick={() => setView('dashboard')}
                     />
                     <div className="pt-4 mt-4 border-t border-border">
                         <NavItem
                             icon={<Settings size={20} />}
                             label="Configuración"
+                            active={view === 'settings'}
+                            onClick={() => setView('settings')}
                         />
                     </div>
                 </nav>
