@@ -3,6 +3,8 @@ import React from 'react'
 import { LayoutGrid, Settings, Plus, FolderOpen } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { cn } from '../lib/utils'
+import { Toaster } from 'sonner'
+import { CreateDocumentDialog } from './CreateDocumentDialog'
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const { view, setView } = useStore()
@@ -37,10 +39,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </nav>
 
                 <div className="p-4 border-t border-border">
-                    <button className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-all font-medium">
-                        <Plus size={18} />
-                        Nuevo Documento
-                    </button>
+                    <CreateDocumentDialog>
+                        <button className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-all font-medium">
+                            <Plus size={18} />
+                            Nuevo Documento
+                        </button>
+                    </CreateDocumentDialog>
                 </div>
             </aside>
 
@@ -48,6 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <main className="flex-1 overflow-auto bg-muted/20 relative">
                 {children}
             </main>
+            <Toaster position="bottom-right" richColors />
         </div>
     )
 }

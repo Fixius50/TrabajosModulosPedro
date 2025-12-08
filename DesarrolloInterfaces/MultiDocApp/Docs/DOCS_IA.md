@@ -73,3 +73,21 @@ Este documento registra los Prompts, Modelos de IA y el orden de aplicación par
 *   **Estado**: Funcional.
 
 **Estado Final**: Arquitectura estable, estilos y features completas.
+
+### Prompt 11: UX Audit & Refinamiento
+*   **Solicitud**: Revisar UX (seguridad en borrado, feedback al usuario).
+*   **Acciones**:
+    *   Instalación de `sonner` (Toasts) y `@radix-ui/react-alert-dialog`.
+    *   **Seguridad**: Implementación de modal de confirmación "Destructivo" al borrar documentos.
+    *   **Feedback**: Notificaciones toast al:
+        *   Borrar documento (Éxito/Error).
+        *   Exportar documento (Éxito/Error).
+    *   **Integración**: `Toaster` global añadido al `Layout`.
+
+### Prompt 12: UX Audit - Iteración 2 (Creatividad)
+*   **Solicitud**: "Libertad para mejorar UX".
+*   **Implementaciones**:
+    *   **Creación Avanzada**: Se reemplazó el botón "dummy" por un diálogo real (`CreateDocumentDialog`) que permite asignar Título y Tipo antes de crear.
+    *   **Búsqueda y Filtros**: Se añadió barra de búsqueda en tiempo real y selectores de filtro por tipo en el Dashboard.
+    *   **Empty States**: Diseño pulido para cuando no hay documentos (o no hay resultados de búsqueda), guiando al usuario a crear uno o limpiar filtros.
+    *   **Librerías**: Integración de `uuid` para generación segura de IDs.

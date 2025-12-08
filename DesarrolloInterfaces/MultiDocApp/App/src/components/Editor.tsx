@@ -7,6 +7,7 @@ import { PDFViewer } from './editors/PDFViewer'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Transformer } from '../lib/transformer'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function Editor({ docId }: { docId: string }) {
     const { documents, setActiveDoc } = useStore()
@@ -37,9 +38,10 @@ export function Editor({ docId }: { docId: string }) {
             } else {
                 await Transformer.toImage('document-capture', `${doc.title}.png`)
             }
+            toast.success(`Documento exportado como ${type.toUpperCase()}`)
         } catch (e) {
             console.error("Export failed", e)
-            alert("Error al exportar el documento")
+            toast.error("Error al exportar el documento")
         } finally {
             setIsExporting(false)
         }
