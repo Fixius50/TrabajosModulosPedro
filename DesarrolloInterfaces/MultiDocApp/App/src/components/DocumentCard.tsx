@@ -1,8 +1,8 @@
 
 import React from 'react'
 import { FileText, Image as ImageIcon, Video, FileCode, Trash2 } from 'lucide-react'
-import { useStore } from '../store/useStore'
-import type { Document, DocType } from '../store/useStore'
+// import { useStore } from '../store/useStore' // Removed usage
+import type { Document, DocType } from '../lib/schemas' // Updated import source
 import { cn } from '../lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -17,27 +17,32 @@ const IconMap: Record<DocType, React.ElementType> = {
     code: FileCode
 }
 
+import { Link } from '@tanstack/react-router'
+import { useDeleteDocument } from '../hooks/useDocuments'
+
 export function DocumentCard({ doc }: { doc: Document }) {
-    const { setActiveDoc, deleteDocument } = useStore()
+    const deleteMutation = useDeleteDocument()
     const Icon = IconMap[doc.type]
 
     const handleDelete = async (e: React.MouseEvent) => {
+        e.preventDefault()
         e.stopPropagation()
-        try {
-            await deleteDocument(doc.id)
-            toast.success('Documento eliminado correctamente', {
-                description: doc.title,
-                duration: 4000
-            })
-        } catch (error) {
-            toast.error('Error al eliminar el documento')
-        }
+
+        deleteMutation.mutate(doc.id, {
+            onSuccess: () => {
+                toast.success('Documento eliminado correctamente')
+            },
+            onError: () => {
+                toast.error('Error al eliminar el documento')
+            }
+        })
     }
 
     return (
-        <div
-            className="group relative bg-card border border-border rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer hover:border-primary/50"
-            onClick={() => setActiveDoc(doc.id)}
+        <Link
+            to="/editor/$docId"
+            params={{ docId: doc.id }}
+            className="block group relative bg-card border border-border rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer hover:border-primary/50"
         >
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
                 <AlertDialog.Root>
@@ -102,6 +107,6 @@ export function DocumentCard({ doc }: { doc: Document }) {
                     </span>
                 </p>
             </div>
-        </div>
+        </Link>
     )
 }

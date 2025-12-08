@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Plus, X, FileText, Image, FileCode } from 'lucide-react'
-import { useStore } from '../store/useStore'
-import type { DocType } from '../store/useStore'
+import { useCreateDocument } from '../hooks/useDocuments'
+import type { DocType } from '../lib/schemas'
 import { toast } from 'sonner'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -15,9 +14,12 @@ export function CreateDocumentDialog({ children }: CreateDocumentDialogProps) {
     const [open, setOpen] = useState(false)
     const [title, setTitle] = useState('')
     const [type, setType] = useState<DocType>('text')
-    const { addDocument } = useStore()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Mutation
+    const createDoc = useCreateDocument()
+    // const { addDocument } = useStore() // Removed
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title.trim()) {
             toast.error("El título es obligatorio")
@@ -30,14 +32,16 @@ export function CreateDocumentDialog({ children }: CreateDocumentDialogProps) {
             type,
             content: '',
             createdAt: new Date(),
-            url: type === 'image' ? 'https://source.unsplash.com/random' : undefined // Placeholder
+            url: type === 'image' ? 'https://source.unsplash.com/random' : undefined
         }
 
-        addDocument(newDoc)
-        toast.success("Documento creado")
-        setOpen(false)
-        setTitle('')
-        setType('text')
+        createDoc.mutate(newDoc, {
+            onSuccess: () => {
+                setOpen(false)
+                setTitle('')
+                setType('text')
+            }
+        })
     }
 
     return (

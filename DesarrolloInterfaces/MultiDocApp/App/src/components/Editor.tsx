@@ -1,5 +1,3 @@
-
-import { useStore } from '../store/useStore'
 import { ArrowLeft, Share, Save, FileImage, FileText } from 'lucide-react'
 import { CodeEditor } from './editors/CodeEditor'
 import { ImageViewer } from './editors/ImageViewer'
@@ -8,13 +6,15 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Transformer } from '../lib/transformer'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { Link } from '@tanstack/react-router'
+import { useDocument } from '../hooks/useDocuments'
 
 export function Editor({ docId }: { docId: string }) {
-    const { documents, setActiveDoc } = useStore()
-    const doc = documents.find(d => d.id === docId)
+    const { data: doc, isLoading } = useDocument(docId)
     const [isExporting, setIsExporting] = useState(false)
 
-    if (!doc) return <div>Documento no encontrado</div>
+    if (isLoading) return <div className="p-8">Cargando documento...</div>
+    if (!doc) return <div className="p-8">Documento no encontrado</div>
 
     const renderContent = () => {
         switch (doc.type) {
@@ -26,6 +26,7 @@ export function Editor({ docId }: { docId: string }) {
             case 'pdf':
                 return <PDFViewer doc={doc} />
             default:
+                // @ts-ignore
                 return <div className="p-10 text-center">Tipo de archivo no soportado: {doc.type}</div>
         }
     }
@@ -51,13 +52,13 @@ export function Editor({ docId }: { docId: string }) {
         <div className="flex flex-col h-full bg-background">
             <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card z-10 relative shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => setActiveDoc(null)}
+                    <Link
+                        to="/dashboard"
                         className="p-2 hover:bg-accent rounded-full transition-colors focus:ring-2 focus:ring-primary/20"
                         aria-label="Volver"
                     >
                         <ArrowLeft size={20} />
-                    </button>
+                    </Link>
                     <div className="flex flex-col">
                         <h1 className="font-semibold text-lg leading-none">{doc.title}</h1>
                         <span className="text-xs text-muted-foreground uppercase">{doc.type}</span>

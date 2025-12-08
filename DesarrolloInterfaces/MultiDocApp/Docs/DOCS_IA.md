@@ -100,4 +100,14 @@ Este documento registra los Prompts, Modelos de IA y el orden de aplicación par
     *   **Funcionalidad**:
         *   **Tema**: Toggle real Light/Dark mode.
         *   **Datos**: Botón "Borrar Todos los Datos" para limpiar IndexedDB (Zona de Peligro).
-*   **Resultado**: Barra lateral 100% funcional.
+*   **Result**: Barra lateral 100% funcional.
+
+### Prompt 14: Tech Stack Upgrade
+*   **Solicitud**: "Mejora tecnológica masiva: TanStack Router, Query, Shadcn, Zod, DnD, Framer Motion".
+*   **Acciones**:
+    *   **Routing**: Migración completa a `@tanstack/react-router` para navegación tipada y gestión de estado por URL. Layout animado con `framer-motion`.
+    *   **Data**: Implementación de `@tanstack/react-query` para gestión async y caché. Hook `useDocuments` reemplaza parte del Store.
+    *   **Validación**: Esquemas `Zod` (DocumentSchema) para asegurar integriad de datos.
+    *   **Drag & Drop**: Implementación de `@dnd-kit` en el Dashboard (grid ordenable).
+    *   **Componentes**: Refactorización de componentes para usar los nuevos hooks y router.
+    *   **Arquitectura**: Wrap de la app en `QueryProvider` y `RouterProvider`.

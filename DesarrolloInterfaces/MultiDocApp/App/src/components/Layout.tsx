@@ -1,18 +1,24 @@
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { LayoutGrid, Settings, Plus, FolderOpen } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import { cn } from '../lib/utils'
 import { Toaster } from 'sonner'
 import { CreateDocumentDialog } from './CreateDocumentDialog'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export function Layout({ children }: { children: React.ReactNode }) {
-    const { view, setView } = useStore()
+    const { init } = useStore() // Move init here or to a higher level provider
+    const routerState = useRouterState()
+
+    useEffect(() => {
+        init()
+    }, [])
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-border bg-card flex flex-col">
+            <aside className="w-64 border-r border-border bg-card flex flex-col z-20 shadow-sm relative">
                 <div className="p-6 border-b border-border">
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
                         MultiDocApp
@@ -20,25 +26,36 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
-                    <NavItem
-                        icon={<LayoutGrid size={20} />}
-                        label="Dashboard"
-                        active={view === 'dashboard'}
-                        onClick={() => setView('dashboard')}
-                    />
-                    <NavItem
-                        icon={<FolderOpen size={20} />}
-                        label="Documentos"
-                        active={view === 'dashboard'}
-                        onClick={() => setView('dashboard')}
-                    />
+                    <Link
+                        to="/dashboard"
+                        activeProps={{ className: 'bg-primary/10 text-primary' }}
+                        inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
+                        className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <LayoutGrid size={20} />
+                        <span>Dashboard</span>
+                    </Link>
+
+                    <Link
+                        to="/dashboard" // Intentionally same as dashboard for now, or could be a list view
+                        activeProps={{ className: 'bg-primary/10 text-primary' }}
+                        inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
+                        className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                        <FolderOpen size={20} />
+                        <span>Documentos</span>
+                    </Link>
+
                     <div className="pt-4 mt-4 border-t border-border">
-                        <NavItem
-                            icon={<Settings size={20} />}
-                            label="Configuración"
-                            active={view === 'settings'}
-                            onClick={() => setView('settings')}
-                        />
+                        <Link
+                            to="/settings"
+                            activeProps={{ className: 'bg-primary/10 text-primary' }}
+                            inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
+                            className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                            <Settings size={20} />
+                            <span>Configuración</span>
+                        </Link>
                     </div>
                 </nav>
 
@@ -53,27 +70,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto bg-muted/20 relative">
-                {children}
+            <main className="flex-1 overflow-hidden bg-muted/20 relative flex flex-col">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={routerState.location.pathname}
+                        initial={{ opacity: 0, scale: 0.99, x: 10 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.99, x: -10 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="flex-1 w-full h-full overflow-auto"
+                    >
+                        {children}
+                    </motion.div>
+                </AnimatePresence>
             </main>
             <Toaster position="bottom-right" richColors />
         </div>
-    )
-}
-
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) {
-    return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            )}
-        >
-            {icon}
-            <span>{label}</span>
-        </button>
     )
 }
