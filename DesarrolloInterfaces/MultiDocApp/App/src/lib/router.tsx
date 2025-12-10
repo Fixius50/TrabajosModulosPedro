@@ -4,6 +4,7 @@ import { Layout } from '../components/Layout'
 import { Dashboard } from '../components/Dashboard'
 import { Editor } from '../components/Editor'
 import { Settings } from '../components/Settings'
+import { TrashPage } from '../components/TrashPage'
 import { z } from 'zod'
 
 // 1. Create Root Route (Layout wrapper)
@@ -34,11 +35,17 @@ const settingsRoute = createRoute({
     component: Settings,
 })
 
+const trashRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/trash',
+    component: TrashPage,
+})
+
 const editorRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/editor/$docId',
     component: EditorWrapper,
-    validateSearch: z.object({}).optional(), // No search params for now
+    validateSearch: z.object({}).optional(),
 })
 
 // Wrapper to extract params for Editor
@@ -52,6 +59,7 @@ const routeTree = rootRoute.addChildren([
     indexRoute,
     dashboardRoute,
     settingsRoute,
+    trashRoute,
     editorRoute
 ])
 

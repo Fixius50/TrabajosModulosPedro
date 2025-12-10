@@ -32,7 +32,10 @@ export function CreateDocumentDialog({ children }: CreateDocumentDialogProps) {
             type,
             content: '',
             createdAt: new Date(),
-            url: type === 'image' ? 'https://source.unsplash.com/random' : undefined
+            url: type === 'image' ? 'https://source.unsplash.com/random' : undefined,
+            pinned: false,
+            order: 0,
+            folderId: null
         }
 
         createDoc.mutate(newDoc, {

@@ -1,13 +1,15 @@
 
-import { useStore } from '../store/useStore'
 import { Moon, Sun, Trash, Database } from 'lucide-react'
 import { toast } from 'sonner'
 import { LocalDB } from '../lib/db'
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { docKeys, folderKeys, trashKeys } from '../hooks/useDocuments'
 
 export function Settings() {
-    const { init } = useStore()
+    const queryClient = useQueryClient()
     const [theme, setTheme] = useState<'light' | 'dark'>('light')
+    const [isClearing, setIsClearing] = useState(false)
 
     useEffect(() => {
         const isDark = document.documentElement.classList.contains('dark')
@@ -25,14 +27,26 @@ export function Settings() {
     }
 
     const handleClearData = async () => {
-        if (!confirm('¿Estás seguro? Esto borrará todos tus documentos locales.')) return
+        if (!confirm('¿Estás seguro? Esto borrará todos tus documentos, carpetas y papelera.')) return
 
+        setIsClearing(true)
         try {
-            await LocalDB.saveAll([])
-            await init() // Reload store
+            // Clear all data stores
+            await LocalDB.saveAllDocuments([])
+            await LocalDB.saveAllFolders([])
+            await LocalDB.saveAllTrash([])
+
+            // Invalidate all queries to refresh the UI
+            await queryClient.invalidateQueries({ queryKey: docKeys.all })
+            await queryClient.invalidateQueries({ queryKey: folderKeys.all })
+            await queryClient.invalidateQueries({ queryKey: trashKeys.all })
+
             toast.success('Base de datos local limpiada')
         } catch (e) {
             toast.error('Error al limpiar datos')
+            console.error(e)
+        } finally {
+            setIsClearing(false)
         }
     }
 
@@ -81,10 +95,11 @@ export function Settings() {
                         </div>
                         <button
                             onClick={handleClearData}
-                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 font-medium transition-colors"
+                            disabled={isClearing}
+                            className="flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 font-medium transition-colors disabled:opacity-50"
                         >
                             <Trash size={16} />
-                            Borrar Todos los Datos
+                            {isClearing ? 'Borrando...' : 'Borrar Todos los Datos'}
                         </button>
                     </div>
                 </section>

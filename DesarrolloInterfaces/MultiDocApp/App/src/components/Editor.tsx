@@ -1,7 +1,15 @@
-import { ArrowLeft, Share, Save, FileImage, FileText } from 'lucide-react'
+
+import { ArrowLeft, Share, Save, FileImage, FileText, ZoomIn, ZoomOut } from 'lucide-react'
 import { CodeEditor } from './editors/CodeEditor'
 import { ImageViewer } from './editors/ImageViewer'
 import { PDFViewer } from './editors/PDFViewer'
+import { VideoViewer } from './viewers/VideoViewer'
+import { AudioViewer } from './viewers/AudioViewer'
+import { ExcelViewer } from './viewers/ExcelViewer'
+import { CSVViewer } from './viewers/CSVViewer'
+import { MarkdownViewer } from './viewers/MarkdownViewer'
+import { HTMLViewer } from './viewers/HTMLViewer'
+import { JSONViewer } from './viewers/JSONViewer'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Transformer } from '../lib/transformer'
 import { useState } from 'react'
@@ -12,21 +20,62 @@ import { useDocument } from '../hooks/useDocuments'
 export function Editor({ docId }: { docId: string }) {
     const { data: doc, isLoading } = useDocument(docId)
     const [isExporting, setIsExporting] = useState(false)
+    const [zoomLevel, setZoomLevel] = useState(1)
+
 
     if (isLoading) return <div className="p-8">Cargando documento...</div>
     if (!doc) return <div className="p-8">Documento no encontrado</div>
 
+    const handleZoom = (delta: number) => {
+        setZoomLevel(prev => Math.max(0.25, Math.min(3, prev + delta)))
+    }
+
     const renderContent = () => {
+        const commonStyle = { transform: `scale(${zoomLevel})`, transformOrigin: 'top center' }
+
         switch (doc.type) {
             case 'text':
             case 'code':
-                return <CodeEditor doc={doc} />
+                return (
+                    <div style={commonStyle}>
+                        <CodeEditor doc={doc} />
+                    </div>
+                )
             case 'image':
-                return <ImageViewer doc={doc} />
+                return (
+                    <div style={commonStyle}>
+                        <ImageViewer doc={doc} />
+                    </div>
+                )
             case 'pdf':
-                return <PDFViewer doc={doc} />
+                return (
+                    <div style={commonStyle}>
+                        <PDFViewer doc={doc} />
+                    </div>
+                )
+            case 'video':
+                return <VideoViewer doc={doc} />
+            case 'audio':
+                return <AudioViewer doc={doc} />
+            case 'excel':
+                return <ExcelViewer doc={doc} />
+            case 'csv':
+                return <CSVViewer doc={doc} />
+            case 'markdown':
+                return (
+                    <div style={commonStyle}>
+                        <MarkdownViewer doc={doc} />
+                    </div>
+                )
+            case 'html':
+                return <HTMLViewer doc={doc} />
+            case 'json':
+                return (
+                    <div style={commonStyle}>
+                        <JSONViewer doc={doc} />
+                    </div>
+                )
             default:
-                // @ts-ignore
                 return <div className="p-10 text-center">Tipo de archivo no soportado: {doc.type}</div>
         }
     }
@@ -48,6 +97,10 @@ export function Editor({ docId }: { docId: string }) {
         }
     }
 
+    const handleSave = async () => {
+        toast.success('Documento guardado')
+    }
+
     return (
         <div className="flex flex-col h-full bg-background">
             <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card z-10 relative shadow-sm">
@@ -65,7 +118,29 @@ export function Editor({ docId }: { docId: string }) {
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                    {/* Zoom controls */}
+                    <div className="flex items-center gap-1 border-r border-border pr-3 mr-2">
+                        <button
+                            onClick={() => handleZoom(-0.1)}
+                            className="p-1.5 hover:bg-accent rounded-md transition-colors"
+                            title="Reducir"
+                        >
+                            <ZoomOut size={18} />
+                        </button>
+                        <span className="text-xs text-muted-foreground w-12 text-center">
+                            {Math.round(zoomLevel * 100)}%
+                        </span>
+                        <button
+                            onClick={() => handleZoom(0.1)}
+                            className="p-1.5 hover:bg-accent rounded-md transition-colors"
+                            title="Ampliar"
+                        >
+                            <ZoomIn size={18} />
+                        </button>
+                    </div>
+
+                    {/* Export dropdown */}
                     <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                             <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium hover:bg-accent rounded-md transition-colors text-muted-foreground hover:text-foreground outline-none focus:ring-2 focus:ring-primary/20">
@@ -94,7 +169,10 @@ export function Editor({ docId }: { docId: string }) {
                         </DropdownMenu.Portal>
                     </DropdownMenu.Root>
 
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm">
+                    <button
+                        onClick={handleSave}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm"
+                    >
                         <Save size={16} />
                         Guardar
                     </button>

@@ -1,5 +1,6 @@
+
 import { Document as PDFDoc, Page, pdfjs } from 'react-pdf'
-import type { Document } from '../../store/useStore'
+import type { Document } from '../../lib/schemas'
 import { useState } from 'react'
 
 // Set worker to CDN for simplicity in this demo environment
@@ -12,17 +13,23 @@ export function PDFViewer({ doc }: { doc: Document }) {
         setNumPages(numPages)
     }
 
-    if (!doc.url) return <div>No PDF URL provided</div>
+    if (!doc.url) return <div className="p-8 text-muted-foreground">No se encontró URL del PDF</div>
 
     return (
-        <div className="h-full bg-slate-100 overflow-auto flex justify-center p-8">
-            <PDFDoc file={doc.url} onLoadSuccess={onDocumentLoadSuccess} className="shadow-lg">
+        <div className="h-full bg-slate-100 dark:bg-slate-900 overflow-auto flex justify-center p-8">
+            <PDFDoc
+                file={doc.url}
+                onLoadSuccess={onDocumentLoadSuccess}
+                className="shadow-lg"
+            >
                 {Array.from(new Array(numPages), (_, index) => (
                     <Page
                         key={`page_${index + 1}`}
                         pageNumber={index + 1}
                         className="mb-4"
                         width={800}
+                        renderAnnotationLayer={true}
+                        renderTextLayer={true}
                     />
                 ))}
             </PDFDoc>

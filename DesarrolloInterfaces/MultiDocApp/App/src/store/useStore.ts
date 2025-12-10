@@ -1,17 +1,11 @@
+
 import { create } from 'zustand'
 import { LocalDB } from '../lib/db'
 import { fetchDocuments } from '../lib/supabase'
+import type { Document, DocType } from '../lib/schemas'
 
-export type DocType = 'text' | 'image' | 'video' | 'pdf' | 'code'
-
-export interface Document {
-    id: string
-    title: string
-    type: DocType
-    content?: string // For text/code
-    url?: string // For media/pdf
-    createdAt: Date
-}
+// Re-export types for compatibility
+export type { Document, DocType }
 
 interface AppState {
     view: 'dashboard' | 'editor' | 'settings'
@@ -41,7 +35,7 @@ export const useStore = create<AppState>((set) => ({
     addDocument: async (doc) => {
         // Optimistic update
         set((state) => ({ documents: [...state.documents, doc] }))
-        await LocalDB.add(doc)
+        await LocalDB.addDocument(doc)
         // Cloud sync can happen here
     },
 
@@ -51,7 +45,7 @@ export const useStore = create<AppState>((set) => ({
         set((state) => ({
             documents: state.documents.map(d => d.id === id ? { ...d, ...updates } : d)
         }))
-        await LocalDB.update(id, updates)
+        await LocalDB.updateDocument(id, updates)
     },
 
     deleteDocument: async (id) => {
@@ -60,34 +54,38 @@ export const useStore = create<AppState>((set) => ({
             activeDocId: state.activeDocId === id ? null : state.activeDocId,
             view: state.activeDocId === id ? 'dashboard' : state.view
         }))
-        await LocalDB.remove(id)
+        await LocalDB.deleteDocument(id)
     },
 
     init: async () => {
         set({ isLoading: true })
         try {
             // Try local first
-            const localDocs = await LocalDB.getAll()
+            const localDocs = await LocalDB.getAllDocuments()
 
             // If empty, seed with demo if totally fresh
             if (localDocs.length === 0) {
                 const demoDocs: Document[] = [
                     {
-                        id: '1',
+                        id: crypto.randomUUID(),
                         title: 'Bienvenida.md',
                         type: 'text',
                         content: '# Bienvenido a MultiDocApp\n\nEste es un documento de ejemplo persistente.',
-                        createdAt: new Date()
+                        createdAt: new Date(),
+                        pinned: false,
+                        order: 0
                     },
                     {
-                        id: '2',
+                        id: crypto.randomUUID(),
                         title: 'Demo Image (Unsplash)',
                         type: 'image',
                         url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
-                        createdAt: new Date()
+                        createdAt: new Date(),
+                        pinned: false,
+                        order: 1
                     }
                 ]
-                await LocalDB.saveAll(demoDocs)
+                await LocalDB.saveAllDocuments(demoDocs)
                 set({ documents: demoDocs })
             } else {
                 set({ documents: localDocs })

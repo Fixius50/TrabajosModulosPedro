@@ -1,52 +1,134 @@
 
-import { useState } from 'react'
-import { useDocuments } from '../hooks/useDocuments'
+import { useState, useMemo } from 'react'
+import { useDocuments, useFolders, useDeleteFolder } from '../hooks/useDocuments'
 import { DocumentCard } from './DocumentCard'
-import { SortableDocumentCard } from './SortableDocumentCard'
-import { Search, FileQuestion, Filter } from 'lucide-react'
+import { FolderCard } from './FolderCard'
+import { Breadcrumb } from './Breadcrumb'
+import { FileUploader } from './FileUploader'
+import { Search, FileQuestion, Filter, LayoutGrid, List, Trash2 } from 'lucide-react'
 import { CreateDocumentDialog } from './CreateDocumentDialog'
-import type { DocType } from '../lib/schemas'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
-import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
+import type { DocType, Folder } from '../lib/schemas'
+import { useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 
 export function Dashboard() {
-    const { data: documents = [], isLoading } = useDocuments()
+    const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [filterType, setFilterType] = useState<'all' | DocType>('all')
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const queryClient = useQueryClient()
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
+    // Fetch documents and folders for current level
+    const { data: documents = [], isLoading: docsLoading } = useDocuments(currentFolderId)
+    const { data: folders = [], isLoading: foldersLoading } = useFolders(currentFolderId)
+    const { data: allFolders = [] } = useFolders()
+
+    // Fetch document counts for each folder
+    const { data: allDocuments = [] } = useDocuments()
+
+    const deleteFolder = useDeleteFolder()
+
+    // Build breadcrumb path
+    const breadcrumbPath = useMemo(() => {
+        if (!currentFolderId) return []
+
+        const path: Folder[] = []
+        let current = allFolders.find(f => f.id === currentFolderId)
+
+        while (current) {
+            path.unshift(current)
+            current = current.parentId ? allFolders.find(f => f.id === current!.parentId) : undefined
+        }
+
+        return path
+    }, [currentFolderId, allFolders])
+
+    // Get file count for a folder
+    const getFolderFileCount = (folderId: string) => {
+        return allDocuments.filter(d => d.folderId === folderId).length
+    }
+
+    // Filter and sort items
+    const filteredFolders = useMemo(() => {
+        let result = [...folders]
+
+        if (searchTerm) {
+            result = result.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        }
+
+        // Sort: pinned first, then by order
+        result.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1
+            if (!a.pinned && b.pinned) return 1
+            return (a.order || 0) - (b.order || 0)
         })
-    )
+
+        return result
+    }, [folders, searchTerm])
+
+    const filteredDocs = useMemo(() => {
+        let result = [...documents]
+
+        if (searchTerm) {
+            result = result.filter(d => d.title.toLowerCase().includes(searchTerm.toLowerCase()))
+        }
+
+        if (filterType !== 'all') {
+            result = result.filter(d => d.type === filterType)
+        }
+
+        // Sort: pinned first, then by order
+        result.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1
+            if (!a.pinned && b.pinned) return 1
+            return (a.order || 0) - (b.order || 0)
+        })
+
+        return result
+    }, [documents, searchTerm, filterType])
+
+    // Group documents by type for categorized view
+    const categorizedDocs = useMemo(() => {
+        const categories: Record<string, typeof filteredDocs> = {
+            'Imágenes': filteredDocs.filter(d => d.type === 'image'),
+            'Multimedia': filteredDocs.filter(d => ['video', 'audio'].includes(d.type)),
+            'Documentos': filteredDocs.filter(d => ['pdf', 'excel'].includes(d.type)),
+            'Código/Datos': filteredDocs.filter(d => ['code', 'json', 'csv', 'html'].includes(d.type)),
+            'Texto': filteredDocs.filter(d => ['text', 'markdown'].includes(d.type)),
+        }
+        return Object.entries(categories).filter(([_, docs]) => docs.length > 0)
+    }, [filteredDocs])
+
+    const isLoading = docsLoading || foldersLoading
+    const isFiltered = searchTerm !== '' || filterType !== 'all'
+    const hasContent = filteredFolders.length > 0 || filteredDocs.length > 0
+
+    const handleNavigate = (folderId: string | null) => {
+        setCurrentFolderId(folderId)
+    }
+
+    const handleUploadComplete = () => {
+        queryClient.invalidateQueries({ queryKey: ['documents'] })
+        queryClient.invalidateQueries({ queryKey: ['folders'] })
+    }
 
     if (isLoading) return <div className="p-8">Cargando documentos...</div>
 
-    const filteredDocs = documents.filter(doc => {
-        const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesType = filterType === 'all' || doc.type === filterType
-        return matchesSearch && matchesType
-    })
-
-    const isFiltered = searchTerm !== '' || filterType !== 'all'
-
-    const handleDragEnd = (event: DragEndEvent) => {
-        // Placeholder for reorder logic. 
-        console.log("Drag end", event)
-    }
-
     return (
         <div className="p-8 max-w-7xl mx-auto min-h-full flex flex-col">
-            <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            {/* Header */}
+            <header className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Mis Documentos</h2>
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        {currentFolderId ? breadcrumbPath[breadcrumbPath.length - 1]?.name : 'Mi Universo'}
+                    </h2>
                     <p className="text-muted-foreground mt-2">
                         Gestiona, visualiza y edita tus archivos multimedia.
                     </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Search */}
                     <div className="relative">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <input
@@ -57,6 +139,8 @@ export function Dashboard() {
                             className="pl-9 pr-4 py-2 h-10 w-full sm:w-[250px] rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
+
+                    {/* Filter */}
                     <div className="relative">
                         <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <select
@@ -64,63 +148,150 @@ export function Dashboard() {
                             onChange={(e) => setFilterType(e.target.value as any)}
                             className="pl-9 pr-4 py-2 h-10 w-full sm:w-[180px] rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
                         >
-                            <option value="all">Tipos</option>
+                            <option value="all">Todos los tipos</option>
                             <option value="text">Texto</option>
                             <option value="code">Código</option>
                             <option value="image">Imagen</option>
+                            <option value="video">Video</option>
+                            <option value="audio">Audio</option>
                             <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="json">JSON</option>
+                            <option value="html">HTML</option>
                         </select>
                     </div>
+
+                    {/* View toggle */}
+                    <div className="flex border border-input rounded-md">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2 ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        >
+                            <LayoutGrid size={18} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 ${viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                        >
+                            <List size={18} />
+                        </button>
+                    </div>
+
+                    {/* Trash link */}
+                    <Link
+                        to="/trash"
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted rounded-md transition-colors"
+                    >
+                        <Trash2 size={18} />
+                        Papelera
+                    </Link>
                 </div>
             </header>
 
-            {filteredDocs.length > 0 ? (
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={filteredDocs.map(d => d.id)}
-                        strategy={rectSortingStrategy}
-                        disabled={isFiltered}
-                    >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-                            {filteredDocs.map(doc => (
-                                isFiltered ? (
-                                    <DocumentCard key={doc.id} doc={doc} />
-                                ) : (
-                                    <SortableDocumentCard key={doc.id} doc={doc} />
-                                )
+            {/* Breadcrumb */}
+            {currentFolderId && (
+                <div className="mb-4">
+                    <Breadcrumb path={breadcrumbPath} onNavigate={handleNavigate} />
+                </div>
+            )}
+
+            {/* Content */}
+            {hasContent ? (
+                <div className="flex-1">
+                    {/* Folders */}
+                    {filteredFolders.length > 0 && (
+                        <div className="mb-8">
+                            <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2">
+                                <span>Carpetas</span>
+                                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{filteredFolders.length}</span>
+                            </h3>
+                            <div className={viewMode === 'grid'
+                                ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                                : "flex flex-col gap-2"
+                            }>
+                                {filteredFolders.map(folder => (
+                                    <FolderCard
+                                        key={folder.id}
+                                        folder={folder}
+                                        fileCount={getFolderFileCount(folder.id)}
+                                        onClick={() => handleNavigate(folder.id)}
+                                        onDelete={() => deleteFolder.mutate(folder.id)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Documents - Categorized */}
+                    {categorizedDocs.length > 0 && (
+                        <div className="space-y-8">
+                            {categorizedDocs.map(([category, docs]) => (
+                                <div key={category}>
+                                    <h3 className="text-sm font-medium text-muted-foreground mb-4 flex items-center gap-2 border-b border-border pb-2">
+                                        <span>{category}</span>
+                                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{docs.length}</span>
+                                    </h3>
+                                    <div className={viewMode === 'grid'
+                                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                                        : "flex flex-col gap-2"
+                                    }>
+                                        {docs.map(doc => (
+                                            <DocumentCard key={doc.id} doc={doc} viewMode={viewMode} />
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
                         </div>
-                    </SortableContext>
-                </DndContext>
-            ) : (
-                <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] text-center p-8 border-2 border-dashed border-border rounded-xl bg-muted/5 animate-in fade-in-50">
-                    <div className="bg-muted p-4 rounded-full mb-4">
-                        <FileQuestion size={48} className="text-muted-foreground" />
-                    </div>
-                    <h3 className="text-xl font-semibold">No se encontraron documentos</h3>
-                    <p className="text-muted-foreground mt-2 max-w-sm mb-6">
-                        {isFiltered
-                            ? "Intenta ajustar tus filtros de búsqueda."
-                            : "Tu colección está vacía. Crea tu primer documento para comenzar."}
-                    </p>
-                    {isFiltered ? (
-                        <button
-                            onClick={() => { setSearchTerm(''); setFilterType('all') }}
-                            className="text-primary hover:underline font-medium"
-                        >
-                            Limpiar filtros
-                        </button>
-                    ) : (
-                        <CreateDocumentDialog>
-                            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
-                                Crear Documento
-                            </button>
-                        </CreateDocumentDialog>
                     )}
+                </div>
+            ) : (
+                <div className="flex-1 flex flex-col gap-8">
+                    {/* File Uploader */}
+                    <FileUploader
+                        currentFolderId={currentFolderId}
+                        onUploadComplete={handleUploadComplete}
+                    />
+
+                    {/* Empty state */}
+                    <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-xl bg-muted/5">
+                        <div className="bg-muted p-4 rounded-full mb-4">
+                            <FileQuestion size={48} className="text-muted-foreground" />
+                        </div>
+                        <h3 className="text-xl font-semibold">
+                            {isFiltered ? 'No se encontraron resultados' : 'Esta carpeta está vacía'}
+                        </h3>
+                        <p className="text-muted-foreground mt-2 max-w-sm mb-6">
+                            {isFiltered
+                                ? 'Intenta ajustar tus filtros de búsqueda.'
+                                : 'Arrastra archivos aquí o usa el botón para subir.'}
+                        </p>
+                        {isFiltered ? (
+                            <button
+                                onClick={() => { setSearchTerm(''); setFilterType('all') }}
+                                className="text-primary hover:underline font-medium"
+                            >
+                                Limpiar filtros
+                            </button>
+                        ) : (
+                            <CreateDocumentDialog>
+                                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
+                                    Crear Documento
+                                </button>
+                            </CreateDocumentDialog>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Floating upload area when there's content */}
+            {hasContent && (
+                <div className="mt-8">
+                    <FileUploader
+                        currentFolderId={currentFolderId}
+                        onUploadComplete={handleUploadComplete}
+                    />
                 </div>
             )}
         </div>
