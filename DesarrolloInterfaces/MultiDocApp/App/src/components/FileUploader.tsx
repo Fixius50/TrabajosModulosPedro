@@ -29,8 +29,14 @@ export function FileUploader({ currentFolderId, onUploadComplete }: FileUploader
         if (['text', 'code', 'markdown', 'json', 'csv', 'html'].includes(type)) {
             content = await file.text()
         } else {
-            // For binary files (images, videos, audio, pdf, excel), create object URL
-            url = URL.createObjectURL(file)
+            // For binary files (images, videos, audio, pdf, excel), convert to base64 Data URL
+            // This persists properly in IndexedDB unlike blob URLs
+            url = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onload = () => resolve(reader.result as string)
+                reader.onerror = reject
+                reader.readAsDataURL(file)
+            })
         }
 
         return {

@@ -75,7 +75,6 @@ export function useDeleteDocument() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            // Move to trash instead of permanent delete
             const docs = await LocalDB.getAllDocuments()
             const doc = docs.find(d => d.id === id)
             if (doc) {
@@ -83,13 +82,28 @@ export function useDeleteDocument() {
             }
             return id
         },
-        onSuccess: () => {
+        // Optimistic update: remove from cache immediately
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: docKeys.all })
+            const previousDocs = queryClient.getQueryData<Document[]>(docKeys.all)
+            queryClient.setQueryData<Document[]>(docKeys.all, (old) =>
+                old?.filter(d => d.id !== id) || []
+            )
+            return { previousDocs }
+        },
+        onError: (_err, _id, context) => {
+            // Rollback on error
+            if (context?.previousDocs) {
+                queryClient.setQueryData(docKeys.all, context.previousDocs)
+            }
+            toast.error('Error al eliminar')
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: docKeys.all })
             queryClient.invalidateQueries({ queryKey: trashKeys.all })
-            toast.success('Movido a papelera')
         },
-        onError: () => {
-            toast.error('Error al eliminar')
+        onSuccess: () => {
+            toast.success('Movido a papelera')
         }
     })
 }
@@ -264,7 +278,29 @@ export function useTogglePin() {
             }
             return { id, type, pinned }
         },
-        onSuccess: (_, variables) => {
+        // Optimistic update: toggle pin immediately
+        onMutate: async ({ id, type, pinned }) => {
+            const queryKey = type === 'document' ? docKeys.all : folderKeys.all
+            await queryClient.cancelQueries({ queryKey })
+            const previousData = queryClient.getQueryData(queryKey)
+
+            if (type === 'document') {
+                queryClient.setQueryData<Document[]>(docKeys.all, (old) =>
+                    old?.map(d => d.id === id ? { ...d, pinned } : d) || []
+                )
+            } else {
+                queryClient.setQueryData<Folder[]>(folderKeys.all, (old) =>
+                    old?.map(f => f.id === id ? { ...f, pinned } : f) || []
+                )
+            }
+            return { previousData, queryKey }
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previousData) {
+                queryClient.setQueryData(context.queryKey, context.previousData)
+            }
+        },
+        onSettled: (_, __, variables) => {
             if (variables.type === 'document') {
                 queryClient.invalidateQueries({ queryKey: docKeys.all })
             } else {

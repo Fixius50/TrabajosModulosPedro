@@ -5,16 +5,19 @@ import { DocumentCard } from './DocumentCard'
 import { FolderCard } from './FolderCard'
 import { Breadcrumb } from './Breadcrumb'
 import { FileUploader } from './FileUploader'
-import { Search, FileQuestion, Filter, LayoutGrid, List, Trash2 } from 'lucide-react'
+import { Search, FileQuestion, Filter, LayoutGrid, List, Trash2, HardDrive } from 'lucide-react'
 import { CreateDocumentDialog } from './CreateDocumentDialog'
 import type { DocType, Folder } from '../lib/schemas'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
+type SizeFilter = 'all' | 'small' | 'medium' | 'large'
+
 export function Dashboard() {
     const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [filterType, setFilterType] = useState<'all' | DocType>('all')
+    const [filterSize, setFilterSize] = useState<SizeFilter>('all')
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
     const queryClient = useQueryClient()
 
@@ -77,6 +80,19 @@ export function Dashboard() {
             result = result.filter(d => d.type === filterType)
         }
 
+        // Size filter
+        if (filterSize !== 'all') {
+            result = result.filter(d => {
+                const size = d.size || 0
+                switch (filterSize) {
+                    case 'small': return size < 100 * 1024 // < 100KB
+                    case 'medium': return size >= 100 * 1024 && size < 1024 * 1024 // 100KB - 1MB
+                    case 'large': return size >= 1024 * 1024 // > 1MB
+                    default: return true
+                }
+            })
+        }
+
         // Sort: pinned first, then by order
         result.sort((a, b) => {
             if (a.pinned && !b.pinned) return -1
@@ -85,7 +101,7 @@ export function Dashboard() {
         })
 
         return result
-    }, [documents, searchTerm, filterType])
+    }, [documents, searchTerm, filterType, filterSize])
 
     // Group documents by type for categorized view
     const categorizedDocs = useMemo(() => {
@@ -160,6 +176,21 @@ export function Dashboard() {
                             <option value="markdown">Markdown</option>
                             <option value="json">JSON</option>
                             <option value="html">HTML</option>
+                        </select>
+                    </div>
+
+                    {/* Size Filter */}
+                    <div className="relative">
+                        <HardDrive className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <select
+                            value={filterSize}
+                            onChange={(e) => setFilterSize(e.target.value as SizeFilter)}
+                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[140px] rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                        >
+                            <option value="all">Todo tamaño</option>
+                            <option value="small">&lt; 100 KB</option>
+                            <option value="medium">100 KB - 1 MB</option>
+                            <option value="large">&gt; 1 MB</option>
                         </select>
                     </div>
 
