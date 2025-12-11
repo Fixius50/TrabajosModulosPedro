@@ -2,13 +2,18 @@
 import { useEffect, useState } from 'react'
 import type { Document } from '../../lib/schemas'
 import { marked } from 'marked'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface MarkdownViewerProps {
     doc: Document
+    maxLength?: number
 }
 
-export function MarkdownViewer({ doc }: MarkdownViewerProps) {
+export function MarkdownViewer({ doc, maxLength = 5000 }: MarkdownViewerProps) {
     const [html, setHtml] = useState<string>('')
+    const [fullContent, setFullContent] = useState<string>('')
+    const [isExpanded, setIsExpanded] = useState(false)
+    const [isTruncated, setIsTruncated] = useState(false)
 
     useEffect(() => {
         async function parseMarkdown() {
@@ -24,13 +29,24 @@ export function MarkdownViewer({ doc }: MarkdownViewerProps) {
             }
 
             if (content) {
-                const parsed = await marked.parse(content)
+                setFullContent(content)
+
+                // Check if truncation needed
+                const needsTruncation = content.length > maxLength
+                setIsTruncated(needsTruncation)
+
+                // Parse content (truncated or full)
+                const displayContent = (!isExpanded && needsTruncation)
+                    ? content.slice(0, maxLength) + '\n\n...'
+                    : content
+
+                const parsed = await marked.parse(displayContent)
                 setHtml(parsed)
             }
         }
 
         parseMarkdown()
-    }, [doc.content, doc.url])
+    }, [doc.content, doc.url, isExpanded, maxLength])
 
     return (
         <div className="h-full overflow-auto">
@@ -38,6 +54,28 @@ export function MarkdownViewer({ doc }: MarkdownViewerProps) {
                 className="prose prose-invert max-w-none p-8 mx-auto"
                 dangerouslySetInnerHTML={{ __html: html }}
             />
+
+            {/* Ver todo / Ver menos button */}
+            {isTruncated && (
+                <div className="flex justify-center pb-8">
+                    <button
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
+                    >
+                        {isExpanded ? (
+                            <>
+                                <ChevronUp size={18} />
+                                Ver menos
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown size={18} />
+                                Ver todo ({Math.round(fullContent.length / 1024)} KB)
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
 
             <style>{`
                 .prose {
