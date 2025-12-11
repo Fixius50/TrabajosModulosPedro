@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "installCommand": "cd App && npm install",
+  "installCommand": "cd MultiDocApp/App && npm install",
   "buildCommand": "cd MultiDocApp/App && npm install && npm run build",
   "outputDirectory": "MultiDocApp/App/dist",
   "rewrites": [
