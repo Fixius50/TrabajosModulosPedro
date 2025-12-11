@@ -146,6 +146,28 @@ export const LocalDB = {
         }
     },
 
+    async restoreAllTrash() {
+        const trash = await this.getAllTrash()
+        for (const item of trash) {
+            // Restore logic duplicated for safety/atomic-like op (in local context)
+            // Or strictly, we just define it to call restoreFromTrash, but iteration is safer here for bulk
+            // Simpler: iterate and call restoreFromTrash (inefficient but safe) or bulk logic.
+            // Bulk logic:
+            if (item.originalType === 'document') {
+                const existingDocs = await this.getAllDocuments()
+                if (!existingDocs.some(d => d.id === item.originalId)) {
+                    await this.addDocument(item.data as Document)
+                }
+            } else {
+                const existingFolders = await this.getAllFolders()
+                if (!existingFolders.some(f => f.id === item.originalId)) {
+                    await this.addFolder(item.data as Folder)
+                }
+            }
+        }
+        await this.saveAllTrash([])
+    },
+
     async permanentDelete(trashId: string) {
         const trash = await this.getAllTrash()
         const filtered = trash.filter(t => t.id !== trashId)

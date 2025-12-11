@@ -1,5 +1,4 @@
 import { Editor as Monaco } from '@monaco-editor/react'
-import { useStore } from '../../store/useStore'
 import type { Document } from '../../lib/schemas'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import { Play, Terminal, Loader2, X } from 'lucide-react'

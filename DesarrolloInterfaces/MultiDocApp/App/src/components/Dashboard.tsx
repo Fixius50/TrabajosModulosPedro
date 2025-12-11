@@ -18,6 +18,7 @@ export function Dashboard() {
     const [minSizeMB, setMinSizeMB] = useState<string>('')
     const [maxSizeMB, setMaxSizeMB] = useState<string>('')
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const [sortBy, setSortBy] = useState<'name' | 'date_desc' | 'date_asc'>('date_desc')
 
     // Get sidebar type filter from store
     const { selectedTypeFilter, setTypeFilter } = useStore()
@@ -142,15 +143,30 @@ export function Dashboard() {
             })
         }
 
-        // Sort: pinned first, then by order
+        // Sort
         result.sort((a, b) => {
+            // Pinned always on top
             if (a.pinned && !b.pinned) return -1
             if (!a.pinned && b.pinned) return 1
+
+            // Custom sort logic
+            if (sortBy === 'name') {
+                return a.title.localeCompare(b.title)
+            } else if (sortBy === 'date_desc') {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            } else if (sortBy === 'date_asc') {
+                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            }
+
+            // Default fallthrough (should capture custom order if we supported 'custom')
+            // If user sorts by date, 'order' property is ignored visually, preventing DnD from making sense visually. 
+            // We should only allow DnD if sortBy is 'custom' or default? 
+            // For now, let's just stick to the requested sorting.
             return (a.order || 0) - (b.order || 0)
         })
 
         return result
-    }, [documents, searchTerm, filterType, minSizeMB, maxSizeMB])
+    }, [documents, searchTerm, filterType, minSizeMB, maxSizeMB, sortBy])
 
     // Group documents by type for categorized view
     const categorizedDocs = useMemo(() => {
@@ -208,10 +224,7 @@ export function Dashboard() {
                             value={filterType}
                             onChange={(e) => {
                                 setFilterType(e.target.value as any)
-                                // Also clear sidebar filter when manually changing
-                                if (e.target.value === 'all') {
-                                    setTypeFilter(null)
-                                }
+                                if (e.target.value === 'all') setTypeFilter(null)
                             }}
                             className="pl-9 pr-4 py-2 h-10 w-full sm:w-[160px] rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
                         >
@@ -230,6 +243,20 @@ export function Dashboard() {
                         </select>
                     </div>
 
+                    {/* Sort Filter (New) */}
+                    <div className="relative">
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as any)}
+                            className="px-3 py-2 h-10 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer w-[140px]"
+                        >
+                            <option value="date_desc">Más recientes</option>
+                            <option value="date_asc">Más antiguos</option>
+                            <option value="name">Nombre</option>
+                            {/* <option value="custom">Manual</option> */}
+                        </select>
+                    </div>
+
                     {/* Size Filter - Min/Max MB */}
                     <div className="flex items-center gap-2">
                         <HardDrive className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -244,7 +271,7 @@ export function Dashboard() {
                                 if (maxSizeMB && parseFloat(val) >= parseFloat(maxSizeMB)) return
                                 setMinSizeMB(val)
                             }}
-                            className="w-20 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-24 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                         <span className="text-xs text-muted-foreground">-</span>
                         <input
@@ -258,9 +285,25 @@ export function Dashboard() {
                                 if (minSizeMB && parseFloat(val) <= parseFloat(minSizeMB)) return
                                 setMaxSizeMB(val)
                             }}
-                            className="w-20 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-24 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
+
+                    {/* Reset Button */}
+                    <button
+                        onClick={() => {
+                            setSearchTerm('')
+                            setFilterType('all')
+                            setTypeFilter(null)
+                            setMinSizeMB('')
+                            setMaxSizeMB('')
+                            setSortBy('date_desc')
+                        }}
+                        className="px-3 py-2 h-10 bg-secondary text-secondary-foreground rounded-md text-sm font-medium hover:bg-secondary/80 transition-colors"
+                        title="Resetear todo"
+                    >
+                        Resetear
+                    </button>
 
                     {/* View toggle */}
                     <div className="flex border border-input rounded-md ml-auto">

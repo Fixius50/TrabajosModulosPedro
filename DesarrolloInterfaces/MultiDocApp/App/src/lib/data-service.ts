@@ -206,6 +206,8 @@ export async function getTrash(): Promise<TrashItem[]> {
     return await LocalDB.getAllTrash()
 }
 
+// ... (previous code)
+
 export async function restoreFromTrash(trashId: string): Promise<void> {
     syncStore().startOperation({
         type: 'sync',
@@ -222,7 +224,33 @@ export async function restoreFromTrash(trashId: string): Promise<void> {
     }
 }
 
+export async function restoreAllFromTrash(): Promise<void> {
+    syncStore().startOperation({
+        type: 'sync',
+        entity: 'trash',
+        message: 'Restaurando todo...'
+    })
+
+    try {
+        await LocalDB.restoreAllTrash()
+
+        if (Supabase.isSupabaseConfigured()) {
+            try {
+                await Supabase.restoreAllTrash()
+            } catch (e) {
+                console.warn('Cloud restore all failed:', e)
+            }
+        }
+
+        syncStore().completeOperation(true)
+    } catch (error) {
+        syncStore().completeOperation(false, 'Error al restaurar todo')
+        throw error
+    }
+}
+
 export async function permanentDelete(trashId: string): Promise<void> {
+    // ...
     await LocalDB.permanentDelete(trashId)
 }
 
@@ -399,6 +427,7 @@ export const DataService = {
     // Trash
     getTrash,
     restoreFromTrash,
+    restoreAllFromTrash,
     permanentDelete,
     emptyTrash,
 

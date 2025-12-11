@@ -197,13 +197,17 @@ export function DocumentCard({ doc, viewMode = 'grid' }: DocumentCardProps) {
 
             {/* Preview */}
             <div className={cn(
-                "h-32 w-full rounded-lg mb-4 flex items-center justify-center bg-muted/30",
-                doc.type === 'image' && "bg-transparent p-0 overflow-hidden"
+                "h-32 w-full rounded-lg mb-4 flex items-center justify-center bg-muted/30 overflow-hidden relative",
+                doc.type === 'image' && "bg-transparent p-0"
             )}>
                 {doc.type === 'image' && doc.url ? (
                     <img src={doc.url} alt={doc.title} className="w-full h-full object-cover rounded-lg" />
                 ) : doc.type === 'video' && doc.url ? (
-                    <video src={doc.url} className="w-full h-full object-cover rounded-lg" muted />
+                    <video src={doc.url} className="w-full h-full object-cover rounded-lg text-xs" muted />
+                ) : (['text', 'code', 'markdown', 'json', 'csv', 'html', 'xml'].includes(doc.type) && doc.content) ? (
+                    <div className="w-full h-full p-3 bg-card border text-[0.6rem] font-mono text-muted-foreground overflow-hidden leading-tight select-none opacity-80 text-left">
+                        {doc.content.slice(0, 300)}
+                    </div>
                 ) : (
                     <Icon size={48} className="text-muted-foreground/50" />
                 )}

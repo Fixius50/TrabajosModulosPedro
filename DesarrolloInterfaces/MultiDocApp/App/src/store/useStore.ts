@@ -1,7 +1,7 @@
 
 import { create } from 'zustand'
 import { LocalDB } from '../lib/db'
-import { fetchDocuments, fetchSettings, saveSettings } from '../lib/supabase'
+import { fetchDocuments } from '../lib/supabase'
 import * as SupabaseAPI from '../lib/supabase'
 import type { Document, DocType } from '../lib/schemas'
 
@@ -41,7 +41,7 @@ interface AppState {
     init: () => Promise<void>
 }
 
-export const useStore = create<AppState>((set, get) => ({
+export const useStore = create<AppState>((set) => ({
     view: 'dashboard',
     documents: [],
     activeDocId: null,

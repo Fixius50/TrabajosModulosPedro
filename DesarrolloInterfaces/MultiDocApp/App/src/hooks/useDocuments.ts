@@ -249,6 +249,25 @@ export function useRestoreFromTrash() {
     })
 }
 
+export function useRestoreAllFromTrash() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async () => {
+            await DataService.restoreAllFromTrash()
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: trashKeys.all })
+            queryClient.invalidateQueries({ queryKey: docKeys.all })
+            queryClient.invalidateQueries({ queryKey: folderKeys.all })
+            toast.success('Todo restaurado')
+        },
+        onError: () => {
+            toast.error('Error al restaurar todo')
+        }
+    })
+}
+
 export function usePermanentDelete() {
     const queryClient = useQueryClient()
 

@@ -1,5 +1,5 @@
 
-import { useTrash, useRestoreFromTrash, usePermanentDelete, useEmptyTrash } from '../hooks/useDocuments'
+import { useTrash, useRestoreFromTrash, usePermanentDelete, useEmptyTrash, useRestoreAllFromTrash } from '../hooks/useDocuments'
 import { Trash2, RotateCcw, XCircle, AlertTriangle } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
@@ -11,6 +11,7 @@ export function TrashPage() {
     const restoreFromTrash = useRestoreFromTrash()
     const permanentDelete = usePermanentDelete()
     const emptyTrash = useEmptyTrash()
+    const restoreAll = useRestoreAllFromTrash()
 
     if (isLoading) {
         return <div className="p-8">Cargando papelera...</div>
@@ -38,41 +39,51 @@ export function TrashPage() {
                 </div>
 
                 {trashItems.length > 0 && (
-                    <AlertDialog.Root>
-                        <AlertDialog.Trigger asChild>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md font-medium hover:bg-destructive/90 transition-colors">
-                                <XCircle size={16} />
-                                Vaciar Papelera
-                            </button>
-                        </AlertDialog.Trigger>
-                        <AlertDialog.Portal>
-                            <AlertDialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
-                            <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background border rounded-xl p-6 max-w-md w-full z-50 shadow-xl">
-                                <AlertDialog.Title className="text-xl font-bold flex items-center gap-2">
-                                    <AlertTriangle className="text-destructive" />
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => restoreAll.mutate()}
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
+                        >
+                            <RotateCcw size={16} />
+                            Restaurar Todo
+                        </button>
+
+                        <AlertDialog.Root>
+                            <AlertDialog.Trigger asChild>
+                                <button className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md font-medium hover:bg-destructive/90 transition-colors">
+                                    <XCircle size={16} />
                                     Vaciar Papelera
-                                </AlertDialog.Title>
-                                <AlertDialog.Description className="text-muted-foreground mt-2">
-                                    Esta acción eliminará permanentemente todos los elementos de la papelera. Esta acción no se puede deshacer.
-                                </AlertDialog.Description>
-                                <div className="flex justify-end gap-3 mt-6">
-                                    <AlertDialog.Cancel asChild>
-                                        <button className="px-4 py-2 hover:bg-muted rounded-md transition-colors">
-                                            Cancelar
-                                        </button>
-                                    </AlertDialog.Cancel>
-                                    <AlertDialog.Action asChild>
-                                        <button
-                                            onClick={() => emptyTrash.mutate()}
-                                            className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
-                                        >
-                                            Eliminar Todo
-                                        </button>
-                                    </AlertDialog.Action>
-                                </div>
-                            </AlertDialog.Content>
-                        </AlertDialog.Portal>
-                    </AlertDialog.Root>
+                                </button>
+                            </AlertDialog.Trigger>
+                            <AlertDialog.Portal>
+                                <AlertDialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+                                <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background border rounded-xl p-6 max-w-md w-full z-50 shadow-xl">
+                                    <AlertDialog.Title className="text-xl font-bold flex items-center gap-2">
+                                        <AlertTriangle className="text-destructive" />
+                                        Vaciar Papelera
+                                    </AlertDialog.Title>
+                                    <AlertDialog.Description className="text-muted-foreground mt-2">
+                                        Esta acción eliminará permanentemente todos los elementos de la papelera. Esta acción no se puede deshacer.
+                                    </AlertDialog.Description>
+                                    <div className="flex justify-end gap-3 mt-6">
+                                        <AlertDialog.Cancel asChild>
+                                            <button className="px-4 py-2 hover:bg-muted rounded-md transition-colors">
+                                                Cancelar
+                                            </button>
+                                        </AlertDialog.Cancel>
+                                        <AlertDialog.Action asChild>
+                                            <button
+                                                onClick={() => emptyTrash.mutate()}
+                                                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                                            >
+                                                Eliminar Todo
+                                            </button>
+                                        </AlertDialog.Action>
+                                    </div>
+                                </AlertDialog.Content>
+                            </AlertDialog.Portal>
+                        </AlertDialog.Root>
+                    </div>
                 )}
             </header>
 

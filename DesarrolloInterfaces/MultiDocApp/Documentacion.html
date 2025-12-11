@@ -529,6 +529,21 @@
                     <h3>Vista Principal</h3>
                     <p>Grid/List view con búsqueda, filtros por tipo y tamaño, y clasificación automática por extensión.
                     </p>
+                    <div class="prompt-box">export function useDocuments(folderId?: string | null) {
+                        return useQuery({
+                        queryKey: folderId !== undefined ? docKeys.byFolder(folderId) : docKeys.all,
+                        queryFn: async () => {
+                        const docs = await DataService.getDocuments(folderId)
+                        try {
+                        const validDocs = docs.map(d => DocumentSchema.parse(d))
+                        return validDocs
+                        } catch (error) {
+                        console.error("Validation error", error)
+                        return docs as Document[]
+                        }
+                        }
+                        })
+                        }</div>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Carpetas</span>
@@ -539,6 +554,31 @@
                     <span class="tag tag-feature">Papelera</span>
                     <h3>Soft Delete</h3>
                     <p>Los archivos eliminados van a papelera antes de borrado permanente, con opción de restaurar.</p>
+                    <div class="prompt-box"> async moveToTrash(item: Document | Folder, type: 'document' | 'folder') {
+                        const trashItem: TrashItem = {
+                        id: crypto.randomUUID(),
+                        originalId: item.id,
+                        originalType: type,
+                        data: item,
+                        deletedAt: new Date()
+                        }
+
+                        const trash = await this.getAllTrash()
+                        trash.push(trashItem)
+                        await this.saveAllTrash(trash)
+
+                        // Remove from original location
+                        if (type === 'document') {
+                        await this.deleteDocument(item.id)
+                        } else {
+                        await this.deleteFolder(item.id)
+                        // Also move all documents in this folder to trash
+                        const docs = await this.getDocumentsByFolder(item.id)
+                        for (const doc of docs) {
+                        await this.moveToTrash(doc, 'document')
+                        }
+                        }
+                        },</div>
                 </div>
             </div>
 
@@ -549,6 +589,39 @@
                     <h3>Editor de Código Avanzado</h3>
                     <p>Syntax highlighting, ejecución de código en la nube (Piston API), consola integrada con
                         logs/errores, autocompletado inteligente y plantillas (boilerplates) automáticas.</p>
+                    <div class="prompt-box"> const runCode = async () => {
+                        if (!content) return
+
+                        const supportedLangs = Object.keys(PISTON_LANGUAGES)
+                        if (!supportedLangs.includes(language)) {
+                        toast.error(`Ejecución no soportada para ${language}. Intenta cambiar de lenguaje.`)
+                        return
+                        }
+
+                        setIsRunning(true)
+                        setShowOutput(true)
+                        setOutput(null)
+
+                        // ...
+
+                        try {
+                        const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                        language: pistLang,
+                        version: '*',
+                        files: [{ content }]
+                        })
+                        })
+                        // ... handle response ...
+                        } catch (e) {
+                        setOutput('Error de conexión con la API de ejecución')
+                        toast.error('Error de red')
+                        } finally {
+                        setIsRunning(false)
+                        }
+                        }</div>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Media</span>
@@ -568,6 +641,32 @@
                     <span class="tag tag-feature">Supabase</span>
                     <h3>Sincronización</h3>
                     <p>Subir/descargar datos de la nube, borrar nube, indicador de conexión.</p>
+                    <div class="prompt-box">export async function syncLocalToCloud(
+                        documents: Document[],
+                        folders: Folder[],
+                        trash: TrashItem[]
+                        ): Promise<{ success: boolean; errors: string[] }> {
+                            if (!supabase) {
+                            return { success: false, errors: ['Supabase no configurado'] }
+                            }
+
+                            const errors: string[] = []
+
+                            // Sync folders first (for foreign key references)
+                            for (const folder of folders) {
+                            const result = await createFolder(folder)
+                            if (!result) errors.push(`Error syncing folder: ${folder.name}`)
+                            }
+
+                            // Sync documents
+                            for (const doc of documents) {
+                            const result = await createDocument(doc)
+                            if (!result) errors.push(`Error syncing document: ${doc.title}`)
+                            }
+
+                            // ...
+                            return { success: errors.length === 0, errors }
+                            }</div>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Auth</span>
@@ -599,6 +698,17 @@
                     <h3>Guardado Manual</h3>
                     <p>Modo de guardado explícito para código con indicador de cambios no guardados (dirty state) y
                         protección contra cierre accidental.</p>
+                    <div class="prompt-box"> // Warn on exit if dirty
+                        useEffect(() => {
+                        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+                        if (isDirty) {
+                        e.preventDefault()
+                        e.returnValue = ''
+                        }
+                        }
+                        window.addEventListener('beforeunload', handleBeforeUnload)
+                        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+                        }, [isDirty])</div>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Optimista</span>

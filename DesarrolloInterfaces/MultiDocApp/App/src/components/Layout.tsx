@@ -47,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('Timeout'), 5000))
 
                     await Promise.race([
-                        Promise.all([sessionPromise, userPromise]).then(([sessionRes, userRes]) => {
+                        Promise.all([sessionPromise, userPromise]).then(([, userRes]) => {
                             if (userRes.data.user) {
                                 setUser(userRes.data.user)
                                 setGuest(false)
