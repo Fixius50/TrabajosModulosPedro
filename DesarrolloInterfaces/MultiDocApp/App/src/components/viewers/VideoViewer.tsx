@@ -20,7 +20,6 @@ export function VideoViewer({ doc }: VideoViewerProps) {
     const [showSettings, setShowSettings] = useState(false)
     const [settingsTab, setSettingsTab] = useState<'main' | 'speed' | 'subtitles'>('main')
     const [showControls, setShowControls] = useState(true)
-    const [isFullscreen, setIsFullscreen] = useState(false)
 
     const src = doc.url || doc.content
 
@@ -110,10 +109,8 @@ export function VideoViewer({ doc }: VideoViewerProps) {
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
             containerRef.current?.requestFullscreen()
-            setIsFullscreen(true)
         } else {
             document.exitFullscreen()
-            setIsFullscreen(false)
         }
     }
 
