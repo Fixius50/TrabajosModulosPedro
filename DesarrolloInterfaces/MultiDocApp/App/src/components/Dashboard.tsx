@@ -4,9 +4,7 @@ import { useDocuments, useFolders, useDeleteFolder } from '../hooks/useDocuments
 import { DocumentCard } from './DocumentCard'
 import { FolderCard } from './FolderCard'
 import { Breadcrumb } from './Breadcrumb'
-import { FileUploader } from './FileUploader'
 import { Search, FileQuestion, Filter, LayoutGrid, List, Trash2, HardDrive } from 'lucide-react'
-import { CreateDocumentDialog } from './CreateDocumentDialog'
 import type { DocType, Folder } from '../lib/schemas'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
@@ -278,53 +276,31 @@ export function Dashboard() {
                     )}
                 </div>
             ) : (
-                <div className="flex-1 flex flex-col gap-8">
-                    {/* File Uploader */}
-                    <FileUploader
-                        currentFolderId={currentFolderId}
-                        onUploadComplete={handleUploadComplete}
-                    />
-
-                    {/* Empty state */}
-                    <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-xl bg-muted/5">
-                        <div className="bg-muted p-4 rounded-full mb-4">
-                            <FileQuestion size={48} className="text-muted-foreground" />
-                        </div>
-                        <h3 className="text-xl font-semibold">
-                            {isFiltered ? 'No se encontraron resultados' : 'Esta carpeta está vacía'}
-                        </h3>
-                        <p className="text-muted-foreground mt-2 max-w-sm mb-6">
-                            {isFiltered
-                                ? 'Intenta ajustar tus filtros de búsqueda.'
-                                : 'Arrastra archivos aquí o usa el botón para subir.'}
-                        </p>
-                        {isFiltered ? (
-                            <button
-                                onClick={() => { setSearchTerm(''); setFilterType('all') }}
-                                className="text-primary hover:underline font-medium"
-                            >
-                                Limpiar filtros
-                            </button>
-                        ) : (
-                            <CreateDocumentDialog>
-                                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
-                                    Crear Documento
-                                </button>
-                            </CreateDocumentDialog>
-                        )}
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border rounded-xl bg-muted/5">
+                    <div className="bg-muted p-4 rounded-full mb-4">
+                        <FileQuestion size={48} className="text-muted-foreground" />
                     </div>
+                    <h3 className="text-xl font-semibold">
+                        {isFiltered ? 'No se encontraron resultados' : 'Esta carpeta está vacía'}
+                    </h3>
+                    <p className="text-muted-foreground mt-2 max-w-sm mb-6">
+                        {isFiltered
+                            ? 'Intenta ajustar tus filtros de búsqueda.'
+                            : 'Usa el botón "Nuevo / Subir" en el menú lateral para añadir contenido.'}
+                    </p>
+                    {isFiltered && (
+                        <button
+                            onClick={() => { setSearchTerm(''); setFilterType('all') }}
+                            className="text-primary hover:underline font-medium"
+                        >
+                            Limpiar filtros
+                        </button>
+                    )}
                 </div>
             )}
 
             {/* Floating upload area when there's content */}
-            {hasContent && (
-                <div className="mt-8">
-                    <FileUploader
-                        currentFolderId={currentFolderId}
-                        onUploadComplete={handleUploadComplete}
-                    />
-                </div>
-            )}
+
         </div>
     )
 }

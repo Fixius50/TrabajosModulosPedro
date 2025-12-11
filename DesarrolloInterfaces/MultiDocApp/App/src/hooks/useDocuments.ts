@@ -1,6 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LocalDB } from '../lib/db'
+import { DataService } from '../lib/data-service'
 import { DocumentSchema, type Document, type Folder } from '../lib/schemas'
 import { toast } from 'sonner'
 
@@ -26,16 +26,13 @@ export function useDocuments(folderId?: string | null) {
     return useQuery({
         queryKey: folderId !== undefined ? docKeys.byFolder(folderId) : docKeys.all,
         queryFn: async () => {
-            if (folderId !== undefined) {
-                return await LocalDB.getDocumentsByFolder(folderId)
-            }
-            const localDocs = await LocalDB.getAllDocuments()
+            const docs = await DataService.getDocuments(folderId)
             try {
-                const validDocs = localDocs.map(d => DocumentSchema.parse(d))
+                const validDocs = docs.map(d => DocumentSchema.parse(d))
                 return validDocs
             } catch (error) {
                 console.error("Validation error", error)
-                return localDocs as Document[]
+                return docs as Document[]
             }
         }
     })
@@ -45,8 +42,8 @@ export function useDocument(id: string) {
     return useQuery({
         queryKey: docKeys.detail(id),
         queryFn: async () => {
-            const docs = await LocalDB.getAllDocuments()
-            return docs.find(d => d.id === id) as Document || null
+            const doc = await DataService.getDocument(id)
+            return doc
         },
         enabled: !!id
     })
@@ -57,7 +54,7 @@ export function useCreateDocument() {
 
     return useMutation({
         mutationFn: async (newDoc: Document) => {
-            await LocalDB.addDocument(newDoc)
+            await DataService.createDocument(newDoc)
             return newDoc
         },
         onSuccess: () => {
@@ -75,11 +72,7 @@ export function useDeleteDocument() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const docs = await LocalDB.getAllDocuments()
-            const doc = docs.find(d => d.id === id)
-            if (doc) {
-                await LocalDB.moveToTrash(doc, 'document')
-            }
+            await DataService.deleteDocument(id)
             return id
         },
         // Optimistic update: remove from cache immediately
@@ -113,7 +106,7 @@ export function useUpdateDocument() {
 
     return useMutation({
         mutationFn: async ({ id, updates }: { id: string, updates: Partial<Document> }) => {
-            await LocalDB.updateDocument(id, updates)
+            await DataService.updateDocument(id, updates)
             return { id, updates }
         },
         onSuccess: () => {
@@ -127,10 +120,7 @@ export function useFolders(parentId?: string | null) {
     return useQuery({
         queryKey: parentId !== undefined ? folderKeys.byParent(parentId) : folderKeys.all,
         queryFn: async () => {
-            if (parentId !== undefined) {
-                return await LocalDB.getFoldersByParent(parentId)
-            }
-            return await LocalDB.getAllFolders()
+            return await DataService.getFolders(parentId)
         }
     })
 }
@@ -139,7 +129,7 @@ export function useFolder(id: string) {
     return useQuery({
         queryKey: folderKeys.detail(id),
         queryFn: async () => {
-            return await LocalDB.getFolder(id)
+            return await DataService.getFolder(id)
         },
         enabled: !!id
     })
@@ -150,7 +140,7 @@ export function useCreateFolder() {
 
     return useMutation({
         mutationFn: async (newFolder: Folder) => {
-            await LocalDB.addFolder(newFolder)
+            await DataService.createFolder(newFolder)
             return newFolder
         },
         onSuccess: () => {
@@ -168,10 +158,7 @@ export function useDeleteFolder() {
 
     return useMutation({
         mutationFn: async (id: string) => {
-            const folder = await LocalDB.getFolder(id)
-            if (folder) {
-                await LocalDB.moveToTrash(folder, 'folder')
-            }
+            await DataService.deleteFolder(id)
             return id
         },
         onSuccess: () => {
@@ -191,7 +178,7 @@ export function useUpdateFolder() {
 
     return useMutation({
         mutationFn: async ({ id, updates }: { id: string, updates: Partial<Folder> }) => {
-            await LocalDB.updateFolder(id, updates)
+            await DataService.updateFolder(id, updates)
             return { id, updates }
         },
         onSuccess: () => {
@@ -205,7 +192,7 @@ export function useTrash() {
     return useQuery({
         queryKey: trashKeys.all,
         queryFn: async () => {
-            return await LocalDB.getAllTrash()
+            return await DataService.getTrash()
         }
     })
 }
@@ -215,7 +202,7 @@ export function useRestoreFromTrash() {
 
     return useMutation({
         mutationFn: async (trashId: string) => {
-            await LocalDB.restoreFromTrash(trashId)
+            await DataService.restoreFromTrash(trashId)
             return trashId
         },
         onSuccess: () => {
@@ -235,7 +222,7 @@ export function usePermanentDelete() {
 
     return useMutation({
         mutationFn: async (trashId: string) => {
-            await LocalDB.permanentDelete(trashId)
+            await DataService.permanentDelete(trashId)
             return trashId
         },
         onSuccess: () => {
@@ -253,7 +240,7 @@ export function useEmptyTrash() {
 
     return useMutation({
         mutationFn: async () => {
-            await LocalDB.emptyTrash()
+            await DataService.emptyTrash()
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: trashKeys.all })
@@ -272,9 +259,9 @@ export function useTogglePin() {
     return useMutation({
         mutationFn: async ({ id, type, pinned }: { id: string, type: 'document' | 'folder', pinned: boolean }) => {
             if (type === 'document') {
-                await LocalDB.updateDocument(id, { pinned })
+                await DataService.updateDocument(id, { pinned })
             } else {
-                await LocalDB.updateFolder(id, { pinned })
+                await DataService.updateFolder(id, { pinned })
             }
             return { id, type, pinned }
         },

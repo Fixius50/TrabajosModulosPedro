@@ -6,6 +6,10 @@ import { useState } from 'react'
 // Set worker to CDN for simplicity in this demo environment
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+// Styles for react-pdf
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
 export function PDFViewer({ doc }: { doc: Document }) {
     const [numPages, setNumPages] = useState<number | null>(null)
 

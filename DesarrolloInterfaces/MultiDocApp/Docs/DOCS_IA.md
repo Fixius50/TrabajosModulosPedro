@@ -111,3 +111,26 @@ Este documento registra los Prompts, Modelos de IA y el orden de aplicación par
     *   **Drag & Drop**: Implementación de `@dnd-kit` en el Dashboard (grid ordenable).
     *   **Componentes**: Refactorización de componentes para usar los nuevos hooks y router.
     *   **Arquitectura**: Wrap de la app en `QueryProvider` y `RouterProvider`.
+
+## Sesión 4: Data Layer Improvements
+**Fecha**: 2025-12-11
+**Modelo**: Gemini 2.0 / Antigravity
+
+### Prompt 15: Mejora de Carga de Datos
+*   **Solicitud**: "Mejorar la carga de datos (local y nube) con notificaciones visuales".
+*   **Análisis**:
+    *   Detectado que Supabase tenía funciones implementadas pero **nunca invocadas**.
+    *   Hooks usaban solo `LocalDB` (IndexedDB), ignorando datos de nube.
+*   **Acciones**:
+    *   **Nuevo**: `syncStore.ts` - Store Zustand para tracking de estado de sincronización.
+    *   **Nuevo**: `data-service.ts` - Capa unificada con estrategia **Local-First + Cloud Sync**.
+    *   **Nuevo**: `SyncStatusIndicator.tsx` - Indicador visual + notificación flotante.
+    *   **Modificado**: `Layout.tsx` - Integración de indicador y notificación.
+    *   **Modificado**: `useDocuments.ts` - Reemplazado `LocalDB` por `DataService`.
+    *   **Modificado**: `query-provider.tsx` - Mejor configuración de retry y revalidación.
+    *   **Backend**: Implementado `server.js` con Express.js - API REST completa.
+*   **Arquitectura**:
+    *   Todas las operaciones escriben a LOCAL inmediatamente (respuesta instantánea).
+    *   Sincronización a CLOUD en background (si Supabase está configurado).
+    *   Merge de datos cloud → local al iniciar la app.
+*   **Resultado**: Build exitoso, dependencias instaladas, API backend lista.

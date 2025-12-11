@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { docKeys, folderKeys, trashKeys, useDocuments, useFolders, useTrash } from '../hooks/useDocuments'
 import * as SupabaseAPI from '../lib/supabase'
+import { useStore } from '../store/useStore'
 
 export function Settings() {
     const queryClient = useQueryClient()
@@ -124,7 +125,10 @@ export function Settings() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!SupabaseAPI.supabase) return
+        if (!SupabaseAPI.supabase) {
+            toast.error('Error: Supabase no está configurado. Revisa las variables de entorno.')
+            return
+        }
         setAuthLoading(true)
         try {
             const { error } = await SupabaseAPI.supabase.auth.signInWithPassword({ email, password })
@@ -267,6 +271,26 @@ export function Settings() {
                             </button>
                         </form>
                     )}
+                </section>
+
+                {/* Custom CSS Theme */}
+                <section className="bg-card border rounded-xl p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                            <span className="font-bold text-lg">CSS</span>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold">Tema Personalizado</h3>
+                            <p className="text-sm text-muted-foreground">Inyecta CSS global para personalizar la interfaz.</p>
+                        </div>
+                    </div>
+                    <textarea
+                        className="w-full h-48 p-4 font-mono text-xs bg-muted/50 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                        placeholder="/* Ejemplo: */&#10;.bg-card { background: #fff !important; }"
+                        value={useStore.getState().customCSS}
+                        onChange={(e) => useStore.getState().setCustomCSS(e.target.value)}
+                        spellCheck={false}
+                    />
                 </section>
 
                 {/* Danger Zone */}

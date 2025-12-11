@@ -1,20 +1,22 @@
 
 import React, { useEffect, useState } from 'react'
 import { LayoutGrid, Settings, Plus, FolderOpen, Menu, X } from 'lucide-react'
-import { useStore } from '../store/useStore'
 import { Toaster } from 'sonner'
-import { CreateDocumentDialog } from './CreateDocumentDialog'
+import { CreateNewDialog } from './CreateNewDialog'
+import { SyncStatusIndicator, SyncNotification } from './SyncStatusIndicator'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
+import { DataService } from '../lib/data-service'
+import { useStore } from '../store/useStore'
 
 export function Layout({ children }: { children: React.ReactNode }) {
-    const { init } = useStore()
     const routerState = useRouterState()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isMobile, setIsMobile] = useState(false)
+    const { customCSS } = useStore() // Use customCSS from store
 
     useEffect(() => {
-        init()
+        DataService.initializeData()
         // Check if mobile
         const checkMobile = () => setIsMobile(window.innerWidth < 768)
         checkMobile()
@@ -24,6 +26,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
+            {/* Custom Theme Injection */}
+            {customCSS && <style dangerouslySetInnerHTML={{ __html: customCSS }} />}
+
             {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -59,6 +64,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
                         MultiDocApp
                     </h1>
+                    <div className="mt-3">
+                        <SyncStatusIndicator />
+                    </div>
+
+                    <div className="mt-6">
+                        <CreateNewDialog>
+                            <button
+                                onClick={() => isMobile && setIsSidebarOpen(false)}
+                                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 px-4 rounded-md hover:bg-primary/90 transition-all font-medium shadow-sm hover:shadow-md"
+                            >
+                                <Plus size={18} />
+                                Nuevo / Subir
+                            </button>
+                        </CreateNewDialog>
+                    </div>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
@@ -97,18 +117,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         </Link>
                     </div>
                 </nav>
-
-                <div className="p-4 border-t border-border">
-                    <CreateDocumentDialog>
-                        <button
-                            onClick={() => isMobile && setIsSidebarOpen(false)}
-                            className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-all font-medium"
-                        >
-                            <Plus size={18} />
-                            Nuevo Documento
-                        </button>
-                    </CreateDocumentDialog>
-                </div>
             </motion.aside>
 
             {/* Sidebar Visual Indicator (when collapsed) */}
@@ -121,12 +129,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Main Content */}
             <main className="flex-1 overflow-hidden bg-muted/20 relative flex flex-col">
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     <motion.div
                         key={routerState.location.pathname}
                         initial={{ opacity: 0, scale: 0.99, x: 10 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.99, x: -10 }}
                         transition={{ duration: 0.2, ease: "easeInOut" }}
                         className="flex-1 w-full h-full overflow-auto"
                     >
@@ -135,6 +142,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </AnimatePresence>
             </main>
             <Toaster position="bottom-right" richColors />
+            <SyncNotification />
         </div>
     )
 }

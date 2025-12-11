@@ -20,6 +20,10 @@ interface AppState {
     updateDocument: (id: string, updates: Partial<Document>) => void
     deleteDocument: (id: string) => void
 
+    // Customization
+    customCSS: string
+    setCustomCSS: (css: string) => void
+
     // Async
     init: () => Promise<void>
 }
@@ -29,6 +33,7 @@ export const useStore = create<AppState>((set) => ({
     documents: [],
     activeDocId: null,
     isLoading: false,
+    customCSS: '',
 
     setView: (view) => set({ view }),
 
@@ -48,6 +53,11 @@ export const useStore = create<AppState>((set) => ({
         await LocalDB.updateDocument(id, updates)
     },
 
+    setCustomCSS: (css) => {
+        set({ customCSS: css })
+        localStorage.setItem('customCSS', css)
+    },
+
     deleteDocument: async (id) => {
         set((state) => ({
             documents: state.documents.filter(d => d.id !== id),
@@ -59,6 +69,10 @@ export const useStore = create<AppState>((set) => ({
 
     init: async () => {
         set({ isLoading: true })
+        // Load custom CSS
+        const savedCSS = localStorage.getItem('customCSS') || ''
+        set({ customCSS: savedCSS })
+
         try {
             // Try local first
             const localDocs = await LocalDB.getAllDocuments()
