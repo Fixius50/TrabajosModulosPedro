@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiDocApp - Documentación del Proyecto</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-secondary: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-bottom: 0.0625rem solid var(--border);
+            z-index: 100;
+            backdrop-filter: blur(0.75rem);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            list-style: none;
+            overflow-x: auto;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        main {
+            max-width: 75rem;
+            margin: 0 auto;
+            padding: 6.25rem 1.5rem 3.75rem;
+        }
+
+        section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(0.625rem);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #a371f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--text);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        h3 {
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+            color: var(--accent);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag-tech {
+            background: rgba(163, 113, 247, 0.2);
+            color: #a371f7;
+        }
+
+        .tag-feature {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--success);
+        }
+
+        .tag-file {
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .tag-ai {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--warning);
+        }
+
+        .prompt-box {
+            background: #0d1117;
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            color: var(--text-secondary);
+            max-height: 18.75rem;
+            overflow-y: auto;
+        }
+
+        code {
+            background: var(--bg);
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(17.5rem, 100%), 1fr));
+            gap: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.8125rem;
+        }
+
+        .file-tree {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8125rem;
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 0.0625rem solid var(--border);
+            overflow-x: auto;
+        }
+
+        .file-tree .folder {
+            color: var(--warning);
+        }
+
+        .file-tree .file {
+            color: var(--text-secondary);
+        }
+
+        .file-tree .file-new {
+            color: var(--success);
+        }
+
+        .file-tree .file-modified {
+            color: var(--accent);
+        }
+
+        ul {
+            color: var(--text-secondary);
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.25rem;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                padding: 5rem 1rem 2rem;
+            }
+
+            nav ul {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="#overview" class="active" onclick="showSection('overview')">📊 Overview</a></li>
+            <li><a href="#prompts" onclick="showSection('prompts')">💬 Prompts</a></li>
+            <li><a href="#features" onclick="showSection('features')">✨ Funcionalidades</a></li>
+            <li><a href="#files" onclick="showSection('files')">📁 Archivos</a></li>
+            <li><a href="#tech" onclick="showSection('tech')">🛠️ Tecnologías</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- OVERVIEW -->
+        <section id="overview" class="active">
+            <h1>MultiDocApp</h1>
+            <p class="subtitle">Gestor de documentos multimedia con sincronización en la nube</p>
+
+            <div class="grid">
+                <div class="stat">
+                    <div class="stat-value">25+</div>
+                    <div class="stat-label">Componentes React</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">11</div>
+                    <div class="stat-label">Tipos de archivo</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">10+</div>
+                    <div class="stat-label">Fases de desarrollo</div>
+                </div>
+            </div>
+
+            <h2>Resumen del Proyecto</h2>
+            <p>MultiDocApp es una aplicación web moderna para gestionar documentos multimedia de diversos tipos
+                (imágenes, videos, PDFs, código, etc.) con soporte para carpetas jerárquicas, papelera, sincronización
+                con Supabase, y autenticación de usuarios.</p>
+
+            <h3>Características Principales</h3>
+            <ul>
+                <li>📁 Sistema de carpetas con navegación jerárquica y breadcrumbs</li>
+                <li>🗑️ Papelera con restauración y eliminación permanente</li>
+                <li>🎨 Editor multimedia (brillo, contraste, saturación, rotación)</li>
+                <li>📝 Editor de código con syntax highlighting (Monaco Editor)</li>
+                <li>☁️ Sincronización bidireccional con Supabase</li>
+                <li>🔐 Autenticación con email/contraseña y Google OAuth</li>
+                <li>🌓 Modo claro/oscuro</li>
+                <li>📱 Sidebar colapsable responsive</li>
+            </ul>
+        </section>
+
+        <!-- PROMPTS -->
+        <section id="prompts">
+            <h1>Historial de Prompts</h1>
+            <p class="subtitle">Todos los prompts utilizados durante el desarrollo con IA</p>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Prompt Inicial - Rol Maestro</span>
+                    <span class="tag tag-ai">IA Base</span>
+                </div>
+                <div class="prompt-box"># ROL MAESTRO
+                    Actúa como un **Lead Full-Stack Engineer & Cloud Architect**.
+                    Tu misión es construir la arquitectura completa (Cliente y Servidor) aplicando **Ingeniería
+                    Defensiva**, **Seguridad por Diseño** e **Investigación Profunda**.
+
+                    # ESTRUCTURA DE ARCHIVOS
+                    📂 `[NombreProyecto]App/`
+                    ├── 📄 `.gitignore` (MANDATORIO: Define exclusiones estándar como node_modules, .env, logs)
+                    ├── 📂 `App/` (Frontend)
+                    │ ├── 📄 `index.html` (o `[NombreLogico].html`)
+                    │ └── 📂 [LIBERTAD TOTAL]: Crea subcarpetas (css, js, assets) aquí.
+                    └── 📂 `Server/` (Backend - Opcional)
+                    ├── 📄 `server.js` (o `main.py`, etc.)
+                    ├── 📄 `.env.example`
+                    └── 📂 [LIBERTAD TOTAL]: Routes, controllers, models.
+
+                    ---
+
+                    # FLUJO DE TRABAJO
+                    Antes de escribir código:
+
+                    1. **FASE 0: ENTENDIMIENTO Y DATOS (Consulta Crítica):**
+                    * ¿Tienes un MANIFIESTO DE CONTEXTO? Úsalo como verdad. Si no, hazme preguntas sobre Propósito y
+                    Flujo.
+                    * **ESTRATEGIA DE DATOS (MANDATORIO):** Pregúntame explícitamente:
+                    * "¿Qué persistencia prefieres? **Local** (JSON, XML) o **Nube** (Supabase, Firebase, Otros)."
+                    * "Si es Nube: ¿Tienes documentación o enlaces de referencia? Pégalos aquí."
+                    * "Si es Nube: ¿Qué tablas/colecciones necesitamos? (Si no lo sabes, pídemelo)."
+                    * **Regla de Autonomía:** Si mi respuesta es vaga, deduce la funcionalidad para un MVP robusto y
+                    avanza.
+
+                    2. **FASE DE ESTRATEGIA (Stack & Fallback):**
+                    * **Selección de Stack:** Elige tecnologías.
+                    * **Plan B (Fallbacks):** Define alternativas (ej: JSON local si la API de Nube falla).
+
+                    3. **FASE PRE-CHECK (Matriz de Riesgos):**
+                    * **Integración:** CORS, Endpoints, Estructura de Datos.
+                    * **Seguridad:** Inyecciones, XSS, Secretos.
+                    * **Gestión de Archivos:** Define qué se ignora en `.gitignore`.
+
+                    4. **FASE EJECUCIÓN (CONSTRUCCIÓN PROGRESIVA):**
+                    * **Paso A (Estructura):** Define mentalmente la lista completa de archivos a crear.
+                    * **Paso B (Generación Escalonada):** Genera el código **archivo por archivo, ordenados del más
+                    sencillo al más complicado**.
+                    * **Lectura de Coherencia:** Al generar cada archivo, "lee" los anteriores para asegurar coherencia.
+
+                    ---
+
+                    # SUB-ROLES TÉCNICOS
+                    1. **Frontend (`App/`):** UX/UI Pixel-Perfect. Web-First. Testable en Chromium.
+                    2. **Backend (`Server/`):** Seguridad primero (API Keys en env). Validación estricta (Zod/Joi).
+                    * **Protocolo de Base de Datos Perdida:** Si durante la creación definimos usar una BBDD en la nube
+                    pero **NO se proporcionan las API Keys**, implementa automáticamente un **Fallback a Base de Datos
+                    Local**.
+                    3. **Terminal:** Tienes libertad total para indicarme los comandos de terminal necesarios.
+
+                    ---
+
+                    # FORMATO DE SALIDA
+                    1. **Archivos de Código:** Bloques con ruta relativa (incluyendo `.gitignore`).
+                    2. **Instrucciones de Terminal:** Comandos claros para ponerlo en marcha.
+                    3. **REPORTE DE TRANSICIÓN (Obligatorio):**
+                    * Stack Completo: Front, Back y Estrategia de Datos.
+                    * Estado BBDD: Indica si se usó la real o el Fallback Local.
+                    * Riesgos Mitigados: Medidas de seguridad.
+                    * Resumen del Prompt: Para el historial.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Arquitectura del Proyecto</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">Adaptar la arquitectura de MultiDocApp según el "Ejemplo simple" (Antigravity
+                    Workstation), priorizando todas las funcionalidades excepto la vista 3D y temas.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Corrección de bugs de rendimiento</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">Hay problemas de renderizado en el dashboard cuando hay bastantes archivos;
+                    estos errores indican que se estan recorriendo 1 por 1 en un orden y por eso al hacer alguna accion
+                    tarda en cambiar, como eliminarlo o fijarlo</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Mejora del Editor</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">cambia el font size a unidades relativas a la pantalla, y que al menos sea
+                    grande; añade tambien dentro del editor mas caracteristicas (me gustaría que fuera como un editor de
+                    codigo, que detecte codigo y le cambie el color segun el tipo de codigo por ejemplo)</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Layout del Editor</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">pero dentro del editor, quiero que el ancho lo ocupe centradamente un 75% de la
+                    pantalla, y el alto todo el 100% de lo que ocupe el codigo en la pantalla, pero de minimo el 100% de
+                    la pantalla; asi parece un editor</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Sidebar Colapsable</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">esto es lo que sale al abrir cualquier documento de texto, si el zoom por
+                    defecto es 100% lo suyo es que la fuente de texto se vea grande. Luego me gustaria que la barra
+                    lateral se ocultase por defecto, pero se abriera al pasar el raton por encima (o que se deslice si
+                    es la version de movil)</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Sincronización Cloud y Auth</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">si; aparte quiero gestionar la base de datos desde la app, por ejemplo si quiero
+                    que se elimine en la nube, o si quiero que se quede alli y no se descargue aqui. Aparte me gustaría
+                    implementar el login local con correo, o con google.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Documentación SPA</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">Por ultimo me gustaría que crearas al lado de la carpeta App una recopilacion de
+                    todos los prompts (textos tal cual te he puesto) que hagan el diseño de la web, sus funcionalidades
+                    UX/UI, el archivo/s de codigo o configuracion/es que haga eso, y las tecnologías usadas (IA,
+                    frameworks, librerías...). Esta recopilación me gustaría que fuera una SPA .html</div>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section id="features">
+            <h1>Funcionalidades UX/UI</h1>
+            <p class="subtitle">Todas las características implementadas organizadas por categoría</p>
+
+            <h2>📁 Sistema de Archivos</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="tag tag-feature">Dashboard</span>
+                    <h3>Vista Principal</h3>
+                    <p>Grid/List view con búsqueda, filtros por tipo y tamaño, y clasificación automática por extensión.
+                    </p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Carpetas</span>
+                    <h3>Navegación Jerárquica</h3>
+                    <p>Sistema de carpetas con breadcrumbs, drag & drop de archivos, y soporte para ZIP.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Papelera</span>
+                    <h3>Soft Delete</h3>
+                    <p>Los archivos eliminados van a papelera antes de borrado permanente, con opción de restaurar.</p>
+                </div>
+            </div>
+
+            <h2>📝 Editores y Visores</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="tag tag-feature">Monaco</span>
+                    <h3>Editor de Código</h3>
+                    <p>Syntax highlighting para 90+ lenguajes, bracket colorization, minimap, autocomplete, font
+                        responsive.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Media</span>
+                    <h3>Editor Multimedia</h3>
+                    <p>Ajustes de brillo, contraste, saturación y rotación para imágenes y videos.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Visor</span>
+                    <h3>Visor Universal</h3>
+                    <p>Soporte para: Image, Video, Audio, PDF, Excel, CSV, Markdown, JSON, HTML, Code, Text.</p>
+                </div>
+            </div>
+
+            <h2>☁️ Cloud y Autenticación</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="tag tag-feature">Supabase</span>
+                    <h3>Sincronización</h3>
+                    <p>Subir/descargar datos de la nube, borrar nube, indicador de conexión.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Auth</span>
+                    <h3>Login</h3>
+                    <p>Email/contraseña y Google OAuth integrados con Supabase Auth.</p>
+                </div>
+            </div>
+
+            <h2>🎨 UI/UX</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="tag tag-feature">Responsive</span>
+                    <h3>Sidebar Colapsable</h3>
+                    <p>Oculta por defecto, aparece con hover en desktop o hamburger menu en móvil.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Tema</span>
+                    <h3>Dark/Light Mode</h3>
+                    <p>Toggle en configuración con persistencia.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Optimista</span>
+                    <h3>Updates Instantáneos</h3>
+                    <p>Las acciones se reflejan inmediatamente en UI antes de confirmar en backend.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FILES -->
+        <section id="files">
+            <h1>Archivos del Proyecto</h1>
+            <p class="subtitle">Estructura de archivos creados y modificados</p>
+
+            <div class="file-tree">
+                <span class="folder">📂 MultiDocApp/App/src/</span>
+                ├── <span class="folder">📂 components/</span>
+                │ ├── <span class="file-modified">Breadcrumb.tsx</span> - Navegación de ruta actual
+                │ ├── <span class="file-modified">CreateDocumentDialog.tsx</span> - Modal crear documento
+                │ ├── <span class="file-modified">Dashboard.tsx</span> - Vista principal con filtros
+                │ ├── <span class="file-modified">DocumentCard.tsx</span> - Tarjeta de documento
+                │ ├── <span class="file-modified">Editor.tsx</span> - Contenedor de editores
+                │ ├── <span class="file-modified">FileUploader.tsx</span> - Drag & drop upload
+                │ ├── <span class="file-new">FolderCard.tsx</span> - Tarjeta de carpeta
+                │ ├── <span class="file-modified">Layout.tsx</span> - Sidebar colapsable
+                │ ├── <span class="file-modified">Settings.tsx</span> - Cloud sync y auth
+                │ ├── <span class="file-new">TrashPage.tsx</span> - Vista de papelera
+                │ ├── <span class="folder">📂 editors/</span>
+                │ │ ├── <span class="file-modified">CodeEditor.tsx</span> - Monaco con font responsive
+                │ │ ├── <span class="file">ImageViewer.tsx</span>
+                │ │ ├── <span class="file-new">MediaEditor.tsx</span> - Editor brillo/contraste
+                │ │ └── <span class="file-modified">PDFViewer.tsx</span>
+                │ └── <span class="folder">📂 viewers/</span>
+                │ ├── <span class="file-new">AudioViewer.tsx</span>
+                │ ├── <span class="file-new">CSVViewer.tsx</span>
+                │ ├── <span class="file-new">ExcelViewer.tsx</span>
+                │ ├── <span class="file-new">HTMLViewer.tsx</span>
+                │ ├── <span class="file-new">JSONViewer.tsx</span>
+                │ ├── <span class="file-modified">MarkdownViewer.tsx</span>
+                │ └── <span class="file-new">VideoViewer.tsx</span>
+                ├── <span class="folder">📂 hooks/</span>
+                │ └── <span class="file-modified">useDocuments.ts</span> - React Query con optimistic updates
+                ├── <span class="folder">📂 lib/</span>
+                │ ├── <span class="file-modified">db.ts</span> - LocalDB con trash management
+                │ ├── <span class="file-modified">schemas.ts</span> - Zod schemas expandidos
+                │ ├── <span class="file-modified">supabase.ts</span> - CRUD completo para cloud
+                │ └── <span class="file">transformer.ts</span>
+                └── <span class="folder">📂 store/</span>
+                └── <span class="file">useStore.ts</span> - Zustand store
+
+                <span class="file-new">🟢 = Archivo nuevo</span> <span class="file-modified">🔵 = Modificado</span>
+                <span class="file">⚪ = Sin cambios</span>
+            </div>
+
+            <h2>Configuración</h2>
+            <table>
+                <tr>
+                    <th>Archivo</th>
+                    <th>Propósito</th>
+                </tr>
+                <tr>
+                    <td><code>.env.local</code></td>
+                    <td>Variables Supabase (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)</td>
+                </tr>
+                <tr>
+                    <td><code>vite.config.ts</code></td>
+                    <td>Configuración de Vite</td>
+                </tr>
+                <tr>
+                    <td><code>tailwind.config.js</code></td>
+                    <td>Tema y colores personalizados</td>
+                </tr>
+                <tr>
+                    <td><code>tsconfig.json</code></td>
+                    <td>TypeScript config</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- TECH -->
+        <section id="tech">
+            <h1>Stack Tecnológico</h1>
+            <p class="subtitle">Frameworks, librerías e inteligencia artificial utilizados</p>
+
+            <h2>🤖 Inteligencia Artificial</h2>
+            <table>
+                <tr>
+                    <th>Herramienta</th>
+                    <th>Uso</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-ai">Gemini (Antigravity)</span></td>
+                    <td>Generación de código, debugging, documentación, arquitectura</td>
+                </tr>
+            </table>
+
+            <h2>⚛️ Frontend Framework</h2>
+            <table>
+                <tr>
+                    <th>Tecnología</th>
+                    <th>Versión</th>
+                    <th>Uso</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">React</span></td>
+                    <td>18.x</td>
+                    <td>UI Components</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">TypeScript</span></td>
+                    <td>5.x</td>
+                    <td>Type safety</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Vite</span></td>
+                    <td>5.x</td>
+                    <td>Build tool / Dev server</td>
+                </tr>
+            </table>
+
+            <h2>📦 Librerías Principales</h2>
+            <table>
+                <tr>
+                    <th>Librería</th>
+                    <th>Propósito</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">TanStack Query</span></td>
+                    <td>Server state management, caching, optimistic updates</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">TanStack Router</span></td>
+                    <td>File-based routing</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Zustand</span></td>
+                    <td>Client state management</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Zod</span></td>
+                    <td>Schema validation</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Framer Motion</span></td>
+                    <td>Animations</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Monaco Editor</span></td>
+                    <td>Code editing con syntax highlighting</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Radix UI</span></td>
+                    <td>Accessible primitives (Dialog, Dropdown, etc.)</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Lucide React</span></td>
+                    <td>Icons</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Sonner</span></td>
+                    <td>Toast notifications</td>
+                </tr>
+            </table>
+
+            <h2>📄 Procesamiento de Documentos</h2>
+            <table>
+                <tr>
+                    <th>Librería</th>
+                    <th>Tipo de archivo</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">react-pdf</span></td>
+                    <td>PDF viewer</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">xlsx</span></td>
+                    <td>Excel (.xlsx, .xls)</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">papaparse</span></td>
+                    <td>CSV parsing</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">marked</span></td>
+                    <td>Markdown rendering</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">jszip</span></td>
+                    <td>ZIP extraction</td>
+                </tr>
+            </table>
+
+            <h2>☁️ Backend / Database</h2>
+            <table>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Uso</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Supabase</span></td>
+                    <td>PostgreSQL database + REST API</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Supabase Auth</span></td>
+                    <td>Email/Password + OAuth (Google)</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">IndexedDB</span></td>
+                    <td>Local storage (via idb-keyval)</td>
+                </tr>
+            </table>
+
+            <h2>🎨 Styling</h2>
+            <table>
+                <tr>
+                    <th>Tecnología</th>
+                    <th>Uso</th>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">Tailwind CSS</span></td>
+                    <td>Utility-first CSS</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-tech">CSS Variables</span></td>
+                    <td>Theming (dark/light mode)</td>
+                </tr>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`nav a[href="#${id}"]`).classList.add('active');
+        }
+        if (location.hash) showSection(location.hash.slice(1));
+    </script>
+</body>
+
+</html>
