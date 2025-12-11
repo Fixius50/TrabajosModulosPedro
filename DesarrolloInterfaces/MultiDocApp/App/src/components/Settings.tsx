@@ -22,6 +22,7 @@ export function Settings() {
     const { data: localDocs = [] } = useDocuments()
     const { data: localFolders = [] } = useFolders()
     const { data: localTrash = [] } = useTrash()
+    const { syncMode, setSyncMode } = useStore()
 
     const supabaseConfigured = SupabaseAPI.isSupabaseConfigured()
 
@@ -193,6 +194,33 @@ export function Settings() {
                         <button onClick={toggleTheme} className="px-4 py-2 rounded-md bg-secondary hover:bg-secondary/80">
                             {theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
                         </button>
+                    </div>
+                </section>
+
+                {/* Sync Mode */}
+                <section className="bg-card border rounded-xl p-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                <RefreshCw size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold">Modo de Sincronización</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {syncMode === 'manual'
+                                        ? 'Sincronización manual: usa el botón del menú lateral'
+                                        : 'Sincronización automática al guardar'}
+                                </p>
+                            </div>
+                        </div>
+                        <select
+                            value={syncMode}
+                            onChange={(e) => setSyncMode(e.target.value as 'manual' | 'auto')}
+                            className="px-4 py-2 rounded-md bg-secondary hover:bg-secondary/80 border-0 cursor-pointer"
+                        >
+                            <option value="manual">Manual</option>
+                            <option value="auto">Automático</option>
+                        </select>
                     </div>
                 </section>
 

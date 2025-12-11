@@ -1,23 +1,35 @@
 
-import { useState, useMemo } from 'react'
-import { useDocuments, useFolders, useDeleteFolder } from '../hooks/useDocuments'
-import { DocumentCard } from './DocumentCard'
-import { FolderCard } from './FolderCard'
+import { useState, useMemo, useEffect } from 'react'
+import { useDocuments, useFolders, useDeleteFolder, useUpdateDocument, useUpdateFolder } from '../hooks/useDocuments'
+import { SortableDocumentCard } from './SortableDocumentCard'
+import { SortableFolderCard } from './SortableFolderCard'
 import { Breadcrumb } from './Breadcrumb'
-import { Search, FileQuestion, Filter, LayoutGrid, List, Trash2, HardDrive } from 'lucide-react'
+import { Search, FileQuestion, Filter, LayoutGrid, List, HardDrive } from 'lucide-react'
 import type { DocType, Folder } from '../lib/schemas'
-import { useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-
-type SizeFilter = 'all' | 'small' | 'medium' | 'large'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+import { useStore } from '../store/useStore'
 
 export function Dashboard() {
     const [currentFolderId, setCurrentFolderId] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [filterType, setFilterType] = useState<'all' | DocType>('all')
-    const [filterSize, setFilterSize] = useState<SizeFilter>('all')
+    const [minSizeMB, setMinSizeMB] = useState<string>('')
+    const [maxSizeMB, setMaxSizeMB] = useState<string>('')
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-    const queryClient = useQueryClient()
+
+    // Get sidebar type filter from store
+    const { selectedTypeFilter, setTypeFilter } = useStore()
+
+    // Sync local filterType with sidebar filter
+    useEffect(() => {
+        if (selectedTypeFilter) {
+            setFilterType(selectedTypeFilter)
+        } else {
+            setFilterType('all')
+        }
+    }, [selectedTypeFilter])
 
     // Fetch documents and folders for current level
     const { data: documents = [], isLoading: docsLoading } = useDocuments(currentFolderId)
@@ -28,6 +40,45 @@ export function Dashboard() {
     const { data: allDocuments = [] } = useDocuments()
 
     const deleteFolder = useDeleteFolder()
+    const updateDocument = useUpdateDocument()
+    const updateFolder = useUpdateFolder()
+
+    // DnD sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    )
+
+    // Handle drag end for reordering
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+
+        // Check if it's a folder
+        const folderIndex = filteredFolders.findIndex(f => f.id === active.id)
+        if (folderIndex !== -1) {
+            const overIndex = filteredFolders.findIndex(f => f.id === over.id)
+            if (overIndex !== -1) {
+                const newFolders = arrayMove(filteredFolders, folderIndex, overIndex)
+                newFolders.forEach((folder, idx) => {
+                    updateFolder.mutate({ id: folder.id, updates: { order: idx } })
+                })
+            }
+            return
+        }
+
+        // Otherwise it's a document
+        const docIndex = filteredDocs.findIndex(d => d.id === active.id)
+        if (docIndex !== -1) {
+            const overDocIndex = filteredDocs.findIndex(d => d.id === over.id)
+            if (overDocIndex !== -1) {
+                const newDocs = arrayMove(filteredDocs, docIndex, overDocIndex)
+                newDocs.forEach((doc, idx) => {
+                    updateDocument.mutate({ id: doc.id, updates: { order: idx } })
+                })
+            }
+        }
+    }
 
     // Build breadcrumb path
     const breadcrumbPath = useMemo(() => {
@@ -78,16 +129,16 @@ export function Dashboard() {
             result = result.filter(d => d.type === filterType)
         }
 
-        // Size filter
-        if (filterSize !== 'all') {
+        // Size filter (min/max MB)
+        const minBytes = minSizeMB ? parseFloat(minSizeMB) * 1024 * 1024 : null
+        const maxBytes = maxSizeMB ? parseFloat(maxSizeMB) * 1024 * 1024 : null
+
+        if (minBytes !== null || maxBytes !== null) {
             result = result.filter(d => {
                 const size = d.size || 0
-                switch (filterSize) {
-                    case 'small': return size < 100 * 1024 // < 100KB
-                    case 'medium': return size >= 100 * 1024 && size < 1024 * 1024 // 100KB - 1MB
-                    case 'large': return size >= 1024 * 1024 // > 1MB
-                    default: return true
-                }
+                if (minBytes !== null && size < minBytes) return false
+                if (maxBytes !== null && size > maxBytes) return false
+                return true
             })
         }
 
@@ -99,7 +150,7 @@ export function Dashboard() {
         })
 
         return result
-    }, [documents, searchTerm, filterType, filterSize])
+    }, [documents, searchTerm, filterType, minSizeMB, maxSizeMB])
 
     // Group documents by type for categorized view
     const categorizedDocs = useMemo(() => {
@@ -121,27 +172,23 @@ export function Dashboard() {
         setCurrentFolderId(folderId)
     }
 
-    const handleUploadComplete = () => {
-        queryClient.invalidateQueries({ queryKey: ['documents'] })
-        queryClient.invalidateQueries({ queryKey: ['folders'] })
-    }
-
     if (isLoading) return <div className="p-8">Cargando documentos...</div>
 
     return (
         <div className="p-8 max-w-7xl mx-auto min-h-full flex flex-col">
-            {/* Header */}
-            <header className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
+            {/* Header - Row 1: Title */}
+            <header className="mb-6">
+                <div className="mb-4">
                     <h2 className="text-3xl font-bold tracking-tight">
                         {currentFolderId ? breadcrumbPath[breadcrumbPath.length - 1]?.name : 'Mi Universo'}
                     </h2>
-                    <p className="text-muted-foreground mt-2">
+                    <p className="text-muted-foreground mt-1">
                         Gestiona, visualiza y edita tus archivos multimedia.
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3">
+                {/* Header - Row 2: Controls */}
+                <div className="flex flex-wrap items-center gap-3">
                     {/* Search */}
                     <div className="relative">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -150,7 +197,7 @@ export function Dashboard() {
                             placeholder="Buscar..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[250px] rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary"
+                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[200px] rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
 
@@ -159,8 +206,14 @@ export function Dashboard() {
                         <Filter className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <select
                             value={filterType}
-                            onChange={(e) => setFilterType(e.target.value as any)}
-                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[180px] rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                            onChange={(e) => {
+                                setFilterType(e.target.value as any)
+                                // Also clear sidebar filter when manually changing
+                                if (e.target.value === 'all') {
+                                    setTypeFilter(null)
+                                }
+                            }}
+                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[160px] rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
                         >
                             <option value="all">Todos los tipos</option>
                             <option value="text">Texto</option>
@@ -177,23 +230,40 @@ export function Dashboard() {
                         </select>
                     </div>
 
-                    {/* Size Filter */}
-                    <div className="relative">
-                        <HardDrive className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <select
-                            value={filterSize}
-                            onChange={(e) => setFilterSize(e.target.value as SizeFilter)}
-                            className="pl-9 pr-4 py-2 h-10 w-full sm:w-[140px] rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
-                        >
-                            <option value="all">Todo tamaño</option>
-                            <option value="small">&lt; 100 KB</option>
-                            <option value="medium">100 KB - 1 MB</option>
-                            <option value="large">&gt; 1 MB</option>
-                        </select>
+                    {/* Size Filter - Min/Max MB */}
+                    <div className="flex items-center gap-2">
+                        <HardDrive className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            placeholder="Min MB"
+                            value={minSizeMB}
+                            onChange={(e) => {
+                                const val = e.target.value
+                                if (maxSizeMB && parseFloat(val) >= parseFloat(maxSizeMB)) return
+                                setMinSizeMB(val)
+                            }}
+                            className="w-20 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <span className="text-xs text-muted-foreground">-</span>
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            placeholder="Max MB"
+                            value={maxSizeMB}
+                            onChange={(e) => {
+                                const val = e.target.value
+                                if (minSizeMB && parseFloat(val) <= parseFloat(minSizeMB)) return
+                                setMaxSizeMB(val)
+                            }}
+                            className="w-20 h-10 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
                     </div>
 
                     {/* View toggle */}
-                    <div className="flex border border-input rounded-md">
+                    <div className="flex border border-input rounded-md ml-auto">
                         <button
                             onClick={() => setViewMode('grid')}
                             className={`p-2 ${viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
@@ -207,15 +277,6 @@ export function Dashboard() {
                             <List size={18} />
                         </button>
                     </div>
-
-                    {/* Trash link */}
-                    <Link
-                        to="/trash"
-                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted rounded-md transition-colors"
-                    >
-                        <Trash2 size={18} />
-                        Papelera
-                    </Link>
                 </div>
             </header>
 
@@ -236,20 +297,24 @@ export function Dashboard() {
                                 <span>Carpetas</span>
                                 <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{filteredFolders.length}</span>
                             </h3>
-                            <div className={viewMode === 'grid'
-                                ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-                                : "flex flex-col gap-2"
-                            }>
-                                {filteredFolders.map(folder => (
-                                    <FolderCard
-                                        key={folder.id}
-                                        folder={folder}
-                                        fileCount={getFolderFileCount(folder.id)}
-                                        onClick={() => handleNavigate(folder.id)}
-                                        onDelete={() => deleteFolder.mutate(folder.id)}
-                                    />
-                                ))}
-                            </div>
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                <SortableContext items={filteredFolders.map(f => f.id)} strategy={rectSortingStrategy}>
+                                    <div className={viewMode === 'grid'
+                                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                                        : "flex flex-col gap-2"
+                                    }>
+                                        {filteredFolders.map(folder => (
+                                            <SortableFolderCard
+                                                key={folder.id}
+                                                folder={folder}
+                                                fileCount={getFolderFileCount(folder.id)}
+                                                onClick={() => handleNavigate(folder.id)}
+                                                onDelete={() => deleteFolder.mutate(folder.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
                         </div>
                     )}
 
@@ -262,14 +327,18 @@ export function Dashboard() {
                                         <span>{category}</span>
                                         <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{docs.length}</span>
                                     </h3>
-                                    <div className={viewMode === 'grid'
-                                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                                        : "flex flex-col gap-2"
-                                    }>
-                                        {docs.map(doc => (
-                                            <DocumentCard key={doc.id} doc={doc} viewMode={viewMode} />
-                                        ))}
-                                    </div>
+                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                        <SortableContext items={docs.map(d => d.id)} strategy={rectSortingStrategy}>
+                                            <div className={viewMode === 'grid'
+                                                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                                                : "flex flex-col gap-2"
+                                            }>
+                                                {docs.map(doc => (
+                                                    <SortableDocumentCard key={doc.id} doc={doc} viewMode={viewMode} />
+                                                ))}
+                                            </div>
+                                        </SortableContext>
+                                    </DndContext>
                                 </div>
                             ))}
                         </div>

@@ -6,9 +6,10 @@ import type { Document } from '../lib/schemas'
 
 interface SortableDocumentCardProps {
     doc: Document
+    viewMode?: 'grid' | 'list'
 }
 
-export function SortableDocumentCard({ doc }: SortableDocumentCardProps) {
+export function SortableDocumentCard({ doc, viewMode = 'grid' }: SortableDocumentCardProps) {
     const {
         attributes,
         listeners,
@@ -27,7 +28,7 @@ export function SortableDocumentCard({ doc }: SortableDocumentCardProps) {
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            <DocumentCard doc={doc} />
+            <DocumentCard doc={doc} viewMode={viewMode} />
         </div>
     )
 }

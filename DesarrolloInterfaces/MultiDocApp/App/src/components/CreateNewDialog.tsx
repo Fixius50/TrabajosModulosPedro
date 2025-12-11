@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Tabs from '@radix-ui/react-tabs'
-import { Plus, X, FileText, Image, FileCode, Upload, FolderOpen, Loader2 } from 'lucide-react'
+import { Plus, X, FileText, Image, FileCode } from 'lucide-react'
 import { useCreateDocument } from '../hooks/useDocuments'
 import { FileUploader } from './FileUploader'
 import type { DocType } from '../lib/schemas'

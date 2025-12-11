@@ -1,19 +1,31 @@
 
 import React, { useEffect, useState } from 'react'
-import { LayoutGrid, Settings, Plus, FolderOpen, Menu, X } from 'lucide-react'
+import { LayoutGrid, Settings, Plus, Menu, X, Image, FileCode, FileText, Video, Trash2, RefreshCw } from 'lucide-react'
 import { Toaster } from 'sonner'
 import { CreateNewDialog } from './CreateNewDialog'
 import { SyncStatusIndicator, SyncNotification } from './SyncStatusIndicator'
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useRouterState, useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { DataService } from '../lib/data-service'
 import { useStore } from '../store/useStore'
+import { toast } from 'sonner'
+import type { DocType } from '../lib/schemas'
+
+const TYPE_FOLDERS: { label: string; types: DocType[]; icon: React.ReactNode }[] = [
+    { label: 'Imágenes', types: ['image'], icon: <Image size={18} /> },
+    { label: 'Código/Datos', types: ['code', 'json', 'csv', 'html'], icon: <FileCode size={18} /> },
+    { label: 'Documentos', types: ['pdf', 'excel'], icon: <FileText size={18} /> },
+    { label: 'Multimedia', types: ['video', 'audio'], icon: <Video size={18} /> },
+    { label: 'Texto', types: ['text', 'markdown'], icon: <FileText size={18} /> },
+]
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const routerState = useRouterState()
+    const navigate = useNavigate()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isMobile, setIsMobile] = useState(false)
-    const { customCSS } = useStore() // Use customCSS from store
+    const [isSyncing, setIsSyncing] = useState(false)
+    const { customCSS, syncMode, selectedTypeFilter, setTypeFilter } = useStore()
 
     useEffect(() => {
         DataService.initializeData()
@@ -23,6 +35,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
+
+    const handleManualSync = async () => {
+        setIsSyncing(true)
+        try {
+            await DataService.syncWithCloud()
+            toast.success('Sincronización completada')
+        } catch (e) {
+            toast.error('Error al sincronizar')
+        } finally {
+            setIsSyncing(false)
+        }
+    }
+
+    const handleTypeClick = (types: DocType[]) => {
+        // For simplicity, use the first type in the array as the filter
+        setTypeFilter(types[0])
+        navigate({ to: '/dashboard' })
+        isMobile && setIsSidebarOpen(false)
+    }
+
+    const handleDashboardClick = () => {
+        setTypeFilter(null)
+        isMobile && setIsSidebarOpen(false)
+    }
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
@@ -79,31 +115,67 @@ export function Layout({ children }: { children: React.ReactNode }) {
                             </button>
                         </CreateNewDialog>
                     </div>
+
+                    {/* Manual Sync Button */}
+                    {syncMode === 'manual' && (
+                        <button
+                            onClick={handleManualSync}
+                            disabled={isSyncing}
+                            className="mt-3 w-full flex items-center justify-center gap-2 border border-primary/30 text-primary py-2 px-4 rounded-md hover:bg-primary/10 transition-all text-sm font-medium disabled:opacity-50"
+                        >
+                            <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
+                            {isSyncing ? 'Sincronizando...' : 'Sincronizar ahora'}
+                        </button>
+                    )}
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2">
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                    {/* Dashboard */}
                     <Link
                         to="/dashboard"
-                        onClick={() => isMobile && setIsSidebarOpen(false)}
-                        activeProps={{ className: 'bg-primary/10 text-primary' }}
-                        inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
-                        className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        onClick={handleDashboardClick}
+                        className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${routerState.location.pathname === '/dashboard' && !selectedTypeFilter
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            }`}
                     >
                         <LayoutGrid size={20} />
                         <span>Dashboard</span>
                     </Link>
 
-                    <Link
-                        to="/dashboard"
-                        onClick={() => isMobile && setIsSidebarOpen(false)}
-                        activeProps={{ className: 'bg-primary/10 text-primary' }}
-                        inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
-                        className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                        <FolderOpen size={20} />
-                        <span>Documentos</span>
-                    </Link>
+                    {/* Type Folders */}
+                    <div className="pt-2 mt-2 border-t border-border space-y-1">
+                        <span className="text-xs text-muted-foreground px-3 py-1 block">Categorías</span>
+                        {TYPE_FOLDERS.map((folder) => (
+                            <button
+                                key={folder.label}
+                                onClick={() => handleTypeClick(folder.types)}
+                                className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${selectedTypeFilter && folder.types.includes(selectedTypeFilter)
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                    }`}
+                            >
+                                {folder.icon}
+                                <span>{folder.label}</span>
+                            </button>
+                        ))}
+                    </div>
 
+                    {/* Trash */}
+                    <div className="pt-2 mt-2 border-t border-border">
+                        <Link
+                            to="/trash"
+                            onClick={() => isMobile && setIsSidebarOpen(false)}
+                            activeProps={{ className: 'bg-primary/10 text-primary' }}
+                            inactiveProps={{ className: 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}
+                            className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                            <Trash2 size={20} />
+                            <span>Papelera</span>
+                        </Link>
+                    </div>
+
+                    {/* Settings */}
                     <div className="pt-4 mt-4 border-t border-border">
                         <Link
                             to="/settings"

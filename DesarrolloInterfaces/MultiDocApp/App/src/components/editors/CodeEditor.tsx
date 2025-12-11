@@ -219,6 +219,7 @@ export function CodeEditor({ doc }: { doc: Document }) {
                             formatOnType: true,
                             formatOnPaste: true,
                             tabSize: 4,
+                            automaticLayout: true, // Enable automatic layout adjustment
                         }}
                     />
                 </div>

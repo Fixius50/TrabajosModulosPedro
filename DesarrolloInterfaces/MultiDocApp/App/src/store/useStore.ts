@@ -24,6 +24,14 @@ interface AppState {
     customCSS: string
     setCustomCSS: (css: string) => void
 
+    // Sync Mode
+    syncMode: 'manual' | 'auto'
+    setSyncMode: (mode: 'manual' | 'auto') => void
+
+    // Type Filter for Sidebar Navigation
+    selectedTypeFilter: DocType | null
+    setTypeFilter: (type: DocType | null) => void
+
     // Async
     init: () => Promise<void>
 }
@@ -34,6 +42,8 @@ export const useStore = create<AppState>((set) => ({
     activeDocId: null,
     isLoading: false,
     customCSS: '',
+    syncMode: 'manual',
+    selectedTypeFilter: null,
 
     setView: (view) => set({ view }),
 
@@ -58,6 +68,15 @@ export const useStore = create<AppState>((set) => ({
         localStorage.setItem('customCSS', css)
     },
 
+    setSyncMode: (mode) => {
+        set({ syncMode: mode })
+        localStorage.setItem('syncMode', mode)
+    },
+
+    setTypeFilter: (type) => {
+        set({ selectedTypeFilter: type })
+    },
+
     deleteDocument: async (id) => {
         set((state) => ({
             documents: state.documents.filter(d => d.id !== id),
@@ -71,7 +90,9 @@ export const useStore = create<AppState>((set) => ({
         set({ isLoading: true })
         // Load custom CSS
         const savedCSS = localStorage.getItem('customCSS') || ''
-        set({ customCSS: savedCSS })
+        // Load sync mode
+        const savedSyncMode = (localStorage.getItem('syncMode') as 'manual' | 'auto') || 'manual'
+        set({ customCSS: savedCSS, syncMode: savedSyncMode })
 
         try {
             // Try local first
