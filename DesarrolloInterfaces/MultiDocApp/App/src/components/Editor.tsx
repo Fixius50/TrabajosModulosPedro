@@ -9,20 +9,44 @@ import { ExcelViewer } from './viewers/ExcelViewer'
 import { CSVViewer } from './viewers/CSVViewer'
 import { MarkdownViewer } from './viewers/MarkdownViewer'
 import { HTMLViewer } from './viewers/HTMLViewer'
-import { JSONViewer } from './viewers/JSONViewer'
 import { MediaEditor } from './editors/MediaEditor'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Transformer } from '../lib/transformer'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Link } from '@tanstack/react-router'
 import { useDocument } from '../hooks/useDocuments'
+import { useStore } from '../store/useStore'
 
 export function Editor({ docId }: { docId: string }) {
+    const { updateDocument } = useStore() // Get action from store
     const { data: doc, isLoading } = useDocument(docId)
     const [isExporting, setIsExporting] = useState(false)
-    const [zoomLevel, setZoomLevel] = useState(1)
+    const [zoomLevel, setZoomLevel] = useState(1.2)
     const [isEditing, setIsEditing] = useState(false)
+
+    // Manual Save State
+    const [localContent, setLocalContent] = useState('')
+    const [isDirty, setIsDirty] = useState(false)
+
+    // Load initial content
+    useEffect(() => {
+        if (doc && !isDirty) {
+            setLocalContent(doc.content || '')
+        }
+    }, [doc?.content, isDirty])
+
+    // Warn on exit if dirty
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isDirty) {
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [isDirty])
 
     if (isLoading) return <div className="p-8">Cargando documento...</div>
     if (!doc) return <div className="p-8">Documento no encontrado</div>
@@ -31,6 +55,11 @@ export function Editor({ docId }: { docId: string }) {
 
     const handleZoom = (delta: number) => {
         setZoomLevel(prev => Math.max(0.25, Math.min(3, prev + delta)))
+    }
+
+    const handleContentChange = (newContent: string) => {
+        setLocalContent(newContent)
+        setIsDirty(true)
     }
 
     const renderContent = () => {
@@ -44,9 +73,15 @@ export function Editor({ docId }: { docId: string }) {
         switch (doc.type) {
             case 'text':
             case 'code':
+                // Pass zoom prop instead of scaling container to preserve layout/console
                 return (
-                    <div style={commonStyle}>
-                        <CodeEditor doc={doc} />
+                    <div className="h-full w-full">
+                        <CodeEditor
+                            doc={doc}
+                            content={localContent}
+                            onChange={handleContentChange}
+                            zoom={zoomLevel}
+                        />
                     </div>
                 )
             case 'image':
@@ -78,9 +113,15 @@ export function Editor({ docId }: { docId: string }) {
             case 'html':
                 return <HTMLViewer doc={doc} />
             case 'json':
+                // Also use CodeEditor for JSON viewing/editing benefits
                 return (
-                    <div style={commonStyle}>
-                        <JSONViewer doc={doc} />
+                    <div className="h-full w-full">
+                        <CodeEditor
+                            doc={doc}
+                            content={localContent}
+                            onChange={handleContentChange}
+                            zoom={zoomLevel}
+                        />
                     </div>
                 )
             default:
@@ -106,6 +147,8 @@ export function Editor({ docId }: { docId: string }) {
     }
 
     const handleSave = async () => {
+        updateDocument(doc.id, { content: localContent })
+        setIsDirty(false)
         toast.success('Documento guardado')
     }
 
@@ -132,8 +175,8 @@ export function Editor({ docId }: { docId: string }) {
                         <button
                             onClick={() => setIsEditing(!isEditing)}
                             className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isEditing
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'hover:bg-accent text-muted-foreground hover:text-foreground'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             {isEditing ? <X size={16} /> : <Edit size={16} />}
@@ -195,10 +238,14 @@ export function Editor({ docId }: { docId: string }) {
 
                     <button
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm"
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors shadow-sm ${isDirty
+                            ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
+                            : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                            }`}
+                        title={isDirty ? 'Tienes cambios sin guardar' : 'Guardado'}
                     >
                         <Save size={16} />
-                        Guardar
+                        {isDirty ? 'Guardar *' : 'Guardar'}
                     </button>
                 </div>
             </header>

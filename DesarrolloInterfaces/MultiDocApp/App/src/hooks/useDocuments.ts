@@ -109,7 +109,23 @@ export function useUpdateDocument() {
             await DataService.updateDocument(id, updates)
             return { id, updates }
         },
-        onSuccess: () => {
+        onMutate: async ({ id, updates }) => {
+            await queryClient.cancelQueries({ queryKey: docKeys.all })
+            const previousDocs = queryClient.getQueryData<Document[]>(docKeys.all)
+
+            queryClient.setQueryData<Document[]>(docKeys.all, (old) =>
+                old?.map(d => d.id === id ? { ...d, ...updates } : d) || []
+            )
+
+            return { previousDocs }
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previousDocs) {
+                queryClient.setQueryData(docKeys.all, context.previousDocs)
+            }
+            toast.error('Error al actualizar')
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: docKeys.all })
         }
     })
@@ -181,7 +197,23 @@ export function useUpdateFolder() {
             await DataService.updateFolder(id, updates)
             return { id, updates }
         },
-        onSuccess: () => {
+        onMutate: async ({ id, updates }) => {
+            await queryClient.cancelQueries({ queryKey: folderKeys.all })
+            const previousFolders = queryClient.getQueryData<Folder[]>(folderKeys.all)
+
+            queryClient.setQueryData<Folder[]>(folderKeys.all, (old) =>
+                old?.map(f => f.id === id ? { ...f, ...updates } : f) || []
+            )
+
+            return { previousFolders }
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previousFolders) {
+                queryClient.setQueryData(folderKeys.all, context.previousFolders)
+            }
+            toast.error('Error al actualizar carpeta')
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: folderKeys.all })
         }
     })

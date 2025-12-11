@@ -6,7 +6,7 @@ import { SortableFolderCard } from './SortableFolderCard'
 import { Breadcrumb } from './Breadcrumb'
 import { Search, FileQuestion, Filter, LayoutGrid, List, HardDrive } from 'lucide-react'
 import type { DocType, Folder } from '../lib/schemas'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { useStore } from '../store/useStore'
@@ -297,7 +297,7 @@ export function Dashboard() {
                                 <span>Carpetas</span>
                                 <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{filteredFolders.length}</span>
                             </h3>
-                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
                                 <SortableContext items={filteredFolders.map(f => f.id)} strategy={rectSortingStrategy}>
                                     <div className={viewMode === 'grid'
                                         ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
@@ -327,7 +327,7 @@ export function Dashboard() {
                                         <span>{category}</span>
                                         <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{docs.length}</span>
                                     </h3>
-                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
                                         <SortableContext items={docs.map(d => d.id)} strategy={rectSortingStrategy}>
                                             <div className={viewMode === 'grid'
                                                 ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"

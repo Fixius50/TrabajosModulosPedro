@@ -256,6 +256,45 @@ export async function emptyTrash(): Promise<boolean> {
     return true
 }
 
+// ==================== SETTINGS ====================
+export async function fetchSettings(): Promise<{ custom_css: string } | null> {
+    if (!supabase) return null
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data, error } = await supabase
+        .from('settings')
+        .select('custom_css')
+        .eq('user_id', user.id)
+        .single()
+
+    if (error) {
+        // It's common to not have settings yet, don't spam console
+        return null
+    }
+    return data
+}
+
+export async function saveSettings(customCSS: string): Promise<boolean> {
+    if (!supabase) return false
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
+
+    const { error } = await supabase
+        .from('settings')
+        .upsert({
+            user_id: user.id,
+            custom_css: customCSS,
+            updated_at: new Date().toISOString()
+        })
+
+    if (error) {
+        console.error('Supabase save settings error:', error)
+        return false
+    }
+    return true
+}
+
 // ==================== SYNC UTILITIES ====================
 export async function syncLocalToCloud(
     documents: Document[],

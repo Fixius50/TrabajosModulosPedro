@@ -496,6 +496,25 @@
                     UX/UI, el archivo/s de codigo o configuracion/es que haga eso, y las tecnologías usadas (IA,
                     frameworks, librerías...). Esta recopilación me gustaría que fuera una SPA .html</div>
             </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Robustez y Ejecución en Editor</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">hazlo mas robusto el editor de codigo; quiero que salte las posibles palabras
+                    clave... hay errores en el compilador... mira librerias que se encarguen de indicar que la sintaxis
+                    esta bien</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Control Manual de Guardado</span>
+                    <span class="tag tag-ai">IA</span>
+                </div>
+                <div class="prompt-box">parece que el error persiste, creo que es que se queda de la cache... saca el
+                    autoguardado del editor de codigo para evitar conflictos de sincronización mientras escribo</div>
+            </div>
         </section>
 
         <!-- FEATURES -->
@@ -527,9 +546,9 @@
             <div class="grid">
                 <div class="card">
                     <span class="tag tag-feature">Monaco</span>
-                    <h3>Editor de Código</h3>
-                    <p>Syntax highlighting para 90+ lenguajes, bracket colorization, minimap, autocomplete, font
-                        responsive.</p>
+                    <h3>Editor de Código Avanzado</h3>
+                    <p>Syntax highlighting, ejecución de código en la nube (Piston API), consola integrada con
+                        logs/errores, autocompletado inteligente y plantillas (boilerplates) automáticas.</p>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Media</span>
@@ -555,6 +574,12 @@
                     <h3>Login</h3>
                     <p>Email/contraseña y Google OAuth integrados con Supabase Auth.</p>
                 </div>
+                <div class="card">
+                    <span class="tag tag-feature">Config</span>
+                    <h3>Sync Unificado</h3>
+                    <p>Panel de configuración unificado para modo de sincronización (Manual/Auto) y estado de la nube
+                        con timer automático.</p>
+                </div>
             </div>
 
             <h2>🎨 UI/UX</h2>
@@ -568,6 +593,12 @@
                     <span class="tag tag-feature">Tema</span>
                     <h3>Dark/Light Mode</h3>
                     <p>Toggle en configuración con persistencia.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Control</span>
+                    <h3>Guardado Manual</h3>
+                    <p>Modo de guardado explícito para código con indicador de cambios no guardados (dirty state) y
+                        protección contra cierre accidental.</p>
                 </div>
                 <div class="card">
                     <span class="tag tag-feature">Optimista</span>

@@ -1,7 +1,8 @@
 
 import { create } from 'zustand'
 import { LocalDB } from '../lib/db'
-import { fetchDocuments } from '../lib/supabase'
+import { fetchDocuments, fetchSettings, saveSettings } from '../lib/supabase'
+import * as SupabaseAPI from '../lib/supabase'
 import type { Document, DocType } from '../lib/schemas'
 
 // Re-export types for compatibility
@@ -12,6 +13,10 @@ interface AppState {
     documents: Document[]
     activeDocId: string | null
     isLoading: boolean
+
+    // Auth State
+    isGuest: boolean
+    setGuest: (guest: boolean) => void
 
     // Actions
     setView: (view: 'dashboard' | 'editor' | 'settings') => void
@@ -36,7 +41,7 @@ interface AppState {
     init: () => Promise<void>
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
     view: 'dashboard',
     documents: [],
     activeDocId: null,
@@ -44,7 +49,9 @@ export const useStore = create<AppState>((set) => ({
     customCSS: '',
     syncMode: 'manual',
     selectedTypeFilter: null,
+    isGuest: false,
 
+    setGuest: (guest) => set({ isGuest: guest }),
     setView: (view) => set({ view }),
 
     addDocument: async (doc) => {
@@ -66,6 +73,10 @@ export const useStore = create<AppState>((set) => ({
     setCustomCSS: (css) => {
         set({ customCSS: css })
         localStorage.setItem('customCSS', css)
+        // Fire and forget cloud save
+        if (fetchDocuments.name) { // Simple check if module loaded
+            SupabaseAPI.saveSettings(css)
+        }
     },
 
     setSyncMode: (mode) => {
@@ -129,8 +140,14 @@ export const useStore = create<AppState>((set) => ({
             // Try cloud (silent fail if no keys)
             try {
                 const cloudDocs = await fetchDocuments()
-                // Merge logic would go here. For now, we prefer local.
                 console.log("Cloud docs found:", cloudDocs?.length)
+
+                // Fetch Settings
+                const settings = await SupabaseAPI.fetchSettings()
+                if (settings?.custom_css) {
+                    set({ customCSS: settings.custom_css })
+                    localStorage.setItem('customCSS', settings.custom_css)
+                }
             } catch (e) {
                 console.warn("Cloud sync disabled/failed", e)
             }

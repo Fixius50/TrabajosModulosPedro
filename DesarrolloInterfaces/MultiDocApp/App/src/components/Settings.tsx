@@ -197,67 +197,75 @@ export function Settings() {
                     </div>
                 </section>
 
-                {/* Sync Mode */}
-                <section className="bg-card border rounded-xl p-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                                <RefreshCw size={24} />
+                {/* Sync & Cloud Section */}
+                {!useStore.getState().isGuest && (
+                    <section className="bg-card border rounded-xl p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                    <Cloud size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold">Sincronización Cloud</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {supabaseConfigured ? `✅ Conectado • ${localDocs.length} docs locales` : '❌ No configurado'}
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-semibold">Modo de Sincronización</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    {syncMode === 'manual'
-                                        ? 'Sincronización manual: usa el botón del menú lateral'
-                                        : 'Sincronización automática al guardar'}
-                                </p>
-                            </div>
-                        </div>
-                        <select
-                            value={syncMode}
-                            onChange={(e) => setSyncMode(e.target.value as 'manual' | 'auto')}
-                            className="px-4 py-2 rounded-md bg-secondary hover:bg-secondary/80 border-0 cursor-pointer"
-                        >
-                            <option value="manual">Manual</option>
-                            <option value="auto">Automático</option>
-                        </select>
-                    </div>
-                </section>
 
-                {/* Cloud */}
-                <section className="bg-card border rounded-xl p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                            <Cloud size={24} />
+                            {/* Sync Mode Dropdown moved here */}
+                            <div className="flex items-center gap-2 bg-secondary/50 p-1 rounded-md">
+                                <span className="text-xs font-medium px-2 text-muted-foreground">Modo:</span>
+                                <select
+                                    value={syncMode}
+                                    onChange={(e) => setSyncMode(e.target.value as 'manual' | 'auto')}
+                                    className="bg-transparent text-sm font-medium focus:outline-none cursor-pointer py-1 pr-2"
+                                >
+                                    <option value="manual">Manual</option>
+                                    <option value="auto">Automático (1 min)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-semibold">Sincronización Cloud</h3>
-                            <p className="text-sm text-muted-foreground">
-                                {supabaseConfigured ? `✅ Conectado • ${localDocs.length} docs locales` : '❌ No configurado'}
-                            </p>
-                        </div>
-                    </div>
-                    {supabaseConfigured && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <button onClick={handleSyncToCloud} disabled={isSyncing} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition disabled:opacity-50">
-                                <Upload size={20} className="text-green-500" />
-                                <span className="text-xs">{isSyncing ? 'Subiendo...' : 'Subir'}</span>
-                            </button>
-                            <button onClick={handleDownloadFromCloud} disabled={isDownloading} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition disabled:opacity-50">
-                                <Download size={20} className="text-blue-500" />
-                                <span className="text-xs">{isDownloading ? 'Bajando...' : 'Descargar'}</span>
-                            </button>
-                            <button onClick={() => { handleSyncToCloud(); handleDownloadFromCloud(); }} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition">
-                                <RefreshCw size={20} className="text-purple-500" />
-                                <span className="text-xs">Sincronizar</span>
-                            </button>
-                            <button onClick={handleClearCloudData} className="flex flex-col items-center gap-2 p-4 rounded-lg border border-destructive/30 hover:bg-destructive/10 transition">
-                                <CloudOff size={20} className="text-destructive" />
-                                <span className="text-xs text-destructive">Borrar Nube</span>
-                            </button>
-                        </div>
-                    )}
-                </section>
+
+                        {supabaseConfigured && (
+                            <div className="space-y-4">
+                                {syncMode === 'manual' ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <button onClick={handleSyncToCloud} disabled={isSyncing} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition disabled:opacity-50">
+                                            <Upload size={20} className="text-green-500" />
+                                            <span className="text-xs">{isSyncing ? 'Subiendo...' : 'Subir'}</span>
+                                        </button>
+                                        <button onClick={handleDownloadFromCloud} disabled={isDownloading} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition disabled:opacity-50">
+                                            <Download size={20} className="text-blue-500" />
+                                            <span className="text-xs">{isDownloading ? 'Bajando...' : 'Descargar'}</span>
+                                        </button>
+                                        <button onClick={() => { handleSyncToCloud(); handleDownloadFromCloud(); }} className="flex flex-col items-center gap-2 p-4 rounded-lg border hover:bg-accent transition">
+                                            <RefreshCw size={20} className="text-purple-500" />
+                                            <span className="text-xs">Sincronizar Todo</span>
+                                        </button>
+                                        <button onClick={handleClearCloudData} className="flex flex-col items-center gap-2 p-4 rounded-lg border border-destructive/30 hover:bg-destructive/10 transition">
+                                            <CloudOff size={20} className="text-destructive" />
+                                            <span className="text-xs text-destructive">Borrar Nube</span>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-muted/30 border border-dashed rounded-lg p-6 text-center">
+                                        <RefreshCw className="mx-auto h-8 w-8 text-muted-foreground mb-2 animate-spin-slow" style={{ animationDuration: '3s' }} />
+                                        <p className="text-sm font-medium">Sincronización Automática Activa</p>
+                                        <p className="text-xs text-muted-foreground mt-1">Los cambios se suben y bajan automáticamente cada minuto.</p>
+
+                                        <div className="mt-4 flex justify-center">
+                                            <button onClick={handleClearCloudData} className="flex items-center gap-2 px-3 py-1.5 rounded text-xs border border-destructive/30 hover:bg-destructive/10 text-destructive transition">
+                                                <CloudOff size={14} />
+                                                Borrar Nube
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </section>
+                )}
 
                 {/* Auth */}
                 <section className="bg-card border rounded-xl p-6">
@@ -268,11 +276,20 @@ export function Settings() {
                             </div>
                             <div>
                                 <h3 className="font-semibold">Cuenta</h3>
-                                <p className="text-sm text-muted-foreground">{user ? user.email : 'No autenticado'}</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {useStore.getState().isGuest ? 'Modo Invitado (Local)' : (user ? user.email : 'No autenticado')}
+                                </p>
                             </div>
                         </div>
-                        {user ? (
-                            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary hover:bg-secondary/80">
+                        {user || useStore.getState().isGuest ? (
+                            <button onClick={async () => {
+                                if (useStore.getState().isGuest) {
+                                    useStore.getState().setGuest(false)
+                                    toast.success('Sesión cerrada')
+                                } else {
+                                    handleLogout()
+                                }
+                            }} className="flex items-center gap-2 px-4 py-2 rounded-md bg-secondary hover:bg-secondary/80">
                                 <LogOut size={16} /> Salir
                             </button>
                         ) : (
@@ -302,45 +319,109 @@ export function Settings() {
                 </section>
 
                 {/* Custom CSS Theme */}
-                <section className="bg-card border rounded-xl p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
-                            <span className="font-bold text-lg">CSS</span>
+                {!useStore.getState().isGuest && (
+                    <section className="bg-card border rounded-xl p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                                <span className="font-bold text-lg">CSS</span>
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-semibold">Tema Personalizado</h3>
+                                <p className="text-sm text-muted-foreground">Inyecta CSS global para personalizar la interfaz.</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => useStore.getState().setCustomCSS(
+                                        `/* Tema Claro Brillante */
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #8b5cf6;
+}`
+                                    )}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-muted"
+                                >
+                                    Preset Claro
+                                </button>
+                                <button
+                                    onClick={() => useStore.getState().setCustomCSS(
+                                        `/* Tema Oscuro Cyberpunk */
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #09090b;
+  --card-foreground: #fafafa;
+  --popover: #09090b;
+  --popover-foreground: #fafafa;
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #0ea5e9;
+}`
+                                    )}
+                                    className="px-3 py-1 text-xs border rounded hover:bg-muted bg-zinc-900 text-zinc-100"
+                                >
+                                    Preset Oscuro
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-semibold">Tema Personalizado</h3>
-                            <p className="text-sm text-muted-foreground">Inyecta CSS global para personalizar la interfaz.</p>
-                        </div>
-                    </div>
-                    <textarea
-                        className="w-full h-48 p-4 font-mono text-xs bg-muted/50 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-y"
-                        placeholder="/* Ejemplo: */&#10;.bg-card { background: #fff !important; }"
-                        value={useStore.getState().customCSS}
-                        onChange={(e) => useStore.getState().setCustomCSS(e.target.value)}
-                        spellCheck={false}
-                    />
-                </section>
+                        <textarea
+                            className="w-full h-48 p-4 font-mono text-xs bg-muted/50 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                            placeholder="/* Ejemplo: */&#10;.bg-card { background: #fff !important; }"
+                            value={useStore.getState().customCSS}
+                            onChange={(e) => useStore.getState().setCustomCSS(e.target.value)}
+                            spellCheck={false}
+                        />
+                    </section>
+                )}
 
                 {/* Danger Zone */}
-                <section className="bg-card border rounded-xl p-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-destructive/10 rounded-lg text-destructive">
-                                <Database size={24} />
+                {!useStore.getState().isGuest && (
+                    <section className="bg-card border rounded-xl p-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-destructive/10 rounded-lg text-destructive">
+                                    <Database size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-destructive">Zona de Peligro</h3>
+                                    <p className="text-sm text-muted-foreground">Borrar datos locales</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-semibold text-destructive">Zona de Peligro</h3>
-                                <p className="text-sm text-muted-foreground">Borrar datos locales</p>
-                            </div>
+                            <button onClick={handleClearData} disabled={isClearing} className="flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50">
+                                <Trash size={16} /> {isClearing ? 'Borrando...' : 'Borrar Local'}
+                            </button>
                         </div>
-                        <button onClick={handleClearData} disabled={isClearing} className="flex items-center gap-2 px-4 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50">
-                            <Trash size={16} /> {isClearing ? 'Borrando...' : 'Borrar Local'}
-                        </button>
-                    </div>
-                </section>
+                    </section>
+                )}
 
                 <div className="text-center text-xs text-muted-foreground pt-8">
-                    MultiDocApp v1.0 • {supabaseConfigured ? '☁️ Cloud' : '💾 Local'}
+                    MultiDocApp v1.0 • {useStore.getState().isGuest ? '👤 Invitado' : (supabaseConfigured ? '☁️ Cloud' : '💾 Local')}
                 </div>
             </div>
         </div>

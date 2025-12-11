@@ -9,6 +9,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { DataService } from '../lib/data-service'
 import { useStore } from '../store/useStore'
 import { toast } from 'sonner'
+import { ErrorBoundary } from './ErrorBoundary'
+import { LoginPage } from './LoginPage'
+import * as SupabaseAPI from '../lib/supabase'
 import type { DocType } from '../lib/schemas'
 
 const TYPE_FOLDERS: { label: string; types: DocType[]; icon: React.ReactNode }[] = [
@@ -25,16 +28,102 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isMobile, setIsMobile] = useState(false)
     const [isSyncing, setIsSyncing] = useState(false)
-    const { customCSS, syncMode, selectedTypeFilter, setTypeFilter } = useStore()
+    const [user, setUser] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+    const { customCSS, syncMode, selectedTypeFilter, setTypeFilter, isGuest, setGuest } = useStore()
 
+    // Auth & Init
     useEffect(() => {
         DataService.initializeData()
-        // Check if mobile
+
+        const initAuth = async () => {
+            if (SupabaseAPI.supabase) {
+                try {
+                    // Check for session overlap fix
+                    const sessionPromise = SupabaseAPI.supabase.auth.getSession()
+                    const userPromise = SupabaseAPI.supabase.auth.getUser()
+
+                    // Race strictly to avoid hanging
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('Timeout'), 5000))
+
+                    await Promise.race([
+                        Promise.all([sessionPromise, userPromise]).then(([sessionRes, userRes]) => {
+                            if (userRes.data.user) {
+                                setUser(userRes.data.user)
+                                setGuest(false)
+                            }
+                        }),
+                        timeoutPromise
+                    ])
+
+                } catch (e) {
+                    console.error("Auth check failed or timed out", e)
+                    // Fallback: If we have a hash (returning from google), maybe force reload once?
+                    if (window.location.hash && window.location.hash.includes('access_token')) {
+                        console.log("Stuck on auth hash, reloading...")
+                        // window.location.reload() // Or just let loading finish
+                    }
+                } finally {
+                    setLoading(false)
+                }
+
+                SupabaseAPI.supabase.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        setUser(session.user)
+                        setGuest(false)
+                        setLoading(false)
+                    } else if (event === 'SIGNED_OUT') {
+                        setUser(null)
+                        setLoading(false)
+                    }
+                })
+            } else {
+                setLoading(false)
+            }
+        }
+        initAuth()
+
         const checkMobile = () => setIsMobile(window.innerWidth < 768)
         checkMobile()
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
+
+    // Auto-reload failsafe for "White Screen" issue after Google Login
+    useEffect(() => {
+        if (loading) {
+            const timer = setTimeout(() => {
+                // If still loading after 3.5s and we have a hash (likely auth redirect), reload
+                if (window.location.hash && window.location.hash.includes('access_token')) {
+                    toast.info("Finalizando validación...")
+                    window.location.reload()
+                }
+            }, 3500)
+            return () => clearTimeout(timer)
+        }
+    }, [loading])
+
+    // Auto-Sync Timer (1 minute)
+    useEffect(() => {
+        if (syncMode === 'auto' && !isGuest && !isSyncing) {
+            console.log("Starting auto-sync timer")
+            const interval = setInterval(async () => {
+                // Silent sync
+                if (!SupabaseAPI.supabase) return
+                setIsSyncing(true)
+                try {
+                    await DataService.syncWithCloud()
+                    console.log("Auto-sync success")
+                } catch (e) {
+                    console.warn("Auto-sync failed", e)
+                } finally {
+                    setIsSyncing(false)
+                }
+            }, 60000) // 1 minute
+
+            return () => clearInterval(interval)
+        }
+    }, [syncMode, isGuest, isSyncing])
 
     const handleManualSync = async () => {
         setIsSyncing(true)
@@ -49,7 +138,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
 
     const handleTypeClick = (types: DocType[]) => {
-        // For simplicity, use the first type in the array as the filter
         setTypeFilter(types[0])
         navigate({ to: '/dashboard' })
         isMobile && setIsSidebarOpen(false)
@@ -58,6 +146,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const handleDashboardClick = () => {
         setTypeFilter(null)
         isMobile && setIsSidebarOpen(false)
+    }
+
+    // Show loading spinner
+    if (loading) {
+        return (
+            <div className="h-screen flex flex-col items-center justify-center bg-background space-y-4">
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <p className="text-muted-foreground animate-pulse">Cargando aplicación...</p>
+            </div>
+        )
+    }
+
+    // AUTH GUARD: Show Login Page if not authenticated AND not guest
+    if (!user && !isGuest) {
+        return (
+            <>
+                {customCSS && <style dangerouslySetInnerHTML={{ __html: customCSS }} />}
+                <LoginPage />
+                <Toaster position="bottom-right" richColors />
+            </>
+        )
     }
 
     return (
@@ -72,6 +181,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             >
                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+
+            {/* ... Rest of Sidebar remains ... */}
 
             {/* Sidebar Hover Zone (Desktop) */}
             <div
@@ -116,8 +227,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         </CreateNewDialog>
                     </div>
 
-                    {/* Manual Sync Button */}
-                    {syncMode === 'manual' && (
+                    {/* Manual Sync Button: Only show if not guest and manual mode */}
+                    {syncMode === 'manual' && !isGuest && (
                         <button
                             onClick={handleManualSync}
                             disabled={isSyncing}
@@ -135,8 +246,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         to="/dashboard"
                         onClick={handleDashboardClick}
                         className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${routerState.location.pathname === '/dashboard' && !selectedTypeFilter
-                                ? 'bg-primary/10 text-primary'
-                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                            ? 'bg-primary/10 text-primary'
+                            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                             }`}
                     >
                         <LayoutGrid size={20} />
@@ -151,8 +262,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                 key={folder.label}
                                 onClick={() => handleTypeClick(folder.types)}
                                 className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${selectedTypeFilter && folder.types.includes(selectedTypeFilter)
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                    ? 'bg-primary/10 text-primary'
+                                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                                     }`}
                             >
                                 {folder.icon}
@@ -202,15 +313,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {/* Main Content */}
             <main className="flex-1 overflow-hidden bg-muted/20 relative flex flex-col">
                 <AnimatePresence>
-                    <motion.div
-                        key={routerState.location.pathname}
-                        initial={{ opacity: 0, scale: 0.99, x: 10 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                        className="flex-1 w-full h-full overflow-auto"
-                    >
-                        {children}
-                    </motion.div>
+                    <ErrorBoundary>
+                        <motion.div
+                            key={routerState.location.pathname}
+                            initial={{ opacity: 0, scale: 0.99, x: 10 }}
+                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            className="flex-1 w-full h-full overflow-auto"
+                        >
+                            {children}
+                        </motion.div>
+                    </ErrorBoundary>
                 </AnimatePresence>
             </main>
             <Toaster position="bottom-right" richColors />

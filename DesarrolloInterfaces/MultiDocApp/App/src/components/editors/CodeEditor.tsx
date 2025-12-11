@@ -18,36 +18,60 @@ const PISTON_LANGUAGES: Record<string, string> = {
     'ruby': 'ruby',
     'swift': 'swift',
     'kotlin': 'kotlin',
-    'bash': 'bash'
+    'shell': 'bash', // Monaco uses 'shell', Piston uses 'bash'
+    'csharp': 'csharp'
 }
 
-export function CodeEditor({ doc }: { doc: Document }) {
-    const { updateDocument } = useStore()
-    const [fontSize, setFontSize] = useState(18)
+const BOILERPLATES: Record<string, string> = {
+    'java': `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello World");
+    }
+}`,
+    'python': `print("Hello World")`,
+    'c': `#include <stdio.h>
+
+int main() {
+    printf("Hello World\\n");
+    return 0;
+}`,
+    'cpp': `#include <iostream>
+
+int main() {
+    std::cout << "Hello World" << std::endl;
+    return 0;
+}`,
+    'javascript': `console.log("Hello World");`,
+    'typescript': `console.log("Hello World");`,
+    'shell': `echo "Hello World"`,
+    'csharp': `using System;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Hello World");
+    }
+}`
+}
+
+export function CodeEditor({ doc, content, onChange, zoom = 1 }: { doc: Document, content: string, onChange: (val: string) => void, zoom?: number }) {
+    // const { updateDocument } = useStore() // Removed: controlled by parent
+    const [fontSize, setFontSize] = useState(16)
     const [isRunning, setIsRunning] = useState(false)
     const [output, setOutput] = useState<string | null>(null)
     const [showOutput, setShowOutput] = useState(false)
     const editorRef = useRef<any>(null)
 
-    // Calculate responsive font size based on viewport
+    // Update font size when zoom changes
     useEffect(() => {
-        const calculateFontSize = () => {
-            // Base: 1.2vw with min 16px and max 24px
-            const vwSize = window.innerWidth * 0.012
-            const clampedSize = Math.min(Math.max(vwSize, 16), 24)
-            setFontSize(Math.round(clampedSize))
-        }
-
-        calculateFontSize()
-        window.addEventListener('resize', calculateFontSize)
-        return () => window.removeEventListener('resize', calculateFontSize)
-    }, [])
+        // Base size 15px, scale with zoom
+        setFontSize(Math.round(15 * zoom))
+    }, [zoom])
 
     const handleChange = useCallback((value: string | undefined) => {
         if (value !== undefined) {
-            updateDocument(doc.id, { content: value })
+            onChange(value)
         }
-    }, [doc.id, updateDocument])
+    }, [onChange])
 
     // Update height based on content
     const handleEditorDidMount = (editor: any) => {
@@ -57,64 +81,65 @@ export function CodeEditor({ doc }: { doc: Document }) {
         editor.addCommand(2048 | 41, () => { // Ctrl/Cmd + Enter
             runCode()
         })
+
+        // Ensure focus
+        editor.focus()
     }
 
     // Determine language from file extension or type
     const getLanguage = () => {
         const title = doc.title.toLowerCase()
-        const ext = doc.ext?.toLowerCase() || title.split('.').pop()?.toLowerCase()
+        const ext = doc.ext?.toLowerCase() || title.split('.').pop()?.toLowerCase() || 'txt'
 
-        // Specific filenames
+        // Piston/Monaco language map
         if (title === 'pom.xml') return 'xml'
         if (title === 'package.json') return 'json'
         if (title.startsWith('dockerfile')) return 'dockerfile'
         if (title === 'makefile') return 'makefile'
 
         const langMap: Record<string, string> = {
-            // JavaScript/TypeScript
             'js': 'javascript', 'jsx': 'javascript', 'ts': 'typescript', 'tsx': 'typescript',
-            'mjs': 'javascript', 'cjs': 'javascript',
-            // Python
             'py': 'python', 'pyw': 'python',
-            // Java/Kotlin
-            'java': 'java', 'kt': 'kotlin', 'kts': 'kotlin',
-            // C/C++/C#
-            'c': 'c', 'h': 'c', 'cpp': 'cpp', 'hpp': 'cpp', 'cc': 'cpp', 'cs': 'csharp',
-            // Web
-            'html': 'html', 'htm': 'html', 'css': 'css', 'scss': 'scss', 'sass': 'scss', 'less': 'less',
-            // Data
-            'json': 'json', 'xml': 'xml', 'yaml': 'yaml', 'yml': 'yaml', 'toml': 'ini',
-            // Scripting
-            'sh': 'bash', 'bash': 'bash', 'zsh': 'bash', 'ps1': 'powershell', 'bat': 'batch', 'cmd': 'batch',
-            // Database
-            'sql': 'sql', 'mysql': 'sql', 'pgsql': 'pgsql',
-            // Markup
-            'md': 'markdown', 'markdown': 'markdown',
-            // Config
-            'ini': 'ini', 'conf': 'ini', 'cfg': 'ini', 'env': 'ini',
-            // Other
-            'php': 'php', 'rb': 'ruby', 'go': 'go', 'rs': 'rust', 'swift': 'swift',
-            'r': 'r', 'lua': 'lua', 'pl': 'perl', 'txt': 'plaintext',
+            'java': 'java', 'kt': 'kotlin',
+            'c': 'c', 'cpp': 'cpp', 'cs': 'csharp',
+            'html': 'html', 'css': 'css', 'scss': 'scss',
+            'json': 'json', 'xml': 'xml', 'yaml': 'yaml',
+            'sh': 'shell', 'bash': 'shell', 'zsh': 'shell',
+            'sql': 'sql', 'md': 'markdown', 'txt': 'plaintext'
         }
-        return langMap[ext || ''] || 'plaintext'
+        return langMap[ext] || 'plaintext'
     }
 
     const detectedLanguage = getLanguage()
     const [selectedLanguage, setSelectedLanguage] = useState(detectedLanguage)
 
+    // Handle language change and boilerplate
     useEffect(() => {
-        setSelectedLanguage(detectedLanguage)
-    }, [detectedLanguage])
+        // Only update if detected changes significantly or on mount
+        if (detectedLanguage !== 'plaintext' && selectedLanguage === 'plaintext') {
+            setSelectedLanguage(detectedLanguage)
+        }
+    }, [detectedLanguage, selectedLanguage])
+
+    const handleLanguageChange = (newLang: string) => {
+        setSelectedLanguage(newLang)
+
+        // Optional: Insert boilerplate if empty
+        if ((!content || content.trim() === '') && BOILERPLATES[newLang]) {
+            const boilerplate = BOILERPLATES[newLang]
+            onChange(boilerplate)
+        }
+    }
 
     // Use selected language for Piston
     const language = selectedLanguage
 
     const runCode = async () => {
-        if (!doc.content) return
+        if (!content) return
 
         const supportedLangs = Object.keys(PISTON_LANGUAGES)
         if (!supportedLangs.includes(language)) {
-            toast.error(`Ejecución no soportada para ${language}`)
+            toast.error(`Ejecución no soportada para ${language}. Intenta cambiar de lenguaje.`)
             return
         }
 
@@ -122,7 +147,12 @@ export function CodeEditor({ doc }: { doc: Document }) {
         setShowOutput(true)
         setOutput(null)
 
-        const pistLang = language === 'cpp' ? 'c++' : language
+        // Get the Piston ID from the map
+        let pistLang = PISTON_LANGUAGES[language]
+
+        // Special internal mappings for Piston variants if needed
+        if (language === 'cpp') pistLang = 'c++'
+        if (language === 'csharp') pistLang = 'csharp' // Piston uses csharp usually
 
         try {
             const res = await fetch('https://emkc.org/api/v2/piston/execute', {
@@ -131,21 +161,41 @@ export function CodeEditor({ doc }: { doc: Document }) {
                 body: JSON.stringify({
                     language: pistLang,
                     version: '*',
-                    files: [{ content: doc.content }]
+                    files: [{ content }]
                 })
             })
 
             const data = await res.json()
 
             if (data.run) {
-                setOutput(data.run.output || 'Sin salida')
-                if (data.run.stderr) {
-                    toast.error('Error en ejecución')
-                } else {
-                    toast.success('Ejecución completada')
+                // Construct output from stdout and stderr explicitly to avoid missing data
+                let outputText = data.run.output || ''
+
+                // Fallback if output is empty but we have components
+                if (!outputText) {
+                    if (data.run.stdout) outputText += data.run.stdout
+                    if (data.run.stderr) outputText += '\nERROR:\n' + data.run.stderr
                 }
+
+                // Logic for empty output on success
+                if (!outputText.trim()) {
+                    if (data.run.code === 0) {
+                        outputText = 'Programa ejecutado correctamente.\n(No hubo salida en consola. ¿Usaste print/console.log?)'
+                    } else {
+                        outputText = 'El programa terminó sin salida explícita.'
+                    }
+                }
+
+                setOutput(outputText)
+
+                if (data.run.code === 0) {
+                    toast.success('Ejecución exitosa')
+                } else {
+                    toast.warning('El programa terminó con errores')
+                }
+
             } else {
-                setOutput(data.message || 'Error desconocido')
+                setOutput(data.message || 'Error desconocido al comunicar con el compilador')
                 toast.error('Fallo al ejecutar')
             }
         } catch (e) {
@@ -157,35 +207,30 @@ export function CodeEditor({ doc }: { doc: Document }) {
     }
 
     return (
-        <div className="flex h-full w-full bg-[#1e1e1e] overflow-hidden">
-            {/* Editor Panel (Left) */}
-            <div className={`flex flex-col relative transition-all duration-300 ${showOutput ? 'w-1/2 border-r border-[#333]' : 'w-full'}`}>
+        <div className="flex h-full w-full bg-[#1e1e1e] overflow-hidden relative">
+            {/* Editor Panel */}
+            <div className={`flex flex-col h-full transition-all duration-300 ${showOutput ? 'w-1/2 border-r border-[#333]' : 'w-full'}`}>
 
-                {/* Header Controls (Floating) */}
-                <div className="absolute top-4 right-4 z-10 flex gap-2">
-                    <div className="flex items-center bg-[#2d2d2d] border border-[#404040] rounded-md px-2">
+                {/* Header Controls (Floating overlay) */}
+                <div className="absolute top-4 right-6 z-20 flex gap-2">
+                    <div className="flex items-center bg-[#2d2d2d]/90 backdrop-blur border border-[#404040] rounded-md px-2 shadow-sm">
                         <select
                             value={selectedLanguage}
-                            onChange={(e) => setSelectedLanguage(e.target.value)}
-                            className="bg-transparent border-none text-xs font-mono uppercase text-[#eee] focus:outline-none py-1.5 cursor-pointer appearance-none min-w-[80px] text-center"
+                            onChange={(e) => handleLanguageChange(e.target.value)}
+                            className="bg-transparent border-none text-xs font-mono uppercase text-[#eee] focus:outline-none py-1.5 cursor-pointer min-w-[80px] text-center"
                         >
                             {Object.keys(PISTON_LANGUAGES).map(lang => (
-                                <option key={lang} value={lang} className="bg-[#2d2d2d] text-white">
+                                <option key={lang} value={lang} className="bg-[#2d2d2d]">
                                     {lang}
                                 </option>
                             ))}
-                            {!PISTON_LANGUAGES[selectedLanguage] && (
-                                <option value={selectedLanguage} className="bg-[#2d2d2d] text-white">
-                                    {selectedLanguage}
-                                </option>
-                            )}
                         </select>
                     </div>
 
                     <button
                         onClick={runCode}
                         disabled={isRunning}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white rounded-md text-xs font-medium transition-colors shadow-lg"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-green-600/90 hover:bg-green-500 backdrop-blur disabled:opacity-50 text-white rounded-md text-xs font-medium transition-colors shadow-lg"
                         title="Ejecutar (Ctrl+Enter)"
                     >
                         {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
@@ -193,74 +238,74 @@ export function CodeEditor({ doc }: { doc: Document }) {
                     </button>
                 </div>
 
-                <div className="flex-1 relative">
+                <div className="flex-1 w-full relative">
                     <Monaco
                         height="100%"
                         language={language}
                         theme="vs-dark"
-                        value={doc.content || ''}
+                        value={content || ''}
                         onChange={handleChange}
                         onMount={handleEditorDidMount}
                         options={{
                             fontSize: fontSize,
-                            fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, 'Courier New', monospace",
+                            fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace",
                             fontLigatures: true,
                             minimap: { enabled: true, scale: 0.75 },
                             wordWrap: 'on',
-                            padding: { top: 48, bottom: 16 }, // Adjusted top padding for floating controls
+                            padding: { top: 24, bottom: 16 },
                             scrollBeyondLastLine: false,
                             smoothScrolling: true,
                             cursorBlinking: 'smooth',
-                            cursorSmoothCaretAnimation: 'on',
                             lineNumbers: 'on',
                             folding: true,
-                            bracketPairColorization: { enabled: true },
-                            autoIndent: 'full',
-                            formatOnType: true,
-                            formatOnPaste: true,
-                            tabSize: 4,
-                            automaticLayout: true, // Enable automatic layout adjustment
+                            renderValidationDecorations: 'on',
+                            automaticLayout: true,
+                            // Simplified IntelliSense
+                            quickSuggestions: true,
+                            suggestOnTriggerCharacters: true,
+                            snippetSuggestions: 'inline',
+                            tabCompletion: 'on',
+                            wordBasedSuggestions: 'currentDocument',
+                            acceptSuggestionOnEnter: 'on',
                         }}
                     />
                 </div>
             </div>
 
-            {/* Output Panel (Right - Fixed/Sticky) */}
-            {showOutput && (
-                <div className="w-1/2 flex flex-col bg-[#1e1e1e] sticky top-0 h-screen border-l border-[#333]">
-                    <div className="h-10 border-b border-[#333] bg-[#252526] flex items-center justify-between px-4 shrink-0">
-                        <div className="flex items-center gap-2 text-sm text-[#ccc] font-medium">
-                            <Terminal size={14} />
-                            <span>Salida / Terminal</span>
-                        </div>
-                        <button
-                            onClick={() => setShowOutput(false)}
-                            className="p-1.5 hover:bg-[#333] text-[#888] hover:text-white rounded-md transition-colors"
-                            title="Cerrar panel"
-                        >
-                            <X size={14} />
-                        </button>
+            {/* Output Panel Side-by-Side */}
+            <div className={`flex flex-col bg-[#1e1e1e] border-l border-[#333] transition-all duration-300 overflow-hidden ${showOutput ? 'w-1/2 opacity-100' : 'w-0 opacity-0'}`}>
+                <div className="h-10 border-b border-[#333] bg-[#252526] flex items-center justify-between px-4 shrink-0">
+                    <div className="flex items-center gap-2 text-sm text-[#ccc] font-medium">
+                        <Terminal size={14} />
+                        <span>Consola</span>
                     </div>
-
-                    <div className="flex-1 overflow-auto p-4 font-mono text-sm bg-[#1e1e1e]">
-                        {isRunning ? (
-                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3">
-                                <Loader2 size={24} className="animate-spin text-primary" />
-                                <span className="text-xs">Ejecutando código remotamente...</span>
-                            </div>
-                        ) : output ? (
-                            <pre className="whitespace-pre-wrap text-[#d4d4d4] leading-relaxed select-text">
-                                {output}
-                            </pre>
-                        ) : (
-                            <div className="h-full flex flex-col items-center justify-center text-[#444] select-none">
-                                <Play size={32} className="mb-2 opacity-20" />
-                                <p className="text-xs">Ejecuta el código para ver el resultado aquí.</p>
-                            </div>
-                        )}
-                    </div>
+                    <button
+                        onClick={() => setShowOutput(false)}
+                        className="p-1 hover:bg-[#333] text-[#888] hover:text-white rounded transition-colors"
+                        title="Cerrar"
+                    >
+                        <X size={16} />
+                    </button>
                 </div>
-            )}
+
+                <div className="flex-1 overflow-auto p-4 font-mono text-sm bg-[#1e1e1e]">
+                    {isRunning ? (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3">
+                            <Loader2 size={24} className="animate-spin text-primary" />
+                            <span className="text-xs">Ejecutando...</span>
+                        </div>
+                    ) : output ? (
+                        <pre className="whitespace-pre-wrap text-[#d4d4d4] leading-relaxed select-text font-mono text-xs">
+                            {output}
+                        </pre>
+                    ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-[#444] select-none">
+                            <Terminal size={32} className="mb-2 opacity-20" />
+                            <p className="text-xs">Esperando salida...</p>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

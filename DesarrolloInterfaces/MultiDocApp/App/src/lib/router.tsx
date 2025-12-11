@@ -20,12 +20,7 @@ export const rootRoute = createRootRoute({
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: '/',
-    component: () => <Dashboard />, // Redirect handled by component or load Dashboard
-    beforeLoad: () => {
-        // Optional: Redirect logic if needed, but rendering Dashboard at / is fine too.
-        // If we strictly want URL to be /dashboard:
-        throw router.history.push('/dashboard')
-    }
+    component: () => <Dashboard />,
 })
 
 const dashboardRoute = createRoute({
