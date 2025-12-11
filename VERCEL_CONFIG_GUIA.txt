@@ -1,0 +1,82 @@
+================================================================
+     GUÍA DE CONFIGURACIÓN DE VERCEL - TrabajosModulosPedro
+================================================================
+
+Este repositorio está configurado para desplegar apps en Vercel.
+Sigue estos pasos para cambiar qué aplicación se despliega.
+
+----------------------------------------------------------------
+                    CONFIGURACIÓN ACTUAL
+----------------------------------------------------------------
+
+App desplegada: MultiDocApp
+Ruta: DesarrolloInterfaces/MultiDocApp/App
+Framework: Vite + React
+
+----------------------------------------------------------------
+                  CÓMO CAMBIAR LA APP EN VERCEL
+----------------------------------------------------------------
+
+1. Ve a https://vercel.com y accede a tu proyecto
+
+2. Haz clic en "Settings" (Configuración)
+
+3. En el menú lateral, selecciona "General"
+
+4. Busca la sección "Root Directory" y cámbiala:
+
+   EJEMPLOS DE RUTAS SEGÚN LA APP:
+   ├── MultiDocApp:     DesarrolloInterfaces/MultiDocApp/App
+   ├── ClonApp:         DesarrolloInterfaces/ClonApp
+   ├── GuiaPueblo:      DesarrolloInterfaces/GuiaPueblo
+   ├── Pomodoro:        DesarrolloInterfaces/Pomodoro
+   └── CuentaPersonas:  DesarrolloInterfaces/CuentaPersonas
+
+5. En "Build & Development Settings":
+
+   SEGÚN EL FRAMEWORK:
+   
+   ┌─────────────────┬─────────────────┬───────────────┬─────────┐
+   │ Framework       │ Build Command   │ Output Dir    │ Install │
+   ├─────────────────┼─────────────────┼───────────────┼─────────┤
+   │ Vite            │ npm run build   │ dist          │ npm i   │
+   │ Next.js         │ npm run build   │ .next         │ npm i   │
+   │ Create React    │ npm run build   │ build         │ npm i   │
+   │ HTML estático   │ (vacío)         │ . ó /         │ (vacío) │
+   │ Vue/Nuxt        │ npm run build   │ dist ó .nuxt  │ npm i   │
+   └─────────────────┴─────────────────┴───────────────┴─────────┘
+
+6. Haz clic en "Save" para guardar
+
+7. Ve a "Deployments" y haz clic en "Redeploy" 
+   o haz un nuevo commit para desplegar
+
+----------------------------------------------------------------
+                    VARIABLES DE ENTORNO
+----------------------------------------------------------------
+
+Si la app usa variables de entorno (.env.local):
+
+1. Settings → Environment Variables
+2. Añade cada variable:
+   - VITE_SUPABASE_URL
+   - VITE_SUPABASE_ANON_KEY
+   - (otras que necesites)
+3. Selecciona: Production, Preview, Development
+
+----------------------------------------------------------------
+                      NOTAS IMPORTANTES
+----------------------------------------------------------------
+
+- GitHub Pages → index.html (documentación estática)
+- Vercel → La aplicación completa
+
+- Cada carpeta de app puede tener su propio vercel.json
+  para configuraciones específicas (rewrites, headers, etc.)
+
+- Si la app tiene errores de build, revisa los logs en:
+  Deployments → (selecciona deploy) → Building
+
+================================================================
+                 Última actualización: 2025-12-11
+================================================================
