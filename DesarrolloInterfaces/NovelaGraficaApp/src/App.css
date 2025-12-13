@@ -1,0 +1,167 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Cinzel:wght@700&display=swap');
+
+/* OpenDyslexic fallback */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://assets.codepen.io/165585/Opendyslexic-Regular.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  --bg-dark: #1f2937;
+  --bg-panel: #374151;
+  --text-main: #f3f4f6;
+  --accent-yellow: #facc15;
+  --primary-blue: #2563eb;
+  --primary-hover: #3b82f6;
+  --choice-green: #059669;
+  --choice-hover: #10b981;
+  --danger-red: #dc2626;
+  --danger-hover: #ef4444;
+
+  --glass-bg: rgba(0, 0, 0, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 10px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-dyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--accent-yellow);
+  margin-bottom: 2rem;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.3);
+}
+
+.game-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.visual-panel {
+  position: relative;
+}
+
+.control-panel {
+  width: 350px;
+  /* Removed old solid bg for glassmorphism override potential, but kept as fallback or container */
+  /* background-color: var(--bg-panel); */
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.story-text-box {
+  margin-bottom: 1.5rem;
+  min-height: 120px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-yellow);
+}
+
+.story-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-family: 'Georgia', serif;
+  margin: 0;
+}
+
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  color: white;
+  text-align: left;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--primary-blue);
+  text-align: center;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+}
+
+.btn-choice {
+  background-color: var(--choice-green);
+  border-left: 6px solid rgba(0, 0, 0, 0.2);
+}
+
+.btn-choice:hover {
+  background-color: var(--choice-hover);
+  padding-left: 1.25rem;
+}
+
+.btn-danger {
+  background-color: var(--danger-red);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-hover);
+}
+
+@media (max-width: 900px) {
+  .game-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .control-panel {
+    width: 100%;
+    max-width: 600px;
+  }
+}
