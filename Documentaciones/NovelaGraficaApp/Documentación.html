@@ -5,198 +5,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentación - NovelaGraficaApp</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #475569;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
-            margin: 0;
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin: 0;
-        }
-
-        h2 {
-            border-left: 4px solid var(--primary);
-            padding-left: 1rem;
-            margin-top: 2.5rem;
-        }
-
-        .card {
-            background: var(--card);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #e2e8f0;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin: 0.2rem;
-        }
-
-        code {
-            background: #f1f5f9;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
-            color: #d63384;
-        }
-
-        pre {
-            background: #1e293b;
-            color: #f1f5f9;
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-
-        .prompt-box {
-            border-left: 4px solid #10b981;
-            background: #ecfdf5;
-            padding: 1rem;
-            font-style: italic;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <div class="container">
-        <!-- 1. Hero Section -->
-        <header>
-            <h1>NovelaGraficaApp</h1>
-            <p>Documentación Técnica Viva & Bitácora de Desarrollo</p>
-        </header>
+    <!-- ================== HEADER ================== -->
+    <header>
+        <div class="container">
+            <h1>📄 NovelaGraficaApp</h1>
+            <br>
+            <p class="author">Documentación Técnica & Bitácora de Desarrollo</p>
+        </div>
+    </header>
 
-        <!-- 2. Bitácora de Desarrollo -->
-        <section>
+    <!-- ================== NAVIGATION ================== -->
+    <nav>
+        <ul>
+            <li><a href="#bitacora">Bitácora</a></li>
+            <li><a href="#tecnologias">Tecnologías</a></li>
+            <li><a href="#arquitectura">Arquitectura</a></li>
+            <li><a href="#features">Features</a></li>
+        </ul>
+    </nav>
+
+    <!-- ================== BITÁCORA ================== -->
+    <section id="bitacora" class="section">
+        <div class="container">
             <h2>Bitácora de Desarrollo</h2>
-            <div class="card">
-                <h3>Prompts Fundacionales</h3>
-                <p>Las siguientes instrucciones dieron vida a la arquitectura base:</p>
-                <div class="prompt-box">
-                    "Actúa como un Lead Full-Stack Engineer & Cloud Architect. Tu misión es construir la arquitectura
-                    completa aplicando Ingeniería Defensiva e Investigación Profunda. [...] Esta app va a consistir en
-                    Crear una novela gráfica interactiva con imágenes y texto. Los usuarios pueden decidir por donde
-                    transcurre parte de la trama y así habrá diferentes finales. Un comic de viñetas se valorará mejor."
-                </div>
+            <p>
+                Este proyecto ha cobrado vida gracias a la colaboración entre agentes de IA y supervisión humana.
+                A continuación se detallan los <strong>prompts fundacionales</strong> que definieron el rumbo del
+                proyecto.
+            </p>
 
-                <h3>IAs Utilizadas</h3>
-                <ul>
-                    <li><strong>Agente IA (Codebase Analyst):</strong> Responsable de la generación de código y
-                        arquitectura.</li>
-                    <li><strong>Detective de Documentación:</strong> Responsable de este reporte.</li>
-                </ul>
+            <div class="prompt-box">
+                "Actúa como un Lead Full-Stack Engineer & Cloud Architect. Tu misión es construir la arquitectura
+                completa aplicando Ingeniería Defensiva e Investigación Profunda. [...] Esta app va a consistir en
+                Crear una novela gráfica interactiva con imágenes y texto. Los usuarios pueden decidir por donde
+                transcurre parte de la trama y así habrá diferentes finales. Un comic de viñetas se valorará mejor."
             </div>
-        </section>
 
-        <!-- 3. Tech Stack -->
-        <section>
+            <div class="prompt-box">
+                "Route Map Navigation (Enhancement): The user's main objective is to enhance the route map feature
+                by allowing players to navigate back to previously visited nodes. This includes implementing a
+                confirmation step..."
+            </div>
+
+            <div class="prompt-box">
+                "Vamos a probar ahora a recibir y enviar cosas a la base de datos. Para esto vamos a hacer el panel
+                de login/registro nada mas entrar a la app (correom contraseña y google oauth)"
+            </div>
+
+            <p style="margin-top: 2rem;"><strong>IAs Utilizadas:</strong></p>
+            <ul>
+                <li>Agente IA (Codebase Analyst)</li>
+                <li>Detective de Documentación</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ================== TECNOLOGÍAS ================== -->
+    <section id="tecnologias" class="section dark">
+        <div class="container">
             <h2>Tech Stack</h2>
-            <div class="card">
-                <h3>Core Technologies</h3>
-                <div>
-                    <span class="tag">React (Vite)</span>
-                    <span class="tag">JavaScript (ES6+)</span>
-                    <span class="tag">PixiJS v8 (Motor Gráfico)</span>
-                    <span class="tag">Vanilla CSS</span>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h3>Frontend</h3>
+                    <p>React (Vite) + JavaScript (ES6+)</p>
+                    <p>Componentes funcionales y Hooks.</p>
                 </div>
-
-                <h3>Backend & Data</h3>
-                <div>
-                    <span class="tag">Custom Story Engine (JSON)</span>
-                    <span class="tag">Supabase SQL (Planned)</span>
+                <div class="tech-card">
+                    <h3>Motor Gráfico</h3>
+                    <p>PixiJS v8</p>
+                    <p>Renderizado de alto rendimiento para viñetas y efectos visuales.</p>
+                </div>
+                <div class="tech-card">
+                    <h3>Estilos</h3>
+                    <p>Vanilla CSS</p>
+                    <p>Diseño responsivo sin frameworks pesados.</p>
+                </div>
+                <div class="tech-card">
+                    <h3>Backend / Auth</h3>
+                    <p>Supabase</p>
+                    <p>Base de datos PostgreSQL, Auth (Google/Email) y Row Level Security.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 4. Arquitectura Clave -->
-        <section>
+    <!-- ================== ARQUITECTURA ================== -->
+    <section id="arquitectura" class="section">
+        <div class="container" id="contenido">
             <h2>Arquitectura del Sistema</h2>
-            <div class="card">
-                <h3>Modelo de Datos (SQL Schema)</h3>
-                <p>El esquema relacional está preparado para la migración a Supabase, priorizando accesibilidad y
-                    consistencia gráfica.</p>
+            <ol class="step-list">
 
-                <h4>Entidades Principales:</h4>
-                <ul>
-                    <li><code>story_nodes</code>: Representa cada viñeta o pantalla. Contiene la configuración de imagen
-                        y efectos (shake, filtros).</li>
-                    <li><code>dialogues</code>: Texto desacoplado de la imagen para garantizar accesibilidad y fácil
-                        traducción. Posicionado por coordenadas (X, Y).</li>
-                    <li><code>story_choices</code>: Grafo de decisiones que conecta nodos. Permite lógica condicional.
-                    </li>
-                    <li><code>user_progress</code>: Almacena el estado del usuario, capítulo actual e historial de
-                        decisiones.</li>
-                    <li><code>profiles</code>: Preferencias de usuario (Alto contraste, tamaño de fuente).</li>
-                </ul>
+                <li class="step">
+                    <div class="step-text">
+                        <h3>1. Modelo de Datos (Relacional)</h3>
+                        <p>Diseño optimizado para migración a Supabase. Entidades clave:</p>
+                        <ul>
+                            <li><strong>story_nodes:</strong> Viñetas y configuración visual.</li>
+                            <li><strong>dialogues:</strong> Texto desacoplado (i18n ready).</li>
+                            <li><strong>story_choices:</strong> Grafo de decisiones.</li>
+                        </ul>
+                    </div>
+                    <div class="step-content-box">
+                        -- src/db/schema.sql
+                        create table story_nodes (
+                        id uuid default gen_random_uuid(),
+                        image_url text not null,
+                        type text default 'panel',
+                        fx_config jsonb
+                        );
+                    </div>
+                </li>
 
-                <h3>JSON Story Engine (Current)</h3>
-                <p>Actualmente el motor consume un esquema JSON local para prototipado rápido:</p>
-                <pre>
-{
-  "id": "story_001",
-  "nodes": {
-    "start": {
-      "type": "panel",
-      "image": "/assets/panel1.png",
-      "next": "decision_1"
-    }
-  }
-}</pre>
-            </div>
-        </section>
+                <li class="step">
+                    <div class="step-text">
+                        <h3>2. Motor de Historia (JSON)</h3>
+                        <p>Implementación actual para prototipado rápido. El motor lee un esquema JSON para generar la
+                            narrativa dinámicamente.</p>
+                    </div>
+                    <div class="step-content-box">
+                        {
+                        "id": "story_001",
+                        "nodes": {
+                        "start": {
+                        "type": "panel",
+                        "image": "/assets/panel1.png",
+                        "next": "decision_1"
+                        }
+                        }
+                        }
+                    </div>
+                </li>
 
-        <!-- 5. Features Detectadas -->
-        <section>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ================== FEATURES ================== -->
+    <section id="features" class="section dark">
+        <div class="container">
             <h2>Changelog & Features</h2>
-            <div class="card">
-                <ul>
-                    <li>✅ <strong>Motor de Panel Gráfico:</strong> Renderizado eficiente con PixiJS.</li>
-                    <li>✅ <strong>Sistema de Diálogos Flotantes:</strong> Soporte para bocadillos de texto sobre
-                        viñetas.</li>
-                    <li>✅ <strong>Navegación Interactiva:</strong> Sistema de decisiones ramificadas.</li>
-                    <li>✅ <strong>Persistencia de Datos:</strong> Esquema de BBDD diseñado con RLS (Row Level Security).
-                    </li>
-                    <li>🚧 <strong>Migración Cloud:</strong> Scripts <code>schema.sql</code> y <code>seed.sql</code>
-                        listos para despliegue.</li>
-                </ul>
-            </div>
-        </section>
+            <p style="color: #cbd5e1;">Funcionalidades implementadas y estado actual:</p>
 
-        <footer style="text-align: center; margin-top: 3rem; font-size: 0.8rem; color: var(--secondary);">
-            <p>Generado automáticamente por el Guardián de la Documentación</p>
-        </footer>
-    </div>
+            <div class="tech-grid">
+                <div class="tech-card" style="background: #334155;">
+                    <h3>✅ Navegación y Mapa</h3>
+                    <p>Sistema de decisiones ramificadas. Mejorado con "Route Map" para volver atrás con seguridad.</p>
+                </div>
+                <div class="tech-card" style="background: #334155;">
+                    <h3>✅ Panel Gráfico</h3>
+                    <p>Renderizado de imágenes y efectos visuales controlado por PixiJS.</p>
+                </div>
+                <div class="tech-card" style="background: #334155;">
+                    <h3>✅ Autenticación</h3>
+                    <p>Login y Registro seguro con Supabase. Rutas protegidas mediante <code>&lt;AuthGuard /&gt;</code>.
+                    </p>
+                </div>
+                <div class="tech-card" style="background: #334155;">
+                    <h3>🚧 Migración Cloud</h3>
+                    <p>Scripts SQL (Schema/Seed) listos para despliegue en producción.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================== FOOTER ================== -->
+    <footer>
+        <p>© 2025 Equipo NovelaGraficaApp — Documentación Viva</p>
+    </footer>
 </body>
 
 </html>

@@ -1,0 +1,214 @@
+/* --- Variables CSS --- */
+:root {
+  --primary: #3b82f6; /* Azul similar al NovelaGraficaApp original pero ajustado al tema */
+  --secondary: #1e293b;
+  --light: #f8fafc;
+  --dark: #0f172a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* --- Base y Tipografía --- */
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  line-height: 1.6;
+  color: var(--secondary);
+  background-color: var(--light);
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-decoration: underline;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+/* --- Encabezado --- */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.author {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  text-decoration: overline;
+}
+
+/* --- Navegación --- */
+nav {
+  background: var(--secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: white;
+  padding: 1rem 1.5rem;
+  display: block;
+  text-decoration: none;
+  transition: background 0.3s;
+  font-weight: 500;
+}
+
+nav a:hover {
+  background: var(--primary);
+}
+
+/* --- Secciones --- */
+.section {
+  padding: 4rem 1rem;
+  /* Animación simple */
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section.dark {
+  background: var(--secondary);
+  color: white;
+}
+
+.container {
+  max-width: 60rem;
+  width: 90%;
+  margin: 0 auto;
+}
+
+#contenido {
+  border-left: 0.1rem solid var(--dark);
+  padding-left: 2rem;
+}
+
+/* --- Sección Tecnologías --- */
+.tech-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tech-card {
+  flex: 1 1 18rem;
+  min-width: 15rem;
+  background: var(--dark);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: white;
+  transition: transform 0.3s;
+}
+
+.tech-card:hover {
+  transform: translateY(-0.5rem);
+}
+
+/* --- Features / Proceso (Layout 2 Columnas) --- */
+.step-list {
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 3fr 2fr; 
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #ddd;
+  align-items: start;
+}
+
+.step:last-child {
+  border-bottom: none;
+}
+
+.step-text h3 {
+    margin-top: 0;
+}
+
+.step-content-box {
+  background: var(--dark);
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  border: 2px dashed var(--primary);
+  overflow-x: auto;
+  font-family: 'Consolas', monospace;
+}
+
+.tag {
+    display: inline-block;
+    background: #e2e8f0;
+    color: var(--dark);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin: 0.2rem;
+    font-weight: bold;
+}
+
+/* --- Custom: Prompt Box (Adaptado) --- */
+.prompt-box {
+    border-left: 4px solid var(--primary); /* Ajustado al tema */
+    background: #e0f2fe; /* Azul muy claro */
+    padding: 1rem;
+    font-style: italic;
+    color: var(--secondary);
+    margin-bottom: 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* --- Footer --- */
+footer {
+  background: var(--dark);
+  color: white;
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+}
+
+/* --- Responsivo --- */
+@media (max-width: 48rem) {
+  nav ul {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .tech-grid {
+    flex-direction: column;
+  }
+
+  .step {
+    grid-template-columns: 1fr;
+  }
+}

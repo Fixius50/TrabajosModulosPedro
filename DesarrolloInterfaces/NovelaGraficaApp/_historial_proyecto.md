@@ -39,3 +39,58 @@ Hemos definido el esquema relacional para cuando migremos a la nube (`src/db/sch
 ### Seed Data (Datos de Prueba)
 Guardado en `src/db/seed.sql`. Este script SQL rellena la base de datos con la historia de prueba del "Bosque Digital", conectando nodos y diálogos automáticamente.
 
+
+**Usuario:**
+> Route Map Navigation (Enhancement): The user's main objective is to enhance the route map feature by allowing players to navigate back to previously visited nodes. This includes implementing a confirmation step that warns the player about potential point loss if they return to a path not yet completed. The user also wants to remove the non-functional legend button from the route map interface.
+
+**Funcionalidad Implementada:**
+*   **Gestión de Rutas**: Implementada lógica para volver a nodos visitados desde el mapa.
+*   **UI/UX**: Eliminado botón "Leyenda" obsoleto. Añadido popup de advertencia (alerta de pérdida de puntos) antes de navegar atrás.
+*   **Fix**: Solucionado bug de propagación de eventos click en el mapa.
+
+**Código Clave:**
+`src/components/RouteMap.jsx`:
+```javascript
+// Propagación detenida para evitar cierre del mapa
+<button onClick={(e) => { e.stopPropagation(); setShowConfirmation(true); }}>
+    ↩️ Volver aquí
+</button>
+
+// Lógica de confirmación y callback
+if (onNavigateToNode) {
+    onNavigateToNode(selectedNode.id);
+}
+```
+
+**Usuario:**
+> Vamos a probar ahora a recibir y enviar cosas a la base de datos. Para esto vamos a hacer el panel de login/registro nada mas entrar a la app (correom contraseña y google oauth)
+
+**Funcionalidad Implementada:**
+*   **Autenticación**: Sistema completo de Login y Registro con Supabase.
+*   **UI**: Nueva página `Login.jsx` con diseño Cyberpunk, animaciones y tabs para Login/Registro.
+*   **Seguridad**: Componente `AuthGuard` para proteger rutas privadas (`/`, `/read/:id`). Redirección automática a `/login` si no hay sesión.
+
+**Código Clave:**
+`src/components/auth/AuthGuard.jsx`:
+```javascript
+// Protección de rutas
+useEffect(() => {
+    if (!loading && !session) {
+        navigate('/login');
+    }
+}, [session, loading, navigate]);
+```
+
+`src/pages/Login.jsx`:
+```javascript
+// Integración con Supabase Auth (Email + Google)
+const { error } = await supabase.auth.signUp({ email, password });
+const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', ... });
+```
+
+`src/App.jsx`:
+```javascript
+// Rutas Protegidas
+<Route path="/" element={<AuthGuard><MainMenu /></AuthGuard>} />
+<Route path="/login" element={<Login />} />
+```
