@@ -55,231 +55,281 @@ export default function MainMenu() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)',
+            background: '#0a0a12',
             color: 'white',
-            fontFamily: `${activeFont}, system-ui, sans-serif`
+            fontFamily: `${activeFont}, system-ui, sans-serif`,
+            overflowX: 'hidden',
+            backgroundImage: `
+                radial-gradient(circle at 10% 20%, rgba(76, 29, 149, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px'
         }}>
 
             {/* Header */}
             <header style={{
-                padding: '1rem 1.5rem',
+                padding: '1rem 2rem',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                position: 'sticky',
+                position: 'fixed',
                 top: 0,
-                background: 'rgba(15,23,42,0.95)',
-                backdropFilter: 'blur(12px)',
-                zIndex: 100
+                left: 0,
+                right: 0,
+                background: 'rgba(10, 10, 18, 0.8)',
+                backdropFilter: 'blur(20px)',
+                zIndex: 100,
+                borderBottom: '1px solid rgba(255,255,255,0.05)'
             }}>
-                <h1 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: 800,
-                    background: 'linear-gradient(90deg, #fbbf24, #f97316)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                }}>
-                    NovelaApp
-                </h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{
+                        width: '2.5rem', height: '2.5rem',
+                        background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
+                        borderRadius: '0.8rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '1.5rem', fontWeight: 'bold',
+                        boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)'
+                    }}>N</div>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em' }}>NOVELA</span>
+                </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    {/* Points Button - Opens Marketplace */}
-                    <button
-                        onClick={() => navigate('/marketplace')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            background: 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(249,115,22,0.2))',
-                            border: '1px solid rgba(251,191,36,0.3)',
-                            padding: '0.4rem 0.75rem',
-                            borderRadius: '1rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <span style={{ fontSize: '0.9rem' }}>💰</span>
-                        <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.85rem' }}>{points}</span>
-                    </button>
-
-                    {/* Sync Status */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span style={{
-                            width: '0.4rem', height: '0.4rem', borderRadius: '50%',
-                            background: syncStatus === 'cloud' ? '#22c55e' : '#ef4444',
-                            boxShadow: syncStatus === 'cloud' ? '0 0 6px #22c55e' : '0 0 6px #ef4444'
-                        }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{
+                        padding: '0.5rem 1rem',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '2rem',
+                        display: 'flex', alignItems: 'center', gap: '0.5rem'
+                    }}>
+                        <span style={{ fontSize: '1rem' }}>💎</span>
+                        <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{points}</span>
                     </div>
 
-                    <button onClick={() => setShowSearch(!showSearch)} style={iconButtonStyle}>🔍</button>
-
-                    {/* Avatar */}
-                    <div style={{ position: 'relative' }}>
-                        <button onClick={() => setShowProfileMenu(!showProfileMenu)} style={{
-                            width: '2.25rem', height: '2.25rem', borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                            border: 'none', cursor: 'pointer', color: 'white', fontWeight: 700, fontSize: '0.8rem'
-                        }}>U</button>
-                        <AnimatePresence>
-                            {showProfileMenu && (
-                                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                                    style={{
-                                        position: 'absolute', top: '3rem', right: 0,
-                                        background: 'rgba(30,27,75,0.98)', backdropFilter: 'blur(12px)',
-                                        borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.1)',
-                                        minWidth: '12rem', boxShadow: '0 1rem 2rem rgba(0,0,0,0.5)', overflow: 'hidden'
-                                    }}>
-
-                                    {/* Stats */}
-                                    <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                        <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.25rem' }}>Tus estadísticas</p>
-                                        <p style={{ fontSize: '0.8rem', color: 'white' }}>📊 {stats.totalChoicesMade} decisiones</p>
-                                        <p style={{ fontSize: '0.8rem', color: 'white' }}>🏆 {stats.storiesCompleted} completadas</p>
-                                    </div>
-
-                                    <button onClick={() => { navigate('/marketplace'); setShowProfileMenu(false); }} style={menuItemStyle}>🛒 Tienda</button>
-                                    <button style={menuItemStyle}>⚙️ Ajustes</button>
-                                    <button style={{ ...menuItemStyle, color: '#ef4444' }}>🚪 Salir</button>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+                    <button onClick={() => setShowProfileMenu(!showProfileMenu)} style={{
+                        width: '2.5rem', height: '2.5rem', borderRadius: '50%',
+                        background: 'url(/assets/images/cover_batman.png) center/cover', // Just a placeholder avatar
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        cursor: 'pointer'
+                    }} />
                 </div>
             </header>
 
-            {/* Search Bar */}
-            <AnimatePresence>
-                {showSearch && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        style={{ background: 'rgba(30,27,75,0.8)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+            <main style={{ paddingTop: '6rem', paddingBottom: '4rem', maxWidth: '1400px', margin: '0 auto', paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+
+                {/* FEATURED HERO */}
+                {!loading && series.length > 0 && (
+                    <motion.section
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{
+                            marginBottom: '4rem',
+                            position: 'relative',
+                            height: '500px',
+                            borderRadius: '2rem',
+                            overflow: 'hidden',
+                            boxShadow: '0 20px 50px -10px rgba(0,0,0,0.5)'
+                        }}
                     >
-                        <div style={{ padding: '0.75rem 1.5rem' }}>
-                            <input
-                                type="text"
-                                placeholder="Buscar por título..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                autoFocus
+                        {/* Background Image of Featured Story (Batman usually ID 2 or 3 in seed) */}
+                        <div style={{
+                            position: 'absolute', inset: 0,
+                            background: `url(${series.find(s => s.title.includes('Batman'))?.cover_url || series[0].cover_url}) center/cover`
+                        }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(10,10,18,0.95) 20%, rgba(10,10,18,0.4) 60%, transparent 100%)' }} />
+
+                        <div style={{
+                            position: 'relative',
+                            zIndex: 10,
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            padding: '4rem',
+                            maxWidth: '600px'
+                        }}>
+                            <span style={{
+                                display: 'inline-block',
+                                padding: '0.4rem 1rem',
+                                background: '#ef4444',
+                                color: 'white',
+                                borderRadius: '0.5rem',
+                                fontWeight: 800,
+                                fontSize: '0.8rem',
+                                marginBottom: '1rem',
+                                width: 'fit-content'
+                            }}>🔥 DESTACADO</span>
+
+                            <h2 style={{
+                                fontSize: '3.5rem',
+                                fontWeight: 900,
+                                lineHeight: 1.1,
+                                marginBottom: '1.5rem',
+                                textShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                            }}>
+                                {series.find(s => s.title.includes('Batman'))?.title || series[0].title}
+                            </h2>
+
+                            <p style={{
+                                fontSize: '1.1rem',
+                                color: 'rgba(255,255,255,0.8)',
+                                marginBottom: '2rem',
+                                lineHeight: 1.6
+                            }}>
+                                {series.find(s => s.title.includes('Batman'))?.description || series[0].description}
+                            </p>
+
+                            <button
+                                onClick={() => navigate(`/read/${series.find(s => s.title.includes('Batman'))?.id || series[0].id}`)}
                                 style={{
-                                    width: '100%', padding: '0.75rem 1rem',
-                                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '0.5rem', color: 'white', fontSize: '0.9rem', outline: 'none'
+                                    padding: '1rem 2.5rem',
+                                    background: 'white',
+                                    color: 'black',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 800,
+                                    border: 'none',
+                                    borderRadius: '1rem',
+                                    cursor: 'pointer',
+                                    width: 'fit-content',
+                                    transition: 'transform 0.2s',
+                                    boxShadow: '0 0 30px rgba(255,255,255,0.3)'
                                 }}
-                            />
+                            >
+                                LEER AHORA ➔
+                            </button>
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <main style={{ padding: '1.5rem', maxWidth: '72rem', margin: '0 auto' }}>
-
-                {/* Continue Reading */}
-                {!loading && continueReading.length > 0 && (
-                    <section style={{ marginBottom: '2rem' }}>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem', color: '#fbbf24' }}>
-                            ⏸️ Continuar Leyendo
-                        </h3>
-                        <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-                            {continueReading.map(item => (
-                                <motion.div
-                                    key={item.id}
-                                    whileHover={{ scale: 1.03 }}
-                                    onClick={() => navigate(`/read/${item.id}`)}
-                                    style={{
-                                        minWidth: '14rem', cursor: 'pointer',
-                                        background: 'rgba(30,27,75,0.6)', borderRadius: '0.75rem',
-                                        overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)'
-                                    }}
-                                >
-                                    <div style={{
-                                        height: '6rem',
-                                        background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
-                                        position: 'relative'
-                                    }}>
-                                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(30,27,75,1), transparent)' }} />
-                                    </div>
-                                    <div style={{ padding: '0.75rem' }}>
-                                        <h4 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>{item.title}</h4>
-                                        <div style={{ height: '0.25rem', background: 'rgba(255,255,255,0.1)', borderRadius: '1rem', overflow: 'hidden' }}>
-                                            <div style={{ height: '100%', width: `${item.progress}%`, background: 'linear-gradient(90deg, #fbbf24, #f97316)', borderRadius: '1rem' }} />
-                                        </div>
-                                        <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.25rem', display: 'block' }}>{item.progress}% completado</span>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </section>
+                    </motion.section>
                 )}
 
-                {/* Genre Chips */}
-                {!loading && genres.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                        <button onClick={() => setActiveGenre(null)} style={{ ...chipStyle, background: !activeGenre ? '#8b5cf6' : 'rgba(255,255,255,0.05)', color: !activeGenre ? 'white' : 'rgba(255,255,255,0.7)' }}>Todos</button>
+                {/* FILTERS & SEARCH */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                        <button
+                            onClick={() => setActiveGenre(null)}
+                            style={{
+                                padding: '0.6rem 1.2rem',
+                                borderRadius: '1rem',
+                                background: !activeGenre ? 'white' : 'rgba(255,255,255,0.05)',
+                                color: !activeGenre ? 'black' : 'white',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                transition: 'all 0.3s'
+                            }}
+                        >
+                            Todos
+                        </button>
                         {genres.map(genre => (
-                            <button key={genre} onClick={() => setActiveGenre(activeGenre === genre ? null : genre)}
-                                style={{ ...chipStyle, background: activeGenre === genre ? '#8b5cf6' : 'rgba(255,255,255,0.05)', color: activeGenre === genre ? 'white' : 'rgba(255,255,255,0.7)' }}>
+                            <button
+                                key={genre}
+                                onClick={() => setActiveGenre(activeGenre === genre ? null : genre)}
+                                style={{
+                                    padding: '0.6rem 1.2rem',
+                                    borderRadius: '1rem',
+                                    background: activeGenre === genre ? '#8b5cf6' : 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s'
+                                }}
+                            >
                                 {genre}
                             </button>
                         ))}
                     </div>
-                )}
 
-                {/* Grid */}
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem', color: 'rgba(255,255,255,0.6)' }}>📚 Biblioteca</h3>
-
-                {loading && (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem 0' }}>
-                        <div style={{ width: '2rem', height: '2rem', border: '3px solid rgba(139,92,246,0.3)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                    <div style={{ position: 'relative' }}>
+                        <input
+                            type="text"
+                            placeholder="Buscar historias..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: '1rem',
+                                padding: '0.6rem 1rem 0.6rem 2.5rem',
+                                color: 'white',
+                                outline: 'none',
+                                width: '250px'
+                            }}
+                        />
+                        <span style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
                     </div>
-                )}
+                </div>
 
+                {/* LIBRARY GRID */}
                 {!loading && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(9rem, 1fr))', gap: '1rem' }}>
-                        {series.map((item) => {
-                            const isFiltered = !filteredSeries.includes(item);
-                            return (
-                                <motion.article
-                                    key={item.id}
-                                    layout
-                                    whileHover={{ scale: 1.05 }}
-                                    onClick={() => !isFiltered && navigate(`/read/${item.id}`)}
-                                    style={{
-                                        cursor: isFiltered ? 'default' : 'pointer',
-                                        opacity: isFiltered ? 0.2 : 1,
-                                        transition: 'opacity 0.3s',
-                                        background: 'rgba(30,27,75,0.5)',
-                                        borderRadius: '0.75rem',
+                    <motion.div
+                        layout
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                            gap: '2rem'
+                        }}
+                    >
+                        {filteredSeries.map((item) => (
+                            <motion.article
+                                key={item.id}
+                                layout
+                                whileHover={{ y: -10, scale: 1.02 }}
+                                onClick={() => navigate(`/read/${item.id}`)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderRadius: '1.5rem',
+                                    overflow: 'hidden',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                }}
+                            >
+                                {/* Cover Image with Glass Overlay on Hover */}
+                                <div style={{
+                                    aspectRatio: '3/4',
+                                    background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                    position: 'relative'
+                                }}>
+                                    {/* Gradient Overlay at bottom */}
+                                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%)' }} />
+
+                                    {/* Badges */}
+                                    <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                                        {item.is_premium && <span style={{ background: '#fbbf24', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>PREMIUM</span>}
+                                        {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
+                                    </div>
+                                </div>
+
+                                {/* Content Info */}
+                                <div style={{ padding: '1.25rem' }}>
+                                    <h3 style={{
+                                        fontWeight: 700,
+                                        fontSize: '1.1rem',
+                                        marginBottom: '0.5rem',
+                                        whiteSpace: 'nowrap',
                                         overflow: 'hidden',
-                                        border: '1px solid rgba(255,255,255,0.08)'
-                                    }}
-                                >
-                                    <div style={{
-                                        aspectRatio: '2/3',
-                                        background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
-                                        position: 'relative'
-                                    }}>
-                                        {item.progress > 0 && (
-                                            <div style={{ position: 'absolute', top: '0.4rem', right: '0.4rem', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', padding: '0.15rem 0.4rem', borderRadius: '0.4rem', fontSize: '0.6rem', fontWeight: 600 }}>{item.progress}%</div>
-                                        )}
-                                        {!item.cover_url && (
-                                            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', opacity: 0.3 }}>📖</div>
-                                        )}
+                                        textOverflow: 'ellipsis'
+                                    }}>{item.title}</h3>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            color: '#a78bfa',
+                                            background: 'rgba(139, 92, 246, 0.1)',
+                                            padding: '0.2rem 0.6rem',
+                                            borderRadius: '0.5rem'
+                                        }}>
+                                            {item.genre || 'Historia'}
+                                        </span>
+                                        <span style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.4)' }}>➔</span>
                                     </div>
-                                    <div style={{ padding: '0.6rem' }}>
-                                        <h4 style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.2rem', lineHeight: 1.3 }}>{item.title}</h4>
-                                        <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.4rem', background: 'rgba(139,92,246,0.2)', borderRadius: '0.25rem', color: '#a78bfa' }}>{item.genre || 'Historia'}</span>
-                                    </div>
-                                </motion.article>
-                            );
-                        })}
-                    </div>
+                                </div>
+                            </motion.article>
+                        ))}
+                    </motion.div>
                 )}
             </main>
-
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     );
 }

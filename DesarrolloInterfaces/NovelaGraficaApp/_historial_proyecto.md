@@ -141,6 +141,7 @@ const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', ... 
     *   **Funcionalidad**:
         *   Menús flotantes semitransparentes (no tapan el arte).
         *   Animaciones suaves en inventarios/pausa.
+
 **Detalle Técnico de Implementación (R&D Lead):**
 
 1.  **Lógica del "Director de Escena" (Scene Orchestrator)**
@@ -231,5 +232,39 @@ const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', ... 
             *   **Feature Killer**: "Rebobinado" (Reset estado a nodo anterior).
 
 
+**Usuario:**
+> Quiero mirar funcionalidades, pero antes quiero que pruebes la app para ver si hay errores y me sigas arreglandolo.
+> ... prueba la app con el navegador ...
+> CREAME un usuario de prueba simple para el registro/login. Luego quiero hacer mas historias: Dragones y Mazmorras, Batman, y Rick y Morty.
 
+**Funcionalidad Implementada:**
+*   **Debugging & Stabilization Report**:
+    *   **Neural Map (`DestinyTreeModal.jsx`)**: Se reemplazó el layout "Grid Mock" por un algoritmo **BFS Tree Real**. Ahora el grafo visualiza la jerarquía real de nodos.
+    *   **Crash Prevention**: Añadidos null-checks defensivos en el renderizado de líneas del mapa.
+    *   **Browser Verification**: Validada la navegación (Login -> Menu -> StoryReader -> Map) mediante bypass temporal de auth.
 
+*   **Contenido & Datos (Seeding Expansion)**:
+    *   **Script `src/scripts/seed.js`**: Actualizado para crear:
+        1.  **Usuario Test**: `test@test.com` / `password123`.
+        2.  **Historia 1**: *Dragones y Mazmorras: La Cripta* (Fantasía, Branching simple).
+        3.  **Historia 2**: *Batman: Sombras de Gotham* (Misterio, Finales múltiples).
+        4.  **Historia 3**: *Rick y Morty: Aventura de 20 Minutos* (Sci-Fi, Humor).
+    *   **Migración SQL**: Generado `src/db/migrations/20251214_add_genre.sql` para añadir columna `genre` a la tabla `series`, permitiendo el filtrado en el menú principal.
+
+**Código Clave:**
+`src/scripts/seed.js` (Snippet de Creación de Historia):
+```javascript
+await createStory(
+    'Batman: Sombras de Gotham', 
+    'El Joker ha escondido una bomba...', 
+    'Misterio',
+    [
+        { text: "La señal brilla...", speaker: "Batman", choices: [...] },
+        // ...
+    ]
+);
+```
+
+**Estado Actual**:
+*   Esperando ejecución manual de migración SQL en Supabase Dashboard por parte del usuario.
+*   Seed script listo para repoblar con géneros correctos tras la migración.

@@ -41,27 +41,77 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
         }
     }, [nodes, currentNodeId, layout, isOpen]);
 
-    // 2. BFS Layout Algorithm (Simplified for visualization)
-    const computeTreeLayout = (nodes, rootId) => {
+    // 2. BFS Layout Algorithm (Generic Tree)
+    const computeTreeLayout = (allNodes, rootId = 'start') => {
         const positions = {};
-        // Mock layout: Grid based on index for robustness in this phase
-        // Real implementation would use Dagre/D3
-        const levels = {};
+        if (!allNodes || allNodes.length === 0) return positions;
 
-        let maxX = 0;
-        nodes.forEach((node, idx) => {
-            // Create a pseudo-tree visual
-            // Root at top center
-            // Children spread out
-            // For now, using a simple grid fallback to ensure visibility of all nodes
-            const col = idx % 3;
-            const row = Math.floor(idx / 3);
+        // 1. Build Adjacency Map & Find Root
+        // Map: ID -> Node object
+        const nodeMap = {};
+        allNodes.forEach(n => nodeMap[n.id] = n);
 
-            // Spread them out more
-            positions[node.id] = {
-                x: col * 200 + 400 - (row * 50), // Staggered
-                y: row * 180 + 100
-            };
+        // If 'start' doesn't exist (e.g. using UUIDs), find the one with no incoming connections OR just the first one
+        let actualRootId = rootId;
+        if (!nodeMap[rootId]) {
+            // Heuristic: The first node in the array is usually the start in our fetch logic
+            actualRootId = allNodes[0]?.id;
+        }
+
+        // 2. Assign Levels (BFS)
+        const levels = {}; // level -> [nodeId, nodeId]
+        const queue = [{ id: actualRootId, level: 0 }];
+        const visited = new Set();
+        const nodeLevels = {}; // id -> level
+
+        while (queue.length > 0) {
+            const { id, level } = queue.shift();
+            if (visited.has(id) || !nodeMap[id]) continue;
+            visited.add(id);
+            nodeLevels[id] = level;
+
+            if (!levels[level]) levels[level] = [];
+            levels[level].push(id);
+
+            const node = nodeMap[id];
+            if (node.children && Array.isArray(node.children)) {
+                node.children.forEach(childId => {
+                    queue.push({ id: childId, level: level + 1 });
+                });
+            }
+        }
+
+        // Handle Disconnected Nodes (orphans) - Put them at bottom or side
+        allNodes.forEach(node => {
+            if (!visited.has(node.id)) {
+                const orphanLevel = 99; // Arbitrary deep level
+                if (!levels[orphanLevel]) levels[orphanLevel] = [];
+                levels[orphanLevel].push(node.id);
+                visited.add(node.id);
+            }
+        });
+
+        // 3. Calculate X/Y
+        const HEADER_OFFSET = 100;
+        const LEVEL_HEIGHT = 180;
+        const CANVAS_CENTER_X = 1000; // Base on container min-width 2000px
+
+        Object.keys(levels).forEach(lvl => {
+            const levelNodes = levels[lvl];
+            const count = levelNodes.length;
+            const levelNum = parseInt(lvl);
+
+            // Spread width based on count. More nodes = wider spread.
+            const TOTAL_WIDTH = Math.max(800, count * 150);
+            const startX = CANVAS_CENTER_X - (TOTAL_WIDTH / 2);
+            const gap = TOTAL_WIDTH / (count + 1);
+
+            levelNodes.forEach((nodeId, idx) => {
+                positions[nodeId] = {
+                    x: startX + (gap * (idx + 1)),
+                    y: HEADER_OFFSET + (levelNum * LEVEL_HEIGHT)
+                };
+            });
         });
 
         return positions;
@@ -136,8 +186,10 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
                                     return (
                                         <line
                                             key={`${node.id}-${childId}`}
-                                            x1={fromPos.x + 32} y1={fromPos.y + 32} // Center of w-16 (64px) -> 32
-                                            x2={toPos.x + 32} y2={toPos.y + 32}
+                                            x1={(fromPos.x || 0) + 32}
+                                            y1={(fromPos.y || 0) + 32}
+                                            x2={toPos.x + 32}
+                                            y2={toPos.y + 32}
                                             stroke="#334155"
                                             strokeWidth="1"
                                             strokeDasharray="0"
