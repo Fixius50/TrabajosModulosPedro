@@ -5,7 +5,23 @@ export class StoryRepository {
 
     constructor() {
         console.log("StoryRepository initialized. LocalData:", localStoryData);
-        this.localNodes = localStoryData.nodes || (localStoryData.default && localStoryData.default.nodes); // Handle Vite JSON import variations
+
+        // Robust extraction
+        let nodes = localStoryData.nodes;
+        if (!nodes && localStoryData.default) {
+            nodes = localStoryData.default.nodes;
+        }
+
+        // Hard fallback if import failed somehow
+        if (!nodes) {
+            console.warn("StoryRepository: JSON import failed or empty. Using HARDCODED fallback.");
+            nodes = {
+                "start": { "id": "start", "text": "Fallback Start", "next": "end" },
+                "end": { "id": "end", "text": "Fallback End", "next": null }
+            };
+        }
+
+        this.localNodes = nodes;
     }
 
     /**
@@ -147,17 +163,27 @@ export class StoryRepository {
      * Get ALL nodes for a series (for Route Map)
      */
     async getAllNodesBySeries(seriesId) {
+        console.log("Repo: getAllNodesBySeries called with ID:", seriesId);
+
         // Fallback for demo
         if (!supabase || seriesId === '1' || (seriesId && seriesId.length < 20)) {
-            console.log("Repo: Using local nodes for map. LocalNodes:", this.localNodes);
-            if (!this.localNodes) return [];
+            console.log("Repo: Using local nodes for map. LocalNodes Raw:", this.localNodes);
+
+            if (!this.localNodes) {
+                console.error("Repo: localNodes is undefined!");
+                return [];
+            }
+
             // Local fallback: Convert object to array
-            return Object.values(this.localNodes).map(n => ({
+            const mappedNodes = Object.values(this.localNodes).map(n => ({
                 id: n.id,
                 label: n.id === 'start' ? 'Inicio' : 'Escena',
                 type: n.options?.length ? 'decision' : (n.end_id ? 'ending' : 'normal'),
                 children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
             }));
+
+            console.log("Repo: Mapped nodes returning:", mappedNodes);
+            return mappedNodes;
         }
 
         try {
@@ -180,15 +206,33 @@ export class StoryRepository {
                 .in('chapter_id', chapterIds);
 
             // 3. Map to simple tree format
-            return nodes.map(n => ({
+            const result = nodes.map(n => ({
                 id: n.id,
                 label: 'Escena', // Can't easily get label without content analysis
                 children: n.story_choices?.map(c => c.to_node_id) || []
             }));
 
+            if (result.length === 0) {
+                console.warn("Repo: Supabase returned 0 nodes. Falling back to local demo.");
+                return Object.values(this.localNodes).map(n => ({
+                    id: n.id,
+                    label: n.id === 'start' ? 'Inicio' : 'Escena',
+                    type: n.options?.length ? 'decision' : (n.end_id ? 'ending' : 'normal'),
+                    children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
+                }));
+            }
+
+            return result;
+
         } catch (error) {
             console.error("Error fetching all nodes:", error);
-            return [];
+            // Fallback on error too
+            return Object.values(this.localNodes).map(n => ({
+                id: n.id,
+                label: n.id === 'start' ? 'Inicio' : 'Escena',
+                type: n.options?.length ? 'decision' : (n.end_id ? 'ending' : 'normal'),
+                children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
+            }));
         }
     }
 }

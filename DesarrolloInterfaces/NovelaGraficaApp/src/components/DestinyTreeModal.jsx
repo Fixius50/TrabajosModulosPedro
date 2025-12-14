@@ -11,9 +11,12 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
 
     // 1. Fetch Data
     useEffect(() => {
+        console.log("Modal: useEffect trigger. isOpen:", isOpen, "storyId:", storyId);
         if (isOpen && storyId) {
             const loadTree = async () => {
+                console.log("Modal: Fetching nodes...");
                 const allNodes = await repo.getAllNodesBySeries(storyId);
+                console.log("Modal: Nodes received:", allNodes);
                 // Perform layouting
                 const computedLayout = computeTreeLayout(allNodes, 'start');
                 setNodes(allNodes);
@@ -64,137 +67,204 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
         return positions;
     };
 
+    const [showLegend, setShowLegend] = useState(false);
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center overflow-hidden">
-            {/* Header */}
-            <div className="absolute top-0 left-0 right-0 p-4 flex justify-between z-10 pointer-events-none">
-                <div className="pointer-events-auto">
-                    <h2 className="text-yellow-500 font-mono tracking-widest text-sm border border-yellow-500/30 px-3 py-1 bg-slate-900 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
-                        NEURAL_MAP::V1.0
-                    </h2>
+        <div className="fixed inset-0 z-[100] bg-[#020617] text-slate-200 font-sans flex flex-col">
+
+            {/* 1. Header Navigation Bar */}
+            <div className="h-14 border-b border-white/10 bg-[#0f172a] flex items-center justify-between px-4 shadow-[0_4px_20px_rgba(0,0,0,0.5)] z-50">
+                {/* Left: Close */}
+                <button
+                    onClick={onClose}
+                    className="flex items-center gap-2 bg-[#1e293b] hover:bg-[#334155] px-3 py-1.5 rounded text-xs font-bold tracking-wider transition-colors border border-white/5"
+                >
+                    ✕ CERRAR
+                </button>
+
+                {/* Center: Title */}
+                <div className="flex items-center gap-2">
+                    <span className="text-cyan-400">📖</span>
+                    <h2 className="text-sm font-bold tracking-[0.2em] text-cyan-50">MAPA DE TRAMA</h2>
                 </div>
-                <button onClick={onClose} className="pointer-events-auto text-white hover:text-red-400 font-bold tracking-wider">[ CLOSE ]</button>
+
+                {/* Right: Legend Toggle */}
+                <button
+                    onClick={() => setShowLegend(!showLegend)}
+                    className="flex items-center gap-2 bg-[#1e293b] hover:bg-[#334155] px-3 py-1.5 rounded text-xs font-bold tracking-wider transition-colors border border-white/5"
+                >
+                    ? LEYENDA
+                </button>
             </div>
 
-            {/* Canvas Area */}
-            <div
-                ref={containerRef}
-                className="relative w-full h-full overflow-auto cursor-grab active:cursor-grabbing"
-                style={{
-                    backgroundImage: 'radial-gradient(circle, #334155 1px, transparent 1px)',
-                    backgroundSize: '40px 40px',
-                    backgroundColor: '#020617'
-                }}
-            >
-                <div className="absolute inset-0 min-w-[1500px] min-h-[1500px]">
-                    {/* Render Connections (SVG Layer) */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
+            {/* 2. Main Map Area (Grid Background) */}
+            <div className="flex-1 relative overflow-hidden bg-[#0a0f1e]">
+                {/* CSS Grid Pattern */}
+                <div
+                    className="absolute inset-0 opacity-20 pointer-events-none"
+                    style={{
+                        backgroundImage: `linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px)`,
+                        backgroundSize: '40px 40px'
+                    }}
+                />
+
+                <div
+                    ref={containerRef}
+                    className="w-full h-full overflow-auto cursor-grab active:cursor-grabbing relative scrollbar-hide"
+                >
+                    <div className="absolute inset-0 min-w-[2000px] min-h-[1500px]">
+
+                        {/* Empty State */}
+                        {nodes.length === 0 && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <div className="text-yellow-500/50 font-mono text-xl animate-pulse tracking-widest">
+                                    [ WAITING FOR NEURAL LINK... ]
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Connecting Lines */}
+                        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+                            {nodes.map(node => {
+                                const fromPos = layout[node.id];
+                                if (!fromPos || !node.children) return null;
+                                return node.children.map(childId => {
+                                    const toPos = layout[childId];
+                                    if (!toPos) return null;
+                                    return (
+                                        <line
+                                            key={`${node.id}-${childId}`}
+                                            x1={fromPos.x + 32} y1={fromPos.y + 32} // Center of w-16 (64px) -> 32
+                                            x2={toPos.x + 32} y2={toPos.y + 32}
+                                            stroke="#334155"
+                                            strokeWidth="1"
+                                            strokeDasharray="0"
+                                        />
+                                    );
+                                });
+                            })}
+                        </svg>
+
+                        {/* Nodes */}
                         {nodes.map(node => {
-                            const fromPos = layout[node.id];
-                            if (!fromPos || !node.children) return null;
-                            return node.children.map(childId => {
-                                const toPos = layout[childId];
-                                if (!toPos) return null;
-                                return (
-                                    <line
-                                        key={`${node.id}-${childId}`}
-                                        x1={fromPos.x + 48} y1={fromPos.y + 48} // Center of 24x24 (w-24=6rem=96px? No w-24 is 6rem=96px. Center is 48)
-                                        x2={toPos.x + 48} y2={toPos.y + 48}
-                                        stroke="#fbbf24"
-                                        strokeWidth="2"
-                                    />
-                                );
-                            });
+                            const pos = layout[node.id] || { x: 0, y: 0 };
+                            const isCurrent = node.id === currentNodeId;
+                            const isVisited = history.includes(node.id);
+
+                            // Status mapping
+                            let status = 'locked';
+                            if (isCurrent) status = 'current';
+                            else if (isVisited) status = 'visited';
+                            else status = 'locked'; // Default to locked/unknown for unvisited
+
+                            return (
+                                <NodeComponent
+                                    key={node.id}
+                                    node={node}
+                                    x={pos.x}
+                                    y={pos.y}
+                                    status={status}
+                                    onClick={() => {
+                                        if (isVisited && !isCurrent && onRewind) {
+                                            onRewind(node.id);
+                                        }
+                                    }}
+                                />
+                            );
                         })}
-                    </svg>
-
-                    {/* Render Nodes */}
-                    {nodes.map(node => {
-                        const pos = layout[node.id] || { x: 0, y: 0 };
-
-                        // Status Logic
-                        const isCurrent = node.id === currentNodeId;
-                        const isVisited = history.includes(node.id);
-                        // Available only if parent is visited? For now show all structure but locked state
-                        const isAvailable = true; // In full map, we might hide future nodes.
-
-                        let status = 'locked';
-                        if (isCurrent) status = 'current';
-                        else if (isVisited) status = 'visited';
-                        else if (isAvailable) status = 'locked'; // Use 'locked' for future/unvisited for now
-
-                        return (
-                            <NodeComponent
-                                key={node.id}
-                                node={node}
-                                x={pos.x}
-                                y={pos.y}
-                                status={status}
-                                onClick={() => {
-                                    if (isVisited && !isCurrent) {
-                                        onRewind && onRewind(node.id);
-                                    } else if (status === 'locked') {
-                                        // Do nothing or shake
-                                    }
-                                }}
-                            />
-                        );
-                    })}
+                    </div>
                 </div>
+
+                {/* Legend Overlay (Conditional) */}
+                {showLegend && (
+                    <div className="absolute top-4 right-4 bg-[#0f172a] border border-white/10 p-4 rounded-lg shadow-xl text-xs space-y-3 z-50 min-w-[150px]">
+                        <h4 className="font-bold text-slate-400 mb-2 border-b border-white/5 pb-2">Hitos del Mapa</h4>
+                        <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full border-2 border-yellow-500 bg-yellow-500/20"></div>
+                            <span>Ubicación Actual</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full border border-slate-500 bg-slate-800"></div>
+                            <span>Visitado</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full border border-slate-700 bg-slate-950 flex items-center justify-center text-[8px]">🔒</div>
+                            <span className="text-slate-500">Bloqueado</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Legend */}
-            <div className="absolute bottom-4 left-4 p-3 bg-slate-900/80 border border-white/10 rounded text-xs text-slate-400 space-y-1 backdrop-blur-sm pointer-events-none">
-                <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> Actual</div>
-                <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full border border-white bg-slate-800"></span> Visitado (Rebobinar)</div>
-                <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full border border-slate-600 border-dashed bg-slate-900"></span> Desconocido</div>
+            {/* 3. Footer / Progress Bar */}
+            <div className="h-10 bg-[#0f172a] border-t border-white/5 flex items-center px-4 justify-between text-[10px] text-slate-500">
+                <span>Progreso: {Math.min(nodes.length, history.length)} / {nodes.length} Nodos Descubiertos</span>
+
+                {/* Custom Progress Bar */}
+                <div className="w-1/3 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-cyan-600 rounded-full transition-all duration-500"
+                        style={{ width: `${(Math.min(nodes.length, history.length) / Math.max(nodes.length, 1)) * 100}%` }}
+                    />
+                </div>
+
+                <span>{Math.round((Math.min(nodes.length, history.length) / Math.max(nodes.length, 1)) * 100)}%</span>
             </div>
         </div>
     );
 }
 
-// BATCH 9: Specific Node Implementation
+// Sub-component: Clean RPG Node
 const NodeComponent = ({ node, x, y, status, onClick }) => {
-    // Styles from Batch 9
-    const styles = {
-        current: "border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)] scale-110 bg-slate-900 z-20 cursor-default",
-        visited: "border-white bg-slate-800 opacity-100 hover:scale-105 hover:border-yellow-200 cursor-pointer z-10",
-        locked: "border-slate-700 bg-slate-950 opacity-40 border-dashed cursor-not-allowed z-0"
-    };
+    // Styles
+    const baseClass = "absolute w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 z-10 shadow-lg";
+
+    let specificClass = "";
+    let icon = null;
+    let labelClass = "text-slate-500 opacity-50";
+
+    switch (status) {
+        case 'current':
+            specificClass = "bg-[#0f172a] border-2 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)] scale-110 cursor-default";
+            icon = <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_#facc15]" />;
+            labelClass = "text-yellow-400 font-bold opacity-100";
+            break;
+        case 'visited':
+            specificClass = "bg-[#1e293b] border border-slate-500 hover:border-cyan-400 hover:scale-105 cursor-pointer";
+            icon = <div className="w-2 h-2 bg-slate-400 rounded-full" />;
+            labelClass = "text-slate-300 opacity-100";
+            break;
+        case 'locked':
+        default:
+            specificClass = "bg-[#020617] border border-slate-800 opacity-60";
+            icon = <span className="text-slate-700 text-xs">🔒</span>;
+            labelClass = "text-slate-700 opacity-40";
+            break;
+    }
 
     return (
         <div
-            className={`absolute w-24 h-24 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${styles[status]}`}
+            className={baseClass + " " + specificClass}
             style={{ left: x, top: y }}
             onClick={onClick}
         >
-            {status === 'locked' ? (
-                <span className="text-xl text-slate-600">?</span>
-            ) : (
-                <div className="text-center p-1 w-full flex flex-col items-center">
-                    {/* Icon or Mini-image could go here */}
-                    <span className="text-[10px] uppercase font-bold text-white/90 drop-shadow-md leading-tight max-w-[90%] truncate">
-                        {node.label || "Escena"}
-                    </span>
-                    <span className="text-[9px] text-white/50">{node.id.slice(0, 4)}</span>
+            {/* Inner Icon */}
+            {icon}
 
-                    {/* Pulse Animation for Current */}
-                    {status === 'current' && (
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-                            <div className="bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-lg animate-bounce">
-                                AQUÍ
-                            </div>
-                        </div>
-                    )}
+            {/* Floating Label (Bottom) */}
+            <div className={`absolute -bottom-6 w-32 text-center text-[10px] uppercase tracking-wide truncate ${labelClass}`}>
+                {status === 'current' ? (
+                    <span className="bg-yellow-500 text-black px-1.5 py-0.5 rounded font-bold">AQUÍ</span>
+                ) : (
+                    node.label || "???"
+                )}
+            </div>
 
-                    {/* Tooltip for Visited */}
-                    {status === 'visited' && (
-                        <div className="absolute -bottom-6 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap bg-black text-white text-[9px] px-1 rounded">
-                            Click to Rewind
-                        </div>
-                    )}
+            {/* Top Label (Name) if visited */}
+            {status !== 'locked' && (
+                <div className="absolute -top-5 w-40 text-center text-[9px] text-slate-400 truncate">
+                    {node.label || "Escena"}
                 </div>
             )}
         </div>
