@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovelaGraficaApp - Documentación del Proyecto</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-secondary: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --purple: #a371f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* --- NAV --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-bottom: 0.0625rem solid var(--border);
+            z-index: 100;
+            backdrop-filter: blur(0.75rem);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            list-style: none;
+            overflow-x: auto;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        /* --- MAIN --- */
+        main {
+            max-width: 75rem;
+            margin: 0 auto;
+            padding: 6.25rem 1.5rem 3.75rem;
+        }
+
+        section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(0.625rem);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--text);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 0.0625rem solid var(--border);
+        }
+
+        h3 {
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+            color: var(--accent);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        /* --- CARDS & PROMPTS --- */
+        .card {
+            background: var(--bg-secondary);
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag.phase {
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .tag.code {
+            background: rgba(163, 113, 247, 0.2);
+            color: var(--purple);
+        }
+
+        .prompt-box {
+            background: #0d1117;
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            color: var(--text-secondary);
+            overflow-y: auto;
+            border-left: 3px solid var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        pre {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        /* --- GRID --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(17.5rem, 100%), 1fr));
+            gap: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 0.0625rem solid var(--border);
+            border-radius: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* --- UTILS --- */
+        ul {
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* File Tree simplification */
+        .file-tree {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8125rem;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 0.0625rem solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a id="nav-overview" class="active" onclick="showSection('overview')">📊 Overview</a></li>
+            <li><a id="nav-prompts" onclick="showSection('prompts')">💬 Trazabilidad (Prompts)</a></li>
+            <li><a id="nav-features" onclick="showSection('features')">✨ Funcionalidades</a></li>
+            <li><a id="nav-tech" onclick="showSection('tech')">🛠️ Stack</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- OVERVIEW SECTION -->
+        <section id="overview" class="active">
+            <h1>NovelaGraficaApp</h1>
+            <p class="subtitle">Plataforma interactiva de narrativa visual tipo Webtoon</p>
+
+            <div class="grid">
+                <div class="stat">
+                    <div class="stat-value">5+</div>
+                    <div class="stat-label">Fases de Desarrollo</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">SPA</div>
+                    <div class="stat-label">Arquitectura</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">Auth</div>
+                    <div class="stat-label">Supabase Security</div>
+                </div>
+            </div>
+
+            <h2>Resumen del Proyecto</h2>
+            <p>
+                Una aplicación moderna para leer y jugar novelas gráficas ramificadas.
+                Combina un motor narrativo basado en grafos (JSON) con renderizado visual de alto rendimiento (PixiJS)
+                y persistencia de datos en la nube (Supabase).
+            </p>
+        </section>
+
+        <!-- PROMPTS / TRAZABILIDAD SECTION -->
+        <section id="prompts">
+            <h1>Trazabilidad de Prompts</h1>
+            <p class="subtitle">Relación literal entre Petición del Usuario y Código Generado</p>
+
+            <!-- FASE 1 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fase 1: Concepción</span>
+                    <span class="tag tag-phase">Prompt Literal</span>
+                </div>
+                <div class="prompt-box">Actúa como un Lead Full-Stack Engineer & Cloud Architect. Tu misión es construir
+                    la arquitectura completa aplicando Ingeniería Defensiva e Investigación Profunda. [...] Esta app va
+                    a consistir en Crear una novela gráfica interactiva con imágenes y texto. Los usuarios pueden
+                    decidir por donde transcurre parte de la trama y así habrá diferentes finales. Un comic de viñetas
+                    se valorará mejor.</div>
+
+                <div class="card-header">
+                    <span class="card-title">Solución Técnica</span>
+                    <span class="tag tag-code">Story Engine JSON</span>
+                </div>
+                <pre><code>{
+  "id": "story_001",
+  "nodes": {
+    "start": { "text": "Inicio...", "next": "decision_1" }
+  }
+}</code></pre>
+            </div>
+
+            <!-- FASE 2 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fase 2: Route Map</span>
+                    <span class="tag tag-phase">Prompt Literal</span>
+                </div>
+                <div class="prompt-box">Route Map Navigation (Enhancement): The user's main objective is to enhance the
+                    route map feature by allowing players to navigate back to previously visited nodes. This includes
+                    implementing a confirmation step that warns the player about potential point loss if they return to
+                    a path not yet completed. The user also wants to remove the non-functional legend button from the
+                    route map interface.</div>
+
+                <div class="card-header">
+                    <span class="card-title">Solución Técnica</span>
+                    <span class="tag tag-code">RouteMap.jsx</span>
+                </div>
+                <pre><code>// Confirmación antes de navegar
+if (confirm("¿Volver atrás? Perderás progreso.")) {
+    navigateTo(nodeId);
+}</code></pre>
+            </div>
+
+            <!-- FASE 3 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fase 3: Autenticación</span>
+                    <span class="tag tag-phase">Prompt Literal</span>
+                </div>
+                <div class="prompt-box">Vamos a probar ahora a recibir y enviar cosas a la base de datos. Para esto
+                    vamos a hacer el panel de login/registro nada mas entrar a la app (correom contraseña y google
+                    oauth)</div>
+                <pre><code>// AuthGuard.jsx
+if (!loading && !session) navigate('/login');</code></pre>
+            </div>
+
+            <!-- FASE 4 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fase 4: Login Fix (SQL)</span>
+                    <span class="tag tag-phase">Prompt Literal</span>
+                </div>
+                <div class="prompt-box">mirame por que el login/registro no va, pasandote el sql (no debes eliminar
+                    ninguna columna...)</div>
+                <pre><code>create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();</code></pre>
+            </div>
+
+            <!-- FASE 5 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Fase 5: UI Redesign</span>
+                    <span class="tag tag-phase">Prompt Literal</span>
+                </div>
+                <div class="prompt-box">Quiero mirar funcionalidades, pero antes quiero que pruebes la app para ver si
+                    hay errores y me sigas arreglandolo... CREAME un usuario de prueba simple... Te doy permiso para
+                    todo y puedes ser creativo (Diseño UI)</div>
+                <pre><code>&lt;motion.section style={glassStyle}&gt;
+  &lt;h2&gt;Batman: Sombras de Gotham&lt;/h2&gt;
+&lt;/motion.section&gt;</code></pre>
+            </div>
+
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section id="features">
+            <h1>Funcionalidades</h1>
+            <p class="subtitle">Características clave implementadas</p>
+
+            <div class="grid">
+                <div class="card">
+                    <span class="tag tag-feature">Narrativa</span>
+                    <h3>Mapa Neuronal</h3>
+                    <p>Visualización en árbol de las decisiones tomadas y caminos disponibles.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">Seguridad</span>
+                    <h3>Auth Guard</h3>
+                    <p>Protección de rutas (Login/Register/Home) mediante sesión de Supabase.</p>
+                </div>
+                <div class="card">
+                    <span class="tag tag-feature">UI/UX</span>
+                    <h3>Estética Cyberpunk</h3>
+                    <p>Diseño Webtoon con Glassmorphism, animaciones Framer Motion y Hero Banners.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TECH SECTION -->
+        <section id="tech">
+            <h1>Stack Tecnológico</h1>
+            <p class="subtitle">Herramientas y librerías</p>
+            <div class="file-tree">
+                <ul>
+                    <li>⚛️ <strong>React + Vite</strong>: Frontend framework</li>
+                    <li>🔥 <strong>Supabase</strong>: Backend & Database</li>
+                    <li>🎨 <strong>PixiJS</strong>: Rendering 2D (Canvas)</li>
+                    <li>🐻 <strong>Zustand</strong>: State Management</li>
+                    <li>🎭 <strong>Framer Motion</strong>: Animation Library</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            // Remove active class from nav links
+            document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            // Activate nav link
+            document.getElementById('nav-' + sectionId).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
