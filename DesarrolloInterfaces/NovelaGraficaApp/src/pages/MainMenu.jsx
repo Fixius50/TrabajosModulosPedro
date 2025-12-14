@@ -3,7 +3,6 @@ import { supabase } from '../services/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../stores/userProgress';
-import Marketplace from '../components/Marketplace';
 
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
@@ -61,9 +60,6 @@ export default function MainMenu() {
             fontFamily: `${activeFont}, system-ui, sans-serif`
         }}>
 
-            {/* Marketplace Modal */}
-            <Marketplace isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
-
             {/* Header */}
             <header style={{
                 padding: '1rem 1.5rem',
@@ -90,7 +86,7 @@ export default function MainMenu() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     {/* Points Button - Opens Marketplace */}
                     <button
-                        onClick={() => setShowMarketplace(true)}
+                        onClick={() => navigate('/marketplace')}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -141,7 +137,7 @@ export default function MainMenu() {
                                         <p style={{ fontSize: '0.8rem', color: 'white' }}>🏆 {stats.storiesCompleted} completadas</p>
                                     </div>
 
-                                    <button onClick={() => { setShowMarketplace(true); setShowProfileMenu(false); }} style={menuItemStyle}>🛒 Tienda</button>
+                                    <button onClick={() => { navigate('/marketplace'); setShowProfileMenu(false); }} style={menuItemStyle}>🛒 Tienda</button>
                                     <button style={menuItemStyle}>⚙️ Ajustes</button>
                                     <button style={{ ...menuItemStyle, color: '#ef4444' }}>🚪 Salir</button>
                                 </motion.div>

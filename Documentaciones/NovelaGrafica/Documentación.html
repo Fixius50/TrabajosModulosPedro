@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovelaApp :: System Documentation</title>
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --bg-card: #0f172a;
+            --accent-primary: #fbbf24;
+            /* Amber 400 */
+            --accent-secondary: #8b5cf6;
+            /* Violet 500 */
+            --accent-alert: #ef4444;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --font-mono: 'Courier New', Courier, monospace;
+            --font-sans: system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+        }
+
+        /* Scanline Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 4rem;
+            border-bottom: 1px solid var(--accent-secondary);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: white;
+            border-left: 4px solid var(--accent-secondary);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+        }
+
+        .card h3 {
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            font-family: var(--font-mono);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-secondary);
+            margin-right: 0.5rem;
+            font-family: var(--font-mono);
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            overflow-x: auto;
+            color: #a5b4fc;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .feature-list li::before {
+            content: ">>";
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>NovelaApp_System</h1>
+            <p class="subtitle">PROJECT_STATUS: <span style="color: #22c55e">ACTIVE_DEV</span> | VERSION: 0.9.0-BETA</p>
+        </header>
+
+        <section>
+            <h2>01. Arquitectura Central</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Frontend Stack</h3>
+                    <p class="tag">REACT</p>
+                    <p class="tag">VITE</p>
+                    <p class="tag">TAILWIND</p>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        Single Page Application (SPA) optimizada para rendimiento. Uso de Framer Motion para
+                        transiciones "Glassmorphism" fluidas.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Motor de Estado</h3>
+                    <p class="tag">ZUSTAND</p>
+                    <p class="tag">HOOKS</p>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        Gestión centralizada via <code>useStoryEngine</code>. Implementa la "Regla +1" para precarga de
+                        assets y gestión de inventario.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Capa Visual</h3>
+                    <p class="tag">CANVAS</p>
+                    <p class="tag">LAYERS</p>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        Arquitectura de 3 capas: Fondo (PixiJS ready), Viñeta (Gradiente), y UI Semántica
+                        (Accesibilidad/SEO).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>02. Componentes Críticos</h2>
+
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>Neural Map (Árbol del Destino)</h3>
+                <p class="tag">GRAPH_VISUALIZATION</p>
+                <p class="tag">RECURSIVE</p>
+                <div style="margin-top: 1rem;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        Sistema de visualización de trama no lineal. Renderiza nodos como un "Circuito Raíz" Neon.
+                    </p>
+                    <ul class="feature-list">
+                        <li><strong>Feature Killer:</strong> "Rewind Logic". Permite resetear el estado de la historia a
+                            cualquier nodo visitado.</li>
+                        <li><strong>Layout:</strong> Sistema de autolayout basado en grids para estabilidad visual.</li>
+                        <li><strong>Estado:</strong> Distinción visual entre Nodos Actuales (Pulso), Visitados y
+                            Bloqueados.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3>Visual Novel Canvas</h3>
+                <p class="tag">CORE_ENGINE</p>
+                <div style="margin-top: 1rem;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        El lienzo principal de lectura.
+                    </p>
+                    <ul class="feature-list">
+                        <li><strong>Typewriter Effect:</strong> Renderizado de texto letra a letra con cursor
+                            parpadeante.</li>
+                        <li><strong>Input Blocking:</strong> Previene decisiones accidentales ocultando opciones hasta
+                            finalizar el texto.</li>
+                        <li><strong>Overlay System:</strong> Interfaz flotante que no obstruye el arte de fondo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Multivisor (Settings)</h3>
+                <p class="tag">ACCESSIBILITY</p>
+                <div style="margin-top: 1rem;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        Panel de control Cyberpunk para personalización total.
+                    </p>
+                    <ul class="feature-list">
+                        <li><strong>Fuentes:</strong> Inter, Serif, OpenDyslexic (Planeado).</li>
+                        <li><strong>Temas:</strong> Original, Sepia (Descanso), Terminal (Alto Contraste).</li>
+                        <li><strong>Galería:</strong> Sistema de coleccionables desbloqueables al terminar capítulos.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>03. Changelog Reciente</h2>
+            <div class="code-block">
+                >> BATCH 9 UPDATE
+                [+] NEW: Neural Map Component (DestinyTreeModal.jsx)
+                [+] NEW: Settings Modal with Visual Tuner
+                [+] NEW: Rewrite of StoryReader.jsx for full integration
+                [MOD] StoryEngine.js: Added 'Rewind' capability and history tracking
+                [FIX] VisualNovelCanvas: Specific Typewriter integration
+
+                >> BATCH 8 UPDATE
+                [+] DOCS: Accessibility Tuner Specs
+                [+] DOCS: Neural Map Concept Art Specs
+
+                >> PREVIOUS
+                [+] Auth System (Supabase)
+                [+] Main Menu (Zone 1)
+                [+] Global CSS Variables
+            </div>
+        </section>
+
+        <footer>
+            GENERATED BY SYSTEM :: DOCUMENTADOR_BOT v1.0 <br>
+            All rights reserved. NovelaGraficaApp 2025.
+        </footer>
+    </div>
+</body>
+
+</html>

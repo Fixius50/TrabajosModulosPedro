@@ -238,6 +238,11 @@ class UserProgressStore {
         localStorage.removeItem(STORAGE_KEY);
         this.notify();
     }
+
+    setPoints(points) {
+        this.state.points = points;
+        this.notify();
+    }
 }
 
 // Singleton instance

@@ -1,29 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
+import { StoryRepository } from '../services/StoryRepository';
 
-// Story tree structure for "El Bosque Digital"
-// IDs MUST match exactly with story_demo.json node IDs
-const STORY_TREE = {
-    '1': {
-        title: 'El Bosque Digital',
-        nodes: [
-            // start -> decision_1 (intro panel with "Continuar")
-            { id: 'start', label: 'INICIO', x: 50, y: 10, type: 'start', children: ['decision_1'] },
-            // decision_1: choice between stealth or shout
-            { id: 'decision_1', label: 'Decisión', x: 50, y: 30, children: ['node_stealth', 'node_shout'] },
-            // node_stealth path
-            { id: 'node_stealth', label: 'Sigilo', x: 30, y: 55, children: ['end_demo'] },
-            // node_shout path  
-            { id: 'node_shout', label: 'Gritar', x: 70, y: 55, children: ['end_demo'] },
-            // end_demo: the ending (demo version)
-            { id: 'end_demo', label: 'Continuará...', x: 50, y: 80, type: 'ending', endingType: 'neutral' }
-        ],
-        totalEndings: 1
-    }
-};
+const repo = new StoryRepository();
 
-// Node component
+// Node component with dynamic styles
 function TreeNode({ node, status, isCurrentNode, onClick }) {
     const getCircleStyle = () => {
         const size = node.type === 'ending' ? '2.5rem' : '2rem';
@@ -45,15 +27,15 @@ function TreeNode({ node, status, isCurrentNode, onClick }) {
                 return {
                     ...base,
                     background: 'rgba(250,204,21,0.2)',
-                    border: '3px solid #facc15',
-                    boxShadow: '0 0 20px rgba(250,204,21,0.6), 0 0 40px rgba(250,204,21,0.3)',
-                    color: '#facc15'
+                    border: '3px solid var(--color-accent)',
+                    boxShadow: '0 0 20px rgba(250,204,21,0.6)',
+                    color: 'var(--color-accent)'
                 };
             case 'visited':
                 return {
                     ...base,
                     background: 'rgba(139,92,246,0.3)',
-                    border: '2px solid #a78bfa',
+                    border: '2px solid var(--color-secondary)',
                     color: 'white'
                 };
             case 'available':
@@ -74,15 +56,7 @@ function TreeNode({ node, status, isCurrentNode, onClick }) {
         }
     };
 
-    const getEndingColor = () => {
-        if (node.endingType === 'good') return '#22c55e';
-        if (node.endingType === 'bad') return '#ef4444';
-        if (node.endingType === 'secret') return '#fbbf24';
-        return '#a78bfa';
-    };
-
     return (
-        // Outer wrapper for positioning - NO animation here
         <div
             style={{
                 position: 'absolute',
@@ -92,7 +66,6 @@ function TreeNode({ node, status, isCurrentNode, onClick }) {
                 zIndex: 10
             }}
         >
-            {/* Inner wrapper for animation */}
             <motion.div
                 style={{
                     display: 'flex',
@@ -101,120 +74,156 @@ function TreeNode({ node, status, isCurrentNode, onClick }) {
                     cursor: status !== 'locked' ? 'pointer' : 'default'
                 }}
                 whileHover={status !== 'locked' ? { scale: 1.15 } : {}}
-                transition={{ duration: 0.2 }}
                 onClick={() => status !== 'locked' && onClick?.(node)}
             >
-                {/* Current node indicator */}
-                {isCurrentNode && (
-                    <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        style={{
-                            position: 'absolute',
-                            top: '-1.5rem',
-                            background: '#facc15',
-                            color: '#000',
-                            padding: '0.15rem 0.4rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.55rem',
-                            fontWeight: 700,
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        AQUÍ
-                    </motion.div>
-                )}
-
-                {/* Node circle */}
-                <motion.div
-                    style={getCircleStyle()}
-                    animate={isCurrentNode ? {
-                        boxShadow: ['0 0 20px rgba(250,204,21,0.6)', '0 0 30px rgba(250,204,21,0.8)', '0 0 20px rgba(250,204,21,0.6)']
-                    } : {}}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                >
+                <motion.div style={getCircleStyle()}>
                     <span style={{ transform: node.type === 'ending' ? 'rotate(-45deg)' : 'none' }}>
-                        {status === 'locked' ? '🔒' : (
-                            node.type === 'ending' ? (
-                                status === 'visited' ? '🏆' : '💎'
-                            ) : (
-                                status === 'visited' ? '✓' : '•'
-                            )
-                        )}
+                        {status === 'locked' ? '🔒' : (node.type === 'ending' ? (status === 'visited' ? '🏆' : '💎') : (status === 'visited' ? '✓' : '•'))}
                     </span>
                 </motion.div>
-
-                {/* Label */}
                 <span style={{
                     marginTop: '0.4rem',
                     fontSize: '0.65rem',
                     fontWeight: 500,
-                    color: status === 'locked' ? 'rgba(100,116,139,0.5)' : (
-                        status === 'current' ? '#facc15' : (
-                            status === 'visited' ? 'white' : 'rgba(255,255,255,0.6)'
-                        )
-                    ),
+                    color: status === 'locked' ? 'var(--color-text-muted)' : 'var(--color-text-main)',
                     textShadow: status !== 'locked' ? '0 0 10px rgba(0,0,0,0.8)' : 'none',
                     whiteSpace: 'nowrap'
                 }}>
-                    {status === 'locked' && node.locked ? '???' : node.label}
+                    {status === 'locked' ? '???' : node.label}
                 </span>
-
-                {/* Ending badge */}
-                {node.type === 'ending' && status === 'visited' && (
-                    <span style={{
-                        marginTop: '0.2rem',
-                        fontSize: '0.5rem',
-                        padding: '0.1rem 0.3rem',
-                        background: getEndingColor(),
-                        color: '#000',
-                        borderRadius: '0.2rem',
-                        fontWeight: 600
-                    }}>
-                        FINAL
-                    </span>
-                )}
             </motion.div>
         </div>
     );
 }
 
-// Connection line component
+// Connection line
 function Connection({ from, to, status }) {
     const getLineStyle = () => {
-        const base = {
-            stroke: status === 'visited' ? '#a78bfa' : (
-                status === 'available' ? 'rgba(255,255,255,0.3)' : 'rgba(100,116,139,0.2)'
-            ),
+        return {
+            stroke: status === 'visited' ? 'var(--color-secondary)' : (status === 'available' ? 'rgba(255,255,255,0.3)' : 'rgba(100,116,139,0.2)'),
             strokeWidth: status === 'visited' ? 3 : 2,
             strokeDasharray: status === 'available' ? '8,4' : 'none',
             filter: status === 'visited' ? 'drop-shadow(0 0 4px rgba(167,139,250,0.6))' : 'none'
         };
-        return base;
     };
 
     return (
-        <line
-            x1={`${from.x}%`}
-            y1={`${from.y}%`}
-            x2={`${to.x}%`}
-            y2={`${to.y}%`}
-            style={getLineStyle()}
-        />
+        <line x1={`${from.x}%`} y1={`${from.y}%`} x2={`${to.x}%`} y2={`${to.y}%`} style={getLineStyle()} />
     );
 }
 
 export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'start', onNavigateToNode }) {
     const { getVisitedNodes, getUnlockedEndings } = useUserProgress();
+    const [nodes, setNodes] = useState([]);
     const [selectedNode, setSelectedNode] = useState(null);
     const [showConfirmation, setShowConfirmation] = useState(false);
-    const containerRef = useRef(null);
+
+    // Fetch nodes on tree open
+    useEffect(() => {
+        if (!isOpen) return;
+
+        async function loadTree() {
+            try {
+                // Ensure storyId is valid
+                const safeStoryId = storyId || '1';
+                console.log("DEBUG: Loading tree for storyId:", safeStoryId);
+
+                // Add a small delay/loading state if needed, but for now direct call
+                const data = await repo.getAllNodesBySeries(safeStoryId);
+                console.log("DEBUG: Raw data from repo:", data);
+
+                if (!data || data.length === 0) {
+                    console.warn("DEBUG: No nodes returned from repo!");
+                    setNodes([]);
+                    return;
+                }
+
+                const processed = layoutNodes(data);
+                console.log("DEBUG: Processed layout nodes:", processed);
+                setNodes(processed);
+            } catch (err) {
+                console.error("DEBUG: Error loading tree:", err);
+            }
+        }
+        loadTree();
+    }, [isOpen, storyId]);
+
+    // Generic layout function
+    const layoutNodes = (rawData) => {
+        if (!rawData || !rawData.length) return [];
+
+        const levels = {};
+        // Find start node - handles both demo 'start' and potentially other IDs
+        const startNode = rawData.find(n => n.id === 'start') || rawData[0];
+
+        const queue = [{ id: startNode.id, level: 0 }];
+        const visited = new Set();
+        const nodeMap = {};
+        rawData.forEach(n => nodeMap[n.id] = n);
+
+        const processedIds = new Set();
+
+        while (queue.length > 0) {
+            const { id, level } = queue.shift();
+            if (visited.has(id)) continue;
+            visited.add(id);
+
+            if (!levels[level]) levels[level] = [];
+            levels[level].push(id);
+            processedIds.add(id);
+
+            const node = nodeMap[id];
+            if (node && node.children) {
+                node.children.forEach(childId => {
+                    // Check if child actually exists in our data
+                    if (nodeMap[childId]) {
+                        queue.push({ id: childId, level: level + 1 });
+                    }
+                });
+            }
+        }
+
+        // Handle orphan nodes (not connected to start) - place them at bottom or ignore
+        // For now, let's include them in a 'lost+found' level if any important ones are missed?
+        // Simpler: Just rely on BFS from start.
+
+        const finalNodes = [];
+
+        // If BFS didn't find anything (disconnected start?), fallback to linear
+        if (Object.keys(levels).length === 0) {
+            return rawData.map((n, i) => ({ ...n, x: 50, y: 10 + (i * 10) }));
+        }
+
+        const maxLevel = Math.max(...Object.keys(levels).map(Number));
+
+        Object.keys(levels).forEach(lvl => {
+            const layerNodes = levels[lvl];
+            const layerHeight = 80 / (maxLevel + 1);
+            const y = 10 + (Number(lvl) * layerHeight);
+
+            layerNodes.forEach((nid, idx) => {
+                const x = (100 / (layerNodes.length + 1)) * (idx + 1);
+                finalNodes.push({
+                    ...nodeMap[nid],
+                    x,
+                    y
+                });
+            });
+        });
+
+        return finalNodes;
+    };
 
     if (!isOpen) return null;
 
-    const tree = STORY_TREE[storyId] || STORY_TREE['1'];
     const visitedNodes = getVisitedNodes(storyId || '1');
     const unlockedEndings = getUnlockedEndings(storyId || '1');
+    const totalEndings = nodes.filter(n => n.type === 'ending').length || 1;
+    const endingsUnlocked = nodes.filter(n => n.type === 'ending' && (visitedNodes.has(n.id) || unlockedEndings.has(n.id))).length;
+    const progressPercent = Math.round((endingsUnlocked / totalEndings) * 100);
+
+    const getNode = (id) => nodes.find(n => n.id === id);
+
 
     // Determine node status based on visited nodes
     const getNodeStatus = (node) => {
@@ -222,25 +231,13 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
         if (visitedNodes.has(node.id)) return 'visited';
         if (node.type === 'ending' && unlockedEndings.has(node.id)) return 'visited';
         if (node.locked && !visitedNodes.has(node.id)) return 'locked';
-        // Check if parent is visited (node is available)
-        const parent = tree.nodes.find(n => n.children?.includes(node.id));
+
+        // Check availability strictly based on processed nodes parents
+        const parent = nodes.find(n => n.children?.includes(node.id));
         if (parent && visitedNodes.has(parent.id)) return 'available';
+
         return 'locked';
     };
-
-    // Get connection status based on both nodes being visited
-    const getConnectionStatus = (fromNode, toNode) => {
-        const fromVisited = visitedNodes.has(fromNode.id) || fromNode.id === currentNodeId;
-        const toVisited = visitedNodes.has(toNode.id) || toNode.id === currentNodeId;
-
-        if (fromVisited && toVisited) return 'visited';
-        if (fromVisited) return 'available';
-        return 'locked';
-    };
-
-    // Count endings
-    const endingsUnlocked = tree.nodes.filter(n => n.type === 'ending' && (visitedNodes.has(n.id) || unlockedEndings.has(n.id))).length;
-    const progressPercent = Math.round((endingsUnlocked / tree.totalEndings) * 100);
 
     const handleNodeClick = (node) => {
         if (getNodeStatus(node) === 'visited' || getNodeStatus(node) === 'current') {
@@ -250,154 +247,80 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{
-                position: 'fixed',
-                inset: 0,
-                background: '#0f172a',
-                zIndex: 1000,
-                display: 'flex',
-                flexDirection: 'column'
+                position: 'fixed', inset: 0, background: 'var(--color-bg-dark)', zIndex: 1000,
+                display: 'flex', flexDirection: 'column'
             }}
         >
-            {/* Grid background */}
             <div style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `
-          linear-gradient(rgba(100,116,139,0.05) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(100,116,139,0.05) 1px, transparent 1px)
-        `,
-                backgroundSize: '2rem 2rem',
-                pointerEvents: 'none'
+                position: 'absolute', inset: 0,
+                backgroundImage: 'radial-gradient(var(--color-bg-card) 2px, transparent 0)',
+                backgroundSize: '30px 30px', opacity: 0.1
             }} />
 
-            {/* Header */}
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '1rem',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(15,23,42,0.9)',
-                backdropFilter: 'blur(8px)',
-                zIndex: 20
-            }}>
-                <button
-                    onClick={onClose}
-                    style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: 'none',
-                        color: 'white',
-                        padding: '0.4rem 0.8rem',
-                        borderRadius: '0.4rem',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem'
-                    }}
-                >
-                    ✕ CERRAR
-                </button>
-
-                <h2 style={{ color: 'white', fontSize: '0.9rem', fontWeight: 600 }}>
-                    🗺️ MAPA DE TRAMA
-                </h2>
-
-                {/* Spacer to balance header */}
-                <div style={{ width: '5rem' }} />
+            <header style={{ padding: '1rem', borderBottom: '1px solid var(--color-primary)', display: 'flex', justifyContent: 'space-between' }}>
+                <button onClick={onClose} style={{ color: 'white', background: 'none', border: '1px solid white', padding: '0.5rem' }}>CERRAR MAPA</button>
+                <h2 style={{ color: 'var(--color-primary)', margin: 0 }}>MAPA DE RUTAS</h2>
+                <div style={{ width: 100 }}></div>
             </header>
 
-            {/* Tree container */}
-            <div
-                ref={containerRef}
-                style={{
-                    flex: 1,
-                    position: 'relative',
-                    overflow: 'auto',
-                    padding: '2rem'
-                }}
-            >
-                <div style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '30rem',
-                    minHeight: '100%'
-                }}>
-                    {/* SVG for connections */}
-                    <svg style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        pointerEvents: 'none'
-                    }}>
-                        {tree.nodes.map(node =>
-                            node.children?.map(childId => {
-                                const childNode = tree.nodes.find(n => n.id === childId);
-                                if (!childNode) return null;
-                                return (
-                                    <Connection
-                                        key={`${node.id}-${childId}`}
-                                        from={node}
-                                        to={childNode}
-                                        status={getConnectionStatus(node, childNode)}
-                                    />
-                                );
-                            })
-                        )}
-                    </svg>
-
-                    {/* Nodes */}
-                    {tree.nodes.map(node => (
-                        <TreeNode
-                            key={node.id}
-                            node={node}
-                            status={getNodeStatus(node)}
-                            isCurrentNode={node.id === currentNodeId}
-                            onClick={handleNodeClick}
-                        />
-                    ))}
-                </div>
+            <div style={{ flex: 1, position: 'relative' }}>
+                {nodes.length === 0 ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'white' }}>
+                        <p>Cargando mapa o sin datos disponibles...</p>
+                    </div>
+                ) : (
+                    <>
+                        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                            {nodes.map(node =>
+                                node.children?.map(childId => {
+                                    const child = getNode(childId);
+                                    if (!child) return null;
+                                    return <Connection key={`${node.id}-${childId}`} from={node} to={child} status={visitedNodes.has(node.id) && visitedNodes.has(childId) ? 'visited' : 'locked'} />;
+                                })
+                            )}
+                        </svg>
+                        {nodes.map(node => (
+                            <TreeNode
+                                key={node.id}
+                                node={node}
+                                status={getNodeStatus(node)}
+                                isCurrentNode={node.id === currentNodeId}
+                                onClick={handleNodeClick}
+                            />
+                        ))}
+                    </>
+                )}
             </div>
 
-            {/* Footer with progress */}
-            <footer style={{
-                padding: '1rem',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(15,23,42,0.9)',
-                backdropFilter: 'blur(8px)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem' }}>
-                        Progreso: {endingsUnlocked}/{tree.totalEndings} Finales Desbloqueados
-                    </span>
-                    <span style={{ color: '#a78bfa', fontSize: '0.8rem', fontWeight: 600 }}>
-                        {progressPercent}%
-                    </span>
+            <footer style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.5)' }}>
+                <div style={{ color: 'white', display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <span>Finales: {endingsUnlocked}/{totalEndings}</span>
+                    <span>{progressPercent}% Completado</span>
                 </div>
-                <div style={{
-                    height: '0.5rem',
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '1rem',
-                    overflow: 'hidden'
-                }}>
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPercent}%` }}
-                        style={{
-                            height: '100%',
-                            background: progressPercent === 100
-                                ? 'linear-gradient(90deg, #22c55e, #10b981)'
-                                : 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
-                            borderRadius: '1rem',
-                            boxShadow: '0 0 10px rgba(139,92,246,0.5)'
-                        }}
-                    />
+                <div style={{ width: '100%', height: '4px', background: '#333', borderRadius: 2 }}>
+                    <div style={{ width: `${progressPercent}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 2 }}></div>
                 </div>
             </footer>
 
-            {/* Node detail popup */}
+            {/* Legend Overlay */}
+            <div style={{ position: 'absolute', bottom: '5rem', left: '1rem', background: 'rgba(0,0,0,0.8)', padding: '1rem', borderRadius: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--color-accent)' }}></div>
+                    <span style={{ color: 'white', fontSize: '0.8rem' }}>Actual</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--color-secondary)' }}></div>
+                    <span style={{ color: 'white', fontSize: '0.8rem' }}>Visitado</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', border: '1px dashed white' }}></div>
+                    <span style={{ color: 'white', fontSize: '0.8rem' }}>Disponible</span>
+                </div>
+            </div>
+
+            {/* Detail Popup */}
             <AnimatePresence>
                 {selectedNode && !showConfirmation && (
                     <motion.div
@@ -405,66 +328,23 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
                         style={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            background: 'rgba(30,27,75,0.98)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: '1rem',
-                            padding: '1.5rem',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: '0 1rem 3rem rgba(0,0,0,0.5)',
-                            zIndex: 100,
-                            minWidth: '16rem',
-                            textAlign: 'center'
+                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                            background: 'var(--color-bg-dark)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--color-primary)',
+                            textAlign: 'center', minWidth: 300
                         }}
                     >
-                        <h3 style={{ color: 'white', fontSize: '1rem', marginBottom: '0.5rem' }}>
-                            {selectedNode.label}
-                        </h3>
-                        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', marginBottom: '1rem' }}>
-                            {selectedNode.type === 'ending' ? 'Final desbloqueado' :
-                                selectedNode.id === currentNodeId ? 'Posición actual' : 'Nodo visitado'}
-                        </p>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setSelectedNode(null); }}
-                                style={{
-                                    padding: '0.5rem 1rem',
-                                    background: 'rgba(255,255,255,0.1)',
-                                    border: 'none',
-                                    borderRadius: '0.5rem',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem'
-                                }}
-                            >
-                                Cerrar
-                            </button>
+                        <h3 style={{ color: 'white' }}>{selectedNode.label}</h3>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+                            <button onClick={() => setSelectedNode(null)} style={{ padding: '0.5rem 1rem', background: '#333', color: 'white', border: 'none', borderRadius: '0.5rem' }}>Cerrar</button>
                             {selectedNode.id !== currentNodeId && selectedNode.type !== 'ending' && (
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setShowConfirmation(true); }}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
-                                        border: 'none',
-                                        borderRadius: '0.5rem',
-                                        color: 'white',
-                                        cursor: 'pointer',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 500
-                                    }}
-                                >
-                                    ↩️ Volver aquí
-                                </button>
+                                <button onClick={() => setShowConfirmation(true)} style={{ padding: '0.5rem 1rem', background: 'var(--color-primary)', color: 'black', border: 'none', borderRadius: '0.5rem', fontWeight: 'bold' }}>Saltar Aquí</button>
                             )}
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Confirmation warning popup */}
+            {/* Confirmation Popup */}
             <AnimatePresence>
                 {showConfirmation && selectedNode && (
                     <motion.div
@@ -472,107 +352,31 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
                         style={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            background: 'rgba(30,27,75,0.98)',
-                            backdropFilter: 'blur(12px)',
-                            borderRadius: '1rem',
-                            padding: '1.5rem',
-                            border: '1px solid rgba(239,68,68,0.3)',
-                            boxShadow: '0 1rem 3rem rgba(0,0,0,0.5), 0 0 20px rgba(239,68,68,0.2)',
-                            zIndex: 100,
-                            maxWidth: '20rem',
-                            textAlign: 'center'
+                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                            background: 'var(--color-bg-dark)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--color-danger)',
+                            textAlign: 'center', minWidth: 300
                         }}
                     >
-                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
-                        <h3 style={{ color: '#fbbf24', fontSize: '1rem', marginBottom: '0.75rem' }}>
-                            ¿Volver a "{selectedNode.label}"?
-                        </h3>
-                        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', marginBottom: '0.5rem', lineHeight: 1.5 }}>
-                            Si aún no has completado este camino, <strong style={{ color: '#ef4444' }}>perderás los puntos</strong> ganados desde este punto.
-                        </p>
-                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', marginBottom: '1rem' }}>
-                            Los nodos ya visitados no dan puntos extra.
-                        </p>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                        <h3 style={{ color: 'var(--color-danger)' }}>⚠️ ¿Viaje Rápido?</h3>
+                        <p style={{ color: 'white', fontSize: '0.9rem' }}>Perderás los puntos acumulados en la rama actual.</p>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+                            <button onClick={() => setShowConfirmation(false)} style={{ padding: '0.5rem 1rem', background: '#333', color: 'white', border: 'none', borderRadius: '0.5rem' }}>Cancelar</button>
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowConfirmation(false);
-                                    setSelectedNode(null);
-                                }}
-                                style={{
-                                    padding: '0.5rem 1rem',
-                                    background: 'rgba(255,255,255,0.1)',
-                                    border: 'none',
-                                    borderRadius: '0.5rem',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem'
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onNavigateToNode) {
-                                        onNavigateToNode(selectedNode.id);
-                                    }
+                                onClick={() => {
+                                    if (onNavigateToNode) onNavigateToNode(selectedNode.id);
                                     setShowConfirmation(false);
                                     setSelectedNode(null);
                                     onClose();
                                 }}
-                                style={{
-                                    padding: '0.5rem 1rem',
-                                    background: 'linear-gradient(135deg, #f97316, #ef4444)',
-                                    border: 'none',
-                                    borderRadius: '0.5rem',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 600
-                                }}
+                                style={{ padding: '0.5rem 1rem', background: 'var(--color-danger)', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: 'bold' }}
                             >
-                                Sí, volver
+                                Confirmar Salto
                             </button>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Legend overlay */}
-            <div style={{
-                position: 'absolute',
-                bottom: '5rem',
-                left: '1rem',
-                background: 'rgba(15,23,42,0.9)',
-                backdropFilter: 'blur(8px)',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255,255,255,0.1)',
-                fontSize: '0.65rem'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.3rem' }}>
-                    <span style={{ width: '0.8rem', height: '0.8rem', borderRadius: '50%', border: '2px solid #facc15', background: 'rgba(250,204,21,0.2)' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>Actual</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.3rem' }}>
-                    <span style={{ width: '0.8rem', height: '0.8rem', borderRadius: '50%', border: '2px solid #a78bfa', background: 'rgba(139,92,246,0.3)' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>Visitado</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.3rem' }}>
-                    <span style={{ width: '0.8rem', height: '0.8rem', borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.4)' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>Disponible</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <span style={{ width: '0.8rem', height: '0.8rem', borderRadius: '50%', border: '2px solid rgba(100,116,139,0.4)', background: 'rgba(100,116,139,0.2)' }} />
-                    <span style={{ color: 'rgba(255,255,255,0.7)' }}>Bloqueado</span>
-                </div>
-            </div>
         </motion.div>
     );
 }

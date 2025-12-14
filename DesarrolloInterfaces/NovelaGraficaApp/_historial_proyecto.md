@@ -94,3 +94,142 @@ const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', ... 
 <Route path="/" element={<AuthGuard><MainMenu /></AuthGuard>} />
 <Route path="/login" element={<Login />} />
 ```
+
+**Usuario:**
+> Quiero seguir mejorando la app Novela Grafica App
+
+
+**Usuario:**
+> Te voy a dar unas capturas... recoges el texto y lo pones como funcionalidades para la documentacion.
+
+**Funcionalidades Definidas (Pendientes de Implementación):**
+
+1.  **Motor Gráfico Híbrido (Accesibilidad y Rendimiento)**
+    *   **Archivo Objetivo**: `src/components/VisualNovelCanvas.jsx`
+    *   **Arquitectura de Capas**:
+        *   **Capa Fondo (PixiJS)**: Renderizado de alto rendimiento para imágenes y filtros (B/N, Alto Contraste).
+        *   **Capa Frontal (HTML/CSS)**: Renderizado de texto y UI para accesibilidad (lectores de pantalla) y estilos dinámicos (cambio de fuentes/colores al vuelo).
+    *   **Features**:
+        *   Modo "Lectura" (B/N) usando `PIXI.ColorMatrixFilter`.
+        *   Escalado de imagen tipo "cover" (Responsive).
+        *   Soporte para fuentes OpenDyslexic / alto contraste.
+
+2.  **Lógica de Datos "Fetcher" (Optimización)**
+    *   **Archivo Objetivo**: `src/services/StoryRepository.js`
+    *   **Estrategia**: `getNodeById(nodeId)` que trae TODO (Imagen, Textos, Opciones) en una sola llamada a Supabase (JOINs de `story_nodes` + `dialogues` + `story_choices`).
+    *   **Beneficio**: Carga instantánea de escenas.
+
+3.  **Gestión de Estado Centralizada ("El Cerebro")**
+    *   **Archivo Objetivo**: `src/engine/StoryEngine.js`
+    *   **Hook**: `useStoryEngine(startNodeId)`.
+4.  **Motor Narrativo de Decisiones (El Árbol)**
+    *   **Archivo Objetivo**: `src/engine/StoryEngine.js`
+    *   **Funcionalidad**:
+        *   Bloqueo de scroll al llegar a decisiones.
+        *   **Condiciones Invisibles**: Evalúa inventario (ej: "¿Tiene llave?") para mostrar/ocultar opciones.
+        *   **Memoria**: Registra elecciones para consecuencias futuras.
+    *   **Tecnología**: Grafos Dirigidos (Graph Traversal), Validación Lógica JS.
+
+5.  **Sincronización Offline-First (Modo Avión)**
+    *   **Funcionalidad**:
+        *   Descarga de paquetes de capítulos + imágenes comprimidas.
+        *   Lectura sin conexión usando caché local.
+        *   Sincronización background de `user_progress` al recuperar red.
+    *   **Tecnología**: IndexedDB (Dexie.js / TanStack Query), Service Workers (PWA).
+
+6.  **UI Reactiva "Glassmorphism"**
+    *   **Funcionalidad**:
+        *   Menús flotantes semitransparentes (no tapan el arte).
+        *   Animaciones suaves en inventarios/pausa.
+**Detalle Técnico de Implementación (R&D Lead):**
+
+1.  **Lógica del "Director de Escena" (Scene Orchestrator)**
+    *   **Función**: Enrutador de recursos y gestión de transiciones.
+    *   **Lógica**:
+        *   Pre-loader: Predice y descarga la siguiente imagen.
+        *   Fading: Transiciones suaves entre escenas.
+    *   **Tecnología**: React `useEffect` para escuchar `node_id`.
+
+2.  **Sistema de Capas de Accesibilidad (The Overlay System)**
+    *   **Estrategia**: Independencia total entre Arte (Z-Index 0) y Texto (Z-Index 10).
+    *   **Features**:
+        *   Inyección de Estilos: `var(--font-dynamic)` para cambios instantáneos.
+        *   Forzado de Accesibilidad: Ignora estilos "artísticos" si el usuario activa modos de accesibilidad.
+
+3.  **Motor de Consecuencias (State Machine)**
+    *   **Función**: Validación de condiciones complejas (Inventory check).
+    *   **Tecnología**:
+        *   **XState**: Para visualizar y gestionar estados de la historia.
+        *   **JSON Logic**: Reglas guardadas en BD que el frontend ejecuta dinámicamente.
+
+**Resumen de Arquitectura Final:**
+*   **Frontend**: React + Tailwind + Framer Motion.
+*   **Motor**: PixiJS (Canvas).
+*   **Estado**: Zustand + XState.
+*   **Offline**: IndexedDB (Dexie.js).
+4.  **Lógica de Sincronización Híbrida (Offline-First)**
+    *   **Estrategia**: Interceptación de peticiones de imagen.
+    *   **Flujo**:
+        1.  ¿Hay internet? -> Descarga de Supabase + Cachear.
+        2.  ¿No hay internet? -> Servir desde caché del navegador (Service Workers).
+        3.  Cola de Guardado: Si es offline, guarda decisiones en cola. Al volver online (`window.ononline`), sincroniza con nube.
+    *   **Tecnologías**: Service Workers (PWA), TanStack Query / RxDB.
+
+**Especificación Técnica: "Scene Orchestrator" (Ciclo de Vida)**
+*   **Responsabilidad**: Gestionar carga de assets -> Renderizado -> Input -> Transición.
+*   **Sub-módulos**:
+    *   **A. Asset Resolver**: Mapea `node_id` a archivos locales/remotos. Fallback a placeholder elegante.
+    *   **B. Accessibility Compositor**:
+        *   Capa 0 (Fondo): Imagen (PixiJS) + Filtros.
+        *   Capa 1 (Vignette): Gradiente negro para legibilidad.
+        *   Capa 2 (Texto): HTML semántico inyectado con estilos dinámicos (Context).
+    *   **C. Decision Engine**: Gestión de timing. Bloquea botones hasta terminar efecto "máquina de escribir".
+*   **Estrategia Rendimiento ("Regla del +1")**: Pre-carga silenciosa de las imágenes de las opciones siguientes (Node B, Node C) mientras el usuario lee Node A. USAR `StoryRepository` REAL, no lógica comentada.
+
+5.  **Capa de Descubrimiento (Main Menu / Discovery Layer)**
+    *   **Concepto**: "Immersive Dark Glass" (Webtoon style).
+    *   **Componente**: `src/pages/MainMenu.jsx`.
+    *   **Layout**:
+        *   **Hero Banner**: 60% alto, imagen destacada + degradado.
+        *   **Grilla Series**: Tarjetas verticales (2:3) con efecto hover/zoom.
+6.  **Mapa de Funcionalidades por Zona**
+    *   **ZONA 1: LA BIBLIOTECA (Main Menu)**
+        *   **Ruta**: `/` (Principal).
+        *   **Componentes**:
+            *   **Hero Banner**: Última serie jugada o "Featured".
+            *   **Grid**: Fetch dinámico de `series` con animación Hover (1.05x).
+            *   **Jump-In ("Continuar Leyendo")**: Fila superior exclusiva con barra de progreso visual.
+            *   **Chips de Género**: Filtrado automático (Terror, Sci-Fi, Romance).
+            *   **Buscador Instant search**: Desvanece (opacity 0.2) lo que no coincide.
+        *   **Avatar**: Menú desplegable (Logout, Ajustes).
+
+    *   **ZONA 2: EL LECTOR (StoryReader)**
+        *   **Ruta**: `/read/:seriesId`.
+        *   **Portadas**: Usar `series.cover_url` (assets locales).
+        *   **Typewriter Effect**: Texto letra a letra, clic para saltar.
+        *   **Pre-Carga Crítica**: Regla +1 activa.
+
+    *   **ZONA 2: EL LECTOR (Mejoras Inmersión)**
+        *   **Smart Resume**: Tarjeta ancha en Home con última viñeta + botón Play.
+        *   **Touch Zones**: Izq(20%) Atrás | Centro(60%) UI Toggle | Der(20%) Avanzar.
+        *   **Modo Cine**: Ocultar UI (Tap centro/Swipe down).
+        *   **Backlog**: Historial de diálogos (últimos 10).
+        *   **Feedback**: Haptic vibration (Shake) + Audio Crossfade.
+        *   **Destiny Tree**: Mapa visual en menú pausa (Nodos visitados/bloqueados).
+        *   **Transiciones**: Flash, Fade, Glitch (definidos en JSON).
+
+    *   **ZONA 3: SISTEMA (Calidad de Vida)**
+        *   **Multivisor (Sintonizador Visual)**: Panel Flotante Cyberpunk.
+            *   Tipografía: Botones con preview real.
+            *   Tamaño: Slider continuo con live-update.
+            *   Temas: Original, Sepia, Terminal (Alto Contraste).
+        *   **Galería Desbloqueable**: "Clean Art" (sin texto) al terminar capítulos.
+        *   **Neural Map (Árbol del Destino)**:
+            *   Metáfora: "Circuito Raíz" (Líneas neón, fondo dark).
+            *   Nodos: Actual (Pulso), Visitado (Miniatura), Disponible (Punteado), Oculto (Candado).
+            *   UX: Pan & Zoom, Centrado automático.
+            *   **Feature Killer**: "Rebobinado" (Reset estado a nodo anterior).
+
+
+
+

@@ -94,10 +94,38 @@ export function useStoryEngine(startNodeId) {
 
     // Load start node on mount
     useEffect(() => {
-        if (startNodeId && !currentNode) {
-            goToNode(startNodeId);
-        }
-    }, [startNodeId, goToNode]);
+        let mounted = true;
 
-    return { currentNode, loading, error, goToNode, storyState };
+        async function init() {
+            if (!startNodeId && !currentNode) {
+                // If it's a Series ID (UUID), we need to find the start node
+                // If it's a simple string like 'start', we use that.
+                // We'll trust repo to handle logic if we pass a param.
+                // But wait, useStoryEngine receives 'startNodeId'.
+                // If the App passes 'seriesId', we need a way to distinguish or just method overloading.
+
+                // FIX: we will assume if the ID looks like a UUID, we might need to look it up,
+                // BUT actually the caller (StoryReader) knows if it has a SeriesID.
+                // We should expose a 'loadSeries(id)' method or change the prop.
+            }
+        }
+    }, []);
+
+    const loadSeries = useCallback(async (seriesId) => {
+        setLoading(true);
+        try {
+            const node = await repo.getStartNodeBySeries(seriesId);
+            if (node) {
+                setCurrentNode(node);
+            } else {
+                setError("Could not load story start.");
+            }
+        } catch (e) { setError(e.message); }
+        setLoading(false);
+    }, []);
+
+    // If startNodeId is passed and matches a UUID format, treat as direct node OR series?
+    // Let's keep it simple: The hook exposes loadSeries
+
+    return { currentNode, loading, error, goToNode, loadSeries, storyState };
 }
