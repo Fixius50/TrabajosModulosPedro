@@ -62,6 +62,24 @@ export default function SettingsModal({ isOpen, onClose }) {
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-8">
                     <div className="space-y-8 animate-in fade-in duration-300">
+                        {/* Live Preview Box */}
+                        <div className="p-4 bg-slate-800 rounded-xl border border-slate-700">
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Vista Previa en Tiempo Real</label>
+                            <div
+                                className="bg-black/50 p-4 rounded-lg text-white"
+                                style={{
+                                    fontFamily: activeFont,
+                                    fontSize: `${fontSize}%`,   // Apply Font Size Percentage
+                                    border: borderStyle === 'white' ? '2px solid white' :
+                                        borderStyle === 'wood' ? '4px solid #8B4513' :
+                                            '2px solid #333'
+                                }}
+                            >
+                                <p className="leading-relaxed">
+                                    "El multiverso reacciona a tus decisiones..."
+                                </p>
+                            </div>
+                        </div>
 
                         {/* Typography */}
                         <section>

@@ -1,19 +1,36 @@
-LOG DE CODIGO CLAVE:
+[CODIGO CLAVE: Sistema de Puntuación]
 
---- StoryLoader.js (Cloud Logic) ---
-const cloudUrl = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${relativePath}`;
-try {
-    const response = await fetch(cloudUrl);
-    if (response.ok) return this.processStoryData(await response.json(), themeName, true);
-} catch (e) {
-    // Fallback to local
+// src/stores/userProgress.js
+visitNode(storyId, nodeId) {
+    if (!this.currentSessionNodes) this.currentSessionNodes = new Set();
+    this.currentSessionNodes.add(nodeId);
+    if (!this.state.visitedNodes[storyId].has(nodeId)) {
+        this.state.visitedNodes[storyId].add(nodeId);
+        this.state.points += 5; // +5 Puntos por nodo nuevo
+    }
 }
 
---- MarketService.js (Transactions) ---
-static async buyItem(itemId) {
-    const { data, error } = await supabase.rpc('buy_shop_item', { item_uuid: itemId });
-    return data;
+reachEnding(storyId, endingId, totalEndings, totalStoryNodes = 0) {
+    // Bonus por Ruta (Línea)
+    const sessionLength = this.currentSessionNodes ? this.currentSessionNodes.size : 0;
+    const routeBonus = sessionLength * 50;
+    this.state.points += routeBonus;
+
+    if (this.state.unlockedRoutes[storyId].size >= totalEndings) {
+        // Bonus 100%
+        const totalNodes = totalStoryNodes || this.state.visitedNodes[storyId].size;
+        this.state.points += totalNodes * 100;
+    }
 }
 
---- sync_assets.js (Node Script) ---
-const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(supabasePath, fileContent, { upsert: true });
+// src/engine/StoryEngine.js
+const handleChoice = useCallback(async (targetNodeId) => {
+    // ...
+    userProgress.visitNode(seriesId, targetNodeId);
+    
+    // Auto-detect ending
+    const isEnding = !nextNode.choices || nextNode.choices.every(c => c.action === 'EXIT');
+    if (isEnding) {
+        userProgress.reachEnding(seriesId, targetNodeId, totalEndings, totalNodes);
+    }
+});

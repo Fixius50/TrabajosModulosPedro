@@ -1,0 +1,565 @@
+LOG DE PROMPTS:
+--- INPUT USUARIO ---
+analiza el proyecto NovelaGrafica
+--- INPUT USUARIO ---
+de momento quiero probar la gestion en la nube (supabase) de las imagenes y sus json. Luego quiero hacer las recompensas por completar una ruta o completarlo todo, del mismo libro, y que se usa en el market para cambiar los estilos y fuentes
+--- INPUT USUARIO ---
+para esto quiero poder yo guardar en el codigo en una carpeta, quee so lo envie a supabase y alli lo descargue y me lo envie en otra carpeta, que es la que usará el proyecto para cargarlo. C:\Users\rober\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\public\assets es lo que quiero enviar a supabase. Puedes pasarme las tablas sql
+--- INPUT USUARIO ---
+[Fix Import Error Request]
+--- INPUT USUARIO ---
+ahora para todas las historias añadele una foto de "Continuara..." para despues de cuando acaben en un final
+--- INPUT USUARIO ---
+cuando llegue al continuará... mueve el boton hacia abajo y haz que se vuelva a la ventana de inicio. Aparte quiero que la imagen se vea entera y completa, no recortada, que este dentro de los bordes
+--- INPUT USUARIO ---
+el contain debe ser para todas las imagenes
+--- INPUT USUARIO ---
+elimina de la base de datos las demos
+LOG DE INCIDENCIAS:
+FECHA: 2025-12-15 23:35 -> [Error detectado] 'Failed to resolve import ../hooks/useAuth' in Marketplace.jsx -> [Solución aplicada] Eliminada importación errónea y usada verificación directa de Supabase (AuthGuard no expone hook).
+FECHA: 2025-12-15 23:45 -> [Error detectado] 'violates row-level security policy' en sync_assets.js -> [Solución aplicada] Generado script SQL 'fix_storage_rls.sql' para permitir uploads al bucket 'novel-assets'.
+FECHA: 2025-12-16 00:05 -> [Bug detectado] 'Typewriter Loop': El texto se reinicia al acabar o hacer click.
+    -> Causa: El prop 'onComplete' cambiaba en cada render, reiniciando el efecto.
+    -> Solución: Se memorizó el handler usando `useRef` en `VisualNovelCanvas.jsx`.
+[FEATURES]
+- **Historia Nueva**: 'BoBoBo-bo Bo-bobo' añadida con portada personalizada y metadatos.
+- **Sistema de Temas V2**:
+  - Implementación de temas 'Comic' (diseño viñeta, bordes negros, títulos superpuestos) y 'Manga' (b/n, tramados).
+  - Selector de temas en Perfil y Mercado con vista previa en tiempo real en Configuración.
+- **Sistema de Puntuación V2 (Dinámico)**:
+  - Tracking de sesión (`startSession`) para calcular longitud de rutas.
+  - Recompensa por Exploración: +5 puntos por nodo único.
+  - Recompensa por Ruta: (Nodos Sesión * 50) al llegar a un final.
+  - Recompensa 100%: (Total Nodos Historia * 100) al desbloquear todos los finales.
+- **Correcciones UI**:
+  - Fix en `MainMenu.jsx` para evitar props duplicados y crashes.
+  - Fix en `SettingsModal` para mostrar cambios de fuente/tamaño instantáneamente.
+LOG DE ARQUITECTURA:
+Core: React 19 + Vite.
+Motor Gráfico: Pixi.js ^8.14.
+Backend: Supabase (Auth, Database, Storage).
+Storage: Bucket 'novel-assets' (Público).
+Base de Datos: PostgreSQL (RLS enabled).
+Tablas Clave: profiles, series, chapters, shop_items, user_unlocks, user_routes.
+Estilos: TailwindCSS.
+Estado: Zustand (useGameStore).
+Scripting: Node.js (Sync Assets Script).
+[CODIGO CLAVE: Sistema de Puntuación]
+
+// src/stores/userProgress.js
+visitNode(storyId, nodeId) {
+    if (!this.currentSessionNodes) this.currentSessionNodes = new Set();
+    this.currentSessionNodes.add(nodeId);
+    if (!this.state.visitedNodes[storyId].has(nodeId)) {
+        this.state.visitedNodes[storyId].add(nodeId);
+        this.state.points += 5; // +5 Puntos por nodo nuevo
+    }
+}
+
+reachEnding(storyId, endingId, totalEndings, totalStoryNodes = 0) {
+    // Bonus por Ruta (Línea)
+    const sessionLength = this.currentSessionNodes ? this.currentSessionNodes.size : 0;
+    const routeBonus = sessionLength * 50;
+    this.state.points += routeBonus;
+
+    if (this.state.unlockedRoutes[storyId].size >= totalEndings) {
+        // Bonus 100%
+        const totalNodes = totalStoryNodes || this.state.visitedNodes[storyId].size;
+        this.state.points += totalNodes * 100;
+    }
+}
+
+// src/engine/StoryEngine.js
+const handleChoice = useCallback(async (targetNodeId) => {
+    // ...
+    userProgress.visitNode(seriesId, targetNodeId);
+    
+    // Auto-detect ending
+    const isEnding = !nextNode.choices || nextNode.choices.every(c => c.action === 'EXIT');
+    if (isEnding) {
+        userProgress.reachEnding(seriesId, targetNodeId, totalEndings, totalNodes);
+    }
+});
+
+> novelagrafica-app@0.0.0 lint
+> eslint .
+
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\DestinyTreeModal.jsx
+   2:10  error  'useStoryEngine' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     no-unused-vars
+   7:85  error  'onNavigateToNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+  18:40  error  Error: Cannot access variable before it is declared
+
+`computeTreeLayout` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  16 |                 const allNodes = await repo.getAllNodesBySeries(storyId);
+  17 |                 // Perform layouting
+> 18 |                 const computedLayout = computeTreeLayout(allNodes, 'start');
+     |                                        ^^^^^^^^^^^^^^^^^ `computeTreeLayout` accessed before it is declared
+  19 |                 setNodes(allNodes);
+  20 |                 setLayout(computedLayout);
+  21 |             };
+
+   68 |
+   69 |     // --- LAYOUT ALGORITHM ---
+>  70 |     const computeTreeLayout = (allNodes, rootId = 'start') => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  71 |         const positions = {};
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  72 |         if (!allNodes || allNodes.length === 0) return positions;
+      �Ǫ
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 132 |         return positions;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 133 |     };
+      | ^^^^^^^ `computeTreeLayout` is declared here
+  134 |
+  135 |     const [showLegend, setShowLegend] = useState(false);
+  136 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\Marketplace.jsx
+  9:45  error  'cloudPoints' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\RouteMap.jsx
+    1:20  error  'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+    2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+    9:35  error  'isCurrentNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            no-unused-vars
+  141:35  error  Error: Cannot access variable before it is declared
+
+`layoutNodes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  139 |                 }
+  140 |
+> 141 |                 const processed = layoutNodes(data);
+      |                                   ^^^^^^^^^^^ `layoutNodes` accessed before it is declared
+  142 |                 console.log("DEBUG: Processed layout nodes:", processed);
+  143 |                 setNodes(processed);
+  144 |             } catch (err) {
+
+  150 |
+  151 |     // Generic layout function
+> 152 |     const layoutNodes = (rawData) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         if (!rawData || !rawData.length) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |
+      �Ǫ
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 214 |         return finalNodes;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 215 |     };
+      | ^^^^^^^ `layoutNodes` is declared here
+  216 |
+  217 |     if (!isOpen) return null;
+  218 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\SettingsModal.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\Typewriter.jsx
+  7:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   5 |
+   6 |     useEffect(() => {
+>  7 |         setCharCount(0);
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+   8 |
+   9 |         // Use local variable for cleanup to ensure we clear the specific interval creating this scope
+  10 |         const timerId = setInterval(() => {  react-hooks/set-state-in-effect
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\TypewriterEffect.jsx
+  12:15  error  Error: Cannot access variable before it is declared
+
+`handleSkip` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  10 |
+  11 |     useImperativeHandle(ref, () => ({
+> 12 |         skip: handleSkip
+     |               ^^^^^^^^^^ `handleSkip` accessed before it is declared
+  13 |     }));
+  14 |
+  15 |     // Reset when text changes
+
+  37 |
+  38 |     // Click to skip
+> 39 |     const handleSkip = () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |         if (!isComplete) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |             clearInterval(timerRef.current);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |             setDisplayedText(text);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 43 |             setIsComplete(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 44 |             if (onComplete) onComplete();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 46 |     };
+     | ^^^^^^^ `handleSkip` is declared here
+  47 |
+  48 |     return (
+  49 |         <span  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\VisualNovelCanvas.jsx
+   2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  20:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  18 |     useEffect(() => {
+  19 |         if (currentNode) {
+> 20 |             setLoading(false);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |             setChoicesVisible(false); // Hide choices initially
+  22 |         }
+  23 |     }, [currentNode]);  react-hooks/set-state-in-effect
+  26:32  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\hooks\useStoryEngine.js
+   93:8   warning  React Hook useCallback has a missing dependency: 'checkCondition'. Either include it or remove the dependency array                 react-hooks/exhaustive-deps
+   97:13  error    'mounted' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                             no-unused-vars
+   99:24  error    'init' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                         no-unused-vars
+  112:8   warning  React Hook useEffect has missing dependencies: 'currentNode' and 'startNodeId'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\Login.jsx
+  4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\MainMenu.jsx
+    3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+   11:12  error  'showMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+   11:29  error  'setShowMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+   12:12  error  'syncStatus' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:12  error  'showSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:24  error  'setShowSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+   18:21  error  'stats' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+   18:28  error  'activeTheme' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+   58:11  error  'continueReading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  342:7   error  'iconButtonStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  343:7   error  'menuItemStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+  344:7   error  'chipStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\scripts\cleanup_duplicates.js
+  20:10  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\scripts\seed.js
+  20:10  error  'e' is defined but never used  no-unused-vars
+
+ԣ� 33 problems (31 errors, 2 warnings)
+
+
+> novelagrafica-app@0.0.0 lint
+> eslint . --max-warnings 1000 --no-color
+
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\DestinyTreeModal.jsx
+   2:10  error  'useStoryEngine' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+   7:85  error  'onNavigateToNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  21:40  error  Error: Cannot access variable before it is declared
+
+`computeTreeLayout` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  19 |                 console.log("Modal: Nodes received:", allNodes);
+  20 |                 // Perform layouting
+> 21 |                 const computedLayout = computeTreeLayout(allNodes, 'start');
+     |                                        ^^^^^^^^^^^^^^^^^ `computeTreeLayout` accessed before it is declared
+  22 |                 setNodes(allNodes);
+  23 |                 setLayout(computedLayout);
+  24 |             };
+
+   43 |
+   44 |     // 2. BFS Layout Algorithm (Generic Tree)
+>  45 |     const computeTreeLayout = (allNodes, rootId = 'start') => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  46 |         const positions = {};
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  47 |         if (!allNodes || allNodes.length === 0) return positions;
+      �Ǫ
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 117 |         return positions;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 118 |     };
+      | ^^^^^^^ `computeTreeLayout` is declared here
+  119 |
+  120 |     const [showLegend, setShowLegend] = useState(false);
+  121 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\RouteMap.jsx
+    1:20  error  'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+    2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        no-unused-vars
+    9:35  error  'isCurrentNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            no-unused-vars
+  141:35  error  Error: Cannot access variable before it is declared
+
+`layoutNodes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  139 |                 }
+  140 |
+> 141 |                 const processed = layoutNodes(data);
+      |                                   ^^^^^^^^^^^ `layoutNodes` accessed before it is declared
+  142 |                 console.log("DEBUG: Processed layout nodes:", processed);
+  143 |                 setNodes(processed);
+  144 |             } catch (err) {
+
+  150 |
+  151 |     // Generic layout function
+> 152 |     const layoutNodes = (rawData) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         if (!rawData || !rawData.length) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |
+      �Ǫ
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 214 |         return finalNodes;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 215 |     };
+      | ^^^^^^^ `layoutNodes` is declared here
+  216 |
+  217 |     if (!isOpen) return null;
+  218 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\SettingsModal.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\Typewriter.jsx
+  7:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   5 |
+   6 |     useEffect(() => {
+>  7 |         setCharCount(0);
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+   8 |
+   9 |         // Use local variable for cleanup to ensure we clear the specific interval creating this scope
+  10 |         const timerId = setInterval(() => {  react-hooks/set-state-in-effect
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\TypewriterEffect.jsx
+  13:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  11 |     // Reset when text changes
+  12 |     useEffect(() => {
+> 13 |         setDisplayedText('');
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |         setIsComplete(false);
+  15 |         indexRef.current = 0;
+  16 |  react-hooks/set-state-in-effect
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\VisualNovelCanvas.jsx
+   2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  16:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  14 |     useEffect(() => {
+  15 |         if (currentNode) {
+> 16 |             setLoading(false);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |             setChoicesVisible(false); // Hide choices initially
+  18 |         }
+  19 |     }, [currentNode]);  react-hooks/set-state-in-effect
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\hooks\useStoryEngine.js
+   93:8   warning  React Hook useCallback has a missing dependency: 'checkCondition'. Either include it or remove the dependency array                 react-hooks/exhaustive-deps
+   97:13  error    'mounted' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                             no-unused-vars
+   99:24  error    'init' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                         no-unused-vars
+  112:8   warning  React Hook useEffect has missing dependencies: 'currentNode' and 'startNodeId'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\Login.jsx
+  4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\MainMenu.jsx
+    3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+   11:12  error  'showMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+   11:29  error  'setShowMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+   12:12  error  'syncStatus' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:12  error  'showSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:24  error  'setShowSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+   18:21  error  'stats' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+   18:28  error  'activeTheme' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+   58:11  error  'continueReading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  342:7   error  'iconButtonStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  343:7   error  'menuItemStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+  344:7   error  'chipStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\scripts\cleanup_duplicates.js
+  20:10  error  'e' is defined but never used  no-unused-vars
+  22:5   error  'process' is not defined       no-undef
+  30:5   error  'process' is not defined       no-undef
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\scripts\seed.js
+   20:10  error  'e' is defined but never used                                                             no-unused-vars
+   22:5   error  'process' is not defined                                                                  no-undef
+   30:5   error  'process' is not defined                                                                  no-undef
+  248:19  error  'authData' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  267:5   error  'process' is not defined                                                                  no-undef
+
+ԣ� 37 problems (35 errors, 2 warnings)
+
+
+> novelagrafica-app@0.0.0 lint
+> eslint .
+
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\DestinyTreeModal.jsx
+   2:10  error  'useStoryEngine' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           no-unused-vars
+   7:85  error  'onNavigateToNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+  25:40  error  Error: Cannot access variable before it is declared
+
+`computeTreeLayout` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  23 |
+  24 |                 // Perform layouting
+> 25 |                 const computedLayout = computeTreeLayout(allNodes, 'start');
+     |                                        ^^^^^^^^^^^^^^^^^ `computeTreeLayout` accessed before it is declared
+  26 |                 setNodes(allNodes);
+  27 |                 setLayout(computedLayout);
+  28 |             };
+
+   75 |
+   76 |     // --- LAYOUT ALGORITHM ---
+>  77 |     const computeTreeLayout = (allNodes, rootId = 'start') => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  78 |         const positions = {};
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  79 |         if (!allNodes || allNodes.length === 0) return positions;
+      �
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 139 |         return positions;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 140 |     };
+      | ^^^^^^^ `computeTreeLayout` is declared here
+  141 |
+  142 |     const [showLegend, setShowLegend] = useState(false);
+  143 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\Marketplace.jsx
+  9:45  error  'cloudPoints' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\RouteMap.jsx
+    1:20  error  'useRef' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+    2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+    9:35  error  'isCurrentNode' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  141:35  error  Error: Cannot access variable before it is declared
+
+`layoutNodes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  139 |                 }
+  140 |
+> 141 |                 const processed = layoutNodes(data);
+      |                                   ^^^^^^^^^^^ `layoutNodes` accessed before it is declared
+  142 |
+  143 |                 setNodes(processed);
+  144 |             } catch (err) {
+
+  150 |
+  151 |     // Generic layout function
+> 152 |     const layoutNodes = (rawData) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         if (!rawData || !rawData.length) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |
+      �
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 214 |         return finalNodes;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 215 |     };
+      | ^^^^^^^ `layoutNodes` is declared here
+  216 |
+  217 |     if (!isOpen) return null;
+  218 |  react-hooks/immutability
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\SettingsModal.jsx
+  2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\Typewriter.jsx
+  7:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   5 |
+   6 |     useEffect(() => {
+>  7 |         setCharCount(0);
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+   8 |
+   9 |         // Use local variable for cleanup to ensure we clear the specific interval creating this scope
+  10 |         const timerId = setInterval(() => {  react-hooks/set-state-in-effect
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\components\VisualNovelCanvas.jsx
+   2:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  39:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  37 |     useEffect(() => {
+  38 |         if (currentNode) {
+> 39 |             setLoading(false);
+     |             ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |             setChoicesVisible(false); // Hide choices initially
+  41 |         }
+  42 |     }, [currentNode]);  react-hooks/set-state-in-effect
+  45:32  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\hooks\useStoryEngine.js
+  45:26  error    'e' is defined but never used                                                                                                    no-unused-vars
+  88:8   warning  React Hook useCallback has a missing dependency: 'checkCondition'. Either include it or remove the dependency array              react-hooks/exhaustive-deps
+  96:8   warning  React Hook useEffect has missing dependencies: 'currentNode' and 'goToNode'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\Login.jsx
+  4:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\pages\MainMenu.jsx
+    3:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                       no-unused-vars
+   11:12  error  'showMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+   11:29  error  'setShowMarketplace' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+   12:12  error  'syncStatus' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:12  error  'showSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u          no-unused-vars
+   14:24  error  'setShowSearch' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+   18:21  error  'stats' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+   18:28  error  'activeTheme' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+   76:11  error  'continueReading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  360:7   error  'iconButtonStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  361:7   error  'menuItemStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u       no-unused-vars
+  362:7   error  'chipStyle' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u           no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\scripts\cleanup_duplicates.js
+  20:10  error  'e' is defined but never used  no-unused-vars
+
+C:\Users\Roberto\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\src\services\StoryLoader.js
+  53:23  error  'isLastPanel' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  62:23  error  'node' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+
+? 32 problems (30 errors, 2 warnings)
+

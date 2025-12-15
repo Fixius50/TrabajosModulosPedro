@@ -8,8 +8,10 @@ export default function AuthGuard({ children }) {
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log("AuthGuard: Checking session...");
         // 1. Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
+            console.log("AuthGuard: Session received", session);
             setSession(session);
             setLoading(false);
         });

@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 // User Progress Store - Tracks choices, visited nodes, unlocked routes, points, and purchases
 // Uses localStorage for persistence
 
@@ -44,7 +46,15 @@ function loadProgress() {
                     parsed.visitedNodes[key] = new Set(parsed.visitedNodes[key]);
                 });
             }
-            return { ...DEFAULT_STATE, ...parsed };
+            // Merge parsed with default
+            const merged = { ...DEFAULT_STATE, ...parsed };
+            // Ensure nested objects exist (shallow merge doesn't protect these if overwritten)
+            if (!merged.purchases) merged.purchases = { ...DEFAULT_STATE.purchases };
+            else merged.purchases = { ...DEFAULT_STATE.purchases, ...merged.purchases }; // Deep(er) merge for purchases
+
+            if (!merged.stats) merged.stats = { ...DEFAULT_STATE.stats };
+
+            return merged;
         }
     } catch (e) {
         console.warn('Failed to load progress:', e);
@@ -98,7 +108,7 @@ class UserProgressStore {
     }
 
     notify() {
-        this.listeners.forEach(fn => fn(this.state));
+        this.listeners.forEach(fn => fn({ ...this.state }));
         saveProgress(this.state);
     }
 
@@ -106,74 +116,75 @@ class UserProgressStore {
         return this.state;
     }
 
-    // Visit a node - returns points earned (0 if already visited)
+    // Start a new session
+    startSession(storyId) {
+        this.currentSessionNodes = new Set();
+        this.state.stats.storiesStarted++;
+        this.notify();
+    }
+
+    // Visit a node
     visitNode(storyId, nodeId) {
         if (!this.state.visitedNodes[storyId]) {
             this.state.visitedNodes[storyId] = new Set();
         }
 
+        // Track for current session (route length)
+        if (!this.currentSessionNodes) this.currentSessionNodes = new Set();
+        this.currentSessionNodes.add(nodeId);
+
         // Check if already visited - NO POINTS if replaying
         if (this.state.visitedNodes[storyId].has(nodeId)) {
-            return 0; // Already visited, no points
+            return 0; // Already visited
         }
 
         // First time visiting this node
         this.state.visitedNodes[storyId].add(nodeId);
         this.state.stats.totalNodesVisited++;
-        this.state.points += POINTS.NEW_NODE_VISITED;
+        this.state.points += 5; // Fixed 5 points per node
 
         this.notify();
-        return POINTS.NEW_NODE_VISITED;
-    }
-
-    // Record a choice made by the player (for history log)
-    recordChoice(storyId, nodeId, choiceLabel, targetNodeId) {
-        if (!this.state.choices[storyId]) {
-            this.state.choices[storyId] = [];
-        }
-
-        this.state.choices[storyId].push({
-            nodeId,
-            choiceLabel,
-            targetNodeId,
-            timestamp: Date.now()
-        });
-
-        this.state.stats.totalChoicesMade++;
-
-        // Visit the target node and get points
-        const pointsEarned = this.visitNode(storyId, targetNodeId);
-
-        this.notify();
-        return pointsEarned;
+        return 5;
     }
 
     // Reach an ending
-    reachEnding(storyId, endingId, totalEndings) {
+    reachEnding(storyId, endingId, totalEndings, totalStoryNodes = 0) {
         if (!this.state.unlockedRoutes[storyId]) {
             this.state.unlockedRoutes[storyId] = new Set();
         }
 
-        // Check if ending already unlocked
+        // Bonus for completing the route (Line)
+        const sessionLength = this.currentSessionNodes ? this.currentSessionNodes.size : 0;
+        const routeBonus = sessionLength * 50;
+        this.state.points += routeBonus;
+        console.log(`Route Completed. Length: ${sessionLength}. Bonus: ${routeBonus}`);
+
+        // Check if ending already unlocked (for the completion bonus only)
         if (this.state.unlockedRoutes[storyId].has(endingId)) {
-            return 0; // Already reached, no points
+            this.notify();
+            return routeBonus; // Return just the route bonus if replayed
         }
 
         this.state.unlockedRoutes[storyId].add(endingId);
-        let pointsEarned = POINTS.ENDING_REACHED;
 
-        // Check if all endings are now unlocked
+        // 100% Completion Bonus
+        let completionBonus = 0;
         if (this.state.unlockedRoutes[storyId].size >= totalEndings) {
-            pointsEarned = POINTS.NEW_ROUTE_UNLOCKED * POINTS.ALL_ROUTES_BONUS_MULTIPLIER;
+            // "Hacer la historia entera son nodos * 100"
+            // Assuming totalStoryNodes is passed. If not, use visitedNodes count as approximation.
+            const totalNodes = totalStoryNodes || this.state.visitedNodes[storyId].size;
+            completionBonus = totalNodes * 100;
+
             if (!this.state.completedStories.includes(storyId)) {
                 this.state.completedStories.push(storyId);
                 this.state.stats.storiesCompleted++;
+                this.state.points += completionBonus;
+                console.log(`Story Completed! Bonus: ${completionBonus}`);
             }
         }
 
-        this.state.points += pointsEarned;
         this.notify();
-        return pointsEarned;
+        return routeBonus + completionBonus;
     }
 
     // Get visited nodes for a story
@@ -253,8 +264,6 @@ class UserProgressStore {
 export const userProgress = new UserProgressStore();
 
 // React hook
-import { useState, useEffect } from 'react';
-
 export function useUserProgress() {
     const [state, setState] = useState(userProgress.getState());
 
@@ -265,6 +274,7 @@ export function useUserProgress() {
     return {
         ...state,
         visitNode: (storyId, nodeId) => userProgress.visitNode(storyId, nodeId),
+        startSession: (storyId) => userProgress.startSession(storyId),
         recordChoice: (storyId, nodeId, choiceLabel, targetNodeId) => userProgress.recordChoice(storyId, nodeId, choiceLabel, targetNodeId),
         reachEnding: (storyId, endingId, totalEndings) => userProgress.reachEnding(storyId, endingId, totalEndings),
         getVisitedNodes: (storyId) => userProgress.getVisitedNodes(storyId),
