@@ -17,6 +17,7 @@ const DEFAULT_STATE = {
     },
     activeTheme: 'default',
     activeFont: 'Inter',
+    borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
     stats: {
         totalChoicesMade: 0,
         totalNodesVisited: 0,
@@ -220,10 +221,11 @@ class UserProgressStore {
         return { success: true };
     }
 
-    // Set active theme/font
+    // Set active theme/font/border
     setActive(type, value) {
         if (type === 'theme') this.state.activeTheme = value;
         if (type === 'font') this.state.activeFont = value;
+        if (type === 'border') this.state.borderStyle = value;
         this.notify();
     }
 

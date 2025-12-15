@@ -21,9 +21,9 @@ export default function MainMenu() {
         const fetchSeries = async () => {
             // New "File System" Stories (JSON Engine)
             const jsonStories = [
-                { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/images/cover_batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
-                { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/images/cover_dnd.png', genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'json:RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/images/cover_rick.png', genre: 'Sci-Fi', progress: 0, is_json: true },
+                { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
+                { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', progress: 0, is_json: true },
+                { id: 'json:RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', progress: 0, is_json: true },
             ];
 
             try {
@@ -52,7 +52,7 @@ export default function MainMenu() {
             } catch {
                 setSeries([
                     ...jsonStories,
-                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: '/assets/images/forest_entrance.jpg', genre: 'Cyberpunk', progress: 45 },
+                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: '/assets/portadas/forest_entrance.jpg', genre: 'Cyberpunk', progress: 45 },
                     { id: '3', title: 'Shadow Realm', description: 'Enfréntate a la oscuridad.', cover_url: '', genre: 'Terror', progress: 80 },
                 ]);
                 setSyncStatus('local');
@@ -132,7 +132,7 @@ export default function MainMenu() {
 
                     <button onClick={() => setShowProfileMenu(!showProfileMenu)} style={{
                         width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-                        background: 'url(/assets/images/cover_batman.png) center/cover', // Just a placeholder avatar
+                        background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
                         border: '2px solid rgba(255,255,255,0.2)',
                         cursor: 'pointer'
                     }} />

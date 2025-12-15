@@ -10,7 +10,7 @@ export default function StoryReader() {
     const navigate = useNavigate();
 
     // Connect to the new Central Brain
-    const { currentNode, loading, handleChoice, history, rewindTo, loadJsonStory } = useStoryEngine(seriesId);
+    const { currentNode, loading, handleChoice, history, rewindTo, loadJsonStory, storyNodes } = useStoryEngine(seriesId);
 
     // Initial Load Effect for JSON Stories
     const [init, setInit] = useState(false);
@@ -94,6 +94,7 @@ export default function StoryReader() {
                 storyId={seriesId}
                 currentNodeId={currentNode.id}
                 history={history}
+                externalNodes={storyNodes}
                 onNavigateToNode={(nodeId) => {
                     handleChoice(nodeId);
                     setShowMap(false);

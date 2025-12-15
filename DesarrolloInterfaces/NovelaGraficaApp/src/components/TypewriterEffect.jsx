@@ -9,7 +9,8 @@ const TypewriterEffect = forwardRef(({ text, speed = 25, onComplete }, ref) => {
     const timerRef = useRef(null);
 
     useImperativeHandle(ref, () => ({
-        skip: handleSkip
+        skip: handleSkip,
+        get isTyping() { return !isComplete; }
     }));
 
     // Reset when text changes

@@ -125,6 +125,13 @@ export class StoryLoader {
                     // Image Logic
                     const imgName = `${imgPrefix}${panel.panel_id}.jpg`;
 
+                    // Calculate children for Tree Layout
+                    const children = [];
+                    if (nextNodeId) children.push(nextNodeId);
+                    if (choices) choices.forEach(c => {
+                        if (c.nextNodeId) children.push(c.nextNodeId);
+                    });
+
                     nodes[uniqueId] = {
                         id: uniqueId,
                         image_url: `${rootUrl}/${imgName}`,
@@ -132,9 +139,10 @@ export class StoryLoader {
                         speaker_name: dial.character,
                         choices: choices,
                         next: nextNodeId, // Helper for lineal flow
+                        children: children, // REQUIRED for DestinyTreeModal layout
                         is_json: true
                     };
-                    console.log(`[StoryLoader] Generated Node: ${uniqueId}, Image: ${nodes[uniqueId].image_url}`);
+                    console.log(`[StoryLoader] Generated Node: ${uniqueId}, Children: ${children.length}`);
                 });
             });
         });

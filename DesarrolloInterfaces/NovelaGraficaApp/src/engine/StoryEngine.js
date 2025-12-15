@@ -163,7 +163,7 @@ export const useStoryEngine = (seriesId) => {
     handleChoice,
     history,
     rewindTo,
-    loadJsonStory // Export the new function
+    loadJsonStory, // Export the new function
+    storyNodes // Export the full graph for the Map
   };
 };
-

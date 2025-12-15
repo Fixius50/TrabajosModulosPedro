@@ -14,16 +14,27 @@ const THEMES = [
     { id: 'terminal', label: 'Terminal', color: '#22c55e' }
 ];
 
+const BORDERS = [
+    { id: 'black', label: 'Negro', color: '#000000', preview: 'bg-black' },
+    { id: 'white', label: 'Blanco', color: '#ffffff', preview: 'bg-white' },
+    { id: 'wood', label: 'Madera', color: '#8B4513', preview: 'bg-gradient-to-br from-amber-200 via-amber-600 to-amber-900' }
+];
+
 export default function SettingsModal({ isOpen, onClose }) {
     const [activeTab, setActiveTab] = useState('VISUAL');
-    const { activeFont, activeTheme, setFont, setTheme } = useUserProgress();
+    const { activeFont, activeTheme, borderStyle, setActive } = useUserProgress();
+
+    // Helper wrappers for setActive
+    const setFont = (id) => setActive('font', id);
+    const setTheme = (id) => setActive('theme', id);
+    const setBorder = (id) => setActive('border', id);
 
     // Mock States for Gallery
     const galleryItems = [
-        { id: 1, src: '/assets/images/forest_entrance.jpg', locked: false },
-        { id: 2, src: '/assets/images/placeholder_2.jpg', locked: true },
-        { id: 3, src: '/assets/images/placeholder_3.jpg', locked: true },
-        { id: 4, src: '/assets/images/placeholder_4.jpg', locked: true },
+        { id: 1, src: '/assets/portadas/Batman.png', locked: false },
+        { id: 2, src: '/assets/portadas/DnD.png', locked: false },
+        { id: 3, src: '/assets/portadas/RickAndMorty.png', locked: false },
+        { id: 4, src: '/assets/portadas/forest_entrance.jpg', locked: true },
     ];
 
     if (!isOpen) return null;
@@ -54,8 +65,8 @@ export default function SettingsModal({ isOpen, onClose }) {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`flex-1 py-2 text-sm font-bold tracking-wider rounded-lg transition-all ${activeTab === tab
-                                    ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20'
-                                    : 'text-slate-500 hover:bg-slate-800 hover:text-slate-200'
+                                ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20'
+                                : 'text-slate-500 hover:bg-slate-800 hover:text-slate-200'
                                 }`}
                         >
                             {tab}
@@ -77,8 +88,8 @@ export default function SettingsModal({ isOpen, onClose }) {
                                             key={font.id}
                                             onClick={() => setFont(font.id)}
                                             className={`h-20 rounded-xl border-2 flex items-center justify-center text-2xl transition-all ${activeFont === font.id
-                                                    ? 'border-yellow-400 bg-yellow-400/10 text-yellow-400 scale-105'
-                                                    : 'border-slate-800 bg-slate-800/50 text-slate-400 hover:border-slate-600'
+                                                ? 'border-yellow-400 bg-yellow-400/10 text-yellow-400 scale-105'
+                                                : 'border-slate-800 bg-slate-800/50 text-slate-400 hover:border-slate-600'
                                                 }`}
                                             style={{ fontFamily: font.family }}
                                         >
@@ -102,12 +113,35 @@ export default function SettingsModal({ isOpen, onClose }) {
                                             key={theme.id}
                                             onClick={() => setTheme(theme.id)}
                                             className={`w-16 h-16 rounded-full border-4 transition-all flex items-center justify-center ${activeTheme === theme.id
-                                                    ? 'border-yellow-400 scale-110 shadow-[0_0_20px_currentColor]'
-                                                    : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'
+                                                ? 'border-yellow-400 scale-110 shadow-[0_0_20px_currentColor]'
+                                                : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'
                                                 }`}
                                             style={{ backgroundColor: theme.color, color: theme.color }}
                                         >
                                             {activeTheme === theme.id && <span className="text-black font-bold">✓</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Border Style Selector */}
+                            <section>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-4">Estilo del Marco</label>
+                                <div className="flex gap-4 justify-center">
+                                    {BORDERS.map(border => (
+                                        <button
+                                            key={border.id}
+                                            onClick={() => setBorder(border.id)}
+                                            className={`w-20 h-20 rounded-xl border-4 transition-all flex flex-col items-center justify-center gap-1 ${borderStyle === border.id
+                                                ? 'border-yellow-400 scale-110 shadow-lg'
+                                                : 'border-slate-700 opacity-60 hover:opacity-100 hover:scale-105'
+                                                }`}
+                                        >
+                                            <div
+                                                className={`w-10 h-10 rounded-lg ${border.preview}`}
+                                                style={{ border: `4px solid ${border.color}` }}
+                                            ></div>
+                                            <span className="text-xs text-white font-medium">{border.label}</span>
                                         </button>
                                     ))}
                                 </div>

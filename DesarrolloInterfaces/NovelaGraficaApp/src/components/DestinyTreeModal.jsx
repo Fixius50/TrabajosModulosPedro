@@ -4,16 +4,23 @@ import { StoryRepository } from '../services/StoryRepository';
 
 const repo = new StoryRepository();
 
-export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNodeId, onNavigateToNode, history = [], onRewind }) {
+export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNodeId, onNavigateToNode, history = [], onRewind, externalNodes }) {
     const [nodes, setNodes] = useState([]);
     const [layout, setLayout] = useState({});
     const containerRef = useRef(null);
 
     // 1. Fetch Data
     useEffect(() => {
-        if (isOpen && storyId) {
+        if (isOpen) {
             const loadTree = async () => {
-                const allNodes = await repo.getAllNodesBySeries(storyId);
+                let allNodes = [];
+                if (externalNodes && Object.keys(externalNodes).length > 0) {
+                    // Check if externalNodes is already an array or object
+                    allNodes = Array.isArray(externalNodes) ? externalNodes : Object.values(externalNodes);
+                } else if (storyId) {
+                    allNodes = await repo.getAllNodesBySeries(storyId);
+                }
+
                 // Perform layouting
                 const computedLayout = computeTreeLayout(allNodes, 'start');
                 setNodes(allNodes);
@@ -21,7 +28,7 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
             };
             loadTree();
         }
-    }, [isOpen, storyId]);
+    }, [isOpen, storyId, externalNodes]);
 
     // Auto-center on open
     useEffect(() => {

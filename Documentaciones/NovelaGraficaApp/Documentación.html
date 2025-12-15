@@ -1,28 +1,73 @@
-
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentación - Novela Gráfica App</title>
     <style>
-        body { font-family: system-ui, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 2rem; background: #f4f4f5; color: #18181b; }
-        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        h1 { color: #4f46e5; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
-        h2 { margin-top: 2rem; color: #1f2937; }
-        pre { background: #18181b; color: #e5e7eb; padding: 1rem; border-radius: 6px; overflow-x: auto; }
-        code { font-family: Menlo, Monaco, Consolas, monospace; }
-        .badge { display: inline-block; padding: 0.25rem 0.5rem; background: #e0e7ff; color: #4338ca; border-radius: 4px; font-size: 0.875rem; font-weight: 600; margin-right: 0.5rem; }
+        body {
+            font-family: system-ui, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f4f4f5;
+            color: #18181b;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #4f46e5;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            margin-top: 2rem;
+            color: #1f2937;
+        }
+
+        pre {
+            background: #18181b;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: Menlo, Monaco, Consolas, monospace;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>📚 Novela Gráfica App - Documentación Técnica</h1>
         <p><strong>Última Actualización:</strong> 15/12/2025, 18:04:08</p>
-        
+
         <h2>Resumen del Proyecto</h2>
-        <p>Una aplicación de Novela Visual Interactiva creada con React, Vite y Supabase. Cuenta con un motor de decisiones, sistema de inventario, consecuencias persistentes y soporte para historias basadas en JSON.</p>
-        
+        <p>Una aplicación de Novela Visual Interactiva creada con React, Vite y Supabase. Cuenta con un motor de
+            decisiones, sistema de inventario, consecuencias persistentes y soporte para historias basadas en JSON.</p>
+
         <div>
             <span class="badge">React</span>
             <span class="badge">Vite</span>
@@ -87,9 +132,9 @@ Guardado en `src/db/seed.sql`. Este script SQL rellena la base de datos con la h
 `src/components/RouteMap.jsx`:
 ```javascript
 // Propagación detenida para evitar cierre del mapa
-<button onClick={(e) => { e.stopPropagation(); setShowConfirmation(true); }}>
+&lt;button onClick={(e) =&gt; { e.stopPropagation(); setShowConfirmation(true); }}&gt;
     ↩️ Volver aquí
-</button>
+&lt;/button&gt;
 
 // Lógica de confirmación y callback
 if (onNavigateToNode) {
@@ -126,8 +171,8 @@ const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', ... 
 `src/App.jsx`:
 ```javascript
 // Rutas Protegidas
-<Route path="/" element={<AuthGuard><MainMenu /></AuthGuard>} />
-<Route path="/login" element={<Login />} />
+&lt;Route path="/" element={&lt;AuthGuard&gt;&lt;MainMenu /&gt;&lt;/AuthGuard&gt;} /&gt;
+&lt;Route path="/login" element={&lt;Login /&gt;} /&gt;
 ```
 
 **Usuario:**
@@ -306,11 +351,11 @@ await createStory(
 
 **Usuario:**
 > Luego los dialogos los quiero en las imagenes en bocadillos
-> Luego los puntos son para el marketplace que te cambia el dise�o de la pagina entera y cambia lsas fuentes de texto
+> Luego los puntos son para el marketplace que te cambia el diseño de la pagina entera y cambia las fuentes de texto
 > luz verde
 
 **Funcionalidad Implementada:**
-*   **Marketplace & Personalizaci�n**: Puntos, Theme Manager, Tienda de Temas/Fuentes.
+*   **Marketplace & Personalización**: Puntos, Theme Manager, Tienda de Temas/Fuentes.
 *   **Lector**: Bocadillos (Comic Bubbles), Click-to-Finish, Modo Cine.
 *   **Mapa**: Drag & Pan, Path Highlighting.
 
@@ -319,20 +364,20 @@ await createStory(
 > Ahora prueba la app. Para esto crea un usuario simple de prueba primero.
 
 **Funcionalidad Implementada (Testing):**
-*   **Creaci�n de Usuarios**: Se intent� usar seed.js y create_test_user.js.
+*   **Creación de Usuarios**: Se intentó usar seed.js y create_test_user.js.
 *   **Resultados**:
-    *   Validaci�n estricta de email en Supabase o reCAPTCHA bloquearon 'browser_test@example.com'.
-    *   Se cre� exitosamente el script de creaci�n manual con 'roberto.dev.2025@gmail.com'.
-*   **Verificaci�n Manual**:
-    *   Se verific� la carga del Men� Principal y la l�gica de Fallback (Datos locales si falla la nube).
-    *   Se verific� la navegaci�n a /marketplace y /login.
+    *   Validación estricta de email en Supabase o reCAPTCHA bloquearon 'browser_test@example.com'.
+    *   Se creó exitosamente el script de creación manual con 'roberto.dev.2025@gmail.com'.
+*   **Verificación Manual**:
+    *   Se verificó la carga del Menú Principal y la lógica de Fallback (Datos locales si falla la nube).
+    *   Se verificó la navegación a /marketplace y /login.
 
 
 **Usuario:**
-> si, usa nano banana. (Generaci�n de Assets Reimaginados)
+> si, usa nano banana. (Generación de Assets Reimaginados)
 
 **Funcionalidad Implementada (Assets):**
-*   **Generaci�n de Im�genes**: Se utiliz� el modelo 'Nano Banana' (Engine de Imagen) para generar:
+*   **Generación de Imágenes**: Se utilizó el modelo 'Nano Banana' (Engine de Imagen) para generar:
     *   Portada Batman: Gotham Noir Style.
     *   Portada D&D: Fantasy Crypt Battle.
     *   Portada Rick & Morty: Sci-Fi Portal Run.
@@ -340,20 +385,38 @@ await createStory(
 
 
 **Usuario:**
-> YA (Confirmaci�n de Assets/SQL y Ejecuci�n Final)
+> YA (Confirmación de Assets/SQL y Ejecución Final)
 
 **Funcionalidad Implementada (JSON Engine):**
-*   **Arquitectura H�brida**: Se refactoriz� el motor para soportar tanto Base de Datos (Supabase) como JSON Files locales.
+*   **Arquitectura Híbrida**: Se refactorizó el motor para soportar tanto Base de Datos (Supabase) como JSON Files locales.
 *   **StoryLoader.js**: Nuevo servicio para parsear historias desde public/assets.
-*   **Heur�stica de Assets**: Mapeo autom�tico de scene_id a archivos de imagen (Batman Scene 1 -> 1.jpg, Scene 2a -> A1.jpg).
+*   **Heurística de Assets**: Mapeo automático de scene_id a archivos de imagen (Batman Scene 1 -> 1.jpg, Scene 2a -> A1.jpg).
 *   **Historias Activadas**:
     *   Batman (Detective Noir)
-    *   D&D (Fantas�a Cl�sica)
+    *   D&D (Fantasía Clásica)
     *   Rick & Morty (Sci-Fi)
-*   **Estado**: C�digo implementado y verificado est�ticamente. Login desbloqueado por usuario.
+*   **Estado**: Código implementado y verificado estáticamente. Login desbloqueado por usuario.
+
+**Usuario:**
+> Fix navigation bugs, decision tree layout, and polish UI (Comic Panel & Centered Buttons).
+
+**Funcionalidad Implementada (UI Polish & Stabilization):**
+*   **Navegación Robusta**:
+    *   **Botón CONTINUAR**: Implementado avance explícito para nodos lineales (evita confusión con clics accidentales).
+    *   **Lógica de Tipografía**: Corrección de estados `isTyping` vs `finished` para saltar texto suavemente.
+    *   **Árbol de Decisiones**: Arreglo en la visualización de nodos JSON (padres/hijos calculados correctamente en `StoryLoader`).
+
+*   **Estilo Visual "Cómic Inmersivo"**:
+    *   **Layout Limpio**: Diálogos movidos al fondo de la pantalla (estilo subtítulo), sin burbuja invasiva.
+    *   **Botones Centrados**: Opciones de decisión ahora aparecen en el centro visual para mayor ergonomía.
+    *   **Marco de Viñeta**: Nuevo contenedor "Comic Panel" que evita el recorte de imágenes y añade un borde temático.
+
+*   **Personalización Avanzada**:
+    *   **Selector de Marco**: Nueva opción en Configuración (Visual) para cambiar el borde del panel: Negro (Clásico), Blanco (Moderno) o Madera (Rústico).
+    *   **Assets**: Reorganización de `/assets/portadas` y estandarización de nombres de archivos para todas las historias.
 
 </pre>
-        
+
         <h2>Arquitectura (JSON Engine Update)</h2>
         <ul>
             <li><strong>StoryLoader</strong>: Servicio de carga de historias desde <code>/public/assets</code>.</li>
@@ -363,4 +426,5 @@ await createStory(
         </ul>
     </div>
 </body>
+
 </html>
