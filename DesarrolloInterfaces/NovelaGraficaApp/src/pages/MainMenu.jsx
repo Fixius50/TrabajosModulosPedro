@@ -26,7 +26,6 @@ export default function MainMenu() {
                 { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
                 { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', progress: 0, is_json: true },
                 { id: 'json:RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', progress: 0, is_json: true },
-                { id: 'json:BoBoBo', title: 'Bobobo-bo Bo-bobo', description: 'El arte del Combate de Pelo Nasal.', cover_url: '/assets/portadas/BoBoBo.png', genre: 'Absurdo', progress: 0, is_json: true },
             ];
 
             try {
@@ -306,80 +305,53 @@ export default function MainMenu() {
                                 layout
                                 whileHover={{ y: -10, scale: 1.02 }}
                                 onClick={() => navigate(`/read/${item.id}`)}
-                                className={`relative group transition-all cursor-pointer overflow-hidden border border-slate-800/50 shadow-lg ${activeTheme === 'comic' ? 'comic-card bg-yellow-400' :
-                                        activeTheme === 'manga' ? 'manga-card bg-white' :
-                                            activeTheme === 'sepia' ? 'bg-amber-50 rounded-xl' :
-                                                activeTheme === 'terminal' ? 'bg-slate-900 border border-green-500 rounded-sm' :
-                                                    'bg-slate-900 rounded-3xl border border-slate-800'
-                                    }`}
+                                style={{
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderRadius: '1.5rem',
+                                    overflow: 'hidden',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                }}
                             >
-                                {/* Cover Image */}
-                                <div className="h-48 overflow-hidden relative">
-                                    <img
-                                        src={item.cover_url || '/assets/placeholder.jpg'}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
+                                {/* Cover Image with Glass Overlay on Hover */}
+                                <div style={{
+                                    aspectRatio: '3/4',
+                                    background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                    position: 'relative'
+                                }}>
+                                    {/* Gradient Overlay at bottom */}
+                                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%)' }} />
 
-                                    {/* Comic Mode: Title Overlay */}
-                                    {activeTheme === 'comic' && (
-                                        <div className="absolute top-0 left-0 right-0 bg-black text-white p-2 clip-path-slant-bottom z-10">
-                                            <h3 className="font-black uppercase text-lg leading-none tracking-tighter text-yellow-400 drop-shadow-md">
-                                                {item.title}
-                                            </h3>
-                                            <span className="text-[10px] font-bold bg-white text-black px-1 rounded-sm mt-1 inline-block">
-                                                {item.genre}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* Manga Mode: Speed Lines Overlay */}
-                                    {activeTheme === 'manga' && (
-                                        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-                                    )}
-
-                                    <div className={`absolute inset-0 bg-gradient-to-t from-black/80 to-transparent transition-opacity ${activeTheme === 'comic' ? 'opacity-0' : 'opacity-100'}`} />
-
-                                    {/* Progress badge (standard) */}
-                                    {item.progress > 0 && activeTheme !== 'comic' && (
-                                        <div className="absolute top-2 right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full">
-                                            {item.progress}%
-                                        </div>
-                                    )}
+                                    {/* Badges */}
+                                    <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                                        {item.is_premium && <span style={{ background: '#fbbf24', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>PREMIUM</span>}
+                                        {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
+                                    </div>
                                 </div>
 
-                                {/* Content Body */}
-                                <div className="p-4 relative">
-                                    {/* Standard Title (Hide in Comic Mode) */}
-                                    {activeTheme !== 'comic' && (
-                                        <h3 className={`font-bold text-lg mb-1 line-clamp-1 ${activeTheme === 'manga' ? 'text-black' :
-                                            activeTheme === 'sepia' ? 'text-amber-900' :
-                                                activeTheme === 'terminal' ? 'text-green-400 font-mono' :
-                                                    'text-white'
-                                            }`}>{item.title}</h3>
-                                    )}
+                                {/* Content Info */}
+                                <div style={{ padding: '1.25rem' }}>
+                                    <h3 style={{
+                                        fontWeight: 700,
+                                        fontSize: '1.1rem',
+                                        marginBottom: '0.5rem',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>{item.title}</h3>
 
-                                    {/* Description */}
-                                    <div className="flex justify-between items-end">
-                                        <p className={`text-xs line-clamp-2 flex-1 ${activeTheme === 'comic' ? 'text-black font-bold leading-tight' :
-                                            activeTheme === 'manga' ? 'text-slate-600 font-medium' :
-                                                activeTheme === 'sepia' ? 'text-amber-800' :
-                                                    activeTheme === 'terminal' ? 'text-green-500/80' :
-                                                        'text-slate-400'
-                                            }`}>
-                                            {item.description}
-                                        </p>
-
-                                        {/* Genre Tag (Standard) */}
-                                        {activeTheme !== 'comic' && (
-                                            <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider ml-2 ${activeTheme === 'manga' ? 'bg-black text-white' :
-                                                activeTheme === 'sepia' ? 'bg-amber-200 text-amber-900 border border-amber-300' :
-                                                    activeTheme === 'terminal' ? 'border border-green-500 text-green-500' :
-                                                        'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                                                }`}>
-                                                {item.genre || 'Historia'}
-                                            </span>
-                                        )}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            color: '#a78bfa',
+                                            background: 'rgba(139, 92, 246, 0.1)',
+                                            padding: '0.2rem 0.6rem',
+                                            borderRadius: '0.5rem'
+                                        }}>
+                                            {item.genre || 'Historia'}
+                                        </span>
+                                        <span style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.4)' }}>➔</span>
                                     </div>
                                 </div>
                             </motion.article>
@@ -391,7 +363,7 @@ export default function MainMenu() {
             {/* MODALS */}
             <ProfileModal isOpen={showProfileMenu} onClose={() => setShowProfileMenu(false)} />
             <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
-        </div >
+        </div>
     );
 }
 
