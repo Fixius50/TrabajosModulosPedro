@@ -1,0 +1,9 @@
+LOG DE FUNCIONALIDADES:
+NUEVO: [Cloud Asset Management] Script 'scripts/sync_assets.js' para sincronizar carpeta local 'public/assets' con Supabase Storage.
+NUEVO: [Cloud Asset Management] 'StoryLoader.js' soporta carga híbrida (Cloud First, Local Fallback) de historias JSON e imágenes.
+NUEVO: [Marketplace] Convertido a Modal Dinámico 'MarketplaceModal.jsx' accesible desde el TopBar. Integrado con 'MarketService' y 'userProgress'.
+NUEVO: [Rewards System] Tablas SQL y lógica 'MarketService.js' para gestionar Puntos, Inventario y Rutas.
+NUEVO: [UX/Settings] 'SettingsModal.jsx' refactorizado: slider de tamaño de texto, selector de fuentes dinámico (incluye compras), eliminación de "Modo Visual".
+NUEVO: [UX/Profile] 'ProfileModal.jsx' añadido: Gestión de Tema (App Theme), Logout y visualización de ID.
+MODIFICACIÓN: [Visual Engine] 'VisualNovelCanvas.jsx' ahora respeta el tamaño de fuente configurado.
+MODIFICACIÓN: [UI Global] Imágenes con 'object-contain' y fondo negro.

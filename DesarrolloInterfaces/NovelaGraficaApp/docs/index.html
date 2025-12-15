@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación NovelaGraficaApp</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --text: #e2e8f0;
+            --accent: #8b5cf6;
+            --card: #1e293b;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2 {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .card {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #000;
+            padding: 1rem;
+            overflow-x: auto;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+        }
+
+        ul {
+            padding-left: 1.2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            background: var(--accent);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📘 Documentación del Proyecto</h1>
+    <p>Estado del Sistema: <strong>Activo</strong> | Última compilación: <span id="date"></span></p>
+
+    <div class="grid">
+        <!-- SECCIÓN 1: FEATURES -->
+        <div class="card">
+            <h2>🚀 Historial de Funcionalidades</h2>
+            <pre id="log-features">Cargando...</pre>
+        </div>
+
+        <!-- SECCIÓN 2: STACK -->
+        <div class="card">
+            <h2>🛠️ Arquitectura & Stack</h2>
+            <pre id="log-stack">Cargando...</pre>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 2rem;">
+        <!-- SECCIÓN 3: ERRORES & FIXES -->
+        <div class="card">
+            <h2>🔧 Bitácora de Incidencias</h2>
+            <pre id="log-errors">Cargando...</pre>
+        </div>
+
+        <!-- SECCIÓN 4: PROMPTS RAW -->
+        <div class="card">
+            <h2>🗣️ Bitácora de Usuario (Prompts)</h2>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <pre id="log-prompts">Cargando...</pre>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 2rem;">
+        <div class="card">
+            <h2>💻 Código Clave</h2>
+            <pre id="log-code">Cargando...</pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('date').innerText = new Date().toLocaleString();
+
+        const logs = {
+            features: `NUEVO: [Cloud Asset Management] Script 'scripts/sync_assets.js' para sincronizar carpeta local 'public/assets' con Supabase Storage.\nNUEVO: [Cloud Asset Management] 'StoryLoader.js' soporta carga híbrida (Cloud First, Local Fallback) de historias JSON e imágenes.\nNUEVO: [Marketplace] Página '/market' para comprar ítems con puntos virtuales.\nNUEVO: [Rewards System] Tablas SQL y lógica 'MarketService.js' para gestionar Puntos, Inventario (user_unlocks) y Rutas Completadas (user_routes).\nNUEVO: [Global Ending] Pantalla 'To Be Continued...' inyectada automáticamente. UI Refinada\nMODIFICACIÓN: [UI Global] Todas las imágenes de la historia ahora usan modo 'Contain' (ajuste completo) con fondo negro.`,
+            stack: `Core: React 19 + Vite.\nMotor Gráfico: Pixi.js ^8.14.\nBackend: Supabase (Auth, Database, Storage).\nStorage: Bucket 'novel-assets' (Público).\nBase de Datos: PostgreSQL (RLS enabled).\nTablas Clave: profiles, series, chapters, shop_items, user_unlocks, user_routes.\nEstilos: TailwindCSS.\nEstado: Zustand (useGameStore).\nScripting: Node.js (Sync Assets Script).`,
+            errors: `FECHA: 2025-12-15 23:35 -> [Error detectado] 'Failed to resolve import ../hooks/useAuth' in Marketplace.jsx -> [Solución aplicada] Eliminada importación errónea y usada verificación directa de Supabase (AuthGuard no expone hook).\nFECHA: 2025-12-15 23:45 -> [Error detectado] 'violates row-level security policy' en sync_assets.js -> [Solución aplicada] Generado script SQL 'fix_storage_rls.sql' para permitir uploads al bucket 'novel-assets'.`,
+            prompts: `--- INPUT USUARIO ---\nanaliza el proyecto NovelaGrafica\n--- INPUT USUARIO ---\nde momento quiero probar la gestion en la nube (supabase) de las imagenes y sus json. Luego quiero hacer las recompensas por completar una ruta o completarlo todo, del mismo libro, y que se usa en el market para cambiar los estilos y fuentes\n--- INPUT USUARIO ---\npara esto quiero poder yo guardar en el codigo en una carpeta, quee so lo envie a supabase y alli lo descargue y me lo envie en otra carpeta, que es la que usará el proyecto para cargarlo. C:\\Users\\rober\\Desktop\\TrabajosModulosPedro\\DesarrolloInterfaces\\NovelaGraficaApp\\public\\assets es lo que quiero enviar a supabase. Puedes pasarme las tablas sql\n--- INPUT USUARIO ---\nahora para todas las historias añadele una foto de "Continuara..." para despues de cuando acaben en un final\n--- INPUT USUARIO ---\ncuando llegue al continuará... mueve el boton hacia abajo y haz que se vuelva a la ventana de inicio. Aparte quiero que la imagen se vea entera y completa, no recortada, que este dentro de los bordes\n--- INPUT USUARIO ---\nel contain debe ser para todas las imagenes`,
+            code: `--- StoryLoader.js (Cloud Logic) ---\nconst cloudUrl = \`\${SUPABASE_PROJECT_URL}/storage/v1/object/public/\${STORAGE_BUCKET}/\${relativePath}\`;\ntry {\n    const response = await fetch(cloudUrl);\n    if (response.ok) return this.processStoryData(await response.json(), themeName, true);\n} catch (e) {\n    // Fallback to local\n}\n\n--- StoryLoader.js (UI Hints) ---\nlayout: 'contain',\nchoices: [\n    {\n        label: "Volver al Menú",\n        action: "EXIT",\n        style: "bottom-center"\n    }\n]\n\n--- VisualNovelCanvas.jsx (Render Logic) ---\nclassName="w-full h-full object-contain bg-black"\n// ...\nif (choice.action === 'EXIT') onBack();`
+        };
+
+        document.getElementById('log-features').innerText = logs.features;
+        document.getElementById('log-stack').innerText = logs.stack;
+        document.getElementById('log-errors').innerText = logs.errors;
+        document.getElementById('log-prompts').innerText = logs.prompts;
+        document.getElementById('log-code').innerText = logs.code;
+    </script>
+</body>
+
+</html>

@@ -3,6 +3,8 @@ import { supabase } from '../services/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../stores/userProgress';
+import ProfileModal from '../components/ProfileModal';
+import MarketplaceModal from '../components/MarketplaceModal';
 
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
@@ -119,18 +121,22 @@ export default function MainMenu() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        padding: '0.5rem 1rem',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '2rem',
-                        display: 'flex', alignItems: 'center', gap: '0.5rem'
-                    }}>
+                    <div
+                        onClick={() => setShowMarketplace(true)}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '2rem',
+                            display: 'flex', alignItems: 'center', gap: '0.5rem',
+                            cursor: 'pointer'
+                        }}
+                    >
                         <span style={{ fontSize: '1rem' }}>💎</span>
                         <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{points}</span>
                     </div>
 
-                    <button onClick={() => setShowProfileMenu(!showProfileMenu)} style={{
+                    <button onClick={() => setShowProfileMenu(true)} style={{
                         width: '2.5rem', height: '2.5rem', borderRadius: '50%',
                         background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
                         border: '2px solid rgba(255,255,255,0.2)',
@@ -353,6 +359,10 @@ export default function MainMenu() {
                     </motion.div>
                 )}
             </main>
+
+            {/* MODALS */}
+            <ProfileModal isOpen={showProfileMenu} onClose={() => setShowProfileMenu(false)} />
+            <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
         </div>
     );
 }

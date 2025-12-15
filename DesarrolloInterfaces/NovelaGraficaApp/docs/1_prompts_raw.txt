@@ -1,0 +1,17 @@
+LOG DE PROMPTS:
+--- INPUT USUARIO ---
+analiza el proyecto NovelaGrafica
+--- INPUT USUARIO ---
+de momento quiero probar la gestion en la nube (supabase) de las imagenes y sus json. Luego quiero hacer las recompensas por completar una ruta o completarlo todo, del mismo libro, y que se usa en el market para cambiar los estilos y fuentes
+--- INPUT USUARIO ---
+para esto quiero poder yo guardar en el codigo en una carpeta, quee so lo envie a supabase y alli lo descargue y me lo envie en otra carpeta, que es la que usará el proyecto para cargarlo. C:\Users\rober\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\public\assets es lo que quiero enviar a supabase. Puedes pasarme las tablas sql
+--- INPUT USUARIO ---
+[Fix Import Error Request]
+--- INPUT USUARIO ---
+ahora para todas las historias añadele una foto de "Continuara..." para despues de cuando acaben en un final
+--- INPUT USUARIO ---
+cuando llegue al continuará... mueve el boton hacia abajo y haz que se vuelva a la ventana de inicio. Aparte quiero que la imagen se vea entera y completa, no recortada, que este dentro de los bordes
+--- INPUT USUARIO ---
+el contain debe ser para todas las imagenes
+--- INPUT USUARIO ---
+elimina de la base de datos las demos

@@ -1,0 +1,177 @@
+{
+  "comic_title": "Bobobo: ¡Peligro en el Imperio Margarita!",
+  "theme": "Bobobo-bo Bo-bobo",
+  "initial_scene_id": "escena_01_encuentro",
+  "scenes": {
+    "escena_01_encuentro": {
+      "id": "escena_01_encuentro",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Plano general de desierto. Rocas con pelucas y peinados de señor mayor. Bobobo serio, Beauty preocupada y Don Patch disfrazado de cactus.",
+          "dialogues": [
+            {
+              "character": "Beauty",
+              "text": "Bobobo... ¿por qué todas estas piedras tienen un peinado de señor mayor?"
+            },
+            {
+              "character": "Bobobo",
+              "text": "Es el olor de la opresión, Beauty. Huele a laca barata y desesperación capilar."
+            },
+            {
+              "character": "Don Patch",
+              "text": "¡Soy un cactus! ¡Nadie sospecha nada!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Aparición del Capitán Gomina Letal con cañones a la espalda y tupé gigante. Beauty grita asustada.",
+          "dialogues": [
+            {
+              "character": "Capitán Gomina",
+              "text": "¡MUAHAHAHA! ¡Soy el Capitán Gomina Letal de la División C y os voy a dejar el pelo tan tieso que podréis usarlo para abrir latas de atún!"
+            },
+            {
+              "character": "Beauty",
+              "text": "¡¿Pero qué clase de amenaza es esa?!"
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Primer plano intenso de Bobobo. Ojos brillantes y aura de combate.",
+          "dialogues": [
+            {
+              "character": "Bobobo",
+              "text": "Nadie toca mi afro con productos químicos de dudosa procedencia. ¡Prepárate para sentir el poder del Arte del Pelo Nasal!"
+            }
+          ]
+        }
+      ],
+      "choice_prompt": {
+        "text": "El Capitán carga sus cañones. ¿Qué ataque absurdo usa Bobobo?",
+        "options": [
+          {
+            "option_id": "A",
+            "text": "Invocación de la Tía Paqui la del Pueblo.",
+            "next_scene_id": "escena_02a_tia_paqui"
+          },
+          {
+            "option_id": "B",
+            "text": "Usar a Don Patch como proyectil (Don Patch Ball).",
+            "next_scene_id": "escena_02b_don_patch_ball"
+          }
+        ]
+      }
+    },
+    "escena_02a_tia_paqui": {
+      "id": "escena_02a_tia_paqui",
+      "title": "Ruta: Amor de Abuela",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "El Capitán dispara gel verde. Bobobo hace una pose mística en lugar de esquivar.",
+          "dialogues": [
+            {
+              "character": "Capitán Gomina",
+              "text": "¡Toma fijación extrema, pelanas!"
+            },
+            {
+              "character": "Bobobo",
+              "text": "¡Técnica Secreta del Pelo Nasal: INVOCACIÓN DE FAMILIAR LEJANO PESADO!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "De la nariz de Bobobo sale una señora mayor (Tía Paqui) que para el ataque con su bolso.",
+          "dialogues": [
+            {
+              "character": "Tía Paqui",
+              "text": "¡Ay, mi niño! ¡Qué delgado te has quedado! ¡Ven que te de un beso que te cruja la espalda!"
+            },
+            {
+              "character": "Capitán Gomina",
+              "text": "¿¡Pero qué...!? ¡Mi gomina no le hace efecto a su permanente!"
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Paqui aplasta al Capitán con un abrazo de oso. Bobobo y Don Patch toman té tranquilamente al fondo.",
+          "dialogues": [
+            {
+              "character": "Tía Paqui",
+              "text": "¡SMACK! ¡SMACK! ¡Qué guapo eres!"
+            },
+            {
+              "character": "Capitán Gomina",
+              "text": "Demasiado... amor... de abuela... me rindo..."
+            },
+            {
+              "character": "Bobobo",
+              "text": "El amor familiar es el fijador más fuerte del universo, Don Patch."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Finalizado: Victoria por exceso de afecto."
+    },
+    "escena_02b_don_patch_ball": {
+      "id": "escena_02b_don_patch_ball",
+      "title": "Ruta: Traición y Pinchos",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Bobobo agarra violentamente a Don Patch (aún disfrazado de cactus). Don Patch entra en pánico.",
+          "dialogues": [
+            {
+              "character": "Bobobo",
+              "text": "¡A veces el sacrificio es necesario, viejo amigo!"
+            },
+            {
+              "character": "Don Patch",
+              "text": "¡ESPERA! ¡TODAVÍA SOY UN CACTUS! ¡ME VAS A CLAVAR LAS PUAS TÚ MISMO, IDIOTA!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Bobobo lanza a Don Patch como un misil giratorio hacia el Capitán.",
+          "dialogues": [
+            {
+              "character": "Bobobo",
+              "text": "¡TÉCNICA MORTAL: CACTUS-MISIL NARANJA DE LA AMISTAD TRAICIONADA!"
+            },
+            {
+              "character": "Don Patch",
+              "text": "¡TE ODIO BOBOBOOOOO!"
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Impacto explosivo en la cara del Capitán. Don Patch está incrustado en él. Bobobo hace pose de victoria.",
+          "dialogues": [
+            {
+              "character": "Capitán Gomina",
+              "text": "Mi peinado... arruinado por una naranja con pinchos..."
+            },
+            {
+              "character": "Bobobo",
+              "text": "¡La justicia siempre llega despeinada! ¡Bien hecho, Don Patch!"
+            },
+            {
+              "character": "Don Patch",
+              "text": "Sácame de aquí... huele a farmacia..."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Finalizado: Victoria por lanzamiento de compañero."
+    }
+  }
+}

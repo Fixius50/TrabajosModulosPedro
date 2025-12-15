@@ -6,10 +6,15 @@ Tu misión es construir la arquitectura completa aplicando **Ingeniería Defensi
 📂 `[NombreProyecto]App/`
  ├── 📄 `_historial_proyecto.md` (CRÍTICO: Archivo de registro para el documentador)
  ├── 📄 `.gitignore`
- ├── 📂 `App/` (Frontend)
- │    └── 📄 `index.html` (o `[NombreLogico].html`)
- └── 📂 `Server/` (Backend - Opcional)
-      └── 📄 `server.js`
+ ├── 📄 `index.html`
+ ├── 📂 `src/` (Frontend)
+ │    └── 📂 `components/`
+ │    └── 📂 `pages/`
+ │    └── 📂 `styles/`
+ │    └── 📂 `utils/`
+ │    └── 📂 `assets/`
+ ├── 📂 `Server/` (Backend - Opcional)
+ ├── 📂 `docs/` (Documentación) [aquí se usa el prompt de documentación]
 
 ---
 
@@ -33,11 +38,12 @@ Antes de escribir código:
 # FORMATO DE SALIDA (AL FINALIZAR)
 1.  **Archivos de Código:** Bloques con ruta relativa.
 2.  **Instrucciones de Terminal:** Comandos claros.
-3.  **REGISTRO DE PROYECTO (MANDATORIO):**
-    * Crea o sobrescribe el archivo `_historial_proyecto.md` en la raíz con:
-        * **PROMPTS:** Copia textual de mis instrucciones/prompts principales.
-        * **STACK:** Lista de Tecnologías e IAs usadas.
-        * **CÓDIGO CLAVE:** Pega aquí los fragmentos de código que manejan: *Almacenamiento de datos, Manejo de Archivos, Conexión a Backend y Base de Datos*. (Esto es vital para que el prompt de documentación entienda cómo funciona la app).
+3.  **Dentro de `docs/`, crea estos 4 archivos de texto plano (.txt):
+    * `1_prompts_raw.txt` (Inicia con: "LOG DE PROMPTS:\n"): Copia textual de mis instrucciones/prompts principales.
+    * `2_errores_fixes.txt` (Inicia con: "LOG DE INCIDENCIAS:\n"): Pega aquí los errores y soluciones.
+    * `3_features.txt` (Inicia con: "LOG DE FUNCIONALIDADES:\n"): pega aquí las funcionalidades principales de la app, tanto en diseño como en UX/UI.
+    * `4_stack_arch.txt` (Inicia con: "LOG DE ARQUITECTURA:\n"): Lista de Tecnologías, APIs e IAs usadas.
+    * `5_codigo_clave.txt` (Inicia con: "LOG DE CODIGO CLAVE:\n"): Pega aquí los fragmentos de código que manejan: *Almacenamiento de datos, Manejo de Archivos, Conexión a Backend y Base de Datos*. (Esto es vital para que el prompt de documentación entienda cómo funciona la app).
 
 **Tu respuesta inicial:**
 Pregúntame: "¿Qué sistema Full-Stack vamos a construir hoy? Dime el propósito y tu preferencia de BASE DE DATOS."

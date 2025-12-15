@@ -1,0 +1,19 @@
+LOG DE CODIGO CLAVE:
+
+--- StoryLoader.js (Cloud Logic) ---
+const cloudUrl = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/${STORAGE_BUCKET}/${relativePath}`;
+try {
+    const response = await fetch(cloudUrl);
+    if (response.ok) return this.processStoryData(await response.json(), themeName, true);
+} catch (e) {
+    // Fallback to local
+}
+
+--- MarketService.js (Transactions) ---
+static async buyItem(itemId) {
+    const { data, error } = await supabase.rpc('buy_shop_item', { item_uuid: itemId });
+    return data;
+}
+
+--- sync_assets.js (Node Script) ---
+const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(supabasePath, fileContent, { upsert: true });

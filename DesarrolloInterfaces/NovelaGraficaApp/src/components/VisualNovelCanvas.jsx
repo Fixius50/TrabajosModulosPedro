@@ -29,7 +29,7 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
     const [choicesVisible, setChoicesVisible] = useState(false);
     const [showUI, setShowUI] = useState(true); // UI visible by default
     const [menuOpen, setMenuOpen] = useState(false); // Menu closed by default
-    const { borderStyle } = useUserProgress();
+    const { borderStyle, fontSize } = useUserProgress();
 
 
     // Ref for the typewriter to control it externally
@@ -69,6 +69,9 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
         }
     };
 
+    const handleTypewriterComplete = useRef(() => setChoicesVisible(true)).current; // Stable reference
+    // Alternatively use useCallback but since it just sets state to true, this is fine or even useCallback([], ...)
+
     if (loading) {
         return (
             <div className="w-full h-full bg-slate-950 flex items-center justify-center">
@@ -103,7 +106,7 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                             transition={{ duration: 0.5 }}
                             src={currentNode?.image || currentNode?.image_url || '/assets/placeholders/bg_placeholder.jpg'}
                             alt="Scene Background"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain bg-black"
                         />
                     </AnimatePresence>
                 </div>
@@ -158,7 +161,7 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                         <div className="absolute inset-0 z-20 pointer-events-none">
 
                             {/* CHOICES - CENTERED IN SCREEN */}
-                            <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-auto">
+                            <div className={`absolute inset-0 flex items-center justify-center z-30 pointer-events-auto ${currentNode?.choices?.[0]?.style === 'bottom-center' ? 'items-end pb-20' : ''}`}>
                                 <AnimatePresence>
                                     {choicesVisible && (
                                         <motion.div
@@ -173,8 +176,15 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                                         key={idx}
                                                         whileHover={{ scale: 1.05, rotate: -1 }}
                                                         whileTap={{ scale: 0.95 }}
-                                                        onClick={(e) => { e.stopPropagation(); onChoiceSelect(choice.target || choice.nextNodeId); }}
-                                                        className="px-8 py-4 bg-white border-4 border-black text-black font-extrabold text-xl shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all rounded-xl uppercase min-w-[300px]"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (choice.action === 'EXIT') {
+                                                                onBack(); // Use the existing prop that navigates to home
+                                                            } else {
+                                                                onChoiceSelect(choice.target || choice.nextNodeId);
+                                                            }
+                                                        }}
+                                                        className={`px-8 py-4 bg-white border-4 border-black text-black font-extrabold text-xl shadow-[6px_6px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all rounded-xl uppercase min-w-[300px] ${choice.action === 'EXIT' ? 'bg-red-500 text-white border-white hover:bg-red-600' : ''}`}
                                                     >
                                                         {choice.label}
                                                     </motion.button>
@@ -211,13 +221,16 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                 )}
 
                                 {/* Animated Text */}
-                                <div className="text-xl md:text-2xl font-bold leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                                <div
+                                    className="font-bold leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+                                    style={{ fontSize: `${fontSize}%` }}
+                                >
                                     {currentNode?.text || currentNode?.dialogue_content ? (
                                         <TypewriterEffect
                                             ref={typewriterRef}
                                             text={currentNode?.text || currentNode?.dialogue_content}
                                             speed={20}
-                                            onComplete={() => setChoicesVisible(true)}
+                                            onComplete={handleTypewriterComplete}
                                         />
                                     ) : (
                                         "..."

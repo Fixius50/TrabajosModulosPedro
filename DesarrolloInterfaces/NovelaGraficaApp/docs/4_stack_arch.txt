@@ -1,0 +1,10 @@
+LOG DE ARQUITECTURA:
+Core: React 19 + Vite.
+Motor Gráfico: Pixi.js ^8.14.
+Backend: Supabase (Auth, Database, Storage).
+Storage: Bucket 'novel-assets' (Público).
+Base de Datos: PostgreSQL (RLS enabled).
+Tablas Clave: profiles, series, chapters, shop_items, user_unlocks, user_routes.
+Estilos: TailwindCSS.
+Estado: Zustand (useGameStore).
+Scripting: Node.js (Sync Assets Script).

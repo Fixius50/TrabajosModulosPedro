@@ -12,11 +12,12 @@ const DEFAULT_STATE = {
     completedStories: [], // storyIds with 100% completion
     purchases: {
         themes: ['default'],
-        fonts: ['Inter'],
+        fonts: ['Inter', 'OpenDyslexic', 'Arial Black'], // Default fonts
         effects: []
     },
     activeTheme: 'default',
     activeFont: 'Inter',
+    fontSize: 100, // Percentage 50-150%
     borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
     stats: {
         totalChoicesMade: 0,
@@ -225,6 +226,7 @@ class UserProgressStore {
     setActive(type, value) {
         if (type === 'theme') this.state.activeTheme = value;
         if (type === 'font') this.state.activeFont = value;
+        if (type === 'size') this.state.fontSize = value;
         if (type === 'border') this.state.borderStyle = value;
         this.notify();
     }

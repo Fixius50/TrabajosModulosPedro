@@ -1,0 +1,6 @@
+LOG DE INCIDENCIAS:
+FECHA: 2025-12-15 23:35 -> [Error detectado] 'Failed to resolve import ../hooks/useAuth' in Marketplace.jsx -> [Solución aplicada] Eliminada importación errónea y usada verificación directa de Supabase (AuthGuard no expone hook).
+FECHA: 2025-12-15 23:45 -> [Error detectado] 'violates row-level security policy' en sync_assets.js -> [Solución aplicada] Generado script SQL 'fix_storage_rls.sql' para permitir uploads al bucket 'novel-assets'.
+FECHA: 2025-12-16 00:05 -> [Bug detectado] 'Typewriter Loop': El texto se reinicia al acabar o hacer click.
+    -> Causa: El prop 'onComplete' cambiaba en cada render, reiniciando el efecto.
+    -> Solución: Se memorizó el handler usando `useRef` en `VisualNovelCanvas.jsx`.
