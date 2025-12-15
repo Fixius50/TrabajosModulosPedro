@@ -1,0 +1,129 @@
+{
+  "comic_title": "Batman: Sombras en el Muelle",
+  "theme": "Batman",
+  "initial_scene_id": "scene_01_rooftop",
+  "scenes": {
+    "scene_01_rooftop": {
+      "id": "scene_01_rooftop",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Plano General. Azotea lluviosa en Gotham de noche. Gordon junto a un cuerpo. Batman aterriza detrás.",
+          "dialogues": [
+            {
+              "character": "Comisionado Gordon",
+              "text": "Sabía que vendrías. La lluvia no borra todo en esta ciudad."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Plano Medio. Gordon muestra una bolsa de evidencia con una moneda quemada a Batman.",
+          "dialogues": [
+            {
+              "character": "Batman",
+              "text": "¿Qué tenemos, Jim?"
+            },
+            {
+              "character": "Comisionado Gordon",
+              "text": "Un estibador del muelle. Parece un robo... pero encontramos esto en su mano. Una moneda de dos caras, quemada."
+            },
+            {
+              "character": "Batman",
+              "text": "Dent."
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Primer Plano. Ojos de Batman. Visión de detective resaltando la moneda y un barro verde en la bota de la víctima.",
+          "dialogues": [
+            {
+              "character": "Batman (Pensamiento)",
+              "text": "La moneda es demasiado obvia. Es un mensaje ruidoso. Pero el barro en sus botas... tiene un tono verdoso inusual. Huele a químicos industriales."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": {
+        "text": "¿Qué pista debe priorizar Batman?",
+        "options": [
+          {
+            "option_id": "A",
+            "text": "Investigar la moneda de Dos Caras.",
+            "next_scene_id": "scene_02a_coin"
+          },
+          {
+            "option_id": "B",
+            "text": "Investigar el residuo verdoso en la bota.",
+            "next_scene_id": "scene_02b_residue"
+          }
+        ]
+      }
+    },
+    "scene_02a_coin": {
+      "id": "scene_02a_coin",
+      "title": "Ruta: Justicia Ciega",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Batman escanea la moneda con su guantelete en la azotea.",
+          "dialogues": [
+            {
+              "character": "Batman",
+              "text": "Dent no suele ser tan descuidado. Esto es una invitación. Rastrearé la aleación de la moneda."
+            },
+            {
+              "character": "Comisionado Gordon",
+              "text": "Ten cuidado. Si Harvey está lanzando la moneda de nuevo, la mitad de Gotham está en peligro."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Batcueva. La computadora muestra un mapa señalando la Antigua Corte de Justicia.",
+          "dialogues": [
+            {
+              "character": "Batman (Pensamiento)",
+              "text": "La moneda tiene trazas de amianto del viejo edificio de la Corte. Su lugar de 'nacimiento'. Allá voy, Harvey."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: Enfrentamiento con Dos Caras."
+    },
+    "scene_02b_residue": {
+      "id": "scene_02b_residue",
+      "title": "Ruta: Amenaza Tóxica",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Batman se agacha y toma una muestra del barro de la bota, ignorando a Gordon.",
+          "dialogues": [
+            {
+              "character": "Comisionado Gordon",
+              "text": "¿Batman? ¿Qué pasa con la moneda?"
+            },
+            {
+              "character": "Batman",
+              "text": "Demasiado teatral, incluso para Harvey. Alguien quiere que miremos en esa dirección. El verdadero peligro está en lo que pisó."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Interior del Batmóvil. Batman analiza la muestra química en una pantalla.",
+          "dialogues": [
+            {
+              "character": "Batman (Pensamiento)",
+              "text": "No es barro normal. Es una mezcla de fertilizante acelerado y toxinas de miedo. Solo dos personas en Gotham usan esto. Si trabajan juntos... el muelle es una bomba de tiempo."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: La alianza tóxica (Hiedra/Espantapájaros)."
+    }
+  }
+}

@@ -268,3 +268,52 @@ await createStory(
 **Estado Actual**:
 *   Esperando ejecuciÃ³n manual de migraciÃ³n SQL en Supabase Dashboard por parte del usuario.
 *   Seed script listo para repoblar con gÃ©neros correctos tras la migraciÃ³n.
+
+**Usuario:**
+> Luego los dialogos los quiero en las imagenes en bocadillos
+> Luego los puntos son para el marketplace que te cambia el diseño de la pagina entera y cambia lsas fuentes de texto
+> luz verde
+
+**Funcionalidad Implementada:**
+*   **Marketplace & Personalización**: Puntos, Theme Manager, Tienda de Temas/Fuentes.
+*   **Lector**: Bocadillos (Comic Bubbles), Click-to-Finish, Modo Cine.
+*   **Mapa**: Drag & Pan, Path Highlighting.
+
+
+**Usuario:**
+> Ahora prueba la app. Para esto crea un usuario simple de prueba primero.
+
+**Funcionalidad Implementada (Testing):**
+*   **Creación de Usuarios**: Se intentó usar seed.js y create_test_user.js.
+*   **Resultados**:
+    *   Validación estricta de email en Supabase o reCAPTCHA bloquearon 'browser_test@example.com'.
+    *   Se creó exitosamente el script de creación manual con 'roberto.dev.2025@gmail.com'.
+*   **Verificación Manual**:
+    *   Se verificó la carga del Menú Principal y la lógica de Fallback (Datos locales si falla la nube).
+    *   Se verificó la navegación a /marketplace y /login.
+
+
+**Usuario:**
+> si, usa nano banana. (Generación de Assets Reimaginados)
+
+**Funcionalidad Implementada (Assets):**
+*   **Generación de Imágenes**: Se utilizó el modelo 'Nano Banana' (Engine de Imagen) para generar:
+    *   Portada Batman: Gotham Noir Style.
+    *   Portada D&D: Fantasy Crypt Battle.
+    *   Portada Rick & Morty: Sci-Fi Portal Run.
+*   **Despliegue**: Assets movidos a /public/assets/images/ reemplazando los placeholders.
+
+
+**Usuario:**
+> YA (Confirmación de Assets/SQL y Ejecución Final)
+
+**Funcionalidad Implementada (JSON Engine):**
+*   **Arquitectura Híbrida**: Se refactorizó el motor para soportar tanto Base de Datos (Supabase) como JSON Files locales.
+*   **StoryLoader.js**: Nuevo servicio para parsear historias desde public/assets.
+*   **Heurística de Assets**: Mapeo automático de scene_id a archivos de imagen (Batman Scene 1 -> 1.jpg, Scene 2a -> A1.jpg).
+*   **Historias Activadas**:
+    *   Batman (Detective Noir)
+    *   D&D (Fantasía Clásica)
+    *   Rick & Morty (Sci-Fi)
+*   **Estado**: Código implementado y verificado estáticamente. Login desbloqueado por usuario.
+

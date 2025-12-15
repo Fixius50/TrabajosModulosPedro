@@ -1,0 +1,137 @@
+{
+  "comic_title": "Rick y Morty: Operación Desayuno Cuántico",
+  "theme": "Rick and Morty",
+  "initial_scene_id": "scene_01_garage_crisis",
+  "scenes": {
+    "scene_01_garage_crisis": {
+      "id": "scene_01_garage_crisis",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Plano general. Garaje desordenado. Morty come cereales preocupado. Solo se ven las piernas de Rick bajo la nave.",
+          "dialogues": [
+            {
+              "character": "Morty",
+              "text": "Eh... ¿Rick? ¿Es normal que el tostador esté intentando abrir un portal a la dimensión de las tostadas nazis?"
+            },
+            {
+              "character": "Rick (off)",
+              "text": "¡Cállate, Morty! Estoy lidiando con una crisis de nivel 5 mientras tú te llenas la cara de azúcar procesado."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Plano medio. Rick sale, mostrando la pistola de portales con el cristal roto y chispeante.",
+          "dialogues": [
+            {
+              "character": "Rick",
+              "text": "¡Se acabó, Morty! El Cristal Flurbo de la pistola se ha rajado. Si no lo cambiamos en diez minutos, este garaje implosionará en un microverso donde solo suena música polka al revés."
+            },
+            {
+              "character": "Morty",
+              "text": "¡Oh, cielos, Rick! ¡Yo no quiero escuchar polka al revés! ¡Haz algo!"
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Primer plano. Rick muestra una tablet con dos opciones de destino.",
+          "dialogues": [
+            {
+              "character": "Rick",
+              "text": "Tengo dos opciones para un repuesto. Opción A: La Dimensión 'Mega-Mall Infinito'. Segura y aburrida. Opción B: La Dimensión 'Vertedero de Chatarra Sensible'. Peligrosa y apestosa. Tú eliges, Morty."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": {
+        "text": "¿A dónde decide Morty que deben ir?",
+        "options": [
+          {
+            "option_id": "A",
+            "text": "Ir al 'Mega-Mall Infinito' (Seguro pero caro).",
+            "next_scene_id": "scene_02a_megamall"
+          },
+          {
+            "option_id": "B",
+            "text": "Ir al 'Vertedero de Chatarra' (Peligroso pero gratis).",
+            "next_scene_id": "scene_02b_junkworld"
+          }
+        ]
+      }
+    },
+    "scene_02a_megamall": {
+      "id": "scene_02a_megamall",
+      "title": "Ruta: Consumismo Galáctico",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Llegan por portal a un centro comercial blanco, inmaculado y futurista. Rick asqueado.",
+          "dialogues": [
+            {
+              "character": "Rick",
+              "text": "Ugh. Huele a desesperación de clase media y ambientador de lavanda barato. Odio este lugar."
+            },
+            {
+              "character": "Morty",
+              "text": "Bueno, al menos nadie nos está intentando comer."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Un robot recepcionista les pide dinero por respirar. Rick saca un arma.",
+          "dialogues": [
+            {
+              "character": "Robot Recepcionista",
+              "text": "¡Saludos! Para respirar el aire premium deben suscribirse. Son 500 Créditos Blim-Blam por minuto. ¿Efectivo o tarjeta de alma?"
+            },
+            {
+              "character": "Rick",
+              "text": "Tengo un cupón de descuento del 100% justo aquí, hojalata."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: Rick contra la burocracia del centro comercial."
+    },
+    "scene_02b_junkworld": {
+      "id": "scene_02b_junkworld",
+      "title": "Ruta: Basura Viviente",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Llegan a un planeta vertedero tóxico y sucio. Morty tose por el humo.",
+          "dialogues": [
+            {
+              "character": "Rick",
+              "text": "¡Jajá! ¡Sí! ¡El olor de la libertad anárquica!"
+            },
+            {
+              "character": "Morty",
+              "text": "*Cof, cof*. Creo que es metano altamente inflamable, Rick."
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Un monstruo gigante de chatarra aparece. Rick prepara un arma grande felizmente.",
+          "dialogues": [
+            {
+              "character": "Monstruo de Chatarra",
+              "text": "¡GRROAAAR! ¡INTRUSOS DE CARNE DEBEN SER RECICLADOS!"
+            },
+            {
+              "character": "Rick",
+              "text": "Genial. Espero que tengas garantía, grandullón, porque te voy a desmontar."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: Batalla en el planeta basura."
+    }
+  }
+}

@@ -4,11 +4,13 @@ import StoryReader from './pages/StoryReader';
 import Login from './pages/Login';
 import Marketplace from './components/Marketplace';
 import AuthGuard from './components/auth/AuthGuard';
+import ThemeManager from './components/ThemeManager';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <ThemeManager />
       <Routes>
         <Route path="/login" element={<Login />} />
 

@@ -19,18 +19,34 @@ export default function MainMenu() {
 
     useEffect(() => {
         const fetchSeries = async () => {
+            // New "File System" Stories (JSON Engine)
+            const jsonStories = [
+                { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/images/cover_batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
+                { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/images/cover_dnd.png', genre: 'Fantasía', progress: 0, is_json: true },
+                { id: 'json:Rick&Morty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/images/cover_rick.png', genre: 'Sci-Fi', progress: 0, is_json: true },
+            ];
+
             try {
                 if (!supabase) throw new Error("No client");
                 const { data, error } = await supabase.from('series').select('*');
-                if (error) throw error;
-                if (data?.length > 0) { setSeries(data); setSyncStatus('cloud'); }
-                else throw new Error("Empty");
+
+                // Merge JSON stories with DB stories (if any)
+                let combined = [...jsonStories];
+
+                if (!error && data?.length > 0) {
+                    // Deduplicate by title to prevent "Double Batman" bug from multiple seeds
+                    const uniqueDB = Array.from(new Map(data.map(item => [item.title, item])).values());
+                    combined = [...combined, ...uniqueDB];
+                    setSyncStatus('cloud');
+                }
+
+                setSeries(combined);
+
             } catch {
                 setSeries([
-                    { id: '1', title: 'El Bosque Digital', description: 'Una aventura cyberpunk interactiva.', cover_url: '/assets/images/forest_entrance.jpg', genre: 'Cyberpunk', progress: 45 },
-                    { id: '2', title: 'Neon Chronicles', description: 'La ciudad nunca duerme.', cover_url: '', genre: 'Sci-Fi', progress: 0 },
+                    ...jsonStories,
+                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: '/assets/images/forest_entrance.jpg', genre: 'Cyberpunk', progress: 45 },
                     { id: '3', title: 'Shadow Realm', description: 'Enfréntate a la oscuridad.', cover_url: '', genre: 'Terror', progress: 80 },
-                    { id: '4', title: 'Love in Tokyo', description: 'Un romance inesperado.', cover_url: '', genre: 'Romance', progress: 20 },
                 ]);
                 setSyncStatus('local');
             } finally {

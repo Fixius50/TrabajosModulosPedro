@@ -10,7 +10,15 @@ export default function StoryReader() {
     const navigate = useNavigate();
 
     // Connect to the new Central Brain
-    const { currentNode, loading, handleChoice, history, rewindTo } = useStoryEngine(seriesId);
+    const { currentNode, loading, handleChoice, history, rewindTo, loadJsonStory } = useStoryEngine(seriesId);
+
+    // Initial Load Effect for JSON Stories
+    const [init, setInit] = useState(false);
+    if (!init && seriesId && seriesId.startsWith('json:')) {
+        const themeName = seriesId.replace('json:', '');
+        loadJsonStory(themeName);
+        setInit(true);
+    }
 
     // Local UI State
     const [showMap, setShowMap] = useState(false);
@@ -21,7 +29,7 @@ export default function StoryReader() {
         return (
             <div className="w-full h-screen bg-slate-950 flex flex-col items-center justify-center text-yellow-500">
                 <div className="w-12 h-12 border-4 border-yellow-500/30 border-t-yellow-400 rounded-full animate-spin mb-4"></div>
-                <p className="font-mono text-sm tracking-widest animate-pulse">LOADING ENGINE...</p>
+                <p className="font-mono text-sm tracking-widest animate-pulse">LOADING ENGINE v2...</p>
             </div>
         );
     }

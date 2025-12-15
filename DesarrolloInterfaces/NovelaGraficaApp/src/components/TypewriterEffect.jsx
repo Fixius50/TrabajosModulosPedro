@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 
-const TypewriterEffect = ({ text, speed = 25, onComplete }) => {
+const TypewriterEffect = forwardRef(({ text, speed = 25, onComplete }, ref) => {
     const [displayedText, setDisplayedText] = useState('');
     const [isComplete, setIsComplete] = useState(false);
 
     const indexRef = useRef(0);
     const timerRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+        skip: handleSkip
+    }));
 
     // Reset when text changes
     useEffect(() => {
@@ -43,7 +47,7 @@ const TypewriterEffect = ({ text, speed = 25, onComplete }) => {
 
     return (
         <span
-            onClick={handleSkip}
+            onClick={(e) => { e.stopPropagation(); handleSkip(); }}
             className={`cursor-${isComplete ? 'default' : 'pointer'}`}
         >
             {displayedText}
@@ -52,7 +56,9 @@ const TypewriterEffect = ({ text, speed = 25, onComplete }) => {
             )}
         </span>
     );
-};
+});
+
+TypewriterEffect.displayName = 'TypewriterEffect';
 
 TypewriterEffect.propTypes = {
     text: PropTypes.string.isRequired,

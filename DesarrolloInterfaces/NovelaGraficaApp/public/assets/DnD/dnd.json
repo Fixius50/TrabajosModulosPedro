@@ -1,0 +1,125 @@
+{
+  "comic_title": "D&D: La Puerta de las Runas Olvidadas",
+  "theme": "Dungeons & Dragons",
+  "initial_scene_id": "scene_01_sealed_door",
+  "scenes": {
+    "scene_01_sealed_door": {
+      "id": "scene_01_sealed_door",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Plano general. Exterior ruinas al atardecer. El grupo (Guerrero, Maga, Pícaro) llega corriendo a una entrada de templo antigua.",
+          "dialogues": [
+            {
+              "character": "Finn (Pícaro)",
+              "text": "¡Os dije que no debíamos robarle el ídolo a esa tribu goblin! ¡Ya vienen! ¡Oigo sus tambores!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "Plano medio. Frente a una puerta de piedra gigante con runas brillantes. Kaelen la golpea, Lyra la estudia.",
+          "dialogues": [
+            {
+              "character": "Kaelen (Guerrero)",
+              "text": "Está sellada mágicamente. Mi espada no servirá de nada aquí."
+            },
+            {
+              "character": "Lyra (Maga)",
+              "text": "Silencio, Kaelen. Estas runas son antiguas... dialecto dracónico. Es un rompecabezas de contención."
+            }
+          ]
+        },
+        {
+          "panel_id": 3,
+          "description": "Primer plano de Finn asustado. Ojos rojos de goblins en el bosque oscuro detrás de él. Sonido de tambores.",
+          "dialogues": [
+            {
+              "character": "Finn (Pícaro)",
+              "text": "¡Chicos! ¡El rompecabezas puede esperar! ¡La horda está a menos de cien metros! ¡Tenemos que entrar YA!"
+            }
+          ]
+        }
+      ],
+      "choice_prompt": {
+        "text": "¿Cómo abre el grupo la puerta sellada?",
+        "options": [
+          {
+            "option_id": "A",
+            "text": "Usar la fuerza bruta divina (Kaelen).",
+            "next_scene_id": "scene_02a_force"
+          },
+          {
+            "option_id": "B",
+            "text": "Usar magia para sobrecargar las runas (Lyra).",
+            "next_scene_id": "scene_02b_magic"
+          }
+        ]
+      }
+    },
+    "scene_02a_force": {
+      "id": "scene_02a_force",
+      "title": "Ruta: El Ariete Divino",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Kaelen carga contra la puerta con su escudo brillando con luz dorada.",
+          "dialogues": [
+            {
+              "character": "Kaelen",
+              "text": "¡Atrás! ¡Por el martillo de Moradin, esta puerta CAERÁ!"
+            },
+            {
+              "character": "Lyra",
+              "text": "¡Kaelen, espera! ¡La estructura es inestable!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "La puerta rota. Polvo y escombros. Una nube de esporas tóxicas sale del interior.",
+          "dialogues": [
+            {
+              "character": "Finn",
+              "text": "*Cof, cof*. Bueno... está abierta. Y creo que acabamos de despertar a todo el moho venenoso de la mazmorra."
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: Enfrentando la trampa de esporas."
+    },
+    "scene_02b_magic": {
+      "id": "scene_02b_magic",
+      "title": "Ruta: Sobrecarga Arcana",
+      "panels": [
+        {
+          "panel_id": 1,
+          "description": "Primer plano de Lyra canalizando energía salvaje azul en las runas.",
+          "dialogues": [
+            {
+              "character": "Lyra",
+              "text": "¡No hay tiempo para sutilezas! ¡Voy a canalizar energía pura en el mecanismo!"
+            },
+            {
+              "character": "Kaelen",
+              "text": "¡Finn, dagas listas! ¡Prepárate para luchar en la entrada!"
+            }
+          ]
+        },
+        {
+          "panel_id": 2,
+          "description": "La puerta se desliza abierta silenciosamente. Los goblins aparecen detrás de ellos, atraídos por la luz mágica.",
+          "dialogues": [
+            {
+              "character": "Finn",
+              "text": "¡La puerta está abierta! ¡Y hemos invitado a cenar a toda la horda! ¡CORRED HACIA ADENTRO!"
+            }
+          ]
+        }
+      ],
+      "choice_prompt": null,
+      "end_of_chapter_status": "Continuará: Batalla en la entrada de la mazmorra."
+    }
+  }
+}

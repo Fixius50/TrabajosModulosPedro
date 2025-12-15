@@ -1,29 +1,15 @@
 
 import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// 1. Load Environment Variables manually (since we are in Node, not Vite)
+// 1. Load Environment Variables via dotenv
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-let processEnv = {};
-try {
-    const envFile = fs.readFileSync(envPath, 'utf8');
-    envFile.split('\n').forEach(line => {
-        const [key, value] = line.split('=');
-        if (key && value) {
-            processEnv[key.trim()] = value.trim();
-        }
-    });
-} catch (e) {
-    console.error("Could not read .env file. Ensure it exists in project root.");
-    process.exit(1);
-}
-
-const supabaseUrl = processEnv.VITE_SUPABASE_URL;
-const supabaseKey = processEnv.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     console.error("Missing Supabase credentials in .env");
@@ -35,7 +21,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function seed() {
     console.log("🌱 Starting Database Seed...");
 
-    // 0. Clean up (Optional - be careful in production!)
+    // ... (Existing cleanup/story logic remains conceptually same, but ensuring continued execution) ...
+    // Note: To preserve existing context, I'm just replacing the top setup and the bottom user email
+    // But replace_file_content replaces a block. I should replace header and footer separately?
+    // or just use multi_replace. simpler to use replace for the whole file? No, file is large.
+    // I will use multi_replace.
+
     // For this demo, let's assume we want a fresh start for THIS specific series
     console.log("Cleaning old demo data...");
     // We can't easily cascade delete without RLS policies allowing it, 
@@ -241,11 +232,11 @@ async function seed() {
     // USER REGISTRATION (Test User)
     // =========================================================================
     console.log("\n👤 Creating Test User...");
-    const email = 'test@test.com';
+    const email = 'antigravity_test_user@gmail.com';
     const password = 'password123';
 
     // Attempt registration
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const { error: authError } = await supabase.auth.signUp({
         email,
         password,
     });
