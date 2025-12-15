@@ -126,11 +126,11 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
             try {
                 // Ensure storyId is valid
                 const safeStoryId = storyId || '1';
-                console.log("DEBUG: Loading tree for storyId:", safeStoryId);
+
 
                 // Add a small delay/loading state if needed, but for now direct call
                 const data = await repo.getAllNodesBySeries(safeStoryId);
-                console.log("DEBUG: Raw data from repo:", data);
+
 
                 if (!data || data.length === 0) {
                     console.warn("DEBUG: No nodes returned from repo!");
@@ -139,7 +139,7 @@ export default function RouteMap({ isOpen, onClose, storyId, currentNodeId = 'st
                 }
 
                 const processed = layoutNodes(data);
-                console.log("DEBUG: Processed layout nodes:", processed);
+
                 setNodes(processed);
             } catch (err) {
                 console.error("DEBUG: Error loading tree:", err);

@@ -163,11 +163,11 @@ export class StoryRepository {
      * Get ALL nodes for a series (for Route Map)
      */
     async getAllNodesBySeries(seriesId) {
-        console.log("Repo: getAllNodesBySeries called with ID:", seriesId);
+
 
         // Fallback for demo
         if (!supabase || seriesId === '1' || (seriesId && seriesId.length < 20)) {
-            console.log("Repo: Using local nodes for map. LocalNodes Raw:", this.localNodes);
+
 
             if (!this.localNodes) {
                 console.error("Repo: localNodes is undefined!");
@@ -182,7 +182,7 @@ export class StoryRepository {
                 children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
             }));
 
-            console.log("Repo: Mapped nodes returning:", mappedNodes);
+
             return mappedNodes;
         }
 

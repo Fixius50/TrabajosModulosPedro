@@ -24,11 +24,13 @@ const BORDER_STYLES = {
 /**
  * VisualNovelCanvas - The Core Engine Visual Layer
  */
-const VisualNovelCanvas = ({ currentNode, onChoiceSelect }) => {
+const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSettings, onBack }) => {
     const [loading, setLoading] = useState(true);
     const [choicesVisible, setChoicesVisible] = useState(false);
-    const [showUI, setShowUI] = useState(true);
+    const [showUI, setShowUI] = useState(true); // UI visible by default
+    const [menuOpen, setMenuOpen] = useState(false); // Menu closed by default
     const { borderStyle } = useUserProgress();
+
 
     // Ref for the typewriter to control it externally
     const typewriterRef = useRef(null);
@@ -46,6 +48,12 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect }) => {
         // If UI is hidden, show it
         if (!showUI) {
             setShowUI(true);
+            return;
+        }
+
+        // If menu is open, close it
+        if (menuOpen) {
+            setMenuOpen(false);
             return;
         }
 
@@ -103,14 +111,46 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect }) => {
                 {/* LAYER 1: Vignette */}
                 <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-black/60" />
 
-                {/* UI LAYER TOGGLE */}
-                <button
-                    onClick={(e) => { e.stopPropagation(); setShowUI(!showUI); }}
-                    className="absolute top-4 right-4 z-50 p-2 bg-black/50 text-white rounded-full hover:bg-white/20 transition-all font-bold text-xl"
-                    title={showUI ? "Hide UI (Full Art)" : "Show UI"}
-                >
-                    {showUI ? '👁️' : '🙈'}
-                </button>
+                {/* UI LAYER TOGGLE & MENU */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+                        className="bg-black/80 text-yellow-400 border-2 border-yellow-500 rounded-full px-6 py-2 font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition-all shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center gap-2 z-50"
+                    >
+                        <span>MENU</span>
+                        <svg className={`w-4 h-4 transition-transform ${menuOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+
+                    {/* HORIZONTAL TOOLBAR CONTENT */}
+                    <AnimatePresence>
+                        {menuOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -20, width: 0 }}
+                                animate={{ opacity: 1, x: 0, width: 'auto' }}
+                                exit={{ opacity: 0, x: -20, width: 0 }}
+                                className="bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-full overflow-hidden shadow-2xl h-[44px] flex items-center"
+                            >
+                                <div className="flex flex-row items-center px-2">
+                                    <button onClick={(e) => { e.stopPropagation(); onOpenMap(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-1 hover:bg-white/10 rounded-lg text-white font-medium transition-colors whitespace-nowrap">
+                                        <span className="text-xl">🗺️</span>
+                                    </button>
+                                    <div className="w-px h-6 bg-slate-700 mx-1"></div>
+                                    <button onClick={(e) => { e.stopPropagation(); onOpenSettings(); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-1 hover:bg-white/10 rounded-lg text-white font-medium transition-colors whitespace-nowrap">
+                                        <span className="text-xl">⚙️</span>
+                                    </button>
+                                    <div className="w-px h-6 bg-slate-700 mx-1"></div>
+                                    <button onClick={(e) => { e.stopPropagation(); setShowUI(!showUI); setMenuOpen(false); }} className="flex items-center gap-2 px-3 py-1 hover:bg-white/10 rounded-lg text-white font-medium transition-colors whitespace-nowrap">
+                                        <span className="text-xl">{showUI ? '👁️' : '🙈'}</span>
+                                    </button>
+                                    <div className="w-px h-6 bg-slate-700 mx-1"></div>
+                                    <button onClick={(e) => { e.stopPropagation(); onBack(); }} className="flex items-center gap-2 px-3 py-1 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-medium transition-colors whitespace-nowrap">
+                                        <span className="text-xl">🚪</span>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
                 {/* LAYER 2: Accessible UI & Text (Comic Bubbles) */}
                 <AnimatePresence>
@@ -195,7 +235,10 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect }) => {
 
 VisualNovelCanvas.propTypes = {
     currentNode: PropTypes.object,
-    onChoiceSelect: PropTypes.func.isRequired
+    onChoiceSelect: PropTypes.func.isRequired,
+    onOpenMap: PropTypes.func,
+    onOpenSettings: PropTypes.func,
+    onBack: PropTypes.func
 };
 
 export default VisualNovelCanvas;

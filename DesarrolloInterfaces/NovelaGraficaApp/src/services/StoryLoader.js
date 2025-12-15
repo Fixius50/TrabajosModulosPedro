@@ -142,7 +142,7 @@ export class StoryLoader {
                         children: children, // REQUIRED for DestinyTreeModal layout
                         is_json: true
                     };
-                    console.log(`[StoryLoader] Generated Node: ${uniqueId}, Children: ${children.length}`);
+
                 });
             });
         });

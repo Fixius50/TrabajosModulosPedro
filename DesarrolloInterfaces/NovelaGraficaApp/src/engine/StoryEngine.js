@@ -72,7 +72,7 @@ export const useStoryEngine = (seriesId) => {
           if (nextNode && nextNode.image_url) {
             const img = new Image();
             img.src = nextNode.image_url;
-            console.log(`[StoryEngine] +1 Preloaded: ${targetId}`);
+
           }
         } catch (e) {
           console.warn(`[StoryEngine] Failed to preload ${targetId}`, e);
@@ -126,7 +126,7 @@ export const useStoryEngine = (seriesId) => {
       }
       setCurrentNode(node);
       setHistory(prev => prev.slice(0, index + 1));
-      console.log(`[StoryEngine] Rewound time to: ${targetNodeId}`);
+
     } catch (error) {
       console.error("Rewind failed:", error);
     } finally {
@@ -146,7 +146,7 @@ export const useStoryEngine = (seriesId) => {
       if (startNode) {
         setCurrentNode(startNode);
         setHistory([startNodeId]);
-        console.log(`[StoryEngine] Loaded JSON story: ${themeName}, start: ${startNodeId}`);
+
       } else {
         console.error(`Start node ${startNodeId} not found in loaded nodes.`);
       }
