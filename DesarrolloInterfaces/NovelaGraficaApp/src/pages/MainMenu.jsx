@@ -23,7 +23,7 @@ export default function MainMenu() {
             const jsonStories = [
                 { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/images/cover_batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
                 { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/images/cover_dnd.png', genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'json:Rick&Morty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/images/cover_rick.png', genre: 'Sci-Fi', progress: 0, is_json: true },
+                { id: 'json:RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/images/cover_rick.png', genre: 'Sci-Fi', progress: 0, is_json: true },
             ];
 
             try {
@@ -36,7 +36,14 @@ export default function MainMenu() {
                 if (!error && data?.length > 0) {
                     // Deduplicate by title to prevent "Double Batman" bug from multiple seeds
                     const uniqueDB = Array.from(new Map(data.map(item => [item.title, item])).values());
-                    combined = [...combined, ...uniqueDB];
+
+                    // Filter out DB items that are already in JSON stories (Fuzzy Match)
+                    const keywords = ['Batman', 'D&D', 'Rick', 'Dragones'];
+                    const filteredDB = uniqueDB.filter(item => {
+                        return !keywords.some(keyword => item.title.includes(keyword));
+                    });
+
+                    combined = [...combined, ...filteredDB];
                     setSyncStatus('cloud');
                 }
 

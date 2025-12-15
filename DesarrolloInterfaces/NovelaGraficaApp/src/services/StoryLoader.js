@@ -7,7 +7,7 @@ export class StoryLoader {
     async loadStory(themeName) {
         // Filename mapping
         let filename = themeName.toLowerCase();
-        if (themeName === 'Rick&Morty') filename = 'rnm';
+        if (themeName === 'RickAndMorty') filename = 'rnm';
 
         const jsonPath = `/assets/${themeName}/${filename}.json`;
 
@@ -28,7 +28,7 @@ export class StoryLoader {
         const nodes = {};
         const scenes = data.scenes;
         const initialSceneId = data.initial_scene_id;
-        const rootUrl = `/assets/${themeName}/images`;
+        const rootUrl = `/assets/${themeName}`;
 
         Object.values(scenes).forEach(scene => {
             const panels = scene.panels || [];
@@ -84,9 +84,11 @@ export class StoryLoader {
             const panels = scene.panels || [];
 
             let imgPrefix = "";
-            if (scene.id.includes("scene_02a")) imgPrefix = "A";
-            else if (scene.id.includes("scene_02b")) imgPrefix = "B";
-            else if (scene.id.includes("scene_01")) imgPrefix = "";
+            // Flexible heuristic: detect branch indicators like 02a, 02b, _a_, _b_ etc.
+            if (scene.id.includes("02a") || scene.id.includes("_a_")) imgPrefix = "A";
+            else if (scene.id.includes("02b") || scene.id.includes("_b_")) imgPrefix = "B";
+            else if (scene.id.includes("02c") || scene.id.includes("_c_")) imgPrefix = "C";
+            // Else: no prefix (linear scenes like scene_01)
 
             panels.forEach((panel, pIndex) => {
                 const dialogues = panel.dialogues || [{ character: '', text: '...' }];
@@ -132,6 +134,7 @@ export class StoryLoader {
                         next: nextNodeId, // Helper for lineal flow
                         is_json: true
                     };
+                    console.log(`[StoryLoader] Generated Node: ${uniqueId}, Image: ${nodes[uniqueId].image_url}`);
                 });
             });
         });

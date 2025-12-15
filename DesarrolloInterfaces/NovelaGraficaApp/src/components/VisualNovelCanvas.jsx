@@ -34,8 +34,11 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect }) => {
         if (choicesVisible) return;
 
         // Try to skip typewriter
-        if (typewriterRef.current) {
+        if (typewriterRef.current && typewriterRef.current.isTyping) {
             typewriterRef.current.skip();
+        } else if (currentNode?.next) {
+            // Advance to next linear node
+            onChoiceSelect(currentNode.next);
         }
     };
 

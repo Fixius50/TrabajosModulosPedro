@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { create } from 'zustand';
 import { StoryRepository } from '../services/StoryRepository';
+import { StoryLoader } from '../services/StoryLoader';
 
 const repo = new StoryRepository();
+const loader = new StoryLoader();
 
 // Global Game State (Inventory, Flags)
 export const useGameStore = create((set) => ({
@@ -19,21 +21,25 @@ export const useGameStore = create((set) => ({
  * 2. Data Fetching
  * 3. Pre-fetching (+1 Rule)
  * 4. History Tracking
+ * 5. JSON Story Loading (NEW)
  */
 export const useStoryEngine = (seriesId) => {
   const [currentNode, setCurrentNode] = useState(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
+  const [storyNodes, setStoryNodes] = useState({}); // Local cache for JSON stories
 
-  // 1. Initialization
+  // 1. Initialization (Only for DB-based stories)
   useEffect(() => {
-    if (!seriesId) return;
+    // Skip init if this is a JSON story (handled by loadJsonStory)
+    if (!seriesId || seriesId.startsWith('json:')) {
+      setLoading(false); // Stop loading spinner for JSON, loadJsonStory will handle it
+      return;
+    }
 
     const initStory = async () => {
       setLoading(true);
       try {
-        // Try to load from saved progress first? (TODO for Offline Phase)
-        // For now, load start node
         const startNode = await repo.getStartNodeBySeries(seriesId);
         if (startNode) {
           setCurrentNode(startNode);
@@ -57,13 +63,15 @@ export const useStoryEngine = (seriesId) => {
       const targetId = choice.nextNodeId || choice.target;
       if (targetId) {
         try {
-          // Fetch node data (Logic)
-          const nextNode = await repo.getNodeById(targetId);
+          // Check local cache first (for JSON stories)
+          let nextNode = storyNodes[targetId];
+          if (!nextNode) {
+            nextNode = await repo.getNodeById(targetId);
+          }
 
-          // Preload Image (Asset)
           if (nextNode && nextNode.image_url) {
             const img = new Image();
-            img.src = nextNode.image_url; // Triggers browser cache
+            img.src = nextNode.image_url;
             console.log(`[StoryEngine] +1 Preloaded: ${targetId}`);
           }
         } catch (e) {
@@ -71,55 +79,91 @@ export const useStoryEngine = (seriesId) => {
         }
       }
     });
-  }, [currentNode]);
+  }, [currentNode, storyNodes]);
 
-  // 3. Navigation
+  // 3. Navigation (Hybrid: JSON cache first, then DB)
   const handleChoice = useCallback(async (targetNodeId) => {
     if (!targetNodeId) return;
 
     setLoading(true);
     try {
-      const nextNode = await repo.getNodeById(targetNodeId);
-      setCurrentNode(nextNode);
-      setHistory(prev => [...prev, targetNodeId]);
+      // Check local JSON cache first
+      let nextNode = storyNodes[targetNodeId];
 
-      // TODO: Save progress to Supabase/Dexie here
+      // If not in cache, try DB
+      if (!nextNode) {
+        nextNode = await repo.getNodeById(targetNodeId);
+      }
+
+      if (nextNode) {
+        setCurrentNode(nextNode);
+        setHistory(prev => [...prev, targetNodeId]);
+      } else {
+        console.error(`Node ${targetNodeId} not found in cache or DB.`);
+      }
     } catch (error) {
       console.error("Navigation failed:", error);
     } finally {
       setLoading(false);
     }
+  }, [storyNodes]);
+
+  // 4. Rewind (Time Travel)
+  const rewindTo = useCallback(async (targetNodeId) => {
+    const index = history.indexOf(targetNodeId);
+    if (index === -1) {
+      console.warn("[StoryEngine] Cannot rewind to unknown node:", targetNodeId);
+      return;
+    }
+
+    if (targetNodeId === currentNode?.id) return;
+
+    setLoading(true);
+    try {
+      let node = storyNodes[targetNodeId];
+      if (!node) {
+        node = await repo.getNodeById(targetNodeId);
+      }
+      setCurrentNode(node);
+      setHistory(prev => prev.slice(0, index + 1));
+      console.log(`[StoryEngine] Rewound time to: ${targetNodeId}`);
+    } catch (error) {
+      console.error("Rewind failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [history, currentNode, storyNodes]);
+
+  // 5. JSON Story Loading (NEW)
+  const loadJsonStory = useCallback(async (themeName) => {
+    setLoading(true);
+    try {
+      const { nodes, startNodeId } = await loader.loadStory(themeName);
+      setStoryNodes(nodes); // Store the entire graph locally
+
+      // Set start node
+      const startNode = nodes[startNodeId];
+      if (startNode) {
+        setCurrentNode(startNode);
+        setHistory([startNodeId]);
+        console.log(`[StoryEngine] Loaded JSON story: ${themeName}, start: ${startNodeId}`);
+      } else {
+        console.error(`Start node ${startNodeId} not found in loaded nodes.`);
+      }
+    } catch (e) {
+      console.error(`[StoryEngine] Failed to load JSON story: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-// 4. Rewind (Time Travel)
-const rewindTo = useCallback(async (targetNodeId) => {
-  const index = history.indexOf(targetNodeId);
-  if (index === -1) {
-    console.warn("[StoryEngine] Cannot rewind to unknown node:", targetNodeId);
-    return;
-  }
-
-  if (targetNodeId === currentNode?.id) return; // Already here
-
-  setLoading(true);
-  try {
-    const node = await repo.getNodeById(targetNodeId);
-    setCurrentNode(node);
-    // Truncate history to discard future
-    setHistory(prev => prev.slice(0, index + 1));
-    console.log(`[StoryEngine] Rewound time to: ${targetNodeId}`);
-  } catch (error) {
-    console.error("Rewind failed:", error);
-  } finally {
-    setLoading(false);
-  }
-}, [history, currentNode]);
-
-return {
-  currentNode,
-  loading,
-  handleChoice,
-  history,
-  rewindTo
+  return {
+    currentNode,
+    loading,
+    handleChoice,
+    history,
+    rewindTo,
+    loadJsonStory // Export the new function
+  };
 };
-};
+
