@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
 import { supabase } from '../services/supabaseClient';
+import { getAssetUrl } from '../utils/assetUtils';
 
 export default function StoryDetails() {
     const { seriesId } = useParams();
@@ -28,7 +29,10 @@ export default function StoryDetails() {
                     { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: '¡Por el poder del cabello nasal! Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia', duration: 'Infinite' },
                 ];
 
-                const found = dummies.find(d => d.id === seriesId) || dummies[0];
+                // Transform URLs
+                const processed = dummies.map(d => ({ ...d, cover_url: getAssetUrl(d.cover_url) }));
+
+                const found = processed.find(d => d.id === seriesId) || processed[0];
                 setStory(found);
             } catch (err) {
                 console.error('[StoryDetails] fetchStory error:', err);

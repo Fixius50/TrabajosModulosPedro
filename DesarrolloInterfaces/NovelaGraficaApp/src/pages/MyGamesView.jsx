@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
+import { getAssetUrl } from '../utils/assetUtils';
 
 export default function MyGamesView() {
     const { activeTheme } = useUserProgress();
 
     // Mock Data for Save Slots
     const saves = [
-        { id: 'auto', label: 'AUTOGUARDADO', title: 'Capítulo 5: El Encuentro', date: '24 Oct, 2023', time: '14:30', playtime: '45m', img: '/assets/portadas/forest_entrance.jpg' },
-        { id: 'slot1', label: 'SLOT 1', title: 'Capítulo 3: La Decisión', date: '20 Oct, 2023', time: '09:15', playtime: '2h 10m', img: '/assets/portadas/city_street.jpg' },
+        { id: 'auto', label: 'AUTOGUARDADO', title: 'Capítulo 5: El Encuentro', date: '24 Oct, 2023', time: '14:30', playtime: '45m', img: getAssetUrl('/assets/portadas/forest_entrance.jpg') },
+        { id: 'slot1', label: 'SLOT 1', title: 'Capítulo 3: La Decisión', date: '20 Oct, 2023', time: '09:15', playtime: '2h 10m', img: getAssetUrl('/assets/portadas/city_street.jpg') },
         { id: 'slot2', label: 'SLOT 2', title: 'Vacío', date: '-', time: '-', playtime: '-', img: null }
     ];
 

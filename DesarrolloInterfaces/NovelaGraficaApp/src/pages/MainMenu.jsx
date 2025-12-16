@@ -6,6 +6,7 @@ import { useUserProgress } from '../stores/userProgress';
 import ProfileModal from '../components/ProfileModal';
 import MarketplaceModal from '../components/MarketplaceModal';
 import SettingsModal from '../components/SettingsModal';
+import { getAssetUrl } from '../utils/assetUtils';
 
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
@@ -19,16 +20,16 @@ export default function MainMenu() {
     const [activeGenre, setActiveGenre] = useState(null);
     const navigate = useNavigate();
 
-    const { points, stats, activeTheme, activeFont } = useUserProgress();
+
 
     useEffect(() => {
         const fetchSeries = async () => {
             // New "File System" Stories (JSON Engine)
             const jsonStories = [
-                { id: 'Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
-                { id: 'DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', progress: 0, is_json: true },
-                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia/Absurdo', progress: 0, is_json: true },
+                { id: 'Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: getAssetUrl('/assets/portadas/Batman.png'), genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
+                { id: 'DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: getAssetUrl('/assets/portadas/DnD.png'), genre: 'Fantasía', progress: 0, is_json: true },
+                { id: 'RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: getAssetUrl('/assets/portadas/RickAndMorty.png'), genre: 'Sci-Fi', progress: 0, is_json: true },
+                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: getAssetUrl('/assets/BoBoBo/1.jpg'), genre: 'Comedia/Absurdo', progress: 0, is_json: true },
             ];
 
             try {
@@ -42,9 +43,12 @@ export default function MainMenu() {
                     // Deduplicate by title to prevent "Double Batman" bug from multiple seeds
                     const uniqueDB = Array.from(new Map(data.map(item => [item.title, item])).values());
 
+                    // Transform DB URLs too just in case
+                    const processedDB = uniqueDB.map(s => ({ ...s, cover_url: getAssetUrl(s.cover_url) }));
+
                     // Filter out DB items that are already in JSON stories (Fuzzy Match)
                     const keywords = ['Batman', 'D&D', 'Rick', 'Dragones', 'BoBoBo'];
-                    const filteredDB = uniqueDB.filter(item => {
+                    const filteredDB = processedDB.filter(item => {
                         return !keywords.some(keyword => item.title.includes(keyword));
                     });
 
@@ -57,7 +61,7 @@ export default function MainMenu() {
             } catch {
                 setSeries([
                     ...jsonStories,
-                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: '/assets/portadas/forest_entrance.jpg', genre: 'Cyberpunk', progress: 45 },
+                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: getAssetUrl('/assets/portadas/forest_entrance.jpg'), genre: 'Cyberpunk', progress: 45 },
                     { id: '3', title: 'Shadow Realm', description: 'Enfréntate a la oscuridad.', cover_url: '', genre: 'Terror', progress: 80 },
                 ]);
                 setSyncStatus('local');
@@ -80,8 +84,15 @@ export default function MainMenu() {
 
     const continueReading = series.filter(s => s.progress > 0).sort((a, b) => b.progress - a.progress);
 
-    // Dynamic Theme Styles
+    // 4. Remote Config Logic
+    const { points, stats, activeTheme, activeFont, getThemeStyles: getRemoteStyles } = useUserProgress();
+
+    // Función centralizada de estilos según el tema
     const getThemeStyles = () => {
+        // A. REMOTE (Database)
+        const remote = getRemoteStyles(activeTheme);
+        if (remote) return remote;
+
         switch (activeTheme) {
             case 'comic':
                 return {

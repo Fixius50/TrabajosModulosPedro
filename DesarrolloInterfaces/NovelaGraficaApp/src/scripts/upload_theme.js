@@ -21,7 +21,20 @@ const themeData = {
     type: 'theme',
     cost: 500,
     asset_value: 'modern',
-    is_active: true
+    is_active: true,
+    style_config: {
+        bg: '#1a0b2e',
+        pattern: 'linear-gradient(rgba(216, 70, 239, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(216, 70, 239, 0.2) 1px, transparent 1px), radial-gradient(circle at 50% 50%, rgba(127, 19, 236, 0.4) 0%, transparent 60%)',
+        bgSize: '50px 50px, 50px 50px, 100% 100%',
+        bgPos: '0 0, 0 0, 0 0',
+        text: '#e2e8f0',
+        cardBorder: '2px solid #d946ef',
+        cardRadius: '1rem',
+        cardShadow: '0 0 25px rgba(217, 70, 239, 0.4), inset 0 0 10px rgba(217, 70, 239, 0.1)',
+        accent: '#d946ef',
+        font: '"Rajdhani", sans-serif',
+        headerFont: '"Orbitron", sans-serif'
+    }
 };
 
 async function uploadTheme() {

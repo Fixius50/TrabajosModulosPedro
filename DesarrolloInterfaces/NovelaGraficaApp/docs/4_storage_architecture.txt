@@ -1,0 +1,44 @@
+ESTRATEGIA DE ALMACENAMIENTO Y BUCKETS (SUPABASE)
+==================================================
+
+1. ARQUITECTURA DE BUCKETS
+--------------------------
+Hemos separado los activos estáticos en 3 buckets públicos en Supabase para mejorar la organización y las políticas de caché:
+
+A. Bucket `themes`
+   - Contenido: Elementos gráficos de la UI, fondos, patrones, assets decorativos.
+   - Origen Local: `public/assets/common/`
+   - Política: Público (Lectura).
+
+B. Bucket `comics`
+   - Contenido: Portadas de historias, Páginas de cómics individuales, JSONs de estructura.
+   - Origen Local: `public/assets/portadas/` y carpetas de historias (`Batman/`, `BoBoBo/`, etc).
+   - Estructura: Carpetas por ID de historia (ej: `comics/Batman/1.jpg`).
+   - Política: Público (Lectura).
+
+C. Bucket `fonts` (Futuro)
+   - Contenido: Archivos tipográficos (.ttf, .woff).
+   - Origen Local: `public/assets/fonts/` (pendiente).
+
+2. SCRIPTS DE AUTOMATIZACIÓN
+----------------------------
+Ubicación: `src/scripts/`
+
+A. `02_create_buckets.sql`
+   - SQL Script para crear los buckets si no existen.
+   - Configura políticas RLS (Row Level Security) para permitir acceso público universal (SELECT) y subidas autenticadas/anónimas (INSERT) durante desarrollo.
+
+B. `organize_assets.js`
+   - Script de mapeo y subida masiva.
+   - Funcionalidad: Escanea `public/assets` recursivamente.
+   - Mapeo Inteligente:
+     - Detecta carpetas conocidas (`portadas` -> `comics`).
+     - Detecta carpetas de assets comunes (`common` -> `themes`).
+     - Asigna el resto de carpetas de historias al bucket `comics`.
+   - Uso: `node src/scripts/organize_assets.js`
+
+3. FLUJO DE TRABAJO PARA NUEVOS ASSETS
+--------------------------------------
+1. Colocar archivos en `public/assets/{carpeta}`.
+2. Ejecutar `node src/scripts/organize_assets.js`.
+3. El script detectará archivos nuevos o modificados (gracias al `upsert: true`) y los subirá.

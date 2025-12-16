@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import localStoryData from '../data/story_demo.json';
+import { getAssetUrl } from '../utils/assetUtils';
 
 export class StoryRepository {
 
@@ -78,7 +79,7 @@ export class StoryRepository {
         // Normalize to match the structure returned by _transformSupabaseNode
         return {
             id: node.id,
-            image_url: node.image,
+            image_url: getAssetUrl(node.image),
             // In local JSON, text is a string, not separated dialogues. We map it to 1 dialogue.
             dialogue_content: node.text,
             speaker_name: "Narrator",
@@ -109,7 +110,7 @@ export class StoryRepository {
     _transformSupabaseNode(data) {
         return {
             id: data.id,
-            image_url: data.image_url,
+            image_url: getAssetUrl(data.image_url),
             // Take first dialogue or join them
             dialogue_content: data.dialogues?.[0]?.content || "...",
             speaker_name: data.dialogues?.[0]?.speaker_name || "",

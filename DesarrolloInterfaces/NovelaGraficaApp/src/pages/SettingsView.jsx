@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useUserProgress } from '../stores/userProgress';
 
 export default function SettingsView() {
-    const { activeTheme, activeFont, setActive, fontSize } = useUserProgress();
+    const { activeTheme, activeFont, setActive, fontSize, getThemeStyles: getRemoteStyles } = useUserProgress();
 
     // Local state for things not yet in global store or for UI simulation
     const [localFontSize, setLocalFontSize] = useState(fontSize || 18);
@@ -12,6 +12,10 @@ export default function SettingsView() {
     const [volumeMusic, setVolumeMusic] = useState(60);
 
     const getThemeStyles = () => {
+        // A. REMOTE (Database)
+        const remote = getRemoteStyles(activeTheme);
+        if (remote) return remote;
+
         switch (activeTheme) {
             case 'modern':
                 return {
@@ -45,7 +49,15 @@ export default function SettingsView() {
         }
     };
 
-    const theme = getThemeStyles();
+    const rawTheme = getThemeStyles();
+    // Adapter for SettingsView
+    const theme = {
+        bg: typeof rawTheme.bg === 'string' ? { background: rawTheme.bg, color: rawTheme.text } : rawTheme.bg,
+        accent: rawTheme.accent,
+        border: rawTheme.border || rawTheme.cardBorder,
+        shadow: rawTheme.shadow || rawTheme.cardShadow,
+        cardBg: rawTheme.cardBg || (activeTheme === 'comic' ? 'white' : 'rgba(255,255,255,0.05)')
+    };
 
     const handleSave = () => {
         alert('Ajustes Guardados (Simulación)');

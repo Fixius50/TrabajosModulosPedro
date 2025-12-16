@@ -3,6 +3,11 @@
 
 const STORAGE_KEY = 'novelaapp_user_progress';
 
+
+
+// Load from localStorage
+import { supabase } from '../services/supabaseClient'; // Import Supabase
+
 const DEFAULT_STATE = {
     userId: null,
     points: 1000,
@@ -24,6 +29,7 @@ const DEFAULT_STATE = {
         avatar: '',
         banner: ''
     },
+    themeConfigs: {}, // NEW: Remote Styles Cache
     stats: {
         totalChoicesMade: 0,
         totalNodesVisited: 0,
@@ -33,7 +39,9 @@ const DEFAULT_STATE = {
 };
 
 // Load from localStorage
-function loadProgress() {
+async function loadProgress() { // Make async
+    let fused = { ...DEFAULT_STATE };
+
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
@@ -49,29 +57,44 @@ function loadProgress() {
                     parsed.visitedNodes[key] = new Set(parsed.visitedNodes[key]);
                 });
             }
-            if (parsed.points < 1000) parsed.points = 1000; // FORCE UPDATE: Ensure user has at least 1000 points
+            if (parsed.points < 1000) parsed.points = 1000;
 
-            // Ensure profile object exists if loading old state
-            if (!parsed.profile) {
-                parsed.profile = { name: '', avatar: '', banner: '' };
-            }
+            if (!parsed.profile) parsed.profile = { name: '', avatar: '', banner: '' };
 
             // MERGE STATE
-            const fused = { ...DEFAULT_STATE, ...parsed };
+            fused = { ...DEFAULT_STATE, ...parsed };
 
-            // VALIDATION: Ensure activeTheme is actually owned
+            // VALIDATION
             const ownedThemes = fused.purchases?.themes || ['default'];
             if (!ownedThemes.includes(fused.activeTheme)) {
-                console.warn(`[UserProgress] Active theme '${fused.activeTheme}' not owned. Reverting to default.`);
                 fused.activeTheme = 'default';
             }
-
-            return fused;
         }
+
+        // NEW: Fetch Remote Styles from Supabase (if available)
+        if (supabase) {
+            const { data: themes } = await supabase
+                .from('shop_items')
+                .select('asset_value, style_config')
+                .eq('type', 'theme');
+
+            if (themes) {
+                const configs = themes.reduce((acc, t) => {
+                    if (t.style_config) acc[t.asset_value] = t.style_config;
+                    return acc;
+                }, {});
+
+                // Merge remote configs into state (don't save to localStorage needed?)
+                fused.themeConfigs = { ...fused.themeConfigs, ...configs };
+            }
+        }
+
+        return fused;
+
     } catch (e) {
         console.warn('Failed to load progress:', e);
     }
-    return { ...DEFAULT_STATE };
+    return fused;
 }
 
 // Save to localStorage
@@ -110,8 +133,15 @@ const POINTS = {
 // Create the store
 class UserProgressStore {
     constructor() {
-        this.state = loadProgress();
+        this.state = DEFAULT_STATE; // Start with default
+        this.init();
         this.listeners = new Set();
+    }
+
+    async init() {
+        const loaded = await loadProgress();
+        this.state = loaded;
+        this.notify();
     }
 
     subscribe(listener) {
@@ -301,6 +331,15 @@ export function useUserProgress() {
         getUnlockedEndings: (storyId) => userProgress.getUnlockedEndings(storyId),
         getCompletion: (storyId, totalEndings) => userProgress.getCompletion(storyId, totalEndings),
         getChoices: (storyId) => userProgress.getChoices(storyId),
+        // Helper to get resolved styles
+        getThemeStyles: (themeName) => {
+            const remote = state.themeConfigs?.[themeName];
+            if (remote) return remote;
+
+            // Fallback for themes without remote config (yet)
+            // Ideally we move ALL logic here eventually.
+            return null;
+        },
         purchase: (category, itemId, cost) => userProgress.purchase(category, itemId, cost),
         setActive: (type, value) => userProgress.setActive(type, value),
         updateProfile: (updates) => userProgress.updateProfile(updates),

@@ -18,7 +18,19 @@ const themeData = {
     type: 'theme',
     cost: 300,
     asset_value: 'comic',
-    is_active: true
+    is_active: true,
+    style_config: {
+        bg: '#ffffff',
+        pattern: 'radial-gradient(circle, #000 2px, transparent 2.5px)',
+        bgSize: '20px 20px',
+        bgPos: '0 0',
+        text: '#000000',
+        cardBorder: '4px solid black',
+        cardRadius: '0',
+        cardShadow: '8px 8px 0px black',
+        font: 'Bangers, cursive',
+        accent: '#facc15'
+    }
 };
 
 async function uploadTheme() {

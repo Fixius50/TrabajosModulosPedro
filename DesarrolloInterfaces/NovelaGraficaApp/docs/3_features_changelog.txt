@@ -43,3 +43,12 @@ LOG DE CAMBIOS Y FUNCIONALIDADES
     - `activeTheme`: String identificador del tema actual.
     - `purchases`: Arrays de items desbloqueados.
 - Lógica de negocio movida al Store (updateProfile, setActive, purchase).
+
+[NUEVO] INFRAESTRUCTURA DE ALMACENAMIENTO
+-----------------------------------------
+- Migración a Supabase Storage con arquitectura Multi-Bucket:
+    - `themes`: UI assets.
+    - `comics`: Contenido de historias.
+    - `fonts`: Tipografías.
+- Scripts de automatización (`organize_assets.js`) para sincronización masiva.
+- SQL Policies configuradas para acceso público eficiente.

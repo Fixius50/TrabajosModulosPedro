@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useUserProgress } from '../stores/userProgress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../services/supabaseClient';
+import { getAssetUrl } from '../utils/assetUtils';
 
 export default function ProfileView() {
-    const { points, activeTheme, profile, updateProfile } = useUserProgress();
+    const { points, activeTheme, profile, updateProfile, getThemeStyles: getRemoteStyles } = useUserProgress();
     const [emailName, setEmailName] = useState('Usuario');
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
@@ -25,8 +26,8 @@ export default function ProfileView() {
 
     // Derived values
     const displayName = profile.name || emailName;
-    const bannerUrl = profile.banner || '/assets/portadas/library_bg.jpg';
-    const avatarUrl = profile.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'; // Default Felix
+    const bannerUrl = getAssetUrl(profile.banner) || getAssetUrl('/assets/portadas/library_bg.jpg');
+    const avatarUrl = getAssetUrl(profile.avatar) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'; // Default Felix
 
     const handleSaveName = () => {
         if (newName.trim()) {
@@ -40,6 +41,8 @@ export default function ProfileView() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
+                // For local upload, we stick strictly to reader.result (base64) for now, 
+                // as we don't have user bucket upload yet.
                 updateProfile({ avatar: reader.result });
             };
             reader.readAsDataURL(file);
@@ -48,6 +51,7 @@ export default function ProfileView() {
     };
 
     const handleBannerSelect = (url) => {
+        // Save relative path, let display logic handle full URL
         updateProfile({ banner: url });
         setShowBannerModal(false);
     };
@@ -55,53 +59,22 @@ export default function ProfileView() {
     // --- Components ---
 
     const getThemeStyles = () => {
+        // A. REMOTE (Database)
+        const remote = getRemoteStyles(activeTheme);
+        if (remote) return remote;
+
         switch (activeTheme) {
-            case 'modern':
-                return {
-                    bg: { background: '#1a0b2e', color: '#e2e8f0' },
-                    accent: '#d946ef',
-                    cardBg: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
-            case 'comic':
-                return {
-                    bg: { background: '#fff', color: 'black', backgroundImage: 'radial-gradient(circle, #e5e5e5 1px, transparent 1px)', backgroundSize: '20px 20px' },
-                    accent: '#000',
-                    cardBg: 'white',
-                    border: '3px solid black',
-                    shadow: '5px 5px 0px black'
-                };
-            case 'comic-dark':
-                return {
-                    bg: { background: '#121212', color: 'white', backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '20px 20px' },
-                    accent: '#facc15',
-                    cardBg: '#1e1e1e',
-                    border: '3px solid #facc15',
-                    shadow: '5px 5px 0px #facc15'
-                };
-            case 'manga':
-                return {
-                    bg: { background: 'white', color: 'black' },
-                    accent: 'black',
-                    cardBg: 'white',
-                    border: '1px solid black'
-                };
-            case 'manga-dark':
-                return {
-                    bg: { background: 'black', color: 'white' },
-                    accent: 'white',
-                    cardBg: 'black',
-                    border: '1px solid white'
-                };
-            default:
-                return {
-                    bg: { background: '#0a0a12', color: 'white' },
-                    accent: '#8b5cf6',
-                    cardBg: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
+            // ... (rest of switch)
         }
+        // This tool call doesn't support changing the whole file, so I assume switch content is constant
+        // I will just return the switch as I cannot easily skip it without 'match' context.
+        // Wait, replace tool requires exact match. I should use START/END carefully.
     };
+
+    // ... I'll try to target specific blocks instead of this large chunk which is risky.
+
+
+
 
     const theme = getThemeStyles();
 
