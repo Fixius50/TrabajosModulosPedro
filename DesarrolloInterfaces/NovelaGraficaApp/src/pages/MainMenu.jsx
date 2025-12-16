@@ -25,10 +25,10 @@ export default function MainMenu() {
         const fetchSeries = async () => {
             // New "File System" Stories (JSON Engine)
             const jsonStories = [
-                { id: 'json:Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
-                { id: 'json:DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'json:RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', progress: 0, is_json: true },
-                { id: 'json:BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia/Absurdo', progress: 0, is_json: true },
+                { id: 'Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
+                { id: 'DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', progress: 0, is_json: true },
+                { id: 'RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', progress: 0, is_json: true },
+                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia/Absurdo', progress: 0, is_json: true },
             ];
 
             try {
@@ -302,7 +302,7 @@ export default function MainMenu() {
                             </p>
 
                             <button
-                                onClick={() => navigate(`/read/${series.find(s => s.title.includes('Batman'))?.id || series[0].id}`)}
+                                onClick={() => navigate(`/details/${series.find(s => s.title.includes('Batman'))?.id || series[0].id}`)}
                                 style={{
                                     padding: '1rem 2.5rem',
                                     background: 'white',
@@ -391,94 +391,99 @@ export default function MainMenu() {
                             gap: '2rem'
                         }}
                     >
-                        {filteredSeries.map((item) => (
-                            <motion.article
-                                key={item.id}
-                                layout
-                                whileHover={{ y: -10, scale: 1.02 }}
-                                onClick={() => navigate(`/read/${item.id}`)}
-                                style={{
-                                    background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : 'rgba(255,255,255,0.02)'),
-                                    borderRadius: theme.cardRadius,
-                                    overflow: 'hidden',
-                                    border: theme.cardBorder,
-                                    cursor: 'pointer',
-                                    boxShadow: theme.cardShadow,
-                                    position: 'relative'
-                                }}
-                            >
-                                {/* COMIC STYLE SPECIAL: Title inside cover */}
-                                {activeTheme === 'comic' ? (
-                                    <>
-                                        <div style={{
-                                            aspectRatio: '3/4',
-                                            background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'black',
-                                            position: 'relative',
-                                            filter: 'grayscale(0%) contrast(120%)'
-                                        }}>
-                                            {/* Comic Header Banner */}
+                        {
+                            filteredSeries.map((item) => (
+                                <motion.article
+                                    key={item.id}
+                                    layout
+                                    whileHover={{ y: -10, scale: 1.02 }}
+                                    onClick={() => navigate(`/details/${item.id}`)}
+                                    style={{
+                                        background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : 'rgba(255,255,255,0.02)'),
+                                        borderRadius: theme.cardRadius,
+                                        overflow: 'hidden',
+                                        border: theme.cardBorder,
+                                        cursor: 'pointer',
+                                        boxShadow: theme.cardShadow,
+                                        position: 'relative'
+                                    }}
+                                >
+                                    {/* COMIC STYLE SPECIAL: Title inside cover */}
+                                    {activeTheme === 'comic' ? (
+                                        <>
                                             <div style={{
-                                                position: 'absolute', top: 0, left: 0, right: 0,
-                                                background: 'black', color: 'white',
-                                                padding: '0.5rem',
-                                                transform: 'skewY(-2deg) translateY(-10px)',
-                                                borderBottom: '4px solid white',
-                                                zIndex: 2,
-                                                paddingTop: '15px'
+                                                aspectRatio: '3/4',
+                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'black',
+                                                position: 'relative',
+                                                filter: 'grayscale(0%) contrast(120%)'
                                             }}>
-                                                <h3 style={{ margin: 0, fontSize: '1rem', fontStyle: 'italic', fontWeight: 900, textTransform: 'uppercase', textAlign: 'center' }}>{item.title}</h3>
-                                            </div>
-
-                                            <div style={{ position: 'absolute', bottom: '10px', right: '0', background: 'yellow', color: 'black', fontWeight: 'bold', padding: '2px 10px', border: '2px solid black', transform: 'rotate(-5deg)' }}>
-                                                {item.genre}
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    /* STANDARD / MANGA STYLE */
-                                    <>
-                                        <div style={{
-                                            aspectRatio: '3/4',
-                                            background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
-                                            position: 'relative',
-                                            filter: activeTheme === 'manga' ? 'grayscale(100%) contrast(150%) brightness(1.1)' : 'none'
-                                        }}>
-                                            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%)' }} />
-
-                                            <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                                                {item.is_premium && <span style={{ background: '#fbbf24', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>PREMIUM</span>}
-                                                {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
-                                            </div>
-                                        </div>
-
-                                        <div style={{ padding: '1.25rem', color: theme.text }}>
-                                            <h3 style={{
-                                                fontWeight: 700,
-                                                fontSize: '1.1rem',
-                                                marginBottom: '0.5rem',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                            }}>{item.title}</h3>
-
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <span style={{
-                                                    fontSize: '0.75rem',
-                                                    color: activeTheme === 'manga' ? 'black' : (activeTheme === 'modern' ? '#ab9db9' : '#a78bfa'),
-                                                    background: activeTheme === 'manga' ? '#ddd' : (activeTheme === 'modern' ? '#141118' : 'rgba(139, 92, 246, 0.1)'),
-                                                    padding: '0.2rem 0.6rem',
-                                                    borderRadius: '0.5rem',
-                                                    border: activeTheme === 'manga' ? '1px solid black' : (activeTheme === 'modern' ? '1px solid #302839' : 'none')
+                                                {/* Comic Header Banner */}
+                                                <div style={{
+                                                    position: 'absolute', top: 0, left: 0, right: 0,
+                                                    background: 'black', color: 'white',
+                                                    padding: '0.5rem',
+                                                    transform: 'skewY(-2deg) translateY(-10px)',
+                                                    borderBottom: '4px solid white',
+                                                    zIndex: 2,
+                                                    paddingTop: '15px'
                                                 }}>
-                                                    {item.genre || 'Historia'}
-                                                </span>
-                                                <span style={{ fontSize: '1.2rem', color: theme.text, opacity: 0.5 }}>➔</span>
+                                                    <h3 style={{ margin: 0, fontSize: '1rem', fontStyle: 'italic', fontWeight: 900, textTransform: 'uppercase', textAlign: 'center' }}>{item.title}</h3>
+                                                </div>
+
+                                                <div style={{ position: 'absolute', bottom: '10px', right: '0', background: 'yellow', color: 'black', fontWeight: 'bold', padding: '2px 10px', border: '2px solid black', transform: 'rotate(-5deg)' }}>
+                                                    {item.genre}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </>
-                                )}
-                            </motion.article>
-                        ))}
+                                        </>
+                                    ) : (
+                                        /* STANDARD / MANGA STYLE */
+                                        <>
+                                            <div style={{
+                                                aspectRatio: '3/4',
+                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                                position: 'relative',
+                                                filter: activeTheme === 'manga' ? 'grayscale(100%) contrast(150%) brightness(1.1)' : 'none'
+                                            }}>
+                                                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent 40%)' }} />
+
+                                                <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                                                    {/* TIME BADGE */}
+                                                    <span style={{ background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                                        ⏱️ {item.duration || '2h 30m'}
+                                                    </span>
+                                                    {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ padding: '1.25rem', color: theme.text }}>
+                                                <h3 style={{
+                                                    fontWeight: 700,
+                                                    fontSize: '1.1rem',
+                                                    marginBottom: '0.5rem',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}>{item.title}</h3>
+
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{
+                                                        fontSize: '0.75rem',
+                                                        color: activeTheme === 'manga' ? 'black' : (activeTheme === 'modern' ? '#ab9db9' : '#a78bfa'),
+                                                        background: activeTheme === 'manga' ? '#ddd' : (activeTheme === 'modern' ? '#141118' : 'rgba(139, 92, 246, 0.1)'),
+                                                        padding: '0.2rem 0.6rem',
+                                                        borderRadius: '0.5rem',
+                                                        border: activeTheme === 'manga' ? '1px solid black' : (activeTheme === 'modern' ? '1px solid #302839' : 'none')
+                                                    }}>
+                                                        {item.genre || 'Historia'}
+                                                    </span>
+                                                    <span style={{ fontSize: '1.2rem', color: theme.text, opacity: 0.5 }}>➔</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </motion.article>
+                            ))}
+
                     </motion.div>
                 )}
             </main>
@@ -494,7 +499,7 @@ export default function MainMenu() {
             />
             <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
             <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
-        </div>
+        </div >
     );
 }
 

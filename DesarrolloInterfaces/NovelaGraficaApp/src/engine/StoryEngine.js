@@ -32,7 +32,12 @@ export const useStoryEngine = (seriesId) => {
   // 1. Initialization (Only for DB-based stories)
   useEffect(() => {
     // Skip init if this is a JSON story (handled by loadJsonStory)
-    if (!seriesId || seriesId.startsWith('json:')) {
+    const isJson = seriesId && (
+      seriesId.startsWith('json:') ||
+      (seriesId.length < 30 && isNaN(Number(seriesId)))
+    );
+
+    if (!seriesId || isJson) {
       setLoading(false); // Stop loading spinner for JSON, loadJsonStory will handle it
       return;
     }

@@ -14,7 +14,13 @@ export default function StoryReader() {
 
     // Initial Load Effect for JSON Stories
     const [init, setInit] = useState(false);
-    if (!init && seriesId && seriesId.startsWith('json:')) {
+
+    const isJson = seriesId && (
+        seriesId.startsWith('json:') ||
+        (seriesId.length < 30 && isNaN(seriesId))
+    );
+
+    if (!init && isJson) {
         const themeName = seriesId.replace('json:', '');
         loadJsonStory(themeName);
         setInit(true);

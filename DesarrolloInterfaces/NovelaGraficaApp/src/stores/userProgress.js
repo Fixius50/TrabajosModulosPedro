@@ -19,6 +19,11 @@ const DEFAULT_STATE = {
     activeFont: 'Inter',
     fontSize: 100, // Percentage 50-150%
     borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
+    profile: {
+        name: '',
+        avatar: '',
+        banner: ''
+    },
     stats: {
         totalChoicesMade: 0,
         totalNodesVisited: 0,
@@ -45,6 +50,12 @@ function loadProgress() {
                 });
             }
             if (parsed.points < 1000) parsed.points = 1000; // FORCE UPDATE: Ensure user has at least 1000 points
+
+            // Ensure profile object exists if loading old state
+            if (!parsed.profile) {
+                parsed.profile = { name: '', avatar: '', banner: '' };
+            }
+
             return { ...DEFAULT_STATE, ...parsed };
         }
     } catch (e) {
@@ -234,6 +245,11 @@ class UserProgressStore {
         this.notify();
     }
 
+    updateProfile(updates) {
+        this.state.profile = { ...this.state.profile, ...updates };
+        this.notify();
+    }
+
     // Check if item is owned
     isOwned(category, itemId) {
         return this.state.purchases[category]?.includes(itemId) || false;
@@ -277,6 +293,7 @@ export function useUserProgress() {
         getChoices: (storyId) => userProgress.getChoices(storyId),
         purchase: (category, itemId, cost) => userProgress.purchase(category, itemId, cost),
         setActive: (type, value) => userProgress.setActive(type, value),
+        updateProfile: (updates) => userProgress.updateProfile(updates),
         isOwned: (category, itemId) => userProgress.isOwned(category, itemId),
         reset: () => userProgress.reset()
     };

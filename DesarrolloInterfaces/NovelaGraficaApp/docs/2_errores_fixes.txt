@@ -10,3 +10,7 @@ FECHA: 2025-12-16 00:05 -> [Bug detectado] 'Typewriter Loop': El texto se reinic
 [FIX] SettingsModal: Deduplicated 'default' theme using Set.
 [Feat] MainMenu: Overhauled 'Modern' theme with Orbitron/Rajdhani fonts, lighter violet background, and neon grid for better contrast.
 [FIX] AuthGuard: Restored session security after debugging.
+[FIX] ProfileView: Fixed import path for 'supabaseClient'.
+[FIX] SettingsView: Added missing Theme Selector dropdown.
+[FIX] userProgress: Added missing helper keys 'theme' vs 'activeTheme'.
+[FEAT] Manga Theme: Added B&W High Contrast theme support globally.

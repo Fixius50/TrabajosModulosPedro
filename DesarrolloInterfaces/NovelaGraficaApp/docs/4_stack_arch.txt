@@ -8,3 +8,6 @@ Tablas Clave: profiles, series, chapters, shop_items, user_unlocks, user_routes.
 Estilos: TailwindCSS.
 Estado: Zustand (useGameStore).
 Scripting: Node.js (Sync Assets Script).
+Layout: AppLayout con Radial Menu (Framer Motion).
+Theming: Themes dinámicos (Modern/Comic/Manga) inyectados vía JS objects.
+Store: userProgress.js ampliado (Profile, Settings, Purchases).

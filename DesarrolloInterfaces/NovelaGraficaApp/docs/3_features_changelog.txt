@@ -1,0 +1,45 @@
+LOG DE CAMBIOS Y FUNCIONALIDADES
+================================
+
+[NUEVO] NAVEGACIÓN Y LAYOUT (PIVOT)
+-----------------------------------
+- Radial Menu (Fab): Navegación flotante en esquina inferior derecha. Sustituye al Sidebar.
+    - Opciones: Inicio, Mis Partidas, Ajustes, Perfil.
+    - Librería: Framer Motion (animaciones spring).
+- AppLayout: Componente persistente que mantiene el RadialMenu visible en todas las vistas protegidas.
+
+[NUEVO] VISTAS PRINCIPALES
+--------------------------
+1. Story Details View (`/details/:id`):
+    - Vista intermedia ante de leer.
+    - Muestra portada completa (Hero), sinopsis, y metadatos.
+    - Pestaña de Reseñas (Mock).
+2. MyGamesView (`/saves`):
+    - Gestión de partidas guardadas.
+    - Slots visuales con metadatos (Tiempo, Capitulo).
+3. ProfileView (`/profile`):
+    - Cabecera personalizable (Avatar, Banner, Nombre).
+    - Gráfico de actividad de lectura.
+    - Acceso rápido a compras recomendadas.
+4. SettingsView (`/settings`):
+    - Configuración centralizada.
+    - Nuevo selector de "Tema Visual" (Modern, Comic, Manga).
+    - Ajustes de Tipografía, Opacidad y Audio.
+
+[NUEVO] SISTEMA DE TEMAS (ADVANCED THEMING)
+-------------------------------------------
+- Arquitectura: Helper local `getThemeStyles()` en cada vista que consulta `userProgress.activeTheme`.
+- Temas Soportados:
+    1. Modern (Default): Violeta oscuro, Neon, Fuentes Sans/Orbitron.
+    2. Comic: Fondo Halftone, Bordes gruesos negros, Fuente Bangers.
+    3. Manga: Blanco y Negro alto contraste, Bordes finos, Estilo tinta.
+- Globalidad: El cambio de tema afecta instantáneamente a todas las vistas (Settings, Profile, Menu).
+
+[MEJORA] GESTIÓN DE ESTADO (UserProgress)
+-----------------------------------------
+- Persistencia Local (localStorage) y Sincronización preparada.
+- Nuevos campos:
+    - `profile`: { name, avatar, banner }.
+    - `activeTheme`: String identificador del tema actual.
+    - `purchases`: Arrays de items desbloqueados.
+- Lógica de negocio movida al Store (updateProfile, setActive, purchase).
