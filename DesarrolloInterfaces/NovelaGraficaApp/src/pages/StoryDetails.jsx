@@ -41,11 +41,20 @@ export default function StoryDetails() {
         navigate(`/read/${seriesId}`);
     };
 
-    if (!story) return <div className="p-10 text-xl font-bold font-mono">Cargando...</div>;
-
     // Styles based on theme
     const isModern = activeTheme === 'modern';
     const isManga = activeTheme === 'manga';
+
+    // Manga class effect
+    useEffect(() => {
+        if (isManga) {
+            document.body.classList.add('theme-manga');
+        } else {
+            document.body.classList.remove('theme-manga');
+        }
+    }, [isManga]);
+
+    if (!story) return <div className="p-10 text-xl font-bold font-mono">Cargando...</div>;
 
     // Dynamic Background logic
     let bgStyle = { background: '#0a0a12', color: 'white' };
@@ -58,15 +67,6 @@ export default function StoryDetails() {
     };
 
     const accentColor = isModern ? '#d946ef' : (isManga ? '#000000' : '#8b5cf6');
-
-    // Manga class effect
-    useEffect(() => {
-        if (isManga) {
-            document.body.classList.add('theme-manga');
-        } else {
-            document.body.classList.remove('theme-manga');
-        }
-    }, [isManga]);
 
     return (
         <div style={{ ...bgStyle, minHeight: '100vh', paddingBottom: '100px' }}>

@@ -27,10 +27,12 @@ async function upload() {
 
     if (existing) {
         console.log(`⚠️ Updating existing (ID: ${existing.id})`);
-        await supabase.from('shop_items').update(themeData).eq('id', existing.id);
+        const { error } = await supabase.from('shop_items').update(themeData).eq('id', existing.id);
+        if (error) console.error('Update Error:', error);
     } else {
         console.log('✨ Creating new theme');
-        await supabase.from('shop_items').insert([themeData]);
+        const { error } = await supabase.from('shop_items').insert([themeData]);
+        if (error) console.error('Insert Error:', error);
     }
     console.log('✅ Done.');
 }

@@ -15,7 +15,7 @@ const DEFAULT_STATE = {
         fonts: ['Inter', 'OpenDyslexic', 'Arial Black'], // Default fonts
         effects: []
     },
-    activeTheme: 'manga',
+    activeTheme: 'default',
     activeFont: 'Inter',
     fontSize: 100, // Percentage 50-150%
     borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
@@ -56,7 +56,17 @@ function loadProgress() {
                 parsed.profile = { name: '', avatar: '', banner: '' };
             }
 
-            return { ...DEFAULT_STATE, ...parsed };
+            // MERGE STATE
+            const fused = { ...DEFAULT_STATE, ...parsed };
+
+            // VALIDATION: Ensure activeTheme is actually owned
+            const ownedThemes = fused.purchases?.themes || ['default'];
+            if (!ownedThemes.includes(fused.activeTheme)) {
+                console.warn(`[UserProgress] Active theme '${fused.activeTheme}' not owned. Reverting to default.`);
+                fused.activeTheme = 'default';
+            }
+
+            return fused;
         }
     } catch (e) {
         console.warn('Failed to load progress:', e);

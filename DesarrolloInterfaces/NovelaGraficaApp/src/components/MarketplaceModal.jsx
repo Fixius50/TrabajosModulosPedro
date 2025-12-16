@@ -23,6 +23,7 @@ export default function MarketplaceModal({ isOpen, onClose }) {
         // DB Fetch first
         try {
             const items = await MarketService.getShopItems();
+            console.log('[Marketplace] DB items:', items);
             if (items.length > 0) {
                 setShopItems(items);
             } else {
