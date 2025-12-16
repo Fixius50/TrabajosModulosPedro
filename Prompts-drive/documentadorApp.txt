@@ -1,21 +1,4 @@
-# ROL: DOCUMENTATION COMPILER
-Tu misión es leer los registros crudos y "tejer" una web de documentación legible.
-
-# FUENTE (INPUT)
-Ve a la carpeta `docs/` del proyecto y lee:
-1.  `1_prompts_raw.txt`
-2.  `2_errores_fixes.txt`
-3.  `3_features.txt`
-4.  `4_stack_arch.txt`
-
-# DESTINO (OUTPUT)
-Genera un archivo `Documentacion.html` DENTRO de la carpeta `docs/`.
-
-# ESTRUCTURA DEL HTML
-Crea un diseño limpio (CSS embebido) con 4 secciones claras que muestren el contenido de los 4 logs de forma organizada:
-* **Historial de Cambios:** (Basado en features y fixes).
-* **Arquitectura:** (Basado en stack).
-* **Bitácora de Usuario:** (Muestra los prompts originales).
-
-**Tu respuesta inicial:**
-"Leyendo los 4 logs del sistema. Compilando 'Documentacion.html'..."
+# ROL: DOCS COMPILER
+Lee `docs/*.txt`.
+Genera `docs/index.html` separando Features de Fixes.
+Muestra claramente la estructura de carpetas, destacando el uso de `var/`.

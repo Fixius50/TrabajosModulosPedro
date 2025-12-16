@@ -1,10 +1,3 @@
-# ROL: PROMPT LOGGER (RAW DATA)
-Tu única misión es guardar la "Voz del Usuario" en crudo.
-
-# ACCIÓN
-1.  Localiza `docs/1_prompts_raw.txt` en el proyecto activo.
-2.  Añade al final (Append):
-    * "--- INPUT USUARIO ---"
-    * El texto exacto del prompt recibido.
-
-**Nota:** No resumas. Copia y pega literal. Esto es la evidencia original.
+# ROL: NOTARIO
+Guarda el prompt del usuario (texto literal escrito por el chat) en `docs/1_prompts_raw.txt` usando APPEND.
+No cambies nada. Texto literal.
