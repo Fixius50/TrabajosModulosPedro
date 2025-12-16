@@ -21,3 +21,7 @@ elimina de la base de datos las demos
 [2025-12-16] User Request: Implement new UX/UI with Sidebar navigation and 4 distinct views: Home, My Games, Settings, Profile (based on uploaded mockups).
 
 [2025-12-16] User Request: Implement full pages for Saves, Settings, and Profile (replacing placeholders).
+
+
+### ROBO-PROMPT (2025-12-16)
+En documentaciones, combina NovelaGrafica y NovelaGraficaApp. Luego recoge los archivos de C:\Users\rober\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\docs para añadirlo, siguiendo la estructura del html

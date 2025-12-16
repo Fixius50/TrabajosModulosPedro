@@ -4,293 +4,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovelaApp :: System Documentation</title>
+    <title>Documentación - Novela Gráfica App (v0.9.0)</title>
     <style>
         :root {
             --bg-dark: #020617;
             --bg-card: #0f172a;
-            --accent-primary: #fbbf24;
-            /* Amber 400 */
+            --accent-primary: #4f46e5;
             --accent-secondary: #8b5cf6;
-            /* Violet 500 */
-            --accent-alert: #ef4444;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
-            --font-mono: 'Courier New', Courier, monospace;
-            --font-sans: system-ui, -apple-system, sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --text-main: #18181b;
+            --text-muted: #4b5563;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: var(--font-sans);
+            font-family: system-ui, -apple-system, sans-serif;
             line-height: 1.6;
-        }
-
-        /* Scanline Effect */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        .container {
-            max-width: 1024px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            background: #f4f4f5;
+            color: var(--text-main);
         }
 
-        header {
-            margin-bottom: 4rem;
-            border-bottom: 1px solid var(--accent-secondary);
-            padding-bottom: 1rem;
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
         }
 
-        h1 {
-            font-family: var(--font-mono);
-            font-size: 2.5rem;
-            color: var(--accent-primary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            font-family: var(--font-mono);
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
         }
 
-        section {
-            margin-bottom: 4rem;
+        .tab-btn:hover {
+            color: var(--accent-primary);
         }
 
-        h2 {
-            font-size: 1.5rem;
-            color: white;
-            border-left: 4px solid var(--accent-secondary);
-            padding-left: 1rem;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .tab-btn.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
         }
 
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card System */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .card {
             background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
             padding: 1.5rem;
             border-radius: 0.5rem;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent-primary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .card h3 {
-            color: var(--accent-primary);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            font-family: var(--font-mono);
+            color: #fbbf24;
+            margin-top: 0;
+            font-family: 'Courier New', monospace;
         }
 
         .tag {
             display: inline-block;
             padding: 0.2rem 0.5rem;
-            font-size: 0.7rem;
+            background: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
             border-radius: 4px;
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--accent-secondary);
+            font-size: 0.75rem;
             margin-right: 0.5rem;
-            font-family: var(--font-mono);
             font-weight: bold;
         }
 
-        .code-block {
-            background: #000;
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
+        /* Prompts / Code */
+        pre {
+            background: #18181b;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 8px;
             overflow-x: auto;
-            color: #a5b4fc;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 1rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            /* Preserve wrapping */
+            border: 1px solid #3f3f46;
         }
 
-        .feature-list {
-            list-style: none;
+        /* Badges */
+        .badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
         }
 
-        .feature-list li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-
-        .feature-list li::before {
-            content: ">>";
-            position: absolute;
-            left: 0;
+        h1 {
             color: var(--accent-primary);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
         }
 
-        footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 2rem 0;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-family: var(--font-mono);
+        h2 {
+            border-left: 4px solid var(--accent-secondary);
+            padding-left: 1rem;
+            margin-top: 2rem;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>NovelaApp_System</h1>
-            <p class="subtitle">PROJECT_STATUS: <span style="color: #22c55e">ACTIVE_DEV</span> | VERSION: 0.9.0-BETA</p>
-        </header>
+    <header>
+        <h1>📚 Documentación Técnica (v0.9.0)</h1>
+        <p style="color: var(--text-muted);">Proyecto: Novela Grafica App</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'general')">General & Arquitectura</button>
+        <button class="tab-btn" onclick="openTab(event, 'logs')">Logs & Changelog</button>
+        <button class="tab-btn" onclick="openTab(event, 'prompts')">Historial de Prompts</button>
+    </nav>
+
+    <!-- TAB 1: GENERAL -->
+    <div id="general" class="tab-content active">
+        <section>
+            <h2>Resumen del Proyecto</h2>
+            <p>Aplicación de Novela Visual Interactiva con motor de decisiones, inventario y persistencia.</p>
+            <div style="margin-top: 1rem;">
+                <span class="badge">React 19</span>
+                <span class="badge">Vite</span>
+                <span class="badge">Supabase</span>
+                <span class="badge">PixiJS v8</span>
+                <span class="badge">Zustand</span>
+            </div>
+        </section>
 
         <section>
-            <h2>01. Arquitectura Central</h2>
+            <h2>Arquitectura Central</h2>
             <div class="grid">
                 <div class="card">
                     <h3>Frontend Stack</h3>
                     <p class="tag">REACT</p>
-                    <p class="tag">VITE</p>
                     <p class="tag">TAILWIND</p>
-                    <p style="margin-top: 1rem; color: var(--text-muted);">
-                        Single Page Application (SPA) optimizada para rendimiento. Uso de Framer Motion para
-                        transiciones "Glassmorphism" fluidas.
-                    </p>
+                    <p>SPA optimizada. Framer Motion para transiciones "Glassmorphism". Layout con RadialMenu.</p>
                 </div>
                 <div class="card">
                     <h3>Motor de Estado</h3>
                     <p class="tag">ZUSTAND</p>
-                    <p class="tag">HOOKS</p>
-                    <p style="margin-top: 1rem; color: var(--text-muted);">
-                        Gestión centralizada via <code>useStoryEngine</code>. Implementa la "Regla +1" para precarga de
-                        assets y gestión de inventario.
-                    </p>
+                    <p>Gestión centralizada via `useStoryEngine`. Regla "+1" para precarga de assets.</p>
                 </div>
                 <div class="card">
                     <h3>Capa Visual</h3>
-                    <p class="tag">CANVAS</p>
-                    <p class="tag">LAYERS</p>
-                    <p style="margin-top: 1rem; color: var(--text-muted);">
-                        Arquitectura de 3 capas: Fondo (PixiJS ready), Viñeta (Gradiente), y UI Semántica
-                        (Accesibilidad/SEO).
+                    <p class="tag">PIXI.JS</p>
+                    <p>Arquitectura híbrida: Fondo (WebGL) + Viñeta (CSS) + UI Semántica (HTML).</p>
+                </div>
+                <div class="card">
+                    <h3>Backend & Storage</h3>
+                    <p class="tag">SUPABASE</p>
+                    <p>Buckets: `themes` (Assets UI), `comics` (Portadas/Páginas). Scripts de sincronización automática.
                     </p>
                 </div>
             </div>
         </section>
 
         <section>
-            <h2>02. Componentes Críticos</h2>
-
-            <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>Neural Map (Árbol del Destino)</h3>
-                <p class="tag">GRAPH_VISUALIZATION</p>
-                <p class="tag">RECURSIVE</p>
-                <div style="margin-top: 1rem;">
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                        Sistema de visualización de trama no lineal. Renderiza nodos como un "Circuito Raíz" Neon.
-                    </p>
-                    <ul class="feature-list">
-                        <li><strong>Feature Killer:</strong> "Rewind Logic". Permite resetear el estado de la historia a
-                            cualquier nodo visitado.</li>
-                        <li><strong>Layout:</strong> Sistema de autolayout basado en grids para estabilidad visual.</li>
-                        <li><strong>Estado:</strong> Distinción visual entre Nodos Actuales (Pulso), Visitados y
-                            Bloqueados.</li>
-                    </ul>
+            <h2>Componentes Críticos</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Neural Map</h3>
+                    <p class="tag">GRAPH</p>
+                    <p>Visualización BFS del árbol de decisiones. Permite "Rewind" a nodos anteriores.</p>
                 </div>
-            </div>
-
-            <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>Visual Novel Canvas</h3>
-                <p class="tag">CORE_ENGINE</p>
-                <div style="margin-top: 1rem;">
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                        El lienzo principal de lectura.
-                    </p>
-                    <ul class="feature-list">
-                        <li><strong>Typewriter Effect:</strong> Renderizado de texto letra a letra con cursor
-                            parpadeante.</li>
-                        <li><strong>Input Blocking:</strong> Previene decisiones accidentales ocultando opciones hasta
-                            finalizar el texto.</li>
-                        <li><strong>Overlay System:</strong> Interfaz flotante que no obstruye el arte de fondo.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Multivisor (Settings)</h3>
-                <p class="tag">ACCESSIBILITY</p>
-                <div style="margin-top: 1rem;">
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                        Panel de control Cyberpunk para personalización total.
-                    </p>
-                    <ul class="feature-list">
-                        <li><strong>Fuentes:</strong> Inter, Serif, OpenDyslexic (Planeado).</li>
-                        <li><strong>Temas:</strong> Original, Sepia (Descanso), Terminal (Alto Contraste).</li>
-                        <li><strong>Galería:</strong> Sistema de coleccionables desbloqueables al terminar capítulos.
-                        </li>
-                    </ul>
+                <div class="card">
+                    <h3>Story Factory</h3>
+                    <p class="tag">ENGINE</p>
+                    <p>Carga híbrida (JSON local / DB). Soporta condiciones complejas e inventario.</p>
                 </div>
             </div>
         </section>
-
-        <section>
-            <h2>03. Changelog Reciente</h2>
-            <div class="code-block">
-                >> BATCH 9 UPDATE
-                [+] NEW: Neural Map Component (DestinyTreeModal.jsx)
-                [+] NEW: Settings Modal with Visual Tuner
-                [+] NEW: Rewrite of StoryReader.jsx for full integration
-                [MOD] StoryEngine.js: Added 'Rewind' capability and history tracking
-                [FIX] VisualNovelCanvas: Specific Typewriter integration
-
-                >> BATCH 8 UPDATE
-                [+] DOCS: Accessibility Tuner Specs
-                [+] DOCS: Neural Map Concept Art Specs
-
-                >> PREVIOUS
-                [+] Auth System (Supabase)
-                [+] Main Menu (Zone 1)
-                [+] Global CSS Variables
-            </div>
-        </section>
-
-        <footer>
-            GENERATED BY SYSTEM :: DOCUMENTADOR_BOT v1.0 <br>
-            All rights reserved. NovelaGraficaApp 2025.
-        </footer>
     </div>
+
+    <!-- TAB 2: LOGS -->
+    <div id="logs" class="tab-content">
+        <section>
+            <h2>Log de Funcionalidades (v0.9.0)</h2>
+            <pre>
+[NUEVO] NAVEGACIÓN Y LAYOUT (PIVOT)
+-----------------------------------
+- Radial Menu (Fab): Navegación flotante en esquina inferior derecha.
+- AppLayout: Componente persistente.
+
+[NUEVO] VISTAS PRINCIPALES
+--------------------------
+1. Story Details View: Info de historia, reseñas.
+2. MyGamesView: Gestión de saves.
+3. ProfileView: Header personalizable, estadísticas.
+4. SettingsView: Selector de Tema, Audio, Tipografía.
+
+[MEJORA] GESTIÓN DE ESTADO
+--------------------------
+- Persistencia Local (localStorage).
+- Nuevos campos: Profile, ActiveTheme, Purchases.
+            </pre>
+        </section>
+
+        <section>
+            <h2>Control de Calidad (Debug Log)</h2>
+            <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1rem; color: #991b1b;">
+                <strong>Últimos Fixes Críticos:</strong>
+                <ul>
+                    <li>[Fix] 'Typewriter Loop' en VisualNovelCanvas (useRef implementation).</li>
+                    <li>[Fix] 'RLS Policy Violation' en Storage (Script SQL fix_storage_rls).</li>
+                    <li>[Fix] AuthGuard restaurado para protección de sesión.</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <!-- TAB 3: PROMPTS -->
+    <div id="prompts" class="tab-content">
+        <section>
+            <h2>Historial Completo de Prompts</h2>
+            <pre>
+# Historial del Proyecto: NovelaGraficaApp
+
+## PROMPTS
+**Usuario:**
+> Actúa como un Lead Full-Stack Engineer & Cloud Architect. Tu misión es construir la arquitectura completa aplicando Ingeniería Defensiva e Investigación Profunda. [...] Esta app va a consistir en Crear una novela gráfica interactiva con imágenes y texto. Los usuarios pueden decidir por donde transcurre parte de la trama y así habrá diferentes finales. Un comic de viñetas se valorará mejor.
+
+**Usuario:**
+> Route Map Navigation (Enhancement): The user's main objective is to enhance the route map feature by allowing players to navigate back to previously visited nodes. This includes implementing a confirmation step that warns the player about potential point loss if they return to a path not yet completed.
+
+**Usuario:**
+> Vamos a probar ahora a recibir y enviar cosas a la base de datos. Para esto vamos a hacer el panel de login/registro nada mas entrar a la app (correom contraseña y google oauth)
+
+**Usuario:**
+> Quiero seguir mejorando la app Novela Grafica App
+
+**Usuario:**
+> Te voy a dar unas capturas... recoges el texto y lo pones como funcionalidades para la documentacion.
+
+**Usuario:**
+> Quiero mirar funcionalidades, pero antes quiero que pruebes la app para ver si hay errores y me sigas arreglandolo.
+> ... prueba la app con el navegador ...
+> CREAME un usuario de prueba simple para el registro/login. Luego quiero hacer mas historias: Dragones y Mazmorras, Batman, y Rick y Morty.
+
+**Usuario:**
+> Luego los dialogos los quiero en las imagenes en bocadillos
+> Luego los puntos son para el marketplace que te cambia el diseño de la pagina entera y cambia las fuentes de texto
+> luz verde
+
+**Usuario:**
+> Ahora prueba la app. Para esto crea un usuario simple de prueba primero.
+
+**Usuario:**
+> si, usa nano banana. (Generación de Assets Reimaginados)
+
+**Usuario:**
+> YA (Confirmación de Assets/SQL y Ejecución Final)
+
+**Usuario:**
+> Fix navigation bugs, decision tree layout, and polish UI (Comic Panel & Centered Buttons).
+
+--- NUEVOS REGISTROS (2025-12-16) ---
+
+**Usuario:**
+> analiza el proyecto NovelaGrafica 
+
+**Usuario:**
+> de momento quiero probar la gestion en la nube (supabase) de las imagenes y sus json. Luego quiero hacer las recompensas por completar una ruta o completarlo todo, del mismo libro, y que se usa en el market para cambiar los estilos y fuentes
+
+**Usuario:**
+> para esto quiero poder yo guardar en el codigo en una carpeta, quee so lo envie a supabase y alli lo descargue y me lo envie en otra carpeta, que es la que usarÃ¡ el proyecto para cargarlo. C:\Users\rober\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\public\assets es lo que quiero enviar a supabase. Puedes pasarme las tablas sql
+
+**Usuario:**
+> [Fix Import Error Request]
+
+**Usuario:**
+> ahora para todas las historias aÃ±adele una foto de "Continuara..." para despues de cuando acaben en un final
+
+**Usuario:**
+> cuando llegue al continuarÃ¡... mueve el boton hacia abajo y haz que se vuelva a la ventana de inicio. Aparte quiero que la imagen se vea entera y completa, no recortada, que este dentro de los bordes
+
+**Usuario:**
+> el contain debe ser para todas las imagenes
+
+**Usuario:**
+> elimina de la base de datos las demos
+
+**Usuario:**
+> En documentaciones, combina NovelaGrafica y NovelaGraficaApp. Luego recoge los archivos de C:\Users\rober\Desktop\TrabajosModulosPedro\DesarrolloInterfaces\NovelaGraficaApp\docs para añadirlo, siguiendo la estructura del html
+
+**Usuario:**
+> hay dos archivos de documentacion, me los juntas y haces el plan
+
+**Usuario:**
+> debe mantenerse la carpeta que no pone APP, es decir, eliminas esa que pone APP. Antes de eso, combins ambas documentaciones
+
+**Usuario:**
+> En la documentacion los prompts tienes que ponerlos tal cual, sin resumir. Luego haz que se vaya entre paginas en vez de ir arriba y abajo para verlo tdoo
+
+            </pre>
+        </section>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all elements with class="tab-content"
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+
+            // Remove the class "active" from all tab buttons
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            // trigger reflow/animation
+            setTimeout(() => {
+                document.getElementById(tabName).classList.add("active");
+            }, 10);
+
+            evt.currentTarget.className += " active";
+        }
+    </script>
 </body>
 
 </html>
