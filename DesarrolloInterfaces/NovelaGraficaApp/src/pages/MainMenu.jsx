@@ -5,12 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../stores/userProgress';
 import ProfileModal from '../components/ProfileModal';
 import MarketplaceModal from '../components/MarketplaceModal';
+import SettingsModal from '../components/SettingsModal';
 
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showMarketplace, setShowMarketplace] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [syncStatus, setSyncStatus] = useState('cloud');
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearch, setShowSearch] = useState(false);
@@ -83,13 +85,20 @@ export default function MainMenu() {
         switch (activeTheme) {
             case 'comic':
                 return {
-                    bg: '#ffffff',
-                    pattern: `radial-gradient(#000 15%, transparent 16%) 0 0, radial-gradient(#000 15%, transparent 16%) 8px 8px`,
-                    bgSize: '16px 16px',
+                    bg: '#fdfbf7', // Paper white/yellowish
+                    // Halftone Pattern
+                    pattern: `
+                        radial-gradient(circle, #3b82f6 2px, transparent 2.5px), 
+                        radial-gradient(circle, #ef4444 2px, transparent 2.5px)
+                    `,
+                    bgSize: '20px 20px, 20px 20px',
+                    bgPos: '0 0, 10px 10px', // Offset for overlapping dots
                     text: 'black',
-                    cardBorder: '4px solid black',
-                    cardRadius: '0',
-                    cardShadow: '8px 8px 0px black'
+                    cardBorder: '3px solid black',
+                    cardRadius: '4px',
+                    cardShadow: '8px 8px 0px black',
+                    font: 'Bangers, cursive',
+                    accent: '#facc15' // Yellow
                 };
             case 'manga':
                 return {
@@ -121,6 +130,26 @@ export default function MainMenu() {
                     cardRadius: '0',
                     cardShadow: '0 0 10px rgba(34, 197, 94, 0.2)'
                 };
+            case 'modern':
+                return {
+                    bg: '#1a0b2e', // Lighter Purple Background for visibility
+                    // Cyber Grid Pattern - Stronger Visibility
+                    pattern: `
+                        linear-gradient(rgba(216, 70, 239, 0.2) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(216, 70, 239, 0.2) 1px, transparent 1px),
+                        radial-gradient(circle at 50% 50%, rgba(127, 19, 236, 0.4) 0%, transparent 60%)
+                    `,
+                    bgSize: '50px 50px, 50px 50px, 100% 100%',
+                    bgPos: '0 0, 0 0, 0 0',
+                    text: '#e2e8f0',
+                    cardBorder: '2px solid #d946ef', // Thicker Neon Border
+                    cardRadius: '1rem',
+                    cardShadow: '0 0 25px rgba(217, 70, 239, 0.4), inset 0 0 10px rgba(217, 70, 239, 0.1)',
+                    accent: '#d946ef',
+                    font: '"Rajdhani", sans-serif',
+                    headerFont: '"Orbitron", sans-serif'
+                };
+            case 'default':
             default: // Default / Dark
                 return {
                     bg: '#0a0a12',
@@ -146,10 +175,12 @@ export default function MainMenu() {
             minHeight: '100vh',
             backgroundColor: theme.bg,
             color: theme.text,
-            fontFamily: `${activeFont}, system-ui, sans-serif`,
+            fontFamily: theme.font || `${activeFont}, system-ui, sans-serif`,
+            letterSpacing: activeTheme === 'comic' ? '1px' : 'normal',
             overflowX: 'hidden',
             backgroundImage: theme.pattern,
             backgroundSize: theme.bgSize,
+            backgroundPosition: theme.bgPos || '0 0',
             transition: 'background 0.5s ease',
         }}>
 
@@ -163,10 +194,10 @@ export default function MainMenu() {
                 top: 0,
                 left: 0,
                 right: 0,
-                background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : 'rgba(10, 10, 18, 0.8)'),
+                background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : (activeTheme === 'modern' ? 'rgba(20, 17, 24, 0.8)' : 'rgba(10, 10, 18, 0.8)')),
                 backdropFilter: 'blur(20px)',
                 zIndex: 100,
-                borderBottom: activeTheme === 'comic' ? '4px solid black' : '1px solid rgba(255,255,255,0.05)',
+                borderBottom: activeTheme === 'comic' ? '4px solid black' : (activeTheme === 'modern' ? '1px solid #302839' : '1px solid rgba(255,255,255,0.05)'),
                 color: activeTheme === 'comic' || activeTheme === 'manga' ? 'black' : 'white'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -433,11 +464,11 @@ export default function MainMenu() {
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span style={{
                                                     fontSize: '0.75rem',
-                                                    color: activeTheme === 'manga' ? 'black' : '#a78bfa',
-                                                    background: activeTheme === 'manga' ? '#ddd' : 'rgba(139, 92, 246, 0.1)',
+                                                    color: activeTheme === 'manga' ? 'black' : (activeTheme === 'modern' ? '#ab9db9' : '#a78bfa'),
+                                                    background: activeTheme === 'manga' ? '#ddd' : (activeTheme === 'modern' ? '#141118' : 'rgba(139, 92, 246, 0.1)'),
                                                     padding: '0.2rem 0.6rem',
                                                     borderRadius: '0.5rem',
-                                                    border: activeTheme === 'manga' ? '1px solid black' : 'none'
+                                                    border: activeTheme === 'manga' ? '1px solid black' : (activeTheme === 'modern' ? '1px solid #302839' : 'none')
                                                 }}>
                                                     {item.genre || 'Historia'}
                                                 </span>
@@ -453,8 +484,16 @@ export default function MainMenu() {
             </main>
 
             {/* MODALS */}
-            <ProfileModal isOpen={showProfileMenu} onClose={() => setShowProfileMenu(false)} />
+            <ProfileModal
+                isOpen={showProfileMenu}
+                onClose={() => setShowProfileMenu(false)}
+                onOpenSettings={() => {
+                    setShowProfileMenu(false);
+                    setShowSettings(true);
+                }}
+            />
             <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
+            <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
         </div>
     );
 }

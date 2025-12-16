@@ -1,49 +1,33 @@
 {
-  "id": "story_001",
-  "title": "El Misterio del Bosque Digital",
-  "nodes": {
-    "start": {
-      "id": "start",
-      "type": "panel",
-      "image": "/assets/images/forest_entrance.jpg",
-      "text": "Te encuentras frente a la entrada del bosque prohibido. Una neblina digital cubre el camino.",
-      "next": "decision_1"
-    },
-    "decision_1": {
-      "id": "decision_1",
-      "type": "choice",
-      "text": "¿Qué decides hacer?",
-      "options": [
-        {
-          "label": "Entrar sigilosamente",
-          "target": "node_stealth"
-        },
-        {
-          "label": "Gritar '¡Hola Mundo!'",
-          "target": "node_shout"
+    "default": {
+        "title": "Historia Demo",
+        "nodes": {
+            "start": {
+                "id": "start",
+                "text": "Esta es una historia de demostración para probar la aplicación cuando no hay conexión.",
+                "details": "Modo Local Fallback",
+                "options": [
+                    {
+                        "label": "Empezar Aventura",
+                        "target": "node_2"
+                    }
+                ]
+            },
+            "node_2": {
+                "id": "node_2",
+                "text": "Has llegado al nodo 2. Aquí puedes tomar otra decisión o terminar.",
+                "options": [
+                    {
+                        "label": "Ir al final",
+                        "target": "end"
+                    }
+                ]
+            },
+            "end": {
+                "id": "end",
+                "text": "Fin de la demostración. Gracias por jugar.",
+                "end_id": "true"
+            }
         }
-      ]
-    },
-    "node_stealth": {
-      "id": "node_stealth",
-      "type": "panel",
-      "image": "/assets/images/stealth_path.jpg",
-      "text": "Avanzas entre los árboles de código binario sin hacer ruido. Ves una luz azul a lo lejos.",
-      "next": "end_demo"
-    },
-    "node_shout": {
-      "id": "node_shout",
-      "type": "panel",
-      "image": "/assets/images/glitch_attack.jpg",
-      "text": "Tu grito despierta a los Glitches. Tienes que correr.",
-      "next": "end_demo"
-    },
-    "end_demo": {
-      "id": "end_demo",
-      "type": "panel",
-      "image": "/assets/images/to_be_continued.jpg",
-      "text": "Continuará...",
-      "next": null
     }
-  }
 }

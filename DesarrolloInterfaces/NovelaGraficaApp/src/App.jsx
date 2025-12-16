@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainMenu from './pages/MainMenu';
 import StoryReader from './pages/StoryReader';
 import Login from './pages/Login';
-import Marketplace from './pages/Marketplace'; // Changed import path from components to pages
+
 import AuthGuard from './components/auth/AuthGuard';
 import ThemeManager from './components/ThemeManager';
 import './App.css';
@@ -25,13 +25,6 @@ function App() {
             <StoryReader />
           </AuthGuard>
         } />
-
-        <Route path="/marketplace" element={
-          <AuthGuard>
-            <Marketplace />
-          </AuthGuard>
-        } />
-
 
         {/* Fallback route */}
         <Route path="*" element={

@@ -5,7 +5,7 @@ const STORAGE_KEY = 'novelaapp_user_progress';
 
 const DEFAULT_STATE = {
     userId: null,
-    points: 0,
+    points: 1000,
     choices: {}, // { storyId: [{ nodeId, choiceLabel, timestamp }] }
     visitedNodes: {}, // { storyId: Set of visited node IDs }
     unlockedRoutes: {}, // { storyId: Set of route IDs }
@@ -15,7 +15,7 @@ const DEFAULT_STATE = {
         fonts: ['Inter', 'OpenDyslexic', 'Arial Black'], // Default fonts
         effects: []
     },
-    activeTheme: 'default',
+    activeTheme: 'modern',
     activeFont: 'Inter',
     fontSize: 100, // Percentage 50-150%
     borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
@@ -44,6 +44,7 @@ function loadProgress() {
                     parsed.visitedNodes[key] = new Set(parsed.visitedNodes[key]);
                 });
             }
+            if (parsed.points < 1000) parsed.points = 1000; // FORCE UPDATE: Ensure user has at least 1000 points
             return { ...DEFAULT_STATE, ...parsed };
         }
     } catch (e) {

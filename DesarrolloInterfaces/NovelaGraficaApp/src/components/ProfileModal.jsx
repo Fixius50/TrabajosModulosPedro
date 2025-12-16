@@ -3,29 +3,35 @@ import { useUserProgress } from '../stores/userProgress';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
 
-export default function ProfileModal({ isOpen, onClose }) {
+export default function ProfileModal({ isOpen, onClose, onOpenSettings }) {
     const { points, activeTheme, setActive, purchases, reset } = useUserProgress();
     const navigate = useNavigate();
 
-    // Purchased themes plus default
-    const themes = ['default', ...new Set(purchases.themes || [])].map(id => ({
+    // Purchased themes plus default (Deduplicated & Forced Modern)
+    const themesList = Array.from(new Set(['default', 'modern', ...(purchases.themes || [])]));
+
+    const themes = themesList.map(id => ({
         id,
         label: id.charAt(0).toUpperCase() + id.slice(1),
-        color: id === 'default' ? '#8b5cf6' : (id === 'sepia' ? '#d97706' : '#22c55e') // Mock colors
+        color: id === 'default' ? '#8b5cf6' : (id === 'sepia' ? '#d97706' : (id === 'modern' ? '#d946ef' : '#22c55e'))
     }));
+
+    // ... (rest of getModalStyles remains)
+
+
 
     // Theme Styles
     const getModalStyles = () => {
         switch (activeTheme) {
             case 'comic':
                 return {
-                    overlay: 'bg-white/80 backdrop-blur-sm',
-                    container: 'bg-white border-4 border-black shadow-[8px_8px_0px_black]',
-                    text: 'text-black',
-                    header: 'bg-yellow-400 border-b-4 border-black text-black',
-                    pill: 'border-2 border-black hover:bg-black hover:text-white',
-                    activePill: 'bg-black text-white border-black',
-                    logout: 'bg-red-500 text-white border-4 border-black font-black hover:translate-y-1 hover:shadow-none shadow-[4px_4px_0px_black]'
+                    overlay: 'bg-white/90 backdrop-blur-sm',
+                    container: 'bg-[#fdfbf7] border-4 border-black shadow-[12px_12px_0px_black] rounded-none',
+                    text: 'text-black font-bangers tracking-wider',
+                    header: 'bg-[#facc15] border-b-4 border-black text-black transform -skew-x-6 mx-4 px-2',
+                    pill: 'border-4 border-black bg-white hover:bg-[#ef4444] hover:text-white font-bold shadow-[4px_4px_0px_black] active:translate-y-1 active:shadow-none transition-all',
+                    activePill: 'bg-black text-white border-black shadow-[4px_4px_0px_rgba(0,0,0,0.5)]',
+                    logout: 'bg-[#ef4444] text-white border-4 border-black font-black hover:bg-red-600 hover:scale-105 shadow-[6px_6px_0px_black] transition-transform'
                 };
             case 'manga':
                 return {
@@ -56,6 +62,16 @@ export default function ProfileModal({ isOpen, onClose }) {
                     pill: 'border border-green-500 hover:bg-green-500/20',
                     activePill: 'bg-green-500 text-black',
                     logout: 'bg-red-900/50 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white'
+                };
+            case 'modern':
+                return {
+                    overlay: 'bg-[#191022]/85 backdrop-blur-md',
+                    container: 'bg-[#211c27]/90 border border-[#302839] shadow-2xl rounded-2xl',
+                    text: 'text-white font-sans',
+                    header: 'bg-[#141118]/95 border-b border-[#302839] text-white',
+                    pill: 'bg-[#141118] text-[#ab9db9] border border-[#302839] hover:border-[#7f13ec]',
+                    activePill: 'bg-[#7f13ec] text-white border-[#7f13ec] shadow-[0_0_10px_rgba(127,19,236,0.3)]',
+                    logout: 'bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-white'
                 };
             default: // Default / Dark
                 return {
@@ -124,6 +140,13 @@ export default function ProfileModal({ isOpen, onClose }) {
 
                     {/* Actions */}
                     <div className="pt-4 border-t border-current/10 space-y-3">
+                        <button
+                            onClick={onOpenSettings}
+                            className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${styles.pill}`}
+                        >
+                            <span>⚙️</span> AJUSTES AVANZADOS
+                        </button>
+
                         <button
                             onClick={handleLogout}
                             className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${styles.logout}`}

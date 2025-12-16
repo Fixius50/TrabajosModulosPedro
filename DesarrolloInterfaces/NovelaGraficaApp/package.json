@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "db:sync": "node src/scripts/upload_theme.js && node src/scripts/upload_comic_theme.js",
+    "predev": "npm run db:sync",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

@@ -1,0 +1,27 @@
+{
+    "id": "theme-modern",
+    "name": "Neon Cyberpunk",
+    "description": "Estilo futurista con acentos neón y diseño moderno.",
+    "type": "theme",
+    "cost": 500,
+    "asset_value": "modern",
+    "colors": {
+        "primary": "#7f13ec",
+        "secondary": "#ec137f",
+        "background": "#191022",
+        "surface": "#211c27",
+        "surface_dark": "#141118",
+        "border": "#302839",
+        "text": "#ffffff",
+        "text_secondary": "#ab9db9",
+        "accent": "#FFD700"
+    },
+    "fonts": {
+        "display": "Spline Sans",
+        "body": "Noto Sans"
+    },
+    "style": {
+        "radius": "0.5rem",
+        "glass": "backdrop-blur-md bg-[#191022]/85 border border-white/10"
+    }
+}

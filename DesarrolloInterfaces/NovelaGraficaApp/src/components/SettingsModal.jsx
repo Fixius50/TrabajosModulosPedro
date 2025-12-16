@@ -30,19 +30,19 @@ export default function SettingsModal({ isOpen, onClose }) {
             .map(fid => ({ id: fid, label: fid, family: fid }))
     ];
 
-    const availableThemes = ['default', ...new Set(purchases.themes || [])];
+    const availableThemes = Array.from(new Set(['default', ...(purchases.themes || [])]));
 
     // Dynamic Theme Styles
     const getModalStyles = () => {
         switch (activeTheme) {
             case 'comic':
                 return {
-                    overlay: 'bg-white/80 backdrop-blur-sm',
-                    container: 'bg-white border-4 border-black shadow-[8px_8px_0px_black]',
-                    text: 'text-black',
-                    header: 'bg-yellow-400 border-b-4 border-black text-black',
-                    button: 'border-2 border-black hover:bg-black hover:text-white',
-                    activeButton: 'bg-black text-white border-black ring-2 ring-black ring-offset-2'
+                    overlay: 'bg-white/90 backdrop-blur-sm',
+                    container: 'bg-[#fdfbf7] border-4 border-black shadow-[12px_12px_0px_black] rounded-none',
+                    text: 'text-black font-bangers tracking-wider',
+                    header: 'bg-[#facc15] border-b-4 border-black text-black transform -skew-x-6',
+                    button: 'border-4 border-black bg-white hover:bg-cyan-400 hover:text-black font-bold shadow-[4px_4px_0px_black] active:translate-y-1 active:shadow-none transition-all',
+                    activeButton: 'bg-black text-white border-black shadow-[4px_4px_0px_rgba(0,0,0,0.5)]'
                 };
             case 'manga':
                 return {
@@ -70,6 +70,15 @@ export default function SettingsModal({ isOpen, onClose }) {
                     header: 'bg-black border-b border-green-500',
                     button: 'border border-green-500 hover:bg-green-500/20',
                     activeButton: 'bg-green-500 text-black shadow-[0_0_10px_rgba(34,197,94,0.5)]'
+                };
+            case 'modern':
+                return {
+                    overlay: 'bg-[#090510]/90 backdrop-blur-lg',
+                    container: 'bg-[#090510]/95 border border-[#302839] shadow-[0_0_30px_rgba(127,19,236,0.2)] rounded-2xl',
+                    text: 'text-white font-rajdhani',
+                    header: 'bg-transparent border-b border-[#302839] text-[#d946ef] font-orbitron tracking-widest',
+                    button: 'border border-[#302839] bg-[#1a1625] text-[#ab9db9] hover:bg-[#7f13ec]/20 hover:text-[#d946ef] hover:border-[#d946ef]',
+                    activeButton: 'bg-[#7f13ec] text-white border-[#d946ef] shadow-[0_0_15px_rgba(217,70,239,0.5)]'
                 };
             default: // Default Dark
                 return {

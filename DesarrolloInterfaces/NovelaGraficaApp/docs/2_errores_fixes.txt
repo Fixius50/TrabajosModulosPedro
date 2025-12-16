@@ -4,3 +4,9 @@ FECHA: 2025-12-15 23:45 -> [Error detectado] 'violates row-level security policy
 FECHA: 2025-12-16 00:05 -> [Bug detectado] 'Typewriter Loop': El texto se reinicia al acabar o hacer click.
     -> Causa: El prop 'onComplete' cambiaba en cada render, reiniciando el efecto.
     -> Solución: Se memorizó el handler usando `useRef` en `VisualNovelCanvas.jsx`.
+
+[FIX] MarketplaceModal: Added try/catch to handle offline/RPC errors during purchase, preventing button hang.
+[FIX] MarketplaceModal: Added 'Equip' button logic for immediate usage.
+[FIX] SettingsModal: Deduplicated 'default' theme using Set.
+[Feat] MainMenu: Overhauled 'Modern' theme with Orbitron/Rajdhani fonts, lighter violet background, and neon grid for better contrast.
+[FIX] AuthGuard: Restored session security after debugging.

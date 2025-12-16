@@ -15,3 +15,5 @@ cuando llegue al continuará... mueve el boton hacia abajo y haz que se vuelva a
 el contain debe ser para todas las imagenes
 --- INPUT USUARIO ---
 elimina de la base de datos las demos
+
+[2025-12-16] User Request: Debug Marketplace purchase flow, fix duplicate default theme in Settings, and redesign 'Modern' theme to be more distinct (Cyberpunk aesthetic).

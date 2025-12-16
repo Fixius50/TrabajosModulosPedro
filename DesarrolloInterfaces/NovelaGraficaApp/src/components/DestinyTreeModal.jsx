@@ -324,6 +324,11 @@ const NodeComponent = ({ node, x, y, status, onClick }) => {
             onClick={onClick}
         >
             {icon}
+            {status === 'visited' && (
+                <div className="absolute -bottom-6 text-[10px] text-yellow-400 font-bold opacity-80 animate-pulse">
+                    +5 pts
+                </div>
+            )}
             <div className="absolute -top-5 w-40 text-center text-[9px] text-slate-400 truncate opacity-0 hover:opacity-100 transition-opacity">
                 {status !== 'locked' ? (node.label || "Escena") : "???"}
             </div>
