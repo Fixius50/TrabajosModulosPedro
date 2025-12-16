@@ -15,7 +15,7 @@ const DEFAULT_STATE = {
         fonts: ['Inter', 'OpenDyslexic', 'Arial Black'], // Default fonts
         effects: []
     },
-    activeTheme: 'modern',
+    activeTheme: 'manga',
     activeFont: 'Inter',
     fontSize: 100, // Percentage 50-150%
     borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'

@@ -6,53 +6,33 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('❌ Error: Variables de entorno no encontradas.');
+    console.error('❌ Error: Supabase keys missing.');
     process.exit(1);
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const themeData = {
-    name: 'Tema Manga',
-    description: 'Estilo blanco y negro de alto contraste con tramas y líneas de velocidad.',
+    name: 'Estilo Manga',
+    description: 'Blanco y negro, tramas y acción pura.',
     type: 'theme',
-    cost: 500,
+    cost: 0, // Free for now to test
     asset_value: 'manga',
     is_active: true
 };
 
-async function uploadTheme() {
-    console.log(`🚀 Iniciando carga: ${themeData.name}`);
+async function upload() {
+    console.log(`🚀 Uploading: ${themeData.name}`);
+    const { data: existing } = await supabase.from('shop_items').select('id').eq('asset_value', 'manga').single();
 
-    try {
-        const { data: existing, error: searchError } = await supabase
-            .from('shop_items')
-            .select('id')
-            .eq('asset_value', 'manga')
-            .single();
-
-        if (searchError && searchError.code !== 'PGRST116') throw searchError;
-
-        if (existing) {
-            console.log(`⚠️ Actualizando tema existente (ID: ${existing.id})...`);
-            const { error: updateError } = await supabase
-                .from('shop_items')
-                .update(themeData)
-                .eq('id', existing.id);
-            if (updateError) throw updateError;
-            console.log('✅ Tema actualizado.');
-        } else {
-            console.log('✨ Creando nuevo tema...');
-            const { error: insertError } = await supabase
-                .from('shop_items')
-                .insert([themeData]);
-            if (insertError) throw insertError;
-            console.log('✅ Tema creado.');
-        }
-
-    } catch (err) {
-        console.error('❌ Error:', err.message);
+    if (existing) {
+        console.log(`⚠️ Updating existing (ID: ${existing.id})`);
+        await supabase.from('shop_items').update(themeData).eq('id', existing.id);
+    } else {
+        console.log('✨ Creating new theme');
+        await supabase.from('shop_items').insert([themeData]);
     }
+    console.log('✅ Done.');
 }
 
-uploadTheme();
+upload();

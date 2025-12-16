@@ -165,3 +165,55 @@ body {
     max-width: 600px;
   }
 }
+
+/* --- MANGA THEME --- */
+body.theme-manga {
+  --bg-dark: #ffffff;  /* White background */
+  --bg-panel: #ffffff;
+  --text-main: #000000;
+  --accent-yellow: #000000; /* Black accents */
+  --primary-blue: #000000;
+  --primary-hover: #333333;
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 1);
+  --glass-blur: 0px; /* No blur, sharp lines */
+
+  background-image: radial-gradient(circle, #000000 1px, transparent 1px);
+  background-size: 20px 20px; /* Halftone effect */
+}
+
+body.theme-manga .game-title {
+  text-shadow: 4px 4px 0px #000;
+  color: white;
+  -webkit-text-stroke: 2px black;
+  font-family: 'Bangers', cursive; /* Assuming font exists or fallback */
+}
+
+body.theme-manga .btn {
+  border: 2px solid black;
+  box-shadow: 4px 4px 0px black;
+  border-radius: 0;
+  text-transform: uppercase;
+  color: black;
+  background: white;
+  transition: transform 0.1s;
+}
+
+body.theme-manga .btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px black;
+}
+
+body.theme-manga .btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px black;
+}
+
+/* Comic Bubble Effect */
+body.theme-manga .story-text-box {
+  background: white;
+  border: 3px solid black;
+  border-radius: 20px;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
+  color: black;
+}

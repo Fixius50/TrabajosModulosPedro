@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
 import { supabase } from '../services/supabaseClient';
 
@@ -18,24 +18,21 @@ export default function StoryDetails() {
     ];
 
     useEffect(() => {
-        // Fetch Story Metadata (Mock simulation based on ID, mirroring MainMenu logic)
-        // Ideally we'd use a shared Repository or Context.
         const fetchStory = async () => {
-            // Quick Hack: Re-using logic from MainMenu is bad practice, but reliable for this sprint.
-            // Better: hardcode the demo stories map here or fetch from Supabase if real.
-            // For now, let's assume we find it in the "series" table or use a fallback.
+            try {
+                const dummies = [
+                    { id: '1', title: 'Ecos del Neón', description: 'En una metrópolis donde los recuerdos se compran y venden...', cover_url: '/assets/portadas/forest_entrance.jpg', genre: 'Cyberpunk', duration: '10h' },
+                    { id: 'Batman', title: 'Batman: Sombras', description: 'Detective Noir en Gotham. Un misterio que acecha en las sombras de la ciudad.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio', duration: '4h' },
+                    { id: 'DnD', title: 'D&D: La Cripta', description: 'Adéntrate en la cripta del Rey Exánime. Una aventura de rol clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', duration: '6h' },
+                    { id: 'RickAndMorty', title: 'Rick y Morty', description: 'Aventura rápida de 20 minutos. Entrar y salir, Morty.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', duration: '20m' },
+                    { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: '¡Por el poder del cabello nasal! Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia', duration: 'Infinite' },
+                ];
 
-            // Fallback Data
-            const dummies = [
-                { id: '1', title: 'Ecos del Neón', description: 'En una metrópolis donde los recuerdos se compran y venden...', cover_url: '/assets/portadas/forest_entrance.jpg', genre: 'Cyberpunk', duration: '10h' },
-                { id: 'Batman', title: 'Batman: Sombras', description: 'Detective Noir en Gotham. Un misterio que acecha en las sombras de la ciudad.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio', duration: '4h' },
-                { id: 'DnD', title: 'D&D: La Cripta', description: 'Adéntrate en la cripta del Rey Exánime. Una aventura de rol clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', duration: '6h' },
-                { id: 'RickAndMorty', title: 'Rick y Morty', description: 'Aventura rápida de 20 minutos. Entrar y salir, Morty.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', duration: '20m' },
-                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: '¡Por el poder del cabello nasal! Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia', duration: 'Infinite' },
-            ];
-
-            const found = dummies.find(d => d.id === seriesId) || dummies[0];
-            setStory(found);
+                const found = dummies.find(d => d.id === seriesId) || dummies[0];
+                setStory(found);
+            } catch (err) {
+                console.error('[StoryDetails] fetchStory error:', err);
+            }
         };
         fetchStory();
     }, [seriesId]);
@@ -44,12 +41,32 @@ export default function StoryDetails() {
         navigate(`/read/${seriesId}`);
     };
 
-    if (!story) return <div className="text-white p-10">Cargando...</div>;
+    if (!story) return <div className="p-10 text-xl font-bold font-mono">Cargando...</div>;
 
     // Styles based on theme
     const isModern = activeTheme === 'modern';
-    const bgStyle = isModern ? { background: '#1a0b2e', color: '#e2e8f0' } : { background: '#0a0a12', color: 'white' };
-    const accentColor = isModern ? '#d946ef' : '#8b5cf6';
+    const isManga = activeTheme === 'manga';
+
+    // Dynamic Background logic
+    let bgStyle = { background: '#0a0a12', color: 'white' };
+    if (isModern) bgStyle = { background: '#1a0b2e', color: '#e2e8f0' };
+    if (isManga) bgStyle = {
+        background: '#ffffff',
+        color: '#000000',
+        backgroundImage: 'radial-gradient(circle, #000000 1px, transparent 1px)',
+        backgroundSize: '20px 20px'
+    };
+
+    const accentColor = isModern ? '#d946ef' : (isManga ? '#000000' : '#8b5cf6');
+
+    // Manga class effect
+    useEffect(() => {
+        if (isManga) {
+            document.body.classList.add('theme-manga');
+        } else {
+            document.body.classList.remove('theme-manga');
+        }
+    }, [isManga]);
 
     return (
         <div style={{ ...bgStyle, minHeight: '100vh', paddingBottom: '100px' }}>
