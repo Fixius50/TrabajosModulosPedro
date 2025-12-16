@@ -98,7 +98,9 @@ class UserProgressStore {
     }
 
     notify() {
-        this.listeners.forEach(fn => fn(this.state));
+        // Broadcast a shallow copy to ensure React detects the change (new reference)
+        const newState = { ...this.state };
+        this.listeners.forEach(fn => fn(newState));
         saveProgress(this.state);
     }
 

@@ -32,6 +32,8 @@ export default function MarketplaceModal({ isOpen, onClose }) {
                     { id: 'font-arial-black', name: 'Fuente Alta Visibilidad', description: 'Arial Black para máximo contraste.', type: 'font', cost: 150, asset_value: 'Arial Black' },
                     { id: 'theme-sepia', name: 'Tema Sepia', description: 'Un tono cálido para tus ojos.', type: 'theme', cost: 200, asset_value: 'sepia' },
                     { id: 'theme-terminal', name: 'Tema Hacker', description: 'Estilo terminal retro verde.', type: 'theme', cost: 300, asset_value: 'terminal' },
+                    { id: 'theme-comic', name: 'Tema Cómic', description: 'Estilo viñeta con bordes marcados.', type: 'theme', cost: 50, asset_value: 'comic' },
+                    { id: 'theme-manga', name: 'Tema Manga', description: 'Estilo japonés en blanco y negro.', type: 'theme', cost: 50, asset_value: 'manga' },
                     { id: 'sticker-batman', name: 'Sticker Batman', description: 'Muestra tu lealtad a Gotham.', type: 'sticker', cost: 50, asset_value: 'sticker_batman' },
                 ]);
             }
