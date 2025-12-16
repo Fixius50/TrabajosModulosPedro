@@ -44,14 +44,32 @@ export default function SettingsModal({ isOpen, onClose }) {
                     button: 'border-4 border-black bg-white hover:bg-cyan-400 hover:text-black font-bold shadow-[4px_4px_0px_black] active:translate-y-1 active:shadow-none transition-all',
                     activeButton: 'bg-black text-white border-black shadow-[4px_4px_0px_rgba(0,0,0,0.5)]'
                 };
+            case 'comic-dark':
+                return {
+                    overlay: 'bg-black/90 backdrop-blur-sm',
+                    container: 'bg-[#121212] border-4 border-[#facc15] shadow-[12px_12px_0px_#facc15] rounded-none',
+                    text: 'text-white font-bangers tracking-wider',
+                    header: 'bg-[#000] border-b-4 border-[#facc15] text-[#facc15] transform -skew-x-6',
+                    button: 'border-4 border-[#facc15] bg-[#222] text-white hover:bg-[#facc15] hover:text-black font-bold shadow-[4px_4px_0px_#facc15] active:translate-y-1 active:shadow-none transition-all',
+                    activeButton: 'bg-[#facc15] text-black border-[#facc15] shadow-[4px_4px_0px_rgba(250,204,21,0.5)]'
+                };
             case 'manga':
                 return {
                     overlay: 'bg-white/90 backdrop-blur-sm pixelated',
                     container: 'bg-white border-2 border-black shadow-none rounded-none',
                     text: 'text-black',
                     header: 'bg-black text-white border-b-2 border-black',
-                    button: 'border border-black hover:bg-gray-200',
+                    button: 'border border-black hover:bg-gray-200 text-black',
                     activeButton: 'bg-black text-white'
+                };
+            case 'manga-dark':
+                return {
+                    overlay: 'bg-black/90 backdrop-blur-sm pixelated',
+                    container: 'bg-black border-2 border-white shadow-none rounded-none',
+                    text: 'text-white',
+                    header: 'bg-white text-black border-b-2 border-white',
+                    button: 'border border-white hover:bg-gray-800 text-white',
+                    activeButton: 'bg-white text-black'
                 };
             case 'sepia':
                 return {

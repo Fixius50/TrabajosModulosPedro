@@ -71,12 +71,27 @@ export default function ProfileView() {
                     border: '3px solid black',
                     shadow: '5px 5px 0px black'
                 };
+            case 'comic-dark':
+                return {
+                    bg: { background: '#121212', color: 'white', backgroundImage: 'radial-gradient(circle, #333 1px, transparent 1px)', backgroundSize: '20px 20px' },
+                    accent: '#facc15',
+                    cardBg: '#1e1e1e',
+                    border: '3px solid #facc15',
+                    shadow: '5px 5px 0px #facc15'
+                };
             case 'manga':
                 return {
                     bg: { background: 'white', color: 'black' },
                     accent: 'black',
                     cardBg: 'white',
                     border: '1px solid black'
+                };
+            case 'manga-dark':
+                return {
+                    bg: { background: 'black', color: 'white' },
+                    accent: 'white',
+                    cardBg: 'black',
+                    border: '1px solid white'
                 };
             default:
                 return {
@@ -99,7 +114,7 @@ export default function ProfileView() {
                     className="absolute inset-0 bg-cover bg-center blur-sm opacity-50 transition-all duration-700"
                     style={{ backgroundImage: `url('${bannerUrl}')` }}
                 />
-                <div className={`absolute inset-0 bg-gradient-to-t ${activeTheme === 'manga' ? 'from-white via-white/50' : 'from-black via-black/50'} to-transparent`} />
+                <div className={`absolute inset-0 bg-gradient-to-t ${['manga', 'comic'].includes(activeTheme) ? 'from-white via-white/50' : 'from-black via-black/50'} to-transparent`} />
 
                 {/* Edit Banner Button (Visible on Hover) */}
                 <button
@@ -124,7 +139,7 @@ export default function ProfileView() {
                     </div>
 
                     {/* Name & Info */}
-                    <div className="mb-4 drop-shadow-md flex-1" style={{ color: activeTheme === 'manga' ? 'black' : 'white' }}>
+                    <div className="mb-4 drop-shadow-md flex-1" style={{ color: ['manga', 'comic'].includes(activeTheme) ? 'black' : 'white' }}>
                         {isEditing ? (
                             <div className="flex items-center gap-2">
                                 <input
@@ -145,7 +160,7 @@ export default function ProfileView() {
                         <p className="opacity-90 font-bold text-lg">Nivel 42 • Miembro desde Marzo 2023</p>
                     </div>
 
-                    <div className="hidden md:flex bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 items-center gap-4" style={{ color: activeTheme === 'manga' ? 'black' : 'white' }}>
+                    <div className="hidden md:flex bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 items-center gap-4" style={{ color: ['manga', 'comic'].includes(activeTheme) ? 'black' : 'white' }}>
                         <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center text-2xl text-yellow-400">⭐</div>
                         <div>
                             <div className="text-xs uppercase font-bold opacity-80">Puntos</div>

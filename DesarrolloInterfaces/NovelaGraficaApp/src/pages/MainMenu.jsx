@@ -93,20 +93,46 @@ export default function MainMenu() {
                     `,
                     bgSize: '20px 20px, 20px 20px',
                     bgPos: '0 0, 10px 10px', // Offset for overlapping dots
-                    text: 'black',
+                    text: '#000000', // STRICT BLACK
                     cardBorder: '3px solid black',
                     cardRadius: '4px',
                     cardShadow: '8px 8px 0px black',
                     font: 'Bangers, cursive',
                     accent: '#facc15' // Yellow
                 };
+            case 'comic-dark': // INVERSE COMIC
+                return {
+                    bg: '#121212', // Dark Grey
+                    pattern: `
+                        radial-gradient(circle, #1e3a8a 2px, transparent 2.5px), 
+                        radial-gradient(circle, #7f1d1d 2px, transparent 2.5px)
+                    `,
+                    bgSize: '20px 20px, 20px 20px',
+                    bgPos: '0 0, 10px 10px',
+                    text: '#ffffff',
+                    cardBorder: '3px solid #facc15', // Yellow border for contrast
+                    cardRadius: '4px',
+                    cardShadow: '8px 8px 0px #facc15',
+                    font: 'Bangers, cursive',
+                    accent: '#facc15'
+                };
             case 'manga':
                 return {
-                    bg: '#f0f0f0',
-                    pattern: `repeating-linear-gradient(45deg, #ddd 0px, #ddd 1px, transparent 1px, transparent 10px)`,
+                    bg: '#ffffff',
+                    pattern: `repeating-linear-gradient(45deg, #eee 0px, #eee 1px, transparent 1px, transparent 10px)`,
                     bgSize: '20px 20px',
-                    text: '#111',
+                    text: '#000000', // STRICT BLACK
                     cardBorder: '2px solid black',
+                    cardRadius: '0',
+                    cardShadow: 'none'
+                };
+            case 'manga-dark': // INVERSE MANGA
+                return {
+                    bg: '#000000',
+                    pattern: `repeating-linear-gradient(45deg, #333 0px, #333 1px, transparent 1px, transparent 10px)`,
+                    bgSize: '20px 20px',
+                    text: '#ffffff',
+                    cardBorder: '2px solid white',
                     cardRadius: '0',
                     cardShadow: 'none'
                 };
@@ -194,11 +220,11 @@ export default function MainMenu() {
                 top: 0,
                 left: 0,
                 right: 0,
-                background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : (activeTheme === 'modern' ? 'rgba(20, 17, 24, 0.8)' : 'rgba(10, 10, 18, 0.8)')),
+                background: activeTheme === 'comic' ? 'white' : (activeTheme === 'manga' ? 'white' : (['modern', 'terminal', 'manga-dark', 'comic-dark'].includes(activeTheme) ? 'rgba(0, 0, 0, 0.8)' : 'rgba(10, 10, 18, 0.8)')),
                 backdropFilter: 'blur(20px)',
                 zIndex: 100,
-                borderBottom: activeTheme === 'comic' ? '4px solid black' : (activeTheme === 'modern' ? '1px solid #302839' : '1px solid rgba(255,255,255,0.05)'),
-                color: activeTheme === 'comic' || activeTheme === 'manga' ? 'black' : 'white'
+                borderBottom: activeTheme === 'comic' ? '4px solid black' : (activeTheme === 'comic-dark' ? '4px solid #facc15' : (activeTheme === 'manga' ? '1px solid #ccc' : (activeTheme === 'manga-dark' ? '1px solid #333' : '1px solid rgba(255,255,255,0.05)'))),
+                color: (activeTheme === 'comic' || activeTheme === 'manga') ? 'black' : 'white'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{
@@ -435,8 +461,58 @@ export default function MainMenu() {
                                                 </div>
                                             </div>
                                         </>
+                                    ) : activeTheme === 'manga' ? (
+                                        /* MANGA STYLE SPECIAL */
+                                        <>
+                                            <div style={{
+                                                aspectRatio: '3/4',
+                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'white',
+                                                position: 'relative',
+                                                filter: 'grayscale(100%) contrast(120%) brightness(1.1)',
+                                                border: '2px solid black'
+                                            }}>
+                                                {/* Japanese Numbering/Decoration */}
+                                                <div style={{
+                                                    position: 'absolute', top: '10px', right: '10px',
+                                                    writingMode: 'vertical-rl',
+                                                    fontSize: '2.5rem',
+                                                    fontWeight: 900,
+                                                    color: 'black',
+                                                    textShadow: '2px 2px 0px white',
+                                                    lineHeight: 1,
+                                                    fontFamily: '"Noto Serif JP", serif',
+                                                    zIndex: 2
+                                                }}>
+                                                    {['壱', '弐', '参', '肆', '伍', '陸', '漆', '捌', '玖', '拾'][filteredSeries.indexOf(item) % 10]}
+                                                </div>
+
+                                                {/* Bottom Info Overlay */}
+                                                <div style={{
+                                                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                                                    padding: '1rem',
+                                                    background: 'linear-gradient(to top, white 10%, transparent)',
+                                                    display: 'flex', flexDirection: 'col', alignItems: 'flex-start'
+                                                }}>
+                                                    <div style={{
+                                                        background: 'black', color: 'white',
+                                                        padding: '0.1rem 0.5rem', fontSize: '0.7rem', fontWeight: 'bold',
+                                                        marginBottom: '0.2rem', transform: 'skewX(-10deg)'
+                                                    }}>
+                                                        {item.genre?.toUpperCase()}
+                                                    </div>
+                                                    <h3 style={{
+                                                        fontSize: '1.2rem', fontWeight: 900,
+                                                        color: 'black', margin: 0,
+                                                        lineHeight: 1, textTransform: 'uppercase',
+                                                        background: 'white', padding: '0 5px'
+                                                    }}>
+                                                        {item.title}
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                        </>
                                     ) : (
-                                        /* STANDARD / MANGA STYLE */
+                                        /* STANDARD STYLE (Modern, Dark, etc) */
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',

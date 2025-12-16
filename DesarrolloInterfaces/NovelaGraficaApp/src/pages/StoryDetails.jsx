@@ -44,29 +44,55 @@ export default function StoryDetails() {
     // Styles based on theme
     const isModern = activeTheme === 'modern';
     const isManga = activeTheme === 'manga';
+    const isMangaDark = activeTheme === 'manga-dark';
+    const isComic = activeTheme === 'comic';
+    const isComicDark = activeTheme === 'comic-dark';
 
     // Manga class effect
     useEffect(() => {
-        if (isManga) {
+        if (isManga || isMangaDark) {
             document.body.classList.add('theme-manga');
         } else {
             document.body.classList.remove('theme-manga');
         }
-    }, [isManga]);
+    }, [isManga, isMangaDark]);
 
     if (!story) return <div className="p-10 text-xl font-bold font-mono">Cargando...</div>;
 
     // Dynamic Background logic
-    let bgStyle = { background: '#0a0a12', color: 'white' };
+    let bgStyle = { background: '#0a0a12', color: 'white' }; // Default Dark
+
     if (isModern) bgStyle = { background: '#1a0b2e', color: '#e2e8f0' };
+
     if (isManga) bgStyle = {
         background: '#ffffff',
-        color: '#000000',
+        color: '#000000', // STRICT BLACK
         backgroundImage: 'radial-gradient(circle, #000000 1px, transparent 1px)',
         backgroundSize: '20px 20px'
     };
 
-    const accentColor = isModern ? '#d946ef' : (isManga ? '#000000' : '#8b5cf6');
+    if (isMangaDark) bgStyle = {
+        background: '#000000',
+        color: '#ffffff',
+        backgroundImage: 'radial-gradient(circle, #444 1px, transparent 1px)',
+        backgroundSize: '20px 20px'
+    };
+
+    if (isComic) bgStyle = {
+        background: '#fdfbf7',
+        color: '#000000',
+        fontFamily: 'Bangers, cursive',
+        letterSpacing: '1px'
+    };
+
+    if (isComicDark) bgStyle = {
+        background: '#121212',
+        color: '#ffffff',
+        fontFamily: 'Bangers, cursive',
+        letterSpacing: '1px'
+    };
+
+    const accentColor = (isModern || isComicDark) ? '#d946ef' : (isManga ? '#000000' : (isMangaDark ? '#ffffff' : (isComic ? '#facc15' : '#8b5cf6')));
 
     return (
         <div style={{ ...bgStyle, minHeight: '100vh', paddingBottom: '100px' }}>
