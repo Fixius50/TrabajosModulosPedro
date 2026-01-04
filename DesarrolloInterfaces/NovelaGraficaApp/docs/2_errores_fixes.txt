@@ -14,3 +14,4 @@ FECHA: 2025-12-16 00:05 -> [Bug detectado] 'Typewriter Loop': El texto se reinic
 [FIX] SettingsView: Added missing Theme Selector dropdown.
 [FIX] userProgress: Added missing helper keys 'theme' vs 'activeTheme'.
 [FEAT] Manga Theme: Added B&W High Contrast theme support globally.
+[FIX] Vercel Deployment: 'vite: command not found'. Project in subdirectory caused dependency installation failure. Fix: Configure Root Directory in Vercel to 'DesarrolloInterfaces/NovelaGraficaApp' and added 'vercel.json' for SPA routing.
