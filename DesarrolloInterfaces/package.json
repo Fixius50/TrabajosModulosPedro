@@ -3,7 +3,7 @@
     "private": true,
     "scripts": {
         "install": "cd NovelaGraficaApp && npm install",
-        "build": "cd NovelaGraficaApp && npm run build",
+        "build": "cd NovelaGraficaApp && npm run build && cd .. && mkdir -p dist/NovelaGraficaApp && cp -r NovelaGraficaApp/dist/* dist/NovelaGraficaApp/ && cp index.html dist/",
         "dev": "cd NovelaGraficaApp && npm run dev"
     },
     "engines": {
