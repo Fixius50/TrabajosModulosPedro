@@ -5,23 +5,28 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('❌ Error: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY not found in environment variables.');
+    console.error('❌ Error: VITE_SUPABASE_URL or VITE_SUPABASE_SERVICE_ROLE_KEY/ANON_KEY not found.');
     console.log('Make sure you have a .env file in the root directory.');
     process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+        autoRefreshToken: false,
+        persistSession: false
+    }
+});
 
 const themeData = {
     name: 'Tema Neón (Moderno)',
     description: 'Rediseño completo con estética Glassmorphism y colores vibrantes.',
     type: 'theme',
-    cost: 500,
+    price: 500,
     asset_value: 'modern',
-    is_active: true,
+    // is_active: true, // Removed column
     style_config: {
         bg: '#1a0b2e',
         pattern: 'linear-gradient(rgba(216, 70, 239, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(216, 70, 239, 0.2) 1px, transparent 1px), radial-gradient(circle at 50% 50%, rgba(127, 19, 236, 0.4) 0%, transparent 60%)',
@@ -39,6 +44,8 @@ const themeData = {
 
 async function uploadTheme() {
     console.log(`🚀 Iniciando carga del tema: ${themeData.name}`);
+    console.log("THEME DATA KEYS:", Object.keys(themeData)); // DEBUG
+    console.log("PRICE VALUE:", themeData.price); // DEBUG
 
     try {
         // 1. Check if theme exists

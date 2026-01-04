@@ -29,11 +29,28 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
     const [choicesVisible, setChoicesVisible] = useState(false);
     const [showUI, setShowUI] = useState(true); // UI visible by default
     const [menuOpen, setMenuOpen] = useState(false); // Menu closed by default
-    const { borderStyle, fontSize } = useUserProgress();
+    const { borderStyle, fontSize, activeTheme, getThemeStyles } = useUserProgress();
 
 
     // Ref for the typewriter to control it externally
     const typewriterRef = useRef(null);
+
+    // Dynamic Theme Config
+    const themeConfig = getThemeStyles(activeTheme);
+
+    // Default styles if no config found (e.g. 'default' theme)
+    const activeStyle = {
+        background: themeConfig?.bg || 'rgba(0, 0, 0, 0.7)',
+        border: themeConfig?.cardBorder || '1px solid rgba(255,255,255,0.1)',
+        fontFamily: themeConfig?.font || 'inherit',
+        accent: themeConfig?.accent || '#ffffff',
+        // Shadow logic: if neon, use glow; else if comic, use heavy shadow; else standard
+        boxShadow: activeTheme === 'neon' ? `0 0 20px ${themeConfig?.accent || '#d946ef'}` :
+            activeTheme === 'comic' ? '8px 8px 0px rgba(0,0,0,1)' :
+                '0 10px 30px rgba(0,0,0,0.5)',
+        color: (activeTheme === 'manga' || activeTheme === 'comic' || activeTheme === 'paper' || activeTheme === 'inverse') ? '#000000' : '#ffffff'
+    };
+
 
     // Reset state when node changes
     useEffect(() => {
@@ -211,30 +228,50 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute bottom-8 left-0 right-0 flex flex-col items-center justify-center pointer-events-auto px-4"
+                                className="absolute bottom-8 left-4 right-4 md:left-20 md:right-20 pointer-events-auto flex flex-col items-center"
                             >
-                                {/* Speaker Name */}
-                                {currentNode?.speaker_name && currentNode.speaker_name !== 'Narrator' && (
-                                    <div className="text-yellow-400 font-extrabold text-lg uppercase tracking-widest mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                                        {currentNode.speaker_name}
-                                    </div>
-                                )}
-
-                                {/* Animated Text */}
+                                {/* THEMED TEXT BOX CONTAINER */}
                                 <div
-                                    className="font-bold leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
-                                    style={{ fontSize: `${fontSize}%` }}
+                                    className="relative w-full max-w-4xl p-6 md:p-8 rounded-xl backdrop-blur-md transition-all duration-500"
+                                    style={{
+                                        // Dynamic Styles based on Theme
+                                        background: activeStyle.background,
+                                        border: activeStyle.border,
+                                        boxShadow: activeStyle.boxShadow,
+                                        color: activeStyle.color,
+                                        fontFamily: activeStyle.fontFamily
+                                    }}
                                 >
-                                    {currentNode?.text || currentNode?.dialogue_content ? (
-                                        <TypewriterEffect
-                                            ref={typewriterRef}
-                                            text={currentNode?.text || currentNode?.dialogue_content}
-                                            speed={20}
-                                            onComplete={handleTypewriterComplete}
-                                        />
-                                    ) : (
-                                        "..."
+                                    {/* Speaker Name Badge */}
+                                    {currentNode?.speaker_name && currentNode.speaker_name !== 'Narrator' && (
+                                        <div
+                                            className="absolute -top-5 left-8 px-4 py-1 font-extrabold text-sm uppercase tracking-widest rounded shadow-lg transform -rotate-1"
+                                            style={{
+                                                background: activeStyle.accent,
+                                                color: (activeTheme === 'comic' || activeTheme === 'manga' || activeTheme === 'inverse') ? '#000' : '#fff',
+                                                border: activeTheme === 'comic' ? '2px solid #000' : 'none'
+                                            }}
+                                        >
+                                            {currentNode.speaker_name}
+                                        </div>
                                     )}
+
+                                    {/* Animated Text */}
+                                    <div
+                                        className="font-bold leading-relaxed text-lg md:text-xl"
+                                        style={{ fontSize: `${fontSize}%` }}
+                                    >
+                                        {currentNode?.text || currentNode?.dialogue_content ? (
+                                            <TypewriterEffect
+                                                ref={typewriterRef}
+                                                text={currentNode?.text || currentNode?.dialogue_content}
+                                                speed={20}
+                                                onComplete={handleTypewriterComplete}
+                                            />
+                                        ) : (
+                                            "..."
+                                        )}
+                                    </div>
                                 </div>
                             </motion.div>
 

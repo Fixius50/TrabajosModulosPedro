@@ -12,9 +12,9 @@ export default function RadialMenu() {
 
     const menuItems = [
         { icon: '🏠', label: 'Inicio', path: '/' },
-        { icon: '💾', label: 'Mis Partidas', path: '/saves' }, // Placeholder path
+        { icon: '📚', label: 'Biblioteca', path: '/saves' }, // Route remains /saves for now to avoid breaking router
         { icon: '⚙️', label: 'Ajustes', action: 'settings' }, // We might need to trigger modal
-        { icon: '👤', label: 'Perfil', action: 'profile' }     // We might need to trigger modal
+        // Profile removed as per user feedback (redundant)
     ];
 
     // Animation Variants for Satellite Buttons

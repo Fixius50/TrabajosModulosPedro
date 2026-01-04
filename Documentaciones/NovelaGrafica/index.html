@@ -157,6 +157,7 @@
         <button class="tab-btn active" onclick="openTab(event, 'general')">General & Arquitectura</button>
         <button class="tab-btn" onclick="openTab(event, 'logs')">Logs & Changelog</button>
         <button class="tab-btn" onclick="openTab(event, 'prompts')">Historial de Prompts</button>
+        <button class="tab-btn" onclick="openTab(event, 'v3docs')">Docs v3.0 (Actual)</button>
     </nav>
 
     <!-- TAB 1: GENERAL -->
@@ -339,6 +340,42 @@
 > En la documentacion los prompts tienes que ponerlos tal cual, sin resumir. Luego haz que se vaya entre paginas en vez de ir arriba y abajo para verlo tdoo
 
             </pre>
+        </section>
+    </div>
+
+    <!-- TAB 4: DOCS V3.0 (GUEST ACCESS) -->
+    <div id="v3docs" class="tab-content">
+        <section>
+            <h2>Resumen del Estado (v3.0)</h2>
+            <div class="card">
+                <h3>Guest Access & Marketplace Fixes</h3>
+                <p><strong>Versión Actual:</strong> v3.0</p>
+                <p>La aplicación ha migrado a un modelo "Freemium".</p>
+                <ul>
+                    <li><span class="badge">Guest Mode</span> Acceso público a Dashboard y Lector.</li>
+                    <li><span class="badge">Protected</span> Login requerido para Mercado, Perfil y Reseñas.</li>
+                    <li><span class="badge">DB Reset</span> Esquema sincronizado con columnas `reading_time` y `price`.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Cambios Recientes</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Fix: Login Freeze</h3>
+                    <p>Resolución de bloqueos en "Procesando..." mediante timeouts y navegación forzada.</p>
+                </div>
+                <div class="card">
+                    <h3>Fix: Error 400/403</h3>
+                    <p>Corrección de permisos RLS y filtros inválidos (`is_active`) en Marketplace.</p>
+                </div>
+                <div class="card">
+                    <h3>Feature: Reading Time</h3>
+                    <p>Nuevo metadato en cómics (ej. "45m") aleatorizado en base de datos.</p>
+                </div>
+            </div>
         </section>
     </div>
 

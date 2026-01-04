@@ -1,147 +1,193 @@
-// User Progress Store - Tracks choices, visited nodes, unlocked routes, points, and purchases
-// Uses localStorage for persistence
+// User Progress Store - Database First (Supabase)
+// No LocalStorage persistence.
 
-const STORAGE_KEY = 'novelaapp_user_progress';
-
-
-
-// Load from localStorage
-import { supabase } from '../services/supabaseClient'; // Import Supabase
+import { supabase } from '../services/supabaseClient';
 
 const DEFAULT_STATE = {
     userId: null,
-    points: 1000,
+    points: 500,
     choices: {}, // { storyId: [{ nodeId, choiceLabel, timestamp }] }
     visitedNodes: {}, // { storyId: Set of visited node IDs }
     unlockedRoutes: {}, // { storyId: Set of route IDs }
-    completedStories: [], // storyIds with 100% completion
+    completedStories: [],
     purchases: {
         themes: ['default'],
-        fonts: ['Inter', 'OpenDyslexic', 'Arial Black'], // Default fonts
+        fonts: ['Inter'],
         effects: []
     },
     activeTheme: 'default',
     activeFont: 'Inter',
-    fontSize: 100, // Percentage 50-150%
-    borderStyle: 'black', // Nuevo: 'black', 'white', 'wood'
+    fontSize: 100,
+    borderStyle: 'black',
     profile: {
-        name: '',
+        name: 'Invitado',
         avatar: '',
         banner: ''
     },
-    themeConfigs: {}, // NEW: Remote Styles Cache
+    themeConfigs: {},
     stats: {
         totalChoicesMade: 0,
-        totalNodesVisited: 0,
-        storiesStarted: 0,
-        storiesCompleted: 0
+        totalNodesVisited: 0
     }
 };
 
-// Load from localStorage
-async function loadProgress() { // Make async
-    let fused = { ...DEFAULT_STATE };
-
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            // Convert Sets back from Arrays
-            if (parsed.unlockedRoutes) {
-                Object.keys(parsed.unlockedRoutes).forEach(key => {
-                    parsed.unlockedRoutes[key] = new Set(parsed.unlockedRoutes[key]);
-                });
-            }
-            if (parsed.visitedNodes) {
-                Object.keys(parsed.visitedNodes).forEach(key => {
-                    parsed.visitedNodes[key] = new Set(parsed.visitedNodes[key]);
-                });
-            }
-            if (parsed.points < 1000) parsed.points = 1000;
-
-            if (!parsed.profile) parsed.profile = { name: '', avatar: '', banner: '' };
-
-            // MERGE STATE
-            fused = { ...DEFAULT_STATE, ...parsed };
-
-            // VALIDATION
-            const ownedThemes = fused.purchases?.themes || ['default'];
-            if (!ownedThemes.includes(fused.activeTheme)) {
-                fused.activeTheme = 'default';
-            }
-        }
-
-        // NEW: Fetch Remote Styles from Supabase (if available)
-        if (supabase) {
-            const { data: themes } = await supabase
-                .from('shop_items')
-                .select('asset_value, style_config')
-                .eq('type', 'theme');
-
-            if (themes) {
-                const configs = themes.reduce((acc, t) => {
-                    if (t.style_config) acc[t.asset_value] = t.style_config;
-                    return acc;
-                }, {});
-
-                // Merge remote configs into state (don't save to localStorage needed?)
-                fused.themeConfigs = { ...fused.themeConfigs, ...configs };
-            }
-        }
-
-        return fused;
-
-    } catch (e) {
-        console.warn('Failed to load progress:', e);
+// Helper for Sets serialization
+const serializeSets = (state) => {
+    const copy = JSON.parse(JSON.stringify(state)); // Deep copy scalars
+    // Manually handle Sets
+    if (state.visitedNodes) {
+        copy.visitedNodes = {};
+        Object.keys(state.visitedNodes).forEach(k => {
+            copy.visitedNodes[k] = Array.from(state.visitedNodes[k]);
+        });
     }
-    return fused;
-}
-
-// Save to localStorage
-function saveProgress(state) {
-    try {
-        const toSave = { ...state };
-        // Convert Sets to Arrays for JSON
-        if (toSave.unlockedRoutes) {
-            const converted = {};
-            Object.keys(toSave.unlockedRoutes).forEach(key => {
-                converted[key] = Array.from(toSave.unlockedRoutes[key]);
-            });
-            toSave.unlockedRoutes = converted;
-        }
-        if (toSave.visitedNodes) {
-            const converted = {};
-            Object.keys(toSave.visitedNodes).forEach(key => {
-                converted[key] = Array.from(toSave.visitedNodes[key]);
-            });
-            toSave.visitedNodes = converted;
-        }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-    } catch (e) {
-        console.warn('Failed to save progress:', e);
+    if (state.unlockedRoutes) {
+        copy.unlockedRoutes = {};
+        Object.keys(state.unlockedRoutes).forEach(k => {
+            copy.unlockedRoutes[k] = Array.from(state.unlockedRoutes[k]);
+        });
     }
-}
-
-// Points rewards
-const POINTS = {
-    NEW_NODE_VISITED: 5, // Only for first visit
-    NEW_ROUTE_UNLOCKED: 50,
-    ENDING_REACHED: 25,
-    ALL_ROUTES_BONUS_MULTIPLIER: 5
+    return copy;
 };
 
-// Create the store
+// Encapsulates logic
 class UserProgressStore {
     constructor() {
-        this.state = DEFAULT_STATE; // Start with default
-        this.init();
+        this.state = { ...DEFAULT_STATE };
         this.listeners = new Set();
+        this.saveTimeout = null;
+        this.isSyncing = false;
+
+        // Listen for Auth Changes to reload data
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                console.log('🔄 Auth Change detected: Loading Cloud Save...');
+                await this.loadFromSupabase(session.user.id);
+            } else {
+                console.log('👋 User logged out: Resetting state.');
+                this.reset();
+            }
+        });
     }
 
-    async init() {
-        const loaded = await loadProgress();
-        this.state = loaded;
-        this.notify();
+    async loadFromSupabase(userId) {
+        this.isSyncing = true;
+        try {
+            // 1. Get Profile (Points, Username)
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('username, points, avatar_url')
+                .eq('id', userId)
+                .single();
+
+            // 2. Get Game State JSON
+            const { data: gameState } = await supabase
+                .from('user_game_state')
+                .select('state_data')
+                .eq('user_id', userId)
+                .single();
+
+            const cloudState = gameState?.state_data || {};
+
+            // Rehydrate Sets
+            if (cloudState.visitedNodes) {
+                Object.keys(cloudState.visitedNodes).forEach(k => {
+                    cloudState.visitedNodes[k] = new Set(cloudState.visitedNodes[k]);
+                });
+            }
+            if (cloudState.unlockedRoutes) {
+                Object.keys(cloudState.unlockedRoutes).forEach(k => {
+                    cloudState.unlockedRoutes[k] = new Set(cloudState.unlockedRoutes[k]);
+                });
+            }
+
+            // 3. Load Favorites
+            const { data: favs } = await supabase
+                .from('user_library')
+                .select('item_id')
+                .eq('user_id', userId)
+                .eq('item_type', 'favorite_series');
+
+            const favoritesSet = new Set(favs?.map(f => f.item_id) || []);
+
+            // Merge
+            this.state = {
+                ...DEFAULT_STATE,
+                ...cloudState,
+                favorites: favoritesSet, // Add favorites
+
+                userId: userId,
+                points: profile?.points || DEFAULT_STATE.points,
+                profile: {
+                    ...DEFAULT_STATE.profile,
+                    name: profile?.username || 'Usuario',
+                    avatar: profile?.avatar_url || ''
+                }
+            };
+
+            // Fetch Global Shop Configs (Themes)
+            this.fetchShopConfigs();
+
+        } catch (e) {
+            console.error('❌ Error loading progress:', e);
+        } finally {
+            this.isSyncing = false;
+            this.notify(false); // Notify internal update, don't trigger save
+        }
+    }
+
+    async fetchShopConfigs() {
+        const { data } = await supabase.from('shop_items').select('asset_value, style_config').eq('type', 'theme');
+        if (data) {
+            const configs = {};
+            data.forEach(item => {
+                if (item.style_config) configs[item.asset_value] = item.style_config;
+            });
+            this.state.themeConfigs = configs;
+            this.notify(false);
+        }
+    }
+
+    // Debounced Save to Supabase
+    saveToSupabase() {
+        if (!this.state.userId) return; // Don't save for guests
+
+        if (this.saveTimeout) clearTimeout(this.saveTimeout);
+
+        this.saveTimeout = setTimeout(async () => {
+            try {
+                const userId = this.state.userId;
+                const stateToSave = serializeSets(this.state);
+
+                // Exclude fields stored in other tables to avoid redundancy
+                delete stateToSave.profile; // Stored in profiles
+                // delete stateToSave.points; // We might want to sync points here solely for backup, but mainly update profiles
+
+                // 1. Update Game State Blob
+                const { error: errorState } = await supabase
+                    .from('user_game_state')
+                    .upsert({
+                        user_id: userId,
+                        state_data: stateToSave,
+                        last_updated: new Date()
+                    });
+
+                if (errorState) throw errorState;
+
+                // 2. Update Points in Profile (Source of Truth for Currency)
+                const { error: errorProfile } = await supabase
+                    .from('profiles')
+                    .update({ points: this.state.points })
+                    .eq('id', userId);
+
+                if (errorProfile) throw errorProfile;
+
+                console.log('✅ Progress synced to Cloud');
+
+            } catch (e) {
+                console.error('⚠️ Save failed:', e);
+            }
+        }, 2000); // Wait 2s of inactivity before saving
     }
 
     subscribe(listener) {
@@ -149,201 +195,162 @@ class UserProgressStore {
         return () => this.listeners.delete(listener);
     }
 
-    notify() {
-        // Broadcast a shallow copy to ensure React detects the change (new reference)
+    notify(triggerSave = true) {
         const newState = { ...this.state };
         this.listeners.forEach(fn => fn(newState));
-        saveProgress(this.state);
+        if (triggerSave && !this.isSyncing) {
+            this.saveToSupabase();
+        }
     }
 
-    getState() {
-        return this.state;
-    }
+    getState() { return this.state; }
 
-    // Visit a node - returns points earned (0 if already visited)
+    // --- ACTIONS ---
+
     visitNode(storyId, nodeId) {
-        if (!this.state.visitedNodes[storyId]) {
-            this.state.visitedNodes[storyId] = new Set();
-        }
+        if (!this.state.visitedNodes[storyId]) this.state.visitedNodes[storyId] = new Set();
+        if (this.state.visitedNodes[storyId].has(nodeId)) return 0;
 
-        // Check if already visited - NO POINTS if replaying
-        if (this.state.visitedNodes[storyId].has(nodeId)) {
-            return 0; // Already visited, no points
-        }
-
-        // First time visiting this node
         this.state.visitedNodes[storyId].add(nodeId);
         this.state.stats.totalNodesVisited++;
-        this.state.points += POINTS.NEW_NODE_VISITED;
-
+        this.state.points += 5; // Reward
         this.notify();
-        return POINTS.NEW_NODE_VISITED;
+        return 5;
     }
 
-    // Record a choice made by the player (for history log)
     recordChoice(storyId, nodeId, choiceLabel, targetNodeId) {
-        if (!this.state.choices[storyId]) {
-            this.state.choices[storyId] = [];
-        }
-
-        this.state.choices[storyId].push({
-            nodeId,
-            choiceLabel,
-            targetNodeId,
-            timestamp: Date.now()
-        });
-
+        if (!this.state.choices[storyId]) this.state.choices[storyId] = [];
+        this.state.choices[storyId].push({ nodeId, choiceLabel, targetNodeId, timestamp: Date.now() });
         this.state.stats.totalChoicesMade++;
-
-        // Visit the target node and get points
-        const pointsEarned = this.visitNode(storyId, targetNodeId);
-
+        const points = this.visitNode(storyId, targetNodeId);
         this.notify();
-        return pointsEarned;
+        return points;
     }
 
-    // Reach an ending
-    reachEnding(storyId, endingId, totalEndings) {
-        if (!this.state.unlockedRoutes[storyId]) {
-            this.state.unlockedRoutes[storyId] = new Set();
-        }
+    // Purchase Logic
+    async purchase(category, itemId, cost) {
+        if (this.state.points < cost) return { success: false, error: 'Not enough points' };
 
-        // Check if ending already unlocked
-        if (this.state.unlockedRoutes[storyId].has(endingId)) {
-            return 0; // Already reached, no points
-        }
+        // Optimistic Update
+        this.state.points -= cost;
+        if (!this.state.purchases[category]) this.state.purchases[category] = [];
+        this.state.purchases[category].push(itemId);
+        this.notify();
 
-        this.state.unlockedRoutes[storyId].add(endingId);
-        let pointsEarned = POINTS.ENDING_REACHED;
-
-        // Check if all endings are now unlocked
-        if (this.state.unlockedRoutes[storyId].size >= totalEndings) {
-            pointsEarned = POINTS.NEW_ROUTE_UNLOCKED * POINTS.ALL_ROUTES_BONUS_MULTIPLIER;
-            if (!this.state.completedStories.includes(storyId)) {
-                this.state.completedStories.push(storyId);
-                this.state.stats.storiesCompleted++;
+        // Also record in persistent library table immediately
+        if (this.state.userId) {
+            try {
+                await supabase.from('user_library').insert({
+                    user_id: this.state.userId,
+                    item_type: category,
+                    item_id: itemId
+                });
+            } catch (e) {
+                console.error("Failed to sync purchase:", e);
             }
         }
-
-        this.state.points += pointsEarned;
-        this.notify();
-        return pointsEarned;
-    }
-
-    // Get visited nodes for a story
-    getVisitedNodes(storyId) {
-        return this.state.visitedNodes[storyId] || new Set();
-    }
-
-    // Check if a node was visited
-    isNodeVisited(storyId, nodeId) {
-        return this.state.visitedNodes[storyId]?.has(nodeId) || false;
-    }
-
-    // Get unlocked endings for a story
-    getUnlockedEndings(storyId) {
-        return this.state.unlockedRoutes[storyId] || new Set();
-    }
-
-    // Get completion percentage
-    getCompletion(storyId, totalEndings) {
-        const unlocked = this.state.unlockedRoutes[storyId]?.size || 0;
-        return Math.round((unlocked / totalEndings) * 100);
-    }
-
-    // Get player choices for a story
-    getChoices(storyId) {
-        return this.state.choices[storyId] || [];
-    }
-
-    // Purchase an item from the marketplace
-    purchase(category, itemId, cost) {
-        if (this.state.points < cost) {
-            return { success: false, error: 'Not enough points' };
-        }
-
-        if (this.state.purchases[category]?.includes(itemId)) {
-            return { success: false, error: 'Already owned' };
-        }
-
-        this.state.points -= cost;
-        if (!this.state.purchases[category]) {
-            this.state.purchases[category] = [];
-        }
-        this.state.purchases[category].push(itemId);
-
-        this.notify();
         return { success: true };
     }
 
-    // Set active theme/font/border
+    // Favorites Logic
+    async toggleFavorite(seriesId) {
+        if (!this.state.userId) return false; // Guest cant fave yet
+
+        const isFave = this.isFavorite(seriesId);
+        const itemType = 'favorite_series';
+
+        // Optimistic Update
+        if (!this.state.favorites) this.state.favorites = new Set();
+
+        if (isFave) {
+            this.state.favorites.delete(seriesId);
+        } else {
+            this.state.favorites.add(seriesId);
+        }
+        this.notify();
+
+        try {
+            if (isFave) {
+                // Remove from DB
+                await supabase.from('user_library')
+                    .delete()
+                    .match({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
+            } else {
+                // Add to DB
+                await supabase.from('user_library')
+                    .insert({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
+            }
+        } catch (e) {
+            console.error("Error toggling favorite:", e);
+            // Revert on error? For now, just log.
+        }
+        return !isFave;
+    }
+
+    isFavorite(seriesId) {
+        return this.state.favorites?.has(seriesId) || false;
+    }
+
     setActive(type, value) {
         if (type === 'theme') this.state.activeTheme = value;
         if (type === 'font') this.state.activeFont = value;
         if (type === 'size') this.state.fontSize = value;
-        if (type === 'border') this.state.borderStyle = value;
         this.notify();
     }
 
-    updateProfile(updates) {
+    isOwned(category, itemId) {
+        return this.state.purchases[category]?.includes(itemId) || category === 'themes' && itemId === 'default';
+    }
+
+    getThemeStyles(themeName) {
+        return this.state.themeConfigs?.[themeName] || null;
+    }
+
+    async updateProfile(updates) {
+        // Optimistic update
         this.state.profile = { ...this.state.profile, ...updates };
         this.notify();
+
+        if (this.state.userId) {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    username: this.state.profile.name,
+                    avatar_url: this.state.profile.avatar,
+                    // banner: this.state.profile.banner // Si tuviéramos campo banner en DB
+                })
+                .eq('id', this.state.userId);
+
+            if (error) console.error("Error updating profile:", error);
+        }
     }
 
-    // Check if item is owned
-    isOwned(category, itemId) {
-        return this.state.purchases[category]?.includes(itemId) || false;
-    }
-
-    // Reset progress (for testing)
     reset() {
         this.state = { ...DEFAULT_STATE };
-        localStorage.removeItem(STORAGE_KEY);
-        this.notify();
-    }
-
-    setPoints(points) {
-        this.state.points = points;
-        this.notify();
+        this.notify(false);
     }
 }
 
-// Singleton instance
 export const userProgress = new UserProgressStore();
 
-// React hook
+// React Hook
 import { useState, useEffect } from 'react';
 
 export function useUserProgress() {
     const [state, setState] = useState(userProgress.getState());
-
-    useEffect(() => {
-        return userProgress.subscribe(setState);
-    }, []);
+    useEffect(() => userProgress.subscribe(setState), []);
 
     return {
         ...state,
-        visitNode: (storyId, nodeId) => userProgress.visitNode(storyId, nodeId),
-        recordChoice: (storyId, nodeId, choiceLabel, targetNodeId) => userProgress.recordChoice(storyId, nodeId, choiceLabel, targetNodeId),
-        reachEnding: (storyId, endingId, totalEndings) => userProgress.reachEnding(storyId, endingId, totalEndings),
-        getVisitedNodes: (storyId) => userProgress.getVisitedNodes(storyId),
-        isNodeVisited: (storyId, nodeId) => userProgress.isNodeVisited(storyId, nodeId),
-        getUnlockedEndings: (storyId) => userProgress.getUnlockedEndings(storyId),
-        getCompletion: (storyId, totalEndings) => userProgress.getCompletion(storyId, totalEndings),
-        getChoices: (storyId) => userProgress.getChoices(storyId),
-        // Helper to get resolved styles
-        getThemeStyles: (themeName) => {
-            const remote = state.themeConfigs?.[themeName];
-            if (remote) return remote;
-
-            // Fallback for themes without remote config (yet)
-            // Ideally we move ALL logic here eventually.
-            return null;
-        },
-        purchase: (category, itemId, cost) => userProgress.purchase(category, itemId, cost),
-        setActive: (type, value) => userProgress.setActive(type, value),
-        updateProfile: (updates) => userProgress.updateProfile(updates),
-        isOwned: (category, itemId) => userProgress.isOwned(category, itemId),
+        visitNode: (s, n) => userProgress.visitNode(s, n),
+        recordChoice: (s, n, l, t) => userProgress.recordChoice(s, n, l, t),
+        purchase: (c, i, cost) => userProgress.purchase(c, i, cost),
+        setActive: (t, v) => userProgress.setActive(t, v),
+        isOwned: (c, i) => userProgress.isOwned(c, i),
+        getThemeStyles: (t) => userProgress.getThemeStyles(t),
+        updateProfile: (u) => userProgress.updateProfile(u),
+        toggleFavorite: (id) => userProgress.toggleFavorite(id),
+        isFavorite: (id) => userProgress.isFavorite(id),
         reset: () => userProgress.reset()
     };
 }

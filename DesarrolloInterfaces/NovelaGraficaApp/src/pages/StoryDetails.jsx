@@ -4,38 +4,54 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
 import { supabase } from '../services/supabaseClient';
 import { getAssetUrl } from '../utils/assetUtils';
+import ReviewsSection from '../components/ReviewsSection';
 
 export default function StoryDetails() {
     const { seriesId } = useParams();
     const navigate = useNavigate();
-    const { activeTheme } = useUserProgress();
+    const { activeTheme, isFavorite, toggleFavorite } = useUserProgress();
     const [activeTab, setActiveTab] = useState('detalles'); // 'detalles' or 'reseñas'
     const [story, setStory] = useState(null);
+    const [isFav, setIsFav] = useState(false);
 
-    // Mock Data for visual fidelity
-    const reviews = [
-        { id: 1, user: 'NeonRider', avatar: '😎', time: 'Hace 2 días', rating: 5, text: '¡Increíble atmósfera! La música y los visuales te atrapan desde el primer segundo.' },
-        { id: 2, user: 'Sarah Conner', avatar: '🤖', time: 'Hace 1 semana', rating: 4, text: 'Muy buena historia, aunque algunos finales se sienten apresurados.' }
-    ];
+    useEffect(() => {
+        setIsFav(isFavorite(seriesId));
+    }, [seriesId, isFavorite]);
 
     useEffect(() => {
         const fetchStory = async () => {
             try {
-                const dummies = [
-                    { id: '1', title: 'Ecos del Neón', description: 'En una metrópolis donde los recuerdos se compran y venden...', cover_url: '/assets/portadas/forest_entrance.jpg', genre: 'Cyberpunk', duration: '10h' },
-                    { id: 'Batman', title: 'Batman: Sombras', description: 'Detective Noir en Gotham. Un misterio que acecha en las sombras de la ciudad.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio', duration: '4h' },
-                    { id: 'DnD', title: 'D&D: La Cripta', description: 'Adéntrate en la cripta del Rey Exánime. Una aventura de rol clásica.', cover_url: '/assets/portadas/DnD.png', genre: 'Fantasía', duration: '6h' },
-                    { id: 'RickAndMorty', title: 'Rick y Morty', description: 'Aventura rápida de 20 minutos. Entrar y salir, Morty.', cover_url: '/assets/portadas/RickAndMorty.png', genre: 'Sci-Fi', duration: '20m' },
-                    { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: '¡Por el poder del cabello nasal! Lucha contra el Imperio Margarita.', cover_url: '/assets/BoBoBo/1.jpg', genre: 'Comedia', duration: 'Infinite' },
-                ];
+                // 1. Try Fetch from Supabase
+                const { data, error } = await supabase
+                    .from('series')
+                    .select('*')
+                    .eq('id', seriesId)
+                    .single();
 
-                // Transform URLs
-                const processed = dummies.map(d => ({ ...d, cover_url: getAssetUrl(d.cover_url) }));
-
-                const found = processed.find(d => d.id === seriesId) || processed[0];
-                setStory(found);
+                if (data && !error) {
+                    setStory({
+                        ...data,
+                        cover_url: getAssetUrl(data.cover_url),
+                        genre: 'General', // DB doesnt have genre yet, default
+                        duration: data.reading_time || 'Unknown'
+                    });
+                } else {
+                    throw new Error("Story not found");
+                }
             } catch (err) {
-                console.error('[StoryDetails] fetchStory error:', err);
+                console.warn('[StoryDetails] fetchStory error (likely invalid UUID or network), checking legacy/dummies:', err);
+
+                // Fallback for Legacy IDs (e.g. "Batman")
+                const dummies = [
+                    { id: 'Batman', title: 'Batman: Sombras', description: 'Detective Noir.', cover_url: '/assets/portadas/Batman.png', genre: 'Misterio', duration: '4h' },
+                    // ... keep minimal fallback for robustness during transition
+                ];
+                const found = dummies.find(d => d.id === seriesId);
+                if (found) {
+                    setStory({ ...found, cover_url: getAssetUrl(found.cover_url) });
+                } else {
+                    console.error("Story completely not found");
+                }
             }
         };
         fetchStory();
@@ -43,6 +59,11 @@ export default function StoryDetails() {
 
     const handleRead = () => {
         navigate(`/read/${seriesId}`);
+    };
+
+    const onToggleFav = async () => {
+        const newState = await toggleFavorite(seriesId);
+        setIsFav(newState);
     };
 
     // Styles based on theme
@@ -145,8 +166,11 @@ export default function StoryDetails() {
                             >
                                 ▶ Leer Ahora
                             </button>
-                            <button className="p-3 rounded-lg border border-white/20 hover:bg-white/10">
-                                ❤️
+                            <button
+                                onClick={onToggleFav}
+                                className={`p-3 rounded-lg border transition-all ${isFav ? 'bg-red-500/20 border-red-500 text-red-500 scale-110' : 'border-white/20 hover:bg-white/10 text-white'}`}
+                            >
+                                {isFav ? '❤️' : '🤍'}
                             </button>
                         </div>
                     </div>
@@ -192,28 +216,7 @@ export default function StoryDetails() {
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-4"
                         >
-                            {reviews.map(review => (
-                                <div key={review.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-xl">{review.avatar}</div>
-                                            <div>
-                                                <h4 className="font-bold text-sm">{review.user}</h4>
-                                                <div className="text-xs opacity-50">{review.time}</div>
-                                            </div>
-                                        </div>
-                                        <div className="text-yellow-400 text-sm">original star icon here</div>
-                                    </div>
-                                    <p className="text-sm opacity-80">{review.text}</p>
-                                </div>
-                            ))}
-
-                            {/* Write Review Input Stub */}
-                            <div className="mt-8 pt-8 border-t border-white/10">
-                                <h3 className="font-bold mb-4">Escribir Reseña</h3>
-                                <textarea className="w-full bg-black/30 border border-white/10 rounded-xl p-4 text-sm" rows={4} placeholder="¿Qué te pareció la historia?"></textarea>
-                                <button className="mt-4 w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200">Publicar Reseña</button>
-                            </div>
+                            <ReviewsSection seriesId={seriesId} />
                         </motion.div>
                     )}
                 </AnimatePresence>

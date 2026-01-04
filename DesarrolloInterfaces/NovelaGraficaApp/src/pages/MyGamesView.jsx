@@ -1,123 +1,150 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
+import { supabase } from '../services/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import { getAssetUrl } from '../utils/assetUtils';
 
 export default function MyGamesView() {
-    const { activeTheme } = useUserProgress();
+    const { activeTheme, visitedNodes, favorites, getThemeStyles } = useUserProgress();
+    const navigate = useNavigate();
+    const [libraryItems, setLibraryItems] = useState({ continueReading: [], favs: [] });
+    const [loading, setLoading] = useState(true);
 
-    // Mock Data for Save Slots
-    const saves = [
-        { id: 'auto', label: 'AUTOGUARDADO', title: 'Capítulo 5: El Encuentro', date: '24 Oct, 2023', time: '14:30', playtime: '45m', img: getAssetUrl('/assets/portadas/forest_entrance.jpg') },
-        { id: 'slot1', label: 'SLOT 1', title: 'Capítulo 3: La Decisión', date: '20 Oct, 2023', time: '09:15', playtime: '2h 10m', img: getAssetUrl('/assets/portadas/city_street.jpg') },
-        { id: 'slot2', label: 'SLOT 2', title: 'Vacío', date: '-', time: '-', playtime: '-', img: null }
-    ];
+    useEffect(() => {
+        const fetchLibraryData = async () => {
+            setLoading(true);
+            try {
+                const { data: allSeries, error } = await supabase.from('series').select('*');
+                if (error) throw error;
 
-    const getThemeStyles = () => {
-        switch (activeTheme) {
-            case 'modern':
-                return {
-                    bg: { background: '#1a0b2e', color: '#e2e8f0' },
-                    accent: '#d946ef',
-                    cardBg: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
-            case 'comic':
-                return {
-                    bg: { background: '#fff', color: 'black', backgroundImage: 'radial-gradient(circle, #e5e5e5 1px, transparent 1px)', backgroundSize: '20px 20px' },
-                    accent: '#000',
-                    cardBg: 'white',
-                    border: '3px solid black',
-                    shadow: '5px 5px 0px black'
-                };
-            case 'manga':
-                return {
-                    bg: { background: 'white', color: 'black' },
-                    accent: 'black',
-                    cardBg: 'white',
-                    border: '1px solid black'
-                };
-            default:
-                return {
-                    bg: { background: '#0a0a12', color: 'white' },
-                    accent: '#8b5cf6',
-                    cardBg: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
-        }
+                // Process URLs
+                const processedSeries = allSeries.map(s => ({ ...s, cover_url: getAssetUrl(s.cover_url) }));
+
+                // Filter
+                const continueReading = processedSeries.filter(s => {
+                    const nodes = visitedNodes[s.id];
+                    return nodes && nodes.size > 0;
+                });
+
+                const favs = processedSeries.filter(s => favorites.has(s.id));
+
+                setLibraryItems({ continueReading, favs });
+            } catch (err) {
+                console.error("Library fetch failed:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLibraryData();
+    }, [visitedNodes, favorites]);
+
+
+    const theme = getThemeStyles(activeTheme) || {
+        bg: '#0a0a12',
+        text: 'white',
+        cardBorder: '1px solid rgba(255,255,255,0.1)',
+        cardBg: 'rgba(255,255,255,0.05)'
     };
 
-    const theme = getThemeStyles();
+    // Helper to get card styles (re-using MainMenu logic or similar simple card)
+    const cardStyle = {
+        borderRadius: theme.cardRadius || '1rem',
+        border: theme.cardBorder,
+        background: theme.cardBg || 'rgba(0,0,0,0.5)',
+        boxShadow: theme.cardShadow || 'none',
+        overflow: 'hidden',
+        cursor: 'pointer'
+    };
 
     return (
-        <div style={{ ...theme.bg, minHeight: '100vh', padding: '2rem', paddingBottom: '120px' }}>
-            <h1 className="text-4xl font-black mb-2">Mis Partidas Guardadas</h1>
-            <p className="opacity-60 mb-8">Gestiona tu progreso y explora diferentes finales.</p>
+        <div style={{
+            minHeight: '100vh',
+            backgroundColor: theme.bg || '#0a0a12',
+            color: theme.text || 'white',
+            padding: '2rem',
+            paddingBottom: '120px',
+            fontFamily: theme.font
+        }}>
+            <h1 className="text-4xl font-black mb-2 flex items-center gap-3">
+                <span>📚</span> Biblioteca
+            </h1>
+            <p className="opacity-60 mb-8">Tu colección personal de historias y favoritos.</p>
 
-            <div className="flex gap-4 mb-8">
-                <button className="px-6 py-2 rounded-full font-bold text-sm border" style={{ borderColor: theme.border, background: theme.cardBg }}>Más recientes ▼</button>
-                <button className="px-6 py-2 rounded-full font-bold text-sm opacity-50 border border-transparent">Por Capítulo ▼</button>
-            </div>
+            {loading ? (
+                <div className="flex justify-center p-12">Cargando biblioteca...</div>
+            ) : (
+                <div className="space-y-12 max-w-6xl mx-auto">
 
-            <main className="space-y-6 max-w-5xl mx-auto">
-                {saves.map((save) => (
-                    <motion.div
-                        key={save.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`relative rounded-2xl overflow-hidden ${save.img ? 'h-64' : 'h-48 flex items-center justify-center'}`}
-                        style={{
-                            background: save.img ? 'black' : theme.cardBg,
-                            border: theme.border,
-                            boxShadow: theme.shadow || 'none'
-                        }}
-                    >
-                        {save.img ? (
-                            <>
-                                {/* Background Image with gradient */}
-                                <div className="absolute inset-0 bg-cover bg-center opacity-60 transition-transform hover:scale-105 duration-700" style={{ backgroundImage: `url(${save.img})` }} />
-                                <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-
-                                <div className="absolute inset-0 p-8 flex flex-col justify-center items-start z-10">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <span className={`px-2 py-1 text-xs font-bold rounded uppercase`} style={{ background: theme.accent, color: 'white' }}>
-                                            {save.label}
-                                        </span>
-                                    </div>
-                                    <h2 className="text-3xl font-bold text-white mb-2">{save.title}</h2>
-                                    <p className="text-sm text-gray-400 mb-6">Justo antes de entrar al templo antiguo...</p>
-
-                                    <div className="flex gap-6 text-sm font-mono text-gray-300 mb-6">
-                                        <span>📅 {save.date}</span>
-                                        <span>🕓 {save.time}</span>
-                                        <span>hourglass {save.playtime}</span>
-                                    </div>
-
-                                    <div className="flex gap-3">
-                                        <button className="w-12 h-12 flex items-center justify-center rounded-lg border border-white/20 hover:bg-white/10 text-white">
-                                            🗑️
-                                        </button>
-                                        <button className="px-6 py-3 rounded-lg border border-white/20 font-bold hover:bg-white/10 text-white">
-                                            Sobrescribir
-                                        </button>
-                                        <button
-                                            className="px-8 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg hover:brightness-110 active:scale-95 transition"
-                                            style={{ background: theme.accent, color: 'white' }}
-                                        >
-                                            ▶ Cargar
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
+                    {/* CONTINUE READING */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <span>🕒</span> Continuar Leyendo
+                        </h2>
+                        {libraryItems.continueReading.length === 0 ? (
+                            <div className="opacity-50 italic">No tienes lecturas activas. ¡Empieza una historia!</div>
                         ) : (
-                            <div className="text-center opacity-40">
-                                <div className="text-5xl mb-4">⊕</div>
-                                <h3 className="text-xl font-bold">{save.label} Vacío</h3>
-                                <p>Guarda una partida nueva aquí</p>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {libraryItems.continueReading.map(series => (
+                                    <motion.div
+                                        key={series.id}
+                                        whileHover={{ y: -5 }}
+                                        onClick={() => navigate(`/details/${series.id}`)}
+                                        style={cardStyle}
+                                        className="relative aspect-[3/4]"
+                                    >
+                                        <div
+                                            className="absolute inset-0 bg-cover bg-center"
+                                            style={{ backgroundImage: `url(${series.cover_url})` }}
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                                            <h3 className="font-bold text-white text-lg leading-tight">{series.title}</h3>
+                                            <div className="text-xs text-gray-300 mt-1">Progreso: {visitedNodes[series.id]?.size || 0} nodos</div>
+                                        </div>
+                                    </motion.div>
+                                ))}
                             </div>
                         )}
-                    </motion.div>
-                ))}
-            </main>
+                    </section>
+
+                    {/* FAVORITES */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <span>❤️</span> Favoritos
+                        </h2>
+                        {libraryItems.favs.length === 0 ? (
+                            <div className="opacity-50 italic">No tienes favoritos aún.</div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {libraryItems.favs.map(series => (
+                                    <motion.div
+                                        key={series.id}
+                                        whileHover={{ y: -5 }}
+                                        onClick={() => navigate(`/details/${series.id}`)}
+                                        style={cardStyle}
+                                        className="relative aspect-[3/4]"
+                                    >
+                                        <div
+                                            className="absolute inset-0 bg-cover bg-center"
+                                            style={{ backgroundImage: `url(${series.cover_url})` }}
+                                        />
+                                        <div className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full shadow-lg">
+                                            ❤️
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                                            <h3 className="font-bold text-white text-lg leading-tight">{series.title}</h3>
+                                            <div className="text-xs opacity-75 mt-1">{series.genre}</div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                </div>
+            )}
         </div>
     );
 }

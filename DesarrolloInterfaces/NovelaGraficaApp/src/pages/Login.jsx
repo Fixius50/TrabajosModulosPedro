@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function Login() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState('login'); // 'login' or 'register'
@@ -15,33 +15,67 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        let mounted = true; // Track mount status
+
+        const emailToUse = username.includes('@')
+            ? username
+            : `${username.toLowerCase().replace(/\s+/g, '')}@gmail.com`;
+
+        console.log('Attempting Auth with:', emailToUse);
 
         try {
             if (mode === 'register') {
-                const { error } = await supabase.auth.signUp({
-                    email,
+                alert('DEBUG: Iniciando Registro...');
+                const { data, error } = await supabase.auth.signUp({
+                    email: emailToUse,
                     password,
+                    options: { data: { username: username } }
                 });
-                if (error) throw error;
-                // Auto login happens on some configurations, but usually requires email confirmation
-                // For this demo, we can assume auto-confirm is off or handle it.
-                // However, Supabase often returns a session immediately if email confirm is disabled.
 
-                // Let's check if we got a session, if not tell them to check email
-                alert('Registro exitoso. Si la confirmación de email está activa, por favor verifica tu correo.');
-                setMode('login'); // Switch to login after register
+                alert('DEBUG: Supabase respondió al registro.');
+
+                if (error) {
+                    alert('DEBUG REG ERROR: ' + error.message);
+                    throw error;
+                }
+
+                alert('¡Registro exitoso! Por favor verifica tu correo. (Si no llega, usa Google o el script de fix)');
+                if (mounted) setMode('login');
             } else {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
+                // Login with Timeout
+                alert('DEBUG: Iniciando Login...'); // STEP 1
+                const loginPromise = supabase.auth.signInWithPassword({
+                    email: emailToUse,
                     password,
                 });
-                if (error) throw error;
-                navigate('/');
+
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Login Request Timeout (10s)')), 10000)
+                );
+
+                alert('DEBUG: Esperando Supabase...'); // STEP 2
+                const { error } = await Promise.race([loginPromise, timeoutPromise]);
+
+                if (error) {
+                    alert('DEBUG ERROR: ' + error.message);
+                    throw error;
+                }
+
+                console.log('Login success, navigating...');
+                alert('DEBUG: Login OK! Navegando...'); // STEP 3
+                // Force hard navigation just in case
+                navigate('/', { replace: true });
+                return; // Return early so finally doesn't toggle state on unmounted component
             }
         } catch (error) {
-            setError(error.message);
+            console.error("Login Error:", error);
+            if (mounted) {
+                setError(error.message === 'Invalid login credentials'
+                    ? 'Credenciales incorrectas'
+                    : error.message);
+            }
         } finally {
-            setLoading(false);
+            if (mounted) setLoading(false);
         }
     };
 
@@ -109,7 +143,7 @@ export default function Login() {
                         marginBottom: '0.5rem',
                         textShadow: '0 0 10px rgba(139, 92, 246, 0.5)'
                     }}>
-                        ACCESO
+                        NOVELA VERSE
                     </h1>
                     <div style={{ height: '2px', width: '50px', background: '#8b5cf6', margin: '0 auto' }} />
                 </div>
@@ -173,35 +207,48 @@ export default function Login() {
                     )}
 
                     <div>
+                        <label style={{ display: 'block', color: '#ccc', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                            {mode === 'login' ? 'Usuario o Email' : 'Nombre de Usuario'}
+                        </label>
                         <input
-                            type="email"
-                            placeholder="Correo Electrónico"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            placeholder="Ej: PlayerOne"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             required
                             style={{
                                 width: '100%',
                                 padding: '0.75rem',
-                                background: 'rgba(0,0,0,0.3)',
+                                background: 'rgba(0,0,0,0.5)',
                                 border: '1px solid rgba(139, 92, 246, 0.3)',
                                 borderRadius: '0.5rem',
                                 color: 'white',
                                 outline: 'none',
-                                boxSizing: 'border-box'
+                                boxSizing: 'border-box',
+                                fontFamily: 'monospace'
                             }}
                         />
+                        {/* DEBUG VISUAL */}
+                        {username && !username.includes('@') && (
+                            <div className="text-xs text-purple-400 mt-1 pl-1 opacity-70">
+                                Se usará: {username.toLowerCase().replace(/\s+/g, '')}@gmail.com
+                            </div>
+                        )}
                     </div>
                     <div>
+                        <label style={{ display: 'block', color: '#ccc', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                            Contraseña
+                        </label>
                         <input
                             type="password"
-                            placeholder="Contraseña"
+                            placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             style={{
                                 width: '100%',
                                 padding: '0.75rem',
-                                background: 'rgba(0,0,0,0.3)',
+                                background: 'rgba(0,0,0,0.5)',
                                 border: '1px solid rgba(139, 92, 246, 0.3)',
                                 borderRadius: '0.5rem',
                                 color: 'white',
@@ -223,10 +270,11 @@ export default function Login() {
                             fontWeight: 600,
                             cursor: loading ? 'not-allowed' : 'pointer',
                             marginTop: '0.5rem',
-                            transition: 'background 0.3s'
+                            transition: 'background 0.3s',
+                            boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)'
                         }}
                     >
-                        {loading ? 'Procesando...' : (mode === 'login' ? 'INICIAR SESIÓN' : 'CREAR CUENTA')}
+                        {loading ? 'Procesando...' : (mode === 'login' ? 'ENTRAR' : 'CREAR CUENTA')}
                     </button>
                 </form>
 
@@ -239,7 +287,7 @@ export default function Login() {
                     fontSize: '0.875rem'
                 }}>
                     <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                    <span style={{ padding: '0 0.5rem' }}>o cónectate con</span>
+                    <span style={{ padding: '0 0.5rem' }}>o entra con Google</span>
                     <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
                 </div>
 
@@ -259,7 +307,8 @@ export default function Login() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem'
+                        gap: '0.5rem',
+                        transition: 'transform 0.1s active'
                     }}
                 >
                     <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
@@ -272,15 +321,6 @@ export default function Login() {
                     </svg>
                     Google
                 </button>
-
-                <p style={{
-                    marginTop: '1.5rem',
-                    textAlign: 'center',
-                    color: 'rgba(255,255,255,0.3)',
-                    fontSize: '0.75rem'
-                }}>
-                    Protected by reCAPTCHA and Subject to the Privacy Policy and Terms of Service.
-                </p>
             </motion.div>
         </div>
     );

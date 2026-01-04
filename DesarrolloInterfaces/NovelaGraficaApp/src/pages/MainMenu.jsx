@@ -3,7 +3,6 @@ import { supabase } from '../services/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../stores/userProgress';
-import ProfileModal from '../components/ProfileModal';
 import MarketplaceModal from '../components/MarketplaceModal';
 import SettingsModal from '../components/SettingsModal';
 import { getAssetUrl } from '../utils/assetUtils';
@@ -11,7 +10,7 @@ import { getAssetUrl } from '../utils/assetUtils';
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    // const [showProfileMenu, setShowProfileMenu] = useState(false); // Removed
     const [showMarketplace, setShowMarketplace] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [syncStatus, setSyncStatus] = useState('cloud');
@@ -24,20 +23,16 @@ export default function MainMenu() {
 
     useEffect(() => {
         const fetchSeries = async () => {
-            // New "File System" Stories (JSON Engine)
-            const jsonStories = [
-                { id: 'Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: getAssetUrl('/assets/portadas/Batman.png'), genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
-                { id: 'DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: getAssetUrl('/assets/portadas/DnD.png'), genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: getAssetUrl('/assets/portadas/RickAndMorty.png'), genre: 'Sci-Fi', progress: 0, is_json: true },
-                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: getAssetUrl('/assets/BoBoBo/1.jpg'), genre: 'Comedia/Absurdo', progress: 0, is_json: true },
-            ];
-
             try {
                 if (!supabase) throw new Error("No client");
-                const { data, error } = await supabase.from('series').select('*');
 
-                // Merge JSON stories with DB stories (if any)
-                let combined = [...jsonStories];
+                // Timeout Promise (Increased to 5s for slower connections/cold starts)
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
+
+                // Fetch Promise
+                const fetchPromise = supabase.from('series').select('*');
+
+                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
 
                 if (!error && data?.length > 0) {
                     // Deduplicate by title to prevent "Double Batman" bug from multiple seeds
@@ -46,25 +41,17 @@ export default function MainMenu() {
                     // Transform DB URLs too just in case
                     const processedDB = uniqueDB.map(s => ({ ...s, cover_url: getAssetUrl(s.cover_url) }));
 
-                    // Filter out DB items that are already in JSON stories (Fuzzy Match)
-                    const keywords = ['Batman', 'D&D', 'Rick', 'Dragones', 'BoBoBo'];
-                    const filteredDB = processedDB.filter(item => {
-                        return !keywords.some(keyword => item.title.includes(keyword));
-                    });
-
-                    combined = [...combined, ...filteredDB];
+                    setSeries(processedDB);
                     setSyncStatus('cloud');
+                } else {
+                    setSeries([]);
                 }
 
-                setSeries(combined);
-
-            } catch {
-                setSeries([
-                    ...jsonStories,
-                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: getAssetUrl('/assets/portadas/forest_entrance.jpg'), genre: 'Cyberpunk', progress: 45 },
-                    { id: '3', title: 'Shadow Realm', description: 'Enfréntate a la oscuridad.', cover_url: '', genre: 'Terror', progress: 80 },
-                ]);
-                setSyncStatus('local');
+            } catch (err) {
+                console.error("MainMenu fetch failed:", err);
+                // Fallback to local JSON items so the user isn't left with a blank screen
+                setSyncStatus('error');
+                setSeries([]);
             } finally {
                 setLoading(false);
             }
@@ -205,12 +192,43 @@ export default function MainMenu() {
         }
     };
 
-    const theme = getThemeStyles();
+    // Auth Check for UI
+    const [isGuest, setIsGuest] = useState(false);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsGuest(!session);
+        };
+        checkUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsGuest(!session);
+        });
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleMarketplaceClick = () => {
+        if (isGuest) {
+            if (confirm("Debes iniciar sesión para acceder al Mercado Negro. ¿Ir al Login?")) {
+                navigate('/login');
+            }
+        } else {
+            setShowMarketplace(true);
+        }
+    };
+
+    const theme = getThemeStyles() || {}; // Safety check
+
+    if (!series || !Array.isArray(series)) {
+        console.error("Series data corrupted:", series);
+        return <div>Error loading series.</div>;
+    }
 
     return (
         <div style={{
             minHeight: '100vh',
-            backgroundColor: theme.bg,
+            backgroundColor: theme.bg || '#000',
             color: theme.text,
             fontFamily: theme.font || `${activeFont}, system-ui, sans-serif`,
             letterSpacing: activeTheme === 'comic' ? '1px' : 'normal',
@@ -251,26 +269,48 @@ export default function MainMenu() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div
-                        onClick={() => setShowMarketplace(true)}
+                        onClick={handleMarketplaceClick}
                         style={{
                             padding: '0.5rem 1rem',
                             background: 'rgba(255,255,255,0.05)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '2rem',
                             display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            opacity: isGuest ? 0.5 : 1
                         }}
+                        title={isGuest ? "Inicia sesión para canjear" : "Mercado"}
                     >
-                        <span style={{ fontSize: '1rem' }}>💎</span>
-                        <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{points}</span>
+                        <span style={{ fontSize: '1rem' }}>{isGuest ? '🔒' : '💎'}</span>
+                        <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            {isGuest ? 'GUEST' : points}
+                        </span>
                     </div>
 
-                    <button onClick={() => setShowProfileMenu(true)} style={{
-                        width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-                        background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
-                        border: '2px solid rgba(255,255,255,0.2)',
-                        cursor: 'pointer'
-                    }} />
+                    {isGuest ? (
+                        <button
+                            onClick={() => navigate('/login')}
+                            style={{
+                                padding: '0.5rem 1.2rem',
+                                background: '#8b5cf6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)'
+                            }}
+                        >
+                            LOGIN
+                        </button>
+                    ) : (
+                        <button onClick={() => setShowSettings(true)} style={{
+                            width: '2.5rem', height: '2.5rem', borderRadius: '50%',
+                            background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
+                            border: '2px solid rgba(255,255,255,0.2)',
+                            cursor: 'pointer'
+                        }} />
+                    )}
                 </div>
             </header>
 
@@ -450,7 +490,10 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'black',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'none',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                backgroundColor: 'black',
                                                 position: 'relative',
                                                 filter: 'grayscale(0%) contrast(120%)'
                                             }}>
@@ -477,7 +520,10 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'white',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'none',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                backgroundColor: 'white',
                                                 position: 'relative',
                                                 filter: 'grayscale(100%) contrast(120%) brightness(1.1)',
                                                 border: '2px solid black'
@@ -527,7 +573,9 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
                                                 position: 'relative',
                                                 filter: activeTheme === 'manga' ? 'grayscale(100%) contrast(150%) brightness(1.1)' : 'none'
                                             }}>
@@ -576,14 +624,7 @@ export default function MainMenu() {
             </main>
 
             {/* MODALS */}
-            <ProfileModal
-                isOpen={showProfileMenu}
-                onClose={() => setShowProfileMenu(false)}
-                onOpenSettings={() => {
-                    setShowProfileMenu(false);
-                    setShowSettings(true);
-                }}
-            />
+            {/* ProfileModal removed */}
             <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
             <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
         </div >

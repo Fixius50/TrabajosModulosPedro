@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../services/supabaseClient';
 
 // Fallback fonts
 const DEFAULT_FONTS = [
@@ -15,7 +17,13 @@ const BORDERS = [
 ];
 
 export default function SettingsModal({ isOpen, onClose }) {
-    const { activeFont, fontSize, borderStyle, activeTheme, purchases, setActive } = useUserProgress();
+    const { activeFont, fontSize, borderStyle, activeTheme, purchases, points, setActive } = useUserProgress();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/login');
+    };
 
     // Wrappers
     const setFont = (id) => setActive('font', id);
@@ -140,6 +148,17 @@ export default function SettingsModal({ isOpen, onClose }) {
                 <div className={`flex-1 overflow-y-auto p-6 space-y-8 ${styles.text}`}>
                     <div className="space-y-8 animate-in fade-in duration-300">
 
+                        {/* [MOVED] User Info Section */}
+                        <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                            <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-current bg-[url('/assets/portadas/Batman.png')] bg-cover"></div>
+                            <div>
+                                <h3 className="font-bold text-lg">Jugador</h3>
+                                <div className={`font-bold text-sm flex items-center gap-2 ${activeTheme === 'terminal' ? 'text-green-400' : 'text-yellow-500'}`}>
+                                    💎 {points} Puntos
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Typography */}
                         <section>
                             <label className="block text-xs font-bold opacity-60 uppercase mb-4">Tipografía</label>
@@ -236,6 +255,19 @@ export default function SettingsModal({ isOpen, onClose }) {
                                 ))}
                             </div>
                         </section>
+
+                        {/* Logout Action */}
+                        <div className="pt-6 border-t border-current/10">
+                            <button
+                                onClick={handleLogout}
+                                className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white`}
+                            >
+                                <span>🚪</span> CERRAR SESIÓN
+                            </button>
+                            <div className="text-center mt-2">
+                                <span className="text-xs opacity-40">ID: {supabase?.auth?.getUser()?.id || 'Invitado'}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </motion.div>
