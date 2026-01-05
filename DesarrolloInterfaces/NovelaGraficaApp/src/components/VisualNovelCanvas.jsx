@@ -228,7 +228,7 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute bottom-8 left-4 right-4 md:left-20 md:right-20 pointer-events-auto flex flex-col items-center"
+                                className="absolute bottom-8 left-4 right-4 md:left-20 md:right-20 pointer-events-auto flex flex-col items-center z-40"
                             >
                                 {/* THEMED TEXT BOX CONTAINER */}
                                 <div

@@ -62,7 +62,9 @@ export default function StoryDetails() {
     };
 
     const onToggleFav = async () => {
+        console.log("Toggling favorite for:", seriesId);
         const newState = await toggleFavorite(seriesId);
+        console.log("New favorites state:", newState);
         setIsFav(newState);
     };
 

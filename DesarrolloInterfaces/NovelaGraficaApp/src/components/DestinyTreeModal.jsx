@@ -4,7 +4,7 @@ import { StoryRepository } from '../services/StoryRepository';
 
 const repo = new StoryRepository();
 
-export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNodeId, onNavigateToNode, history = [], onRewind, externalNodes }) {
+export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNodeId, onNavigateToNode, history = [], onRewind, externalNodes, unlockedRoutes = new Set() }) {
     const [nodes, setNodes] = useState([]);
     const [layout, setLayout] = useState({});
     const containerRef = useRef(null);
@@ -12,14 +12,19 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
     // 1. Fetch Data
     useEffect(() => {
         if (isOpen) {
+            console.log("Creating Tree with:", { storyId, externalNodesCount: externalNodes ? Object.keys(externalNodes).length : 0, historyLength: history.length });
             const loadTree = async () => {
                 let allNodes = [];
                 if (externalNodes && Object.keys(externalNodes).length > 0) {
                     // Check if externalNodes is already an array or object
                     allNodes = Array.isArray(externalNodes) ? externalNodes : Object.values(externalNodes);
                 } else if (storyId) {
+                    // Fallback for non-JSON stories or if engine doesn't provide nodes
                     allNodes = await repo.getAllNodesBySeries(storyId);
                 }
+
+                console.log("Tree Nodes Loaded:", allNodes.length);
+                if (allNodes.length === 0) console.warn("⚠️ No nodes found for tree!");
 
                 // Perform layouting
                 const computedLayout = computeTreeLayout(allNodes, 'start');
@@ -197,13 +202,9 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
                                     if (!toPos) return null;
 
                                     // PATH HIGHLIGHT LOGIC
-                                    // Check if this connection (node -> child) is in the history
-                                    // History is [node1, node2, node3...]
-                                    // We check if node.id is at index i and childId is at index i+1
                                     const nodeIndex = history.lastIndexOf(node.id);
                                     let isTraversed = false;
                                     if (nodeIndex !== -1 && nodeIndex < history.length - 1) {
-                                        // If the next node in history matches the childId
                                         if (history[nodeIndex + 1] === childId) {
                                             isTraversed = true;
                                         }
@@ -230,10 +231,12 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
                         {nodes.map(node => {
                             const pos = layout[node.id] || { x: 0, y: 0 };
                             const isCurrent = node.id === currentNodeId;
-                            const isVisited = history.includes(node.id);
+                            const isVisited = history ? history.includes(node.id) : false;
+                            const isCompleted = unlockedRoutes && unlockedRoutes.has ? unlockedRoutes.has(node.id) : false;
 
                             let status = 'locked';
                             if (isCurrent) status = 'current';
+                            else if (isCompleted) status = 'completed';
                             else if (isVisited) status = 'visited';
 
                             return (
@@ -265,16 +268,12 @@ export default function DestinyTreeModal({ isOpen, onClose, storyId, currentNode
                             <span>Ubicación Actual</span>
                         </div>
                         <div className="flex items-center gap-3">
+                            <span className="text-yellow-400 text-xs">👑</span>
+                            <span>Final Completado</span>
+                        </div>
+                        <div className="flex items-center gap-3">
                             <div className="w-3 h-3 rounded-full border border-slate-500 bg-slate-800"></div>
                             <span>Visitado (Rebobinar)</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 rounded-full border border-slate-700 bg-slate-950 flex items-center justify-center text-[8px]">🔒</div>
-                            <span className="text-slate-500">Bloqueado</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-0.5 bg-yellow-400 shadow-[0_0_5px_yellow]"></div>
-                            <span>Ruta Tomada</span>
                         </div>
                     </div>
                 )}
@@ -305,6 +304,10 @@ const NodeComponent = ({ node, x, y, status, onClick }) => {
         case 'current':
             specificClass = "bg-[#0f172a] border-2 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)] scale-110 cursor-default";
             icon = <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_#facc15]" />;
+            break;
+        case 'completed':
+            specificClass = "bg-yellow-900/50 border-2 border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.5)] scale-105 cursor-pointer";
+            icon = <span className="text-yellow-200 text-xs">👑</span>;
             break;
         case 'visited':
             specificClass = "bg-[#1e293b] border border-slate-500 hover:border-cyan-400 hover:scale-105 cursor-pointer";

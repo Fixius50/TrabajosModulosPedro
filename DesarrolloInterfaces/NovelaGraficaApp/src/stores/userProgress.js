@@ -227,6 +227,44 @@ class UserProgressStore {
         return points;
     }
 
+    // New: Handle Route Completion
+    completeRoute(storyId, endingNodeId, totalEndingsCount) {
+        if (!this.state.unlockedRoutes[storyId]) this.state.unlockedRoutes[storyId] = new Set();
+
+        let reward = 0;
+        let message = '';
+        let isBonus = false;
+
+        // 1. New Ending Discovered?
+        if (!this.state.unlockedRoutes[storyId].has(endingNodeId)) {
+            this.state.unlockedRoutes[storyId].add(endingNodeId);
+            reward = 50; // Base completion reward
+            message = '¡Nueva Ruta Completada!';
+        } else {
+            message = 'Ruta ya completada anteriormente.';
+        }
+
+        // 2. Check for 100% Completion Bonus
+        const unlockedCount = this.state.unlockedRoutes[storyId].size;
+        if (totalEndingsCount > 0 && unlockedCount >= totalEndingsCount) {
+            // Check if we already awarded the 100% bonus for this story?
+            // For simplicity, we just check if this specific ending caused the 100%
+            if (reward > 0) { // Only if this was a NEW ending
+                const bonus = reward * 5; // 5x Bonus
+                reward += bonus;
+                message = `¡100% COMPLETADO! BONUS x5 (${reward} pts)`;
+                isBonus = true;
+            }
+        }
+
+        if (reward > 0) {
+            this.state.points += reward;
+            this.notify();
+        }
+
+        return { reward, message, isBonus, unlockedCount };
+    }
+
     // Purchase Logic
     async purchase(category, itemId, cost) {
         if (this.state.points < cost) return { success: false, error: 'Not enough points' };
@@ -270,19 +308,26 @@ class UserProgressStore {
         this.notify();
 
         try {
+            console.log(`[UserProgress] Persisting favorite ${seriesId} (New State: ${!isFave})`);
             if (isFave) {
                 // Remove from DB
-                await supabase.from('user_library')
+                const { error } = await supabase.from('user_library')
                     .delete()
                     .match({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
+                if (error) throw error;
             } else {
                 // Add to DB
-                await supabase.from('user_library')
+                const { error } = await supabase.from('user_library')
                     .insert({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
+                if (error) throw error;
             }
+            console.log(`[UserProgress] Favorite persisted successfully.`);
         } catch (e) {
-            console.error("Error toggling favorite:", e);
-            // Revert on error? For now, just log.
+            console.error("Error toggling favorite in DB:", e);
+            // Revert local state on error
+            if (isFave) this.state.favorites.add(seriesId);
+            else this.state.favorites.delete(seriesId);
+            this.notify();
         }
         return !isFave;
     }
@@ -351,6 +396,7 @@ export function useUserProgress() {
         updateProfile: (u) => userProgress.updateProfile(u),
         toggleFavorite: (id) => userProgress.toggleFavorite(id),
         isFavorite: (id) => userProgress.isFavorite(id),
+        completeRoute: (s, n, t) => userProgress.completeRoute(s, n, t),
         reset: () => userProgress.reset()
     };
 }

@@ -584,7 +584,7 @@ export default function MainMenu() {
                                                 <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
                                                     {/* TIME BADGE */}
                                                     <span style={{ background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px', border: '1px solid rgba(255,255,255,0.2)' }}>
-                                                        ⏱️ {item.duration || '2h 30m'}
+                                                        ⏱️ {item.reading_time || (Math.floor(item.title.length * 3.5) + 'm')}
                                                     </span>
                                                     {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
                                                 </div>

@@ -23,7 +23,7 @@ const SHOP_ITEMS = [
         type: 'theme',
         asset_value: 'neon',
         display_name: 'Tema Neón',
-        price: 500,
+        price: 40,
         description: 'Estilo cyberpunk con brillos neón.',
         style_config: { bg: "#1a0b2e", accent: "#d946ef", font: "Orbitron", cardBorder: "2px solid #d946ef" }
     },
@@ -31,7 +31,7 @@ const SHOP_ITEMS = [
         type: 'theme',
         asset_value: 'comic',
         display_name: 'Tema Cómic',
-        price: 300,
+        price: 20,
         description: 'Estilo cómic clásico con bordes negros.',
         style_config: { bg: "#ffffff", accent: "#facc15", font: "Bangers", cardBorder: "4px solid black" }
     },
@@ -39,7 +39,7 @@ const SHOP_ITEMS = [
         type: 'theme',
         asset_value: 'manga',
         display_name: 'Tema Manga',
-        price: 500,
+        price: 30,
         description: 'Blanco y negro con tramas.',
         style_config: { bg: "#ffffff", accent: "#000000", font: "Bangers", cardBorder: "3px solid black" }
     },
@@ -58,37 +58,51 @@ const SERIES = [
         id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         title: 'Dungeons & Dragons',
         description: 'Aventuras en los Reinos Olvidados.',
-        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/DnD/1.jpg',
+        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/DnD/cover.png',
         price: 0,
         is_premium: false,
-        reading_time: '45m'
+        reading_time: '45m',
+        genre: 'Fantasía'
     },
     {
         id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
         title: 'Batman',
         description: 'El Caballero Oscuro regresa.',
-        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/Batman/1.jpg',
+        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/Batman/cover.png',
         price: 100,
         is_premium: true,
-        reading_time: '30m'
+        reading_time: '30m',
+        genre: 'Superhéroes'
     },
     {
         id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
         title: 'Rick and Morty',
         description: 'Ciencia loca y viajes interdimensionales.',
-        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/RickAndMorty/A1.jpg',
+        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/RickAndMorty/cover.png',
         price: 0,
         is_premium: false,
-        reading_time: '20m'
+        reading_time: '20m',
+        genre: 'Ciencia Ficción'
     },
     {
         id: 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
         title: 'BoBoBo',
         description: 'Absurdo y batallas de pelo nasal.',
-        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/1.jpg',
+        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/cover.png',
         price: 50,
         is_premium: false,
-        reading_time: '15m'
+        reading_time: '15m',
+        genre: 'Humor'
+    },
+    {
+        id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15',
+        title: 'Neon Rain',
+        description: 'Thriller Cyberpunk Hiperrealista.',
+        cover_url: 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/NeonRain/cover.png',
+        price: 0,
+        is_premium: false,
+        reading_time: '25m',
+        genre: 'Cyberpunk'
     }
 ];
 
@@ -131,6 +145,15 @@ const CHAPTERS = [
             "https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/1.jpg",
             "https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/2.jpg"
         ]
+    },
+    {
+        series_id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15',
+        title: 'Protocolo Fantasma',
+        order_index: 1,
+        pages: [
+            "/assets/NeonRain/1.jpg",
+            "/assets/NeonRain/2.jpg"
+        ]
     }
 ];
 
@@ -139,45 +162,34 @@ async function reseed() {
 
     // 1. DELETE EXISTING DATA
     // Order matters due to foreign keys: chapters -> reviews -> series, shop_items
-    // Actually library also references items.
 
     console.log('🗑️ Clearing tables...');
 
-    // Clean User Library first (references series (indirectly?) and shop_items)
-    // The 'item_id' in user_library is text, so no strict FK constraint usually unless enforced.
-    // But let's clean it to be safe if we are wiping items.
-    /* 
-       Wait, user_library item_id is text, not UUID FK to series/shop_items in the SQL I saw?
-       Line 56: item_id text NOT NULL
-       Line 58: UNIQUE(user_id, item_type, item_id)
-       Real references are usually handled by logic if not enforced by FK.
-       But chapters references series. Reviews references series.
-    */
-
-    const { error: err1 } = await supabase.from('chapters').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
-    if (err1) console.error('Error clearing chapters:', err1);
+    // Delete CHILD tables first
+    const { error: err1 } = await supabase.from('review_comments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err1) console.error('Error clearing review_comments:', err1);
 
     const { error: err2 } = await supabase.from('reviews').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (err2) console.error('Error clearing reviews:', err2);
 
-    // We won't delete user_library or game_state to preserve user purchases if possible? 
-    // No, the prompt says "re-seeding". If we delete series/items, library entries pointing to them become invalid.
-    // But maybe the IDs change? 
-    // I am using HARDCODED IDs for series, so user_library entries for series MIGHT survive if IDs match.
-    // Shop items don't have hardcoded IDs in my list above?
-    // Wait, the SQL seed didn't have IDs for shop_items, it let them generate.
-    // If I generate new IDs, users lose their themes.
-    // I should check if I can keep IDs or if I have to wipe library.
-    // Implementation Plan says "Deletes data from ... user_library ...". So I will wipe it.
+    // Chapters reference Series
+    const { error: err3 } = await supabase.from('chapters').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err3) console.error('Error clearing chapters:', err3);
 
-    const { error: err3 } = await supabase.from('user_library').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (err3) console.error('Error clearing user_library:', err3);
+    // Nodes reference Chapters
+    const { error: errNodes } = await supabase.from('story_nodes').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (errNodes) console.error('Error clearing story_nodes:', errNodes);
 
-    const { error: err4 } = await supabase.from('series').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (err4) console.error('Error clearing series:', err4);
+    // User Library references items (text) but better clear it
+    const { error: err4 } = await supabase.from('user_library').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err4) console.error('Error clearing user_library:', err4);
 
-    const { error: err5 } = await supabase.from('shop_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (err5) console.error('Error clearing shop_items:', err5);
+    // Now delete PARENT tables
+    const { error: err5 } = await supabase.from('series').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err5) console.error('Error clearing series:', err5);
+
+    const { error: err6 } = await supabase.from('shop_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err6) console.error('Error clearing shop_items:', err6);
 
     console.log('✅ Tables cleared.');
 

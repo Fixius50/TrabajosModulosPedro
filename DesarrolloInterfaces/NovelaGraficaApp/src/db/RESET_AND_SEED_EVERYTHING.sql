@@ -68,6 +68,7 @@ CREATE TABLE public.series (
   is_premium boolean DEFAULT false,
   status text DEFAULT 'active', -- 'active', 'coming_soon'
   reading_time text, -- New column
+  genre text, -- New column
   created_at timestamp with time zone DEFAULT now()
 );
 
@@ -80,6 +81,35 @@ CREATE TABLE public.chapters (
     title text DEFAULT 'Chapter 1',
     pages jsonb NOT NULL, -- Array de URLs de imágenes: ["url1", "url2"]
     order_index int DEFAULT 1,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+-- 🧩 NODOS DE HISTORIA (Interactivo)
+CREATE TABLE public.story_nodes (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    chapter_id uuid REFERENCES public.chapters(id) ON DELETE CASCADE NOT NULL,
+    image_url text,
+    fx_config jsonb,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+-- 🗣️ DIÁLOGOS
+CREATE TABLE public.dialogues (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    node_id uuid REFERENCES public.story_nodes(id) ON DELETE CASCADE NOT NULL,
+    speaker_name text,
+    content text,
+    style_override jsonb,
+    created_at timestamp with time zone DEFAULT now()
+);
+
+-- 🔀 OPCIONES / TRANSICIONES
+CREATE TABLE public.story_choices (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    from_node_id uuid REFERENCES public.story_nodes(id) ON DELETE CASCADE NOT NULL,
+    to_node_id uuid REFERENCES public.story_nodes(id) ON DELETE SET NULL, -- Puede ser null si termina
+    label text NOT NULL,
+    condition_logic jsonb,
     created_at timestamp with time zone DEFAULT now()
 );
 
@@ -126,6 +156,9 @@ ALTER TABLE public.user_game_state ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_library ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.series ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chapters ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.story_nodes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dialogues ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.story_choices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shop_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.review_comments ENABLE ROW LEVEL SECURITY;
@@ -134,6 +167,9 @@ ALTER TABLE public.review_comments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public Read Profiles" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "Public Read Series" ON public.series FOR SELECT USING (true);
 CREATE POLICY "Public Read Chapters" ON public.chapters FOR SELECT USING (true);
+CREATE POLICY "Public Read Nodes" ON public.story_nodes FOR SELECT USING (true);
+CREATE POLICY "Public Read Dialogues" ON public.dialogues FOR SELECT USING (true);
+CREATE POLICY "Public Read Choices" ON public.story_choices FOR SELECT USING (true);
 CREATE POLICY "Public Read Shop" ON public.shop_items FOR SELECT USING (true);
 CREATE POLICY "Public Read Reviews" ON public.reviews FOR SELECT USING (true);
 CREATE POLICY "Public Read Comments" ON public.review_comments FOR SELECT USING (true);
@@ -196,11 +232,15 @@ INSERT INTO public.shop_items (type, asset_value, display_name, price, descripti
 -- Reemplaza 'PROJECT_ID' si tu URL es diferente, pero normalmente es relativa o construida en el front.
 -- Aquí usaremos rutas relativas que el frontend deberá resolver o URLs absolutas de ejemplo.
 
-INSERT INTO public.series (id, title, description, cover_url, price, is_premium, reading_time) VALUES
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Dungeons & Dragons', 'Aventuras en los Reinos Olvidados.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/DnD/1.jpg', 0, false, '45m'),
-('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'Batman', 'El Caballero Oscuro regresa.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/Batman/1.jpg', 100, true, '30m'),
-('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'Rick and Morty', 'Ciencia loca y viajes interdimensionales.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/RickAndMorty/A1.jpg', 0, false, '20m'),
-('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'BoBoBo', 'Absurdo y batallas de pelo nasal.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/1.jpg', 50, false, '15m');
+INSERT INTO public.series (id, title, description, cover_url, price, is_premium, reading_time, genre) VALUES
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'Dungeons & Dragons', 'Aventuras en los Reinos Olvidados.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/DnD/1.jpg', 0, false, '45m', 'Fantasía'),
+('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12', 'Batman', 'El Caballero Oscuro regresa.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/Batman/1.jpg', 100, true, '30m', 'Superhéroes'),
+('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13', 'Rick and Morty', 'Ciencia loca y viajes interdimensionales.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/RickAndMorty/A1.jpg', 0, false, '20m', 'Ciencia Ficción'),
+-- BoBoBo
+('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'BoBoBo', 'Absurdo y batallas de pelo nasal.', 'https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/1.jpg', 50, false, '15m', 'Humor'),
+
+-- Neon Rain
+('e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'Neon Rain', 'Thriller Cyberpunk Hiperrealista.', '/assets/NeonRain/cover.jpg', 0, false, '25m', 'Cyberpunk');
 
 
 -- 📑 CAPÍTULOS (Links a imágenes en Storage)
@@ -230,6 +270,12 @@ INSERT INTO public.chapters (series_id, title, order_index, pages) VALUES
 ('d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'Fist of the Nose Hair', 1, '[
   "https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/1.jpg",
   "https://itvwrrsaigfejbooewjb.supabase.co/storage/v1/object/public/comics/BoBoBo/2.jpg"
+]'::jsonb),
+
+-- Neon Rain
+('e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15', 'Protocolo Fantasma', 1, '[
+  "/assets/NeonRain/1.jpg",
+  "/assets/NeonRain/2.jpg"
 ]'::jsonb);
 
 -- =====================================================================================
