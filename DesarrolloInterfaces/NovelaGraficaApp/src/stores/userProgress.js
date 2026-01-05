@@ -311,12 +311,15 @@ class UserProgressStore {
             console.log(`[UserProgress] Persisting favorite ${seriesId} (New State: ${!isFave})`);
             if (isFave) {
                 // Remove from DB
+                console.log(`[UserProgress] Deleting favorite from DB: ${seriesId}`);
                 const { error } = await supabase.from('user_library')
                     .delete()
-                    .match({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
+                    .eq('user_id', this.state.userId)
+                    .match({ item_type: itemType, item_id: seriesId }); // Use match for clearer intent
                 if (error) throw error;
             } else {
                 // Add to DB
+                console.log(`[UserProgress] Adding favorite to DB: ${seriesId}`);
                 const { error } = await supabase.from('user_library')
                     .insert({ user_id: this.state.userId, item_type: itemType, item_id: seriesId });
                 if (error) throw error;
@@ -340,6 +343,7 @@ class UserProgressStore {
         if (type === 'theme') this.state.activeTheme = value;
         if (type === 'font') this.state.activeFont = value;
         if (type === 'size') this.state.fontSize = value;
+        if (type === 'border') this.state.borderStyle = value;
         this.notify();
     }
 

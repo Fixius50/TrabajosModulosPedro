@@ -58,8 +58,10 @@ export class StoryRepository {
                 'Dungeons & Dragons': 'DnD',
                 'DnD': 'DnD',
                 'Batman': 'Batman',
+                'Batman: Sombras': 'Batman',
                 'BoBoBo': 'BoBoBo',
-                'Neon Rain': 'NeonRain'
+                'Neon Rain': 'NeonRain',
+                'Cyberpunk: Neon Rain': 'NeonRain'
             };
             const slugFallback = seriesTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
             const folder = folderMap[seriesTitle] || slugFallback;
@@ -75,7 +77,10 @@ export class StoryRepository {
             'Dungeons & Dragons': 'dnd',
             'DnD': 'dnd',
             'D&D': 'dnd',
-            'Neon Rain': 'neon_rain'
+            'Neon Rain': 'neon_rain',
+            'Cyberpunk: Neon Rain': 'neon_rain',
+            'Batman: Sombras': 'batman',
+            'Batman': 'batman'
         };
 
         // Try strict slug first (batman -> batman.json), OR mapped value
@@ -387,7 +392,6 @@ export class StoryRepository {
     }
 
     async getAllNodesBySeries(seriesId) {
-        // Fallback for demo
         if (!supabase || seriesId === '1' || (seriesId && seriesId.length < 20)) {
             if (!this.localNodes) return [];
             return Object.values(this.localNodes).map(n => ({
@@ -399,37 +403,109 @@ export class StoryRepository {
         }
 
         try {
+            // 1. Try fetching from Database first
             const { data: chapters } = await supabase.from('chapters').select('id').eq('series_id', seriesId);
-            if (!chapters || chapters.length === 0) return [];
 
-            const chapterIds = chapters.map(c => c.id);
-            const { data: nodes, error } = await supabase
-                .from('story_nodes')
-                .select(`id, story_choices ( to_node_id )`)
-                .in('chapter_id', chapterIds);
+            if (chapters && chapters.length > 0) {
+                const chapterIds = chapters.map(c => c.id);
+                const { data: nodes, error } = await supabase
+                    .from('story_nodes')
+                    .select(`id, story_choices ( to_node_id )`)
+                    .in('chapter_id', chapterIds);
 
-            if (error) throw error;
-            if (!nodes) return [];
+                if (!error && nodes && nodes.length > 0) {
+                    return nodes.map(n => ({
+                        id: n.id,
+                        label: 'Escena',
+                        children: n.story_choices?.map(c => c.to_node_id) || []
+                    }));
+                }
+            }
 
-            const result = nodes.map(n => ({
+            // 2. Fallback: Remote JSON (like getStartNodeBySeries)
+            console.log("[Repo] No DB nodes found for Map. Trying Remote JSON fallback...");
+            const { data: series } = await supabase.from('series').select('title, cover_url').eq('id', seriesId).single();
+
+            if (series) {
+                // FALLBACK: Use title mapping here too, just like _fetchRemoteStory needs it
+                // We rely on _fetchRemoteStory to handle the mapping, but we pass the raw DB title.
+                // If DB title is "Batman: Sombras", _fetchRemoteStory needs to map it to "batman" (we added this above).
+
+                const remote = await this._fetchRemoteStory(series.title, series.cover_url);
+                if (remote && remote.data) {
+                    console.log("[Repo] Generating Map from Remote JSON...");
+                    return this._generateMapFromRemoteJson(remote.data);
+                } else {
+                    console.warn(`[Repo] Failed to load remote JSON for map for title: ${series.title}`);
+                }
+            }
+
+            // 3. Last Result: Local Fallback
+            return Object.values(this.localNodes).map(n => ({
                 id: n.id,
-                label: 'Escena',
-                children: n.story_choices?.map(c => c.to_node_id) || []
+                label: n.id === 'start' ? 'Inicio' : 'Escena',
+                type: n.options?.length ? 'decision' : (n.end_id ? 'ending' : 'normal'),
+                children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
             }));
 
-            if (result.length === 0) {
-                return Object.values(this.localNodes).map(n => ({
-                    id: n.id,
-                    label: n.id === 'start' ? 'Inicio' : 'Escena',
-                    type: n.options?.length ? 'decision' : (n.end_id ? 'ending' : 'normal'),
-                    children: n.options?.map(o => o.target) || (n.next ? [n.next] : [])
-                }));
-            }
-            return result;
-
         } catch (error) {
-            console.error("Error fetching all nodes:", error);
+            console.error("Error fetching all nodes for map:", error);
             return [];
         }
+    }
+
+    _generateMapFromRemoteJson(data) {
+        const nodes = [];
+        const seen = new Set();
+
+        // Helper to process a scene/panel
+        const processScene = (sceneId, sceneData) => {
+            if (!sceneData.panels) return;
+
+            sceneData.panels.forEach((panel, index) => {
+                const isLastPanel = index === sceneData.panels.length - 1;
+                const nodeId = `${sceneId}__panel_${index}`;
+
+                if (seen.has(nodeId)) return;
+                seen.add(nodeId);
+
+                const children = [];
+
+                if (panel.options && panel.options.length > 0) {
+                    // Explicit Options
+                    panel.options.forEach(opt => {
+                        if (opt.next_scene_id) {
+                            children.push(`${opt.next_scene_id}__panel_0`);
+                        }
+                    });
+                } else if (!isLastPanel) {
+                    // Linear Next Panel
+                    children.push(`${sceneId}__panel_${index + 1}`);
+                } else {
+                    // End of Scene logic
+                    if (sceneData.choice_prompt) {
+                        sceneData.choice_prompt.options.forEach(opt => {
+                            children.push(`${opt.next_scene_id}__panel_0`);
+                        });
+                    } else if (sceneData.end_of_chapter_status) {
+                        // End node, no children
+                    }
+                }
+
+                nodes.push({
+                    id: nodeId,
+                    label: index === 0 ? `Escena ${sceneId}` : `Panel ${index}`,
+                    children: children
+                });
+            });
+        };
+
+        if (data.scenes) {
+            Object.keys(data.scenes).forEach(sceneId => {
+                processScene(sceneId, data.scenes[sceneId]);
+            });
+        }
+
+        return nodes;
     }
 }

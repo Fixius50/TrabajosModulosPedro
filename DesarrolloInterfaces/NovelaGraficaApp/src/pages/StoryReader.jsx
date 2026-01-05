@@ -36,34 +36,29 @@ export default function StoryReader() {
     const [showCompletion, setShowCompletion] = useState(false);
     const [completionData, setCompletionData] = useState(null);
 
-    // Watch for Endings
-    useEffect(() => {
-        if (!currentNode || loading) return;
-
-        const isEnd =
-            (currentNode.choices && currentNode.choices.length === 0) ||
-            (currentNode.choices && currentNode.choices[0]?.action === 'EXIT') ||
-            (currentNode.action === 'EXIT');
-
-        if (isEnd && !showCompletion) {
-            // Calculate Total Endings
-            let totalEndings = 0;
-            if (storyNodes && Object.keys(storyNodes).length > 0) {
-                totalEndings = Object.values(storyNodes).filter(n =>
-                    (!n.choices || n.choices.length === 0 || n.choices[0]?.action === 'EXIT' || n.action === 'EXIT')
-                ).length;
-            }
-
-            // Trigger Completion
-            const result = completeRoute(seriesId, currentNode.id, totalEndings);
-
-            if (result.reward > 0 || result.message) {
-                setCompletionData(result);
-                setShowCompletion(true);
-            }
+    // Explicit Completion Handler
+    const handleCompletion = () => {
+        // Calculate Total Endings
+        let totalEndings = 0;
+        if (storyNodes && Object.keys(storyNodes).length > 0) {
+            totalEndings = Object.values(storyNodes).filter(n =>
+                (!n.choices || n.choices.length === 0 || n.choices[0]?.action === 'EXIT' || n.action === 'EXIT')
+            ).length;
         }
-    }, [currentNode, loading, seriesId, storyNodes]);
 
+        // Trigger Completion
+        const result = completeRoute(seriesId, currentNode.id, totalEndings);
+
+        if (result.reward > 0 || result.message) {
+            setCompletionData(result);
+            setShowCompletion(true);
+        } else {
+            // If no reward/new route (already done), still show modal or just exit? 
+            // User requested modal "tras darle a terminar". So show it always.
+            setCompletionData({ ...result, message: "Capítulo Finalizado" });
+            setShowCompletion(true);
+        }
+    };
 
     // Loading State
     if (loading && !currentNode) {
@@ -97,6 +92,7 @@ export default function StoryReader() {
                 onOpenMap={() => setShowMap(true)}
                 onOpenSettings={() => setShowSettings(true)}
                 onBack={() => navigate('/')}
+                onComplete={handleCompletion}
             />
 
             {/* OVERLAY: Route Map Modal (Neural Map) */}
@@ -106,7 +102,7 @@ export default function StoryReader() {
                 storyId={seriesId}
                 currentNodeId={currentNode.id}
                 history={history}
-                externalNodes={storyNodes}
+                externalNodes={storyNodes && Object.keys(storyNodes).length > 0 ? storyNodes : undefined}
                 unlockedRoutes={unlockedRoutes ? unlockedRoutes[seriesId] : undefined}
                 onNavigateToNode={(nodeId) => {
                     handleChoice(nodeId);

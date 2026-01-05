@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { useUserProgress } from '../stores/userProgress';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
+import { uploadAvatar } from '../utils/uploadAvatar';
+import { useState } from 'react';
 
 // Fallback fonts
 const DEFAULT_FONTS = [
@@ -17,8 +19,9 @@ const BORDERS = [
 ];
 
 export default function SettingsModal({ isOpen, onClose }) {
-    const { activeFont, fontSize, borderStyle, activeTheme, purchases, points, setActive } = useUserProgress();
+    const { activeFont, fontSize, borderStyle, activeTheme, purchases, points, setActive, profile, updateProfile, userId } = useUserProgress();
     const navigate = useNavigate();
+    const [showAvatarSelector, setShowAvatarSelector] = useState(false);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -150,9 +153,23 @@ export default function SettingsModal({ isOpen, onClose }) {
 
                         {/* [MOVED] User Info Section */}
                         <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
-                            <div className="w-16 h-16 rounded-full bg-slate-800 border-2 border-current bg-[url('/assets/portadas/Batman.png')] bg-cover"></div>
+                            {/* Avatar Trigger */}
+                            <div
+                                onClick={() => setShowAvatarSelector(true)}
+                                className="relative w-16 h-16 rounded-full bg-slate-800 border-2 border-current cursor-pointer hover:opacity-80 transition-opacity group overflow-hidden"
+                            >
+                                <img
+                                    src={profile?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Generico'}
+                                    alt="Avatar"
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold text-white">
+                                    EDIT
+                                </div>
+                            </div>
+
                             <div>
-                                <h3 className="font-bold text-lg">Jugador</h3>
+                                <h3 className="font-bold text-lg">{profile?.name || 'Jugador'}</h3>
                                 <div className={`font-bold text-sm flex items-center gap-2 ${activeTheme === 'terminal' ? 'text-green-400' : 'text-yellow-500'}`}>
                                     💎 {points} Puntos
                                 </div>
@@ -271,6 +288,113 @@ export default function SettingsModal({ isOpen, onClose }) {
                     </div>
                 </div>
             </motion.div>
+        </div>
+    );
+}
+
+function AvatarSelectorModal({ isOpen, onClose, styles, currentAvatar, onSelect, purchases }) {
+    const [tab, setTab] = useState('defaults'); // defaults | upload | marketplace
+    const [uploading, setUploading] = useState(false);
+    const { userId } = useUserProgress();
+
+    if (!isOpen) return null;
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const publicUrl = await uploadAvatar(file, userId);
+            onSelect(publicUrl);
+            onClose();
+        } catch (error) {
+            alert("Error al subir imagen. Usando modo offline (base64) como fallback.");
+            // Fallback to Base64 if bucket fails
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                onSelect(reader.result);
+                onClose();
+            };
+            reader.readAsDataURL(file);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const DEFAULTS = ['Felix', 'Aneka', 'Zool', 'Milo', 'Bandit'];
+
+    // Mock Marketplace Avatars (If we don't have real data yet, we can filter purchases)
+    // Assuming 'purchases.avatars' is a list of asset_values (URLs or IDs)
+    const ownedAvatars = purchases?.avatars || [];
+
+    return (
+        <div className={`fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm`}>
+            <div className={`w-full max-w-md bg-slate-900 rounded-xl overflow-hidden flex flex-col max-h-[80vh] ${styles.container}`} style={{ border: styles.container.border }}>
+                <div className="p-4 border-b border-white/10 flex justify-between items-center">
+                    <h3 className={`font-bold ${styles.text}`}>Cambiar Avatar</h3>
+                    <button onClick={onClose} className="text-2xl opacity-50 hover:opacity-100">×</button>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex border-b border-white/10">
+                    <button onClick={() => setTab('defaults')} className={`flex-1 py-3 text-sm font-bold ${tab === 'defaults' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}>Predefinidos</button>
+                    <button onClick={() => setTab('upload')} className={`flex-1 py-3 text-sm font-bold ${tab === 'upload' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}>Subir</button>
+                    <button onClick={() => setTab('marketplace')} className={`flex-1 py-3 text-sm font-bold ${tab === 'marketplace' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}>Colección</button>
+                </div>
+
+                <div className="p-6 overflow-y-auto min-h-[300px]">
+                    {tab === 'defaults' && (
+                        <div className="grid grid-cols-3 gap-4">
+                            {DEFAULTS.map(seed => (
+                                <img
+                                    key={seed}
+                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`}
+                                    className="w-20 h-20 rounded-full bg-slate-800 cursor-pointer hover:scale-110 transition border-2 border-transparent hover:border-yellow-400"
+                                    onClick={() => { onSelect(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`); onClose(); }}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {tab === 'upload' && (
+                        <div className="flex flex-col items-center justify-center h-full gap-4">
+                            <div className="w-32 h-32 rounded-full border-4 border-dashed border-slate-600 flex items-center justify-center relative hover:bg-white/5 transition">
+                                {uploading ? (
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-white"></div>
+                                ) : (
+                                    <>
+                                        <span className="text-4xl opacity-50">📂</span>
+                                        <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    </>
+                                )}
+                            </div>
+                            <p className="text-sm opacity-50 text-center">Click para subir una imagen de tu dispositivo</p>
+                            <p className="text-xs text-yellow-500/50 text-center max-w-xs">Nota: Se subirá al servidor. Tamaño recomendado 512x512.</p>
+                        </div>
+                    )}
+
+                    {tab === 'marketplace' && (
+                        <div className="grid grid-cols-3 gap-4">
+                            {ownedAvatars.length > 0 ? (
+                                ownedAvatars.map((url, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={url}
+                                        className="w-20 h-20 rounded-full bg-slate-800 cursor-pointer hover:scale-110 transition border-2 border-transparent hover:border-yellow-400"
+                                        onClick={() => { onSelect(url); onClose(); }}
+                                    />
+                                ))
+                            ) : (
+                                <div className="col-span-3 text-center py-8 opacity-50">
+                                    <p>No tienes avatares comprados.</p>
+                                    <p className="text-xs mt-2">Visita el Mercado Negro para adquirir más.</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

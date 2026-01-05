@@ -9,7 +9,7 @@ import ReviewsSection from '../components/ReviewsSection';
 export default function StoryDetails() {
     const { seriesId } = useParams();
     const navigate = useNavigate();
-    const { activeTheme, isFavorite, toggleFavorite } = useUserProgress();
+    const { activeTheme, isFavorite, toggleFavorite, userId } = useUserProgress();
     const [activeTab, setActiveTab] = useState('detalles'); // 'detalles' or 'reseñas'
     const [story, setStory] = useState(null);
     const [isFav, setIsFav] = useState(false);

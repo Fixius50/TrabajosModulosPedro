@@ -24,7 +24,7 @@ const BORDER_STYLES = {
 /**
  * VisualNovelCanvas - The Core Engine Visual Layer
  */
-const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSettings, onBack }) => {
+const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSettings, onBack, onComplete }) => {
     const [loading, setLoading] = useState(true);
     const [choicesVisible, setChoicesVisible] = useState(false);
     const [showUI, setShowUI] = useState(true); // UI visible by default
@@ -196,7 +196,8 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (choice.action === 'EXIT') {
-                                                                onBack(); // Use the existing prop that navigates to home
+                                                                if (onComplete) onComplete();
+                                                                else onBack();
                                                             } else {
                                                                 onChoiceSelect(choice.target || choice.nextNodeId);
                                                             }
@@ -235,9 +236,9 @@ const VisualNovelCanvas = ({ currentNode, onChoiceSelect, onOpenMap, onOpenSetti
                                     className="relative w-full max-w-4xl p-6 md:p-8 rounded-xl backdrop-blur-md transition-all duration-500"
                                     style={{
                                         // Dynamic Styles based on Theme
-                                        background: activeStyle.background,
-                                        border: activeStyle.border,
-                                        boxShadow: activeStyle.boxShadow,
+                                        background: borderStyle === 'wood' ? currentBorder.background : activeStyle.background,
+                                        border: currentBorder.border !== 'none' ? currentBorder.border : activeStyle.border,
+                                        boxShadow: currentBorder.shadow !== 'none' ? currentBorder.shadow : activeStyle.boxShadow,
                                         color: activeStyle.color,
                                         fontFamily: activeStyle.fontFamily
                                     }}
