@@ -72,7 +72,7 @@ export default function MainMenu() {
     const continueReading = series.filter(s => s.progress > 0).sort((a, b) => b.progress - a.progress);
 
     // 4. Remote Config Logic
-    const { points, stats, activeTheme, activeFont, getThemeStyles: getRemoteStyles } = useUserProgress();
+    const { points, stats, activeTheme, activeFont, getThemeStyles: getRemoteStyles, profile } = useUserProgress();
 
     // Función centralizada de estilos según el tema
     const getThemeStyles = () => {
@@ -255,16 +255,58 @@ export default function MainMenu() {
                 borderBottom: activeTheme === 'comic' ? '4px solid black' : (activeTheme === 'comic-dark' ? '4px solid #facc15' : (activeTheme === 'manga' ? '1px solid #ccc' : (activeTheme === 'manga-dark' ? '1px solid #333' : '1px solid rgba(255,255,255,0.05)'))),
                 color: (activeTheme === 'comic' || activeTheme === 'manga') ? 'black' : 'white'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '2.5rem', height: '2.5rem',
-                        background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
-                        borderRadius: '0.8rem',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.5rem', fontWeight: 'bold',
-                        boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)'
-                    }}>N</div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em' }}>NOVELA</span>
+                {/* GBC Intro Title Tribute */}
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    {/* "GAME BOY" Part -> BIBLIOTECA */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        style={{
+                            fontFamily: '"Arial Black", "Arial Bold", Gadget, sans-serif',
+                            fontStyle: 'italic',
+                            fontWeight: 900,
+                            fontSize: '1.8rem',
+                            color: activeTheme === 'comic-dark' ? '#facc15' : (activeTheme === 'manga-dark' ? 'white' : '#1f2937'), // Dark Gray usually, adaptable
+                            letterSpacing: '-1px',
+                            lineHeight: 0.8,
+                            textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        BIBLIOTECA
+                    </motion.div>
+
+                    {/* "Nintendo/COLOR" Part -> DEL FRIKISMO */}
+                    <motion.div
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 1, type: "spring" }}
+                        style={{
+                            display: 'flex',
+                            gap: '2px',
+                            fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif', // Playful font for "COLOR" vibe
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            marginTop: '0.2rem'
+                        }}
+                    >
+                        {/* Rainbow Colors GBC Style: Purple, Red, Green, Yellow, Blue */}
+                        {['D', 'E', 'L', ' ', 'F', 'R', 'I', 'K', 'I', 'S', 'M', 'O'].map((char, i) => {
+                            const colors = ['#8b5cf6', '#ef4444', '#22c55e', '#eab308', '#3b82f6']; // Purple, Red, Green, Yellow, Blue
+                            const color = char === ' ' ? 'transparent' : colors[i % colors.length];
+                            return (
+                                <span key={i} style={{ color }}>{char}</span>
+                            );
+                        })}
+                    </motion.div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -306,8 +348,9 @@ export default function MainMenu() {
                     ) : (
                         <button onClick={() => setShowSettings(true)} style={{
                             width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-                            background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
+                            background: `url(${profile?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Guest'}) center/cover`,
                             border: '2px solid rgba(255,255,255,0.2)',
+                            backgroundColor: 'black', // Fallback color
                             cursor: 'pointer'
                         }} />
                     )}

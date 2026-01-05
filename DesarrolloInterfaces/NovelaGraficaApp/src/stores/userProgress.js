@@ -13,6 +13,7 @@ const DEFAULT_STATE = {
     purchases: {
         themes: ['default'],
         fonts: ['Inter'],
+        avatars: [],
         effects: []
     },
     activeTheme: 'default',

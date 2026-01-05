@@ -52,3 +52,32 @@ LOG DE CAMBIOS Y FUNCIONALIDADES
     - `fonts`: Tipografías.
 - Scripts de automatización (`organize_assets.js`) para sincronización masiva.
 - SQL Policies configuradas para acceso público eficiente.
+
+[NUEVO] GESTIÓN DE PERFIL AVANZADA
+----------------------------------
+- SettingsView Rediseñada:
+    - Edición de Nombre de Usuario.
+    - Avatar Personalizado: Soporte híbrido para URL externa o Subida de archivo Local (Supabase Storage).
+    - Feedback visual de guardado.
+- Refactor Personalización:
+    - `SettingsModal` exclusivo para ajustes visuales (Fonts, Themes).
+    - `SettingsView` exclusivo para datos de cuenta y seguridad.
+
+[NUEVO] MODO INVITADO Y SOCIAL (v0.9.5)
+---------------------------------------
+- Acceso Invitado ("Read-Only"):
+    - Botón "Continuar como Invitado" en Login.
+    - Acceso completo a lectura de historias sin cuenta.
+    - Bloqueo de features sociales (Marketplace, Perfil) con UI informativa.
+- Galería de Avatars (Marketplace Integration):
+    - Nuevo Modal `AvatarGalleryModal`.
+    - Carga automática de carpeta `avatars/common` en Storage.
+    - Precios Dinámicos: Coste en gemas basado en hash determinista del nombre de archivo.
+    - Previsualización en tiempo real en Menú y Ajustes.
+
+[POLISH] UI/UX GAME BOY TRIBUTE
+-------------------------------
+- Intro Animada en MainMenu:
+    - Título "BIBLIOTECA DEL FRIKISMO".
+    - Animación secuencial estilo Game Boy Color (Drop-down rainbow letters).
+- Refinamiento de estilos en Header y Settings.

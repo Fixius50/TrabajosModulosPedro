@@ -25,25 +25,18 @@ export default function Login() {
 
         try {
             if (mode === 'register') {
-                alert('DEBUG: Iniciando Registro...');
                 const { data, error } = await supabase.auth.signUp({
                     email: emailToUse,
                     password,
                     options: { data: { username: username } }
                 });
 
-                alert('DEBUG: Supabase respondió al registro.');
-
-                if (error) {
-                    alert('DEBUG REG ERROR: ' + error.message);
-                    throw error;
-                }
+                if (error) throw error;
 
                 alert('¡Registro exitoso! Por favor verifica tu correo. (Si no llega, usa Google o el script de fix)');
                 if (mounted) setMode('login');
             } else {
                 // Login with Timeout
-                alert('DEBUG: Iniciando Login...'); // STEP 1
                 const loginPromise = supabase.auth.signInWithPassword({
                     email: emailToUse,
                     password,
@@ -53,16 +46,10 @@ export default function Login() {
                     setTimeout(() => reject(new Error('Login Request Timeout (10s)')), 10000)
                 );
 
-                alert('DEBUG: Esperando Supabase...'); // STEP 2
                 const { error } = await Promise.race([loginPromise, timeoutPromise]);
 
-                if (error) {
-                    alert('DEBUG ERROR: ' + error.message);
-                    throw error;
-                }
+                if (error) throw error;
 
-                console.log('Login success, navigating...');
-                alert('DEBUG: Login OK! Navegando...'); // STEP 3
                 // Force hard navigation just in case
                 navigate('/', { replace: true });
                 return; // Return early so finally doesn't toggle state on unmounted component
@@ -259,20 +246,6 @@ export default function Login() {
                     </div>
 
                     <button
-                        type="submit"
-                        disabled={loading}
-                        style={{
-                            padding: '0.75rem',
-                            background: loading ? '#4b5563' : '#8b5cf6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.5rem',
-                            fontWeight: 600,
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                            marginTop: '0.5rem',
-                            transition: 'background 0.3s',
-                            boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)'
-                        }}
                     >
                         {loading ? 'Procesando...' : (mode === 'login' ? 'ENTRAR' : 'CREAR CUENTA')}
                     </button>
