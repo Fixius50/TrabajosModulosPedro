@@ -1,15 +1,12 @@
 {
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/MultiDocApp/App/index.html",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
-      "source": "/novela-grafica/(.*)",
-      "destination": "/MultiDocApp/App/index.html"
+      "source": "/MultiDocApp/App/(.*)",
+      "destination": "/MultiDocApp/App/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
