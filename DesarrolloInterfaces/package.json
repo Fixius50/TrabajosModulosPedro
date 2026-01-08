@@ -1,12 +1,12 @@
 {
-    "name": "desarrollo-interfaces-root",
-    "private": true,
-    "scripts": {
-        "install": "cd MultiDocApp/App && npm install",
-        "build": "cd MultiDocApp/App && npm run build && cd ../.. && mkdir -p dist/MultiDocApp/App && cp -r MultiDocApp/App/dist/* dist/MultiDocApp/App/ && cp index.html dist/",
-        "dev": "cd MultiDocApp/App && npm run dev"
-    },
-    "engines": {
-        "node": ">=18"
-    }
+  "name": "desarrollo-interfaces-root",
+  "private": true,
+  "scripts": {
+    "install": "cd MultiDocApp/App && npm install",
+    "build": "cd MultiDocApp/App && npm run build && cd ../.. && mkdir -p dist/MultiDocApp/App && cp -r MultiDocApp/App/dist/* dist/MultiDocApp/App/ && cp index.html dist/",
+    "dev": "cd MultiDocApp/App && npm run dev"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
