@@ -1,20 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/assets/(.*)",
-      "destination": "/MultiDocApp/App/assets/$1"
-    },
-    {
-      "source": "/vite.svg",
-      "destination": "/MultiDocApp/App/vite.svg"
-    },
-    {
-      "source": "/favicon.ico",
-      "destination": "/MultiDocApp/App/favicon.ico"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/MultiDocApp/App/index.html"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
