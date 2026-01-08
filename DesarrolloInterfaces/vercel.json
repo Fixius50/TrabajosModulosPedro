@@ -8,8 +8,16 @@
   ],
   "rewrites": [
     {
+      "source": "/assets/(.*)",
+      "destination": "/MultiDocApp/App/assets/$1"
+    },
+    {
+      "source": "/vite.svg",
+      "destination": "/MultiDocApp/App/vite.svg"
+    },
+    {
       "source": "/MultiDocApp/App/(.*)",
-      "destination": "/MultiDocApp/App/$1"
+      "destination": "/MultiDocApp/App/index.html"
     }
   ]
 }
