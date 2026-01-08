@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/novela-grafica/(.*)",
-            "destination": "/NovelaGraficaApp/index.html"
+            "destination": "/MultiDocApp/App/index.html"
         },
         {
             "source": "/(.*)",
