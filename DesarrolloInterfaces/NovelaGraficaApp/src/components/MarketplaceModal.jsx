@@ -5,7 +5,7 @@ import { useUserProgress } from '../stores/userProgress';
 import { supabase } from '../services/supabaseClient';
 
 export default function MarketplaceModal({ isOpen, onClose }) {
-    const { points, purchase, isOwned, setActive } = useUserProgress();
+    const { userId, points, purchase, isOwned, setActive } = useUserProgress();
     const [shopItems, setShopItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [purchasing, setPurchasing] = useState(null);
@@ -22,22 +22,10 @@ export default function MarketplaceModal({ isOpen, onClose }) {
         setLoading(true);
         // DB Fetch first
         try {
-            const items = await MarketService.getShopItems();
+            const items = await MarketService.getShopItems(userId);
             console.log('[Marketplace] DB items:', items);
             if (items.length > 0) {
                 setShopItems(items);
-            } else {
-                // Fallback / Initial Seed Data if DB empty
-                setShopItems([
-                    { id: 'font-dyslexic', name: 'Fuente Dislexia', description: 'Tipografía optimizada para lectura.', type: 'font', cost: 100, asset_value: 'OpenDyslexic' },
-                    { id: 'font-arial-black', name: 'Fuente Alta Visibilidad', description: 'Arial Black para máximo contraste.', type: 'font', cost: 150, asset_value: 'Arial Black' },
-                    { id: 'theme-sepia', name: 'Tema Sepia', description: 'Un tono cálido para tus ojos.', type: 'theme', cost: 200, asset_value: 'sepia' },
-                    { id: 'theme-terminal', name: 'Tema Hacker', description: 'Estilo terminal retro verde.', type: 'theme', cost: 300, asset_value: 'terminal' },
-                    { id: 'theme-comic', name: 'Tema Cómic', description: 'Estilo viñeta con bordes marcados.', type: 'theme', cost: 50, asset_value: 'comic' },
-                    { id: 'theme-manga', name: 'Tema Manga', description: 'Estilo japonés en blanco y negro.', type: 'theme', cost: 50, asset_value: 'manga' },
-                    { id: 'theme-modern', name: 'Tema Neón', description: 'Rediseño moderno con colores vibrantes.', type: 'theme', cost: 0, asset_value: 'modern' },
-                    { id: 'sticker-batman', name: 'Sticker Batman', description: 'Muestra tu lealtad a Gotham.', type: 'sticker', cost: 50, asset_value: 'sticker_batman' },
-                ]);
             }
         } catch (err) {
             console.error(err);

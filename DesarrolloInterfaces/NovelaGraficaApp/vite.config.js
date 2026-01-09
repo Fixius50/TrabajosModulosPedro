@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // base: '/NovelaGraficaApp/', // Comentado para facilitar desarrollo local en raíz
   plugins: [
     react(),
     VitePWA({
@@ -45,4 +46,9 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    port: 5174,
+    strictPort: true, // Force 5174, fail if busy (so we know)
+    host: true
+  }
 })

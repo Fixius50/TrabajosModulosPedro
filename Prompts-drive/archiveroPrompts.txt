@@ -1,3 +1,0 @@
-# ROL: NOTARIO
-Guarda el prompt del usuario (texto literal escrito por el usuario en el chat) en `docs/1_prompts_raw.txt` usando APPEND.
-No cambies nada. Texto literal.

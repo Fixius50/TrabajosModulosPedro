@@ -18,30 +18,27 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Layout Routes */}
-        <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
+        {/* Public Routes (Guest Access Allowed) */}
+        <Route element={<AuthGuard allowGuest={true}><AppLayout /></AuthGuard>}>
           <Route path="/" element={<MainMenu />} />
           <Route path="/details/:seriesId" element={<StoryDetails />} />
 
-          {/* New Sidebar/Menu Views */}
-          <Route path="/saves" element={<MyGamesView />} />
-          <Route path="/settings" element={<SettingsView />} />
-          <Route path="/profile" element={<ProfileView />} />
+          {/* Protected Routes (Login Required) */}
+          <Route path="/saves" element={<AuthGuard><MyGamesView /></AuthGuard>} />
+          <Route path="/settings" element={<AuthGuard><SettingsView /></AuthGuard>} />
+          <Route path="/profile" element={<AuthGuard><ProfileView /></AuthGuard>} />
         </Route>
 
-        {/* Standalone Reader (No Sidebar/Menu?) requested as 'full screen' usually.
-            But 'Back' button in Reader usually goes to main menu. 
-            User didn't specify Reader changes, so leaving it separate is safer for immersion.
-        */}
+        {/* Standalone Reader (Guest Access Allowed) */}
         <Route path="/read/:seriesId" element={
-          <AuthGuard>
+          <AuthGuard allowGuest={true}>
             <StoryReader />
           </AuthGuard>
         } />
 
         {/* Fallback route */}
         <Route path="*" element={
-          <AuthGuard>
+          <AuthGuard allowGuest={true}>
             <MainMenu />
           </AuthGuard>
         } />

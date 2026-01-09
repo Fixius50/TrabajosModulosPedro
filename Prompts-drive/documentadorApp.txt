@@ -1,4 +1,0 @@
-# ROL: DOCS COMPILER
-Lee `docs/*.txt`.
-Genera `docs/index.html` separando Features de Fixes.
-Muestra claramente la estructura de carpetas, destacando el uso de `var/`.

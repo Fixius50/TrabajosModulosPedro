@@ -65,68 +65,24 @@ export class StoryLoader {
             rootUrl = `/assets/${themeName}`;
         }
 
-        Object.values(scenes).forEach(scene => {
-            const panels = scene.panels || [];
-
-            // Heuristic for Image Filenames
-            // scene_01... -> "1"
-            // scene_02a... -> "A"
-            // scene_02b... -> "B"
-            let imgPrefix = "";
-            if (scene.id.includes("01")) imgPrefix = ""; // 1.jpg is essentially 1. But wait, if files are 1.jpg, 2.jpg...
-            // Let's look at the known files: 1.jpg, 2.jpg, A1.jpg, A2.jpg, B1.jpg, B2.jpg
-            // Scene 01 Panels: 1 -> 1.jpg, 2 -> 2.jpg, 3 -> 2.jpg (reuse?)
-            // Scene 02a Panels: 1 -> A1.jpg, 2 -> A2.jpg
-            // Scene 02b Panels: 1 -> B1.jpg, 2 -> B2.jpg
-
-            if (scene.id.includes("scene_02a")) imgPrefix = "A";
-            else if (scene.id.includes("scene_02b")) imgPrefix = "B";
-            else if (scene.id.includes("scene_01")) imgPrefix = "";
-
-            panels.forEach((panel, index) => {
-                const nodeId = `${scene.id}_panel_${panel.panel_id}`;
-                const isLastPanel = index === panels.length - 1;
-
-                // Image Logic
-                // If prefix is empty (Scene 1), we use PanelID directly? 1.jpg, 2.jpg.
-                // If prefix is A, we usage A + PanelID. A1.jpg.
-                const imgName = `${imgPrefix}${panel.panel_id}.jpg`;
-                const imageUrl = `${rootUrl}/${imgName}`;
-
-                // Construct Node
-                const node = {
-                    id: nodeId,
-                    type: 'panel',
-                    image_url: imageUrl,
-                    speaker_name: panel.dialogues?.[0]?.character || '', // Taking first speaker for simplicity or UI handles array?
-                    // The UI currently handles one speaker/content. We might need to support multiple lines per panel step?
-                    // Or we treat each dialogue line as a node step?
-                    // User said: "reimagines las fotos añadiendoles los dialogos".
-                    // The JSON has multiple dialogues per panel.
-                    // To handle this in "Visual Novel" style, usually you stay on the same image and click to advance text.
-                    // So we should generate SUB-NODES for each dialogue line?
-                    // YES.
-                };
-
-                // Actually, let's create a node per DIALOGUE line to allow clicking through.
-                // Re-doing the loop.
-            });
-        });
-
         // Better Approach: Flatten by Dialogue Line
         // Each dialogue line is a "Step".
         Object.values(scenes).forEach(scene => {
             const panels = scene.panels || [];
+            const lowerId = scene.id.toLowerCase();
 
             let imgPrefix = "";
-            // Flexible heuristic: detect branch indicators like 02a, 02b, _a_, _b_ etc.
-            if (scene.id.includes("02a") || scene.id.includes("_a_")) imgPrefix = "A";
-            else if (scene.id.includes("02b") || scene.id.includes("_b_")) imgPrefix = "B";
-            else if (scene.id.includes("02c") || scene.id.includes("_c_")) imgPrefix = "C";
-            // Else: no prefix (linear scenes like scene_01)
+            // Robust heuristic for branches (matching StoryRepository)
+            if (lowerId.includes("02a") || lowerId.includes("_a_") || /_a$/.test(lowerId)) imgPrefix = "A";
+            else if (lowerId.includes("02b") || lowerId.includes("_b_") || /_b$/.test(lowerId)) imgPrefix = "B";
+            else if (lowerId.includes("02c") || lowerId.includes("_c_") || /_c$/.test(lowerId)) imgPrefix = "C";
 
             panels.forEach((panel, pIndex) => {
-                const dialogues = panel.dialogues || [{ character: '', text: '...' }];
+                let dialogues = panel.dialogues;
+                if (!dialogues || dialogues.length === 0) {
+                    const desc = panel.description || "...";
+                    dialogues = [{ character: "", text: desc }];
+                }
 
                 dialogues.forEach((dial, dIndex) => {
                     const uniqueId = `${scene.id}_p${panel.panel_id}_d${dIndex}`;
@@ -140,20 +96,57 @@ export class StoryLoader {
                     if (nextDial) {
                         // Go to next dialogue in same panel
                         nextNodeId = `${scene.id}_p${panel.panel_id}_d${dIndex + 1}`;
-                    } else if (nextPanel) {
-                        // Go to next panel/image
-                        nextNodeId = `${scene.id}_p${nextPanel.panel_id}_d0`;
                     } else {
-                        // End of Scene -> Show Choices or Next Scene
-                        if (scene.choice_prompt) {
-                            choices = scene.choice_prompt.options.map(opt => ({
-                                label: opt.text,
-                                nextNodeId: `${opt.next_scene_id}_p1_d0`, // Jump to first dialogue of next scene
-                                condition: null
-                            }));
-                        } else if (scene.end_of_chapter_status) {
-                            // End logic
-                            choices = []; // Or specific end node
+                        // Last dialogue of the panel. Check for interactions.
+
+                        // 1. Panel Level Choices (Priority)
+                        const panelOptions = panel.options || panel.choices;
+                        if (panelOptions && panelOptions.length > 0) {
+                            choices = panelOptions.map(opt => {
+                                // Resolve target: assume next_scene_id points to start of that scene
+                                let targetId = null;
+                                if (opt.next_scene_id) {
+                                    // Try to find first panel of target scene to build correct ID
+                                    const targetScene = scenes[opt.next_scene_id];
+                                    const firstPanelId = targetScene?.panels?.[0]?.panel_id || 1;
+                                    targetId = `${opt.next_scene_id}_p${firstPanelId}_d0`;
+                                }
+
+                                return {
+                                    label: opt.text || opt.label,
+                                    nextNodeId: targetId,
+                                    condition: null
+                                };
+                            });
+                        }
+                        // 2. Linear Next Panel
+                        else if (nextPanel) {
+                            nextNodeId = `${scene.id}_p${nextPanel.panel_id}_d0`;
+                        }
+                        // 3. End of Scene Logic
+                        else {
+                            if (scene.choice_prompt) {
+                                choices = scene.choice_prompt.options.map(opt => {
+                                    const targetScene = scenes[opt.next_scene_id];
+                                    const firstPanelId = targetScene?.panels?.[0]?.panel_id || 1;
+                                    return {
+                                        label: opt.text,
+                                        nextNodeId: `${opt.next_scene_id}_p${firstPanelId}_d0`,
+                                        condition: null
+                                    };
+                                });
+                                // Append Prompt Text to Dialogue
+                                if (scene.choice_prompt.text) {
+                                    dial.text += `\n\n${scene.choice_prompt.text}`;
+                                }
+                            } else if (scene.end_of_chapter_status) {
+                                choices = [{
+                                    label: "Terminar Capítulo",
+                                    nextNodeId: null,
+                                    action: 'EXIT',
+                                    style: "bottom-center"
+                                }];
+                            }
                         }
                     }
 

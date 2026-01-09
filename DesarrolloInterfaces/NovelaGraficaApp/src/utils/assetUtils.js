@@ -44,7 +44,7 @@ export function getAssetUrl(localPath) {
 
     if (bucket && SUPABASE_URL) {
         // Construct Public URL
-        return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${internalPath}`;
+        return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${internalPath}?t=${Date.now()}`;
     }
 
     return localPath;

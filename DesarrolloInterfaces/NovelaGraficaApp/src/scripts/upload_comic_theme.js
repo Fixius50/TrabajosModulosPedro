@@ -3,22 +3,27 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
     console.error('❌ Error: Variables de entorno no encontradas.');
     process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+        autoRefreshToken: false,
+        persistSession: false
+    }
+});
 
 const themeData = {
     name: 'Tema Cómic Clásico',
     description: 'Estilo Pop Art con tramas, bordes gruesos y onomatopeyas visuales.',
     type: 'theme',
-    cost: 300,
+    price: 300,
     asset_value: 'comic',
-    is_active: true,
+    // is_active: true, // Removed column
     style_config: {
         bg: '#ffffff',
         pattern: 'radial-gradient(circle, #000 2px, transparent 2.5px)',

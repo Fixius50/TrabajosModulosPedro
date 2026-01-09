@@ -3,7 +3,6 @@ import { supabase } from '../services/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useUserProgress } from '../stores/userProgress';
-import ProfileModal from '../components/ProfileModal';
 import MarketplaceModal from '../components/MarketplaceModal';
 import SettingsModal from '../components/SettingsModal';
 import { getAssetUrl } from '../utils/assetUtils';
@@ -11,7 +10,7 @@ import { getAssetUrl } from '../utils/assetUtils';
 export default function MainMenu() {
     const [series, setSeries] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    // const [showProfileMenu, setShowProfileMenu] = useState(false); // Removed
     const [showMarketplace, setShowMarketplace] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [syncStatus, setSyncStatus] = useState('cloud');
@@ -24,20 +23,16 @@ export default function MainMenu() {
 
     useEffect(() => {
         const fetchSeries = async () => {
-            // New "File System" Stories (JSON Engine)
-            const jsonStories = [
-                { id: 'Batman', title: 'Batman: Sombras de Gotham', description: 'Detective Noir en Gotham.', cover_url: getAssetUrl('/assets/portadas/Batman.png'), genre: 'Misterio/Superhéroes', progress: 0, is_json: true },
-                { id: 'DnD', title: 'D&D: La Cripta', description: 'Aventura de Rol Clásica.', cover_url: getAssetUrl('/assets/portadas/DnD.png'), genre: 'Fantasía', progress: 0, is_json: true },
-                { id: 'RickAndMorty', title: 'Rick y Morty: Aventura Rápida', description: 'Sci-Fi Caótico.', cover_url: getAssetUrl('/assets/portadas/RickAndMorty.png'), genre: 'Sci-Fi', progress: 0, is_json: true },
-                { id: 'BoBoBo', title: 'BoBoBo: El Absurdo', description: 'Lucha contra el Imperio Margarita.', cover_url: getAssetUrl('/assets/BoBoBo/1.jpg'), genre: 'Comedia/Absurdo', progress: 0, is_json: true },
-            ];
-
             try {
                 if (!supabase) throw new Error("No client");
-                const { data, error } = await supabase.from('series').select('*');
 
-                // Merge JSON stories with DB stories (if any)
-                let combined = [...jsonStories];
+                // Timeout Promise (Increased to 5s for slower connections/cold starts)
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
+
+                // Fetch Promise
+                const fetchPromise = supabase.from('series').select('*');
+
+                const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
 
                 if (!error && data?.length > 0) {
                     // Deduplicate by title to prevent "Double Batman" bug from multiple seeds
@@ -46,25 +41,17 @@ export default function MainMenu() {
                     // Transform DB URLs too just in case
                     const processedDB = uniqueDB.map(s => ({ ...s, cover_url: getAssetUrl(s.cover_url) }));
 
-                    // Filter out DB items that are already in JSON stories (Fuzzy Match)
-                    const keywords = ['Batman', 'D&D', 'Rick', 'Dragones', 'BoBoBo'];
-                    const filteredDB = processedDB.filter(item => {
-                        return !keywords.some(keyword => item.title.includes(keyword));
-                    });
-
-                    combined = [...combined, ...filteredDB];
+                    setSeries(processedDB);
                     setSyncStatus('cloud');
+                } else {
+                    setSeries([]);
                 }
 
-                setSeries(combined);
-
-            } catch {
-                setSeries([
-                    ...jsonStories,
-                    { id: '1', title: 'El Bosque Digital (Demo)', description: 'Una aventura cyberpunk interactiva.', cover_url: getAssetUrl('/assets/portadas/forest_entrance.jpg'), genre: 'Cyberpunk', progress: 45 },
-                    { id: '3', title: 'Shadow Realm', description: 'Enfréntate a la oscuridad.', cover_url: '', genre: 'Terror', progress: 80 },
-                ]);
-                setSyncStatus('local');
+            } catch (err) {
+                console.error("MainMenu fetch failed:", err);
+                // Fallback to local JSON items so the user isn't left with a blank screen
+                setSyncStatus('error');
+                setSeries([]);
             } finally {
                 setLoading(false);
             }
@@ -85,7 +72,7 @@ export default function MainMenu() {
     const continueReading = series.filter(s => s.progress > 0).sort((a, b) => b.progress - a.progress);
 
     // 4. Remote Config Logic
-    const { points, stats, activeTheme, activeFont, getThemeStyles: getRemoteStyles } = useUserProgress();
+    const { points, stats, activeTheme, activeFont, getThemeStyles: getRemoteStyles, profile } = useUserProgress();
 
     // Función centralizada de estilos según el tema
     const getThemeStyles = () => {
@@ -205,12 +192,43 @@ export default function MainMenu() {
         }
     };
 
-    const theme = getThemeStyles();
+    // Auth Check for UI
+    const [isGuest, setIsGuest] = useState(false);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setIsGuest(!session);
+        };
+        checkUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setIsGuest(!session);
+        });
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleMarketplaceClick = () => {
+        if (isGuest) {
+            if (confirm("Debes iniciar sesión para acceder al Mercado Negro. ¿Ir al Login?")) {
+                navigate('/login');
+            }
+        } else {
+            setShowMarketplace(true);
+        }
+    };
+
+    const theme = getThemeStyles() || {}; // Safety check
+
+    if (!series || !Array.isArray(series)) {
+        console.error("Series data corrupted:", series);
+        return <div>Error loading series.</div>;
+    }
 
     return (
         <div style={{
             minHeight: '100vh',
-            backgroundColor: theme.bg,
+            backgroundColor: theme.bg || '#000',
             color: theme.text,
             fontFamily: theme.font || `${activeFont}, system-ui, sans-serif`,
             letterSpacing: activeTheme === 'comic' ? '1px' : 'normal',
@@ -237,40 +255,105 @@ export default function MainMenu() {
                 borderBottom: activeTheme === 'comic' ? '4px solid black' : (activeTheme === 'comic-dark' ? '4px solid #facc15' : (activeTheme === 'manga' ? '1px solid #ccc' : (activeTheme === 'manga-dark' ? '1px solid #333' : '1px solid rgba(255,255,255,0.05)'))),
                 color: (activeTheme === 'comic' || activeTheme === 'manga') ? 'black' : 'white'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                        width: '2.5rem', height: '2.5rem',
-                        background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)',
-                        borderRadius: '0.8rem',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '1.5rem', fontWeight: 'bold',
-                        boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)'
-                    }}>N</div>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em' }}>NOVELA</span>
+                {/* GBC Intro Title Tribute */}
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    {/* "GAME BOY" Part -> BIBLIOTECA */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        style={{
+                            fontFamily: '"Arial Black", "Arial Bold", Gadget, sans-serif',
+                            fontStyle: 'italic',
+                            fontWeight: 900,
+                            fontSize: '1.8rem',
+                            color: activeTheme === 'comic-dark' ? '#facc15' : (activeTheme === 'manga-dark' ? 'white' : '#1f2937'), // Dark Gray usually, adaptable
+                            letterSpacing: '-1px',
+                            lineHeight: 0.8,
+                            textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        BIBLIOTECA
+                    </motion.div>
+
+                    {/* "Nintendo/COLOR" Part -> DEL FRIKISMO */}
+                    <motion.div
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 1, type: "spring" }}
+                        style={{
+                            display: 'flex',
+                            gap: '2px',
+                            fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif', // Playful font for "COLOR" vibe
+                            fontWeight: 'bold',
+                            fontSize: '0.9rem',
+                            marginTop: '0.2rem'
+                        }}
+                    >
+                        {/* Rainbow Colors GBC Style: Purple, Red, Green, Yellow, Blue */}
+                        {['D', 'E', 'L', ' ', 'F', 'R', 'I', 'K', 'I', 'S', 'M', 'O'].map((char, i) => {
+                            const colors = ['#8b5cf6', '#ef4444', '#22c55e', '#eab308', '#3b82f6']; // Purple, Red, Green, Yellow, Blue
+                            const color = char === ' ' ? 'transparent' : colors[i % colors.length];
+                            return (
+                                <span key={i} style={{ color }}>{char}</span>
+                            );
+                        })}
+                    </motion.div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div
-                        onClick={() => setShowMarketplace(true)}
+                        onClick={handleMarketplaceClick}
                         style={{
                             padding: '0.5rem 1rem',
                             background: 'rgba(255,255,255,0.05)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '2rem',
                             display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            opacity: isGuest ? 0.5 : 1
                         }}
+                        title={isGuest ? "Inicia sesión para canjear" : "Mercado"}
                     >
-                        <span style={{ fontSize: '1rem' }}>💎</span>
-                        <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{points}</span>
+                        <span style={{ fontSize: '1rem' }}>{isGuest ? '🔒' : '💎'}</span>
+                        <span style={{ fontWeight: 700, background: 'linear-gradient(90deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            {isGuest ? 'GUEST' : points}
+                        </span>
                     </div>
 
-                    <button onClick={() => setShowProfileMenu(true)} style={{
-                        width: '2.5rem', height: '2.5rem', borderRadius: '50%',
-                        background: 'url(/assets/portadas/Batman.png) center/cover', // Placeholder avatar
-                        border: '2px solid rgba(255,255,255,0.2)',
-                        cursor: 'pointer'
-                    }} />
+                    {isGuest ? (
+                        <button
+                            onClick={() => navigate('/login')}
+                            style={{
+                                padding: '0.5rem 1.2rem',
+                                background: '#8b5cf6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '0.5rem',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)'
+                            }}
+                        >
+                            LOGIN
+                        </button>
+                    ) : (
+                        <button onClick={() => setShowSettings(true)} style={{
+                            width: '2.5rem', height: '2.5rem', borderRadius: '50%',
+                            background: `url(${profile?.avatar || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Guest'}) center/cover`,
+                            border: '2px solid rgba(255,255,255,0.2)',
+                            backgroundColor: 'black', // Fallback color
+                            cursor: 'pointer'
+                        }} />
+                    )}
                 </div>
             </header>
 
@@ -450,7 +533,10 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'black',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'none',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                backgroundColor: 'black',
                                                 position: 'relative',
                                                 filter: 'grayscale(0%) contrast(120%)'
                                             }}>
@@ -477,7 +563,10 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'white',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'none',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                backgroundColor: 'white',
                                                 position: 'relative',
                                                 filter: 'grayscale(100%) contrast(120%) brightness(1.1)',
                                                 border: '2px solid black'
@@ -527,7 +616,9 @@ export default function MainMenu() {
                                         <>
                                             <div style={{
                                                 aspectRatio: '3/4',
-                                                background: item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                                backgroundImage: item.cover_url ? `url('${item.cover_url}')` : 'linear-gradient(135deg, #4c1d95, #7c3aed)',
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
                                                 position: 'relative',
                                                 filter: activeTheme === 'manga' ? 'grayscale(100%) contrast(150%) brightness(1.1)' : 'none'
                                             }}>
@@ -536,7 +627,7 @@ export default function MainMenu() {
                                                 <div style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', display: 'flex', gap: '0.5rem' }}>
                                                     {/* TIME BADGE */}
                                                     <span style={{ background: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px', border: '1px solid rgba(255,255,255,0.2)' }}>
-                                                        ⏱️ {item.duration || '2h 30m'}
+                                                        ⏱️ {item.reading_time || (Math.floor(item.title.length * 3.5) + 'm')}
                                                     </span>
                                                     {item.progress > 0 && <span style={{ background: '#22c55e', color: 'black', fontSize: '0.6rem', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontWeight: 800 }}>{item.progress}%</span>}
                                                 </div>
@@ -576,14 +667,7 @@ export default function MainMenu() {
             </main>
 
             {/* MODALS */}
-            <ProfileModal
-                isOpen={showProfileMenu}
-                onClose={() => setShowProfileMenu(false)}
-                onOpenSettings={() => {
-                    setShowProfileMenu(false);
-                    setShowSettings(true);
-                }}
-            />
+            {/* ProfileModal removed */}
             <MarketplaceModal isOpen={showMarketplace} onClose={() => setShowMarketplace(false)} />
             <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
         </div >

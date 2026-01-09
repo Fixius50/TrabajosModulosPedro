@@ -2,34 +2,60 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../services/supabaseClient';
 
-export default function AuthGuard({ children }) {
+// AuthGuard Component
+export default function AuthGuard({ children, allowGuest = false }) {
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // 1. Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setLoading(false);
-        });
+        let mounted = true;
+
+        // 1. Get initial session with timeout
+        const initSession = async () => {
+            try {
+                // Race between Supabase and a 2-second timeout
+                const sessionPromise = supabase.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Timeout')), 2000)
+                );
+
+                const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+
+                if (mounted) {
+                    setSession(session);
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.warn("AuthGuard Session Check:", error);
+                // If timeout or error, we assume no session but stop loading
+                if (mounted) setLoading(false);
+            }
+        };
+
+        initSession();
 
         // 2. Listen for auth changes
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setLoading(false);
+            if (mounted) {
+                setSession(session);
+                setLoading(false);
+            }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     useEffect(() => {
-        if (!loading && !session) {
+        if (!loading && !session && !allowGuest) {
             navigate('/login');
         }
-    }, [session, loading, navigate]);
+    }, [session, loading, navigate, allowGuest]);
 
     if (loading) {
         return (
@@ -48,7 +74,7 @@ export default function AuthGuard({ children }) {
         );
     }
 
-    if (!session) {
+    if (!session && !allowGuest) {
         return null;
     }
 

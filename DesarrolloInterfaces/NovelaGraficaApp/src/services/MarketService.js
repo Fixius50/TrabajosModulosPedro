@@ -21,8 +21,8 @@ export class MarketService {
         // Fetch all active shop items
         const { data: items, error } = await supabase
             .from('shop_items')
-            .select('*')
-            .eq('is_active', true);
+            .select('*');
+        // .eq('is_active', true); // Fixed: Column does not exist
 
         if (error) throw error;
 
@@ -30,16 +30,17 @@ export class MarketService {
         let unlockedIds = new Set();
         if (userId) {
             const { data: unlocks } = await supabase
-                .from('user_unlocks')
+                .from('user_library')
                 .select('item_id')
                 .eq('user_id', userId);
 
             unlocks.forEach(u => unlockedIds.add(u.item_id));
         }
 
-        // Merge status
-        return items.map(item => ({
+        // Merge status and normalize 'price' to 'cost' for frontend consistency
+        return (items || []).map(item => ({
             ...item,
+            cost: item.price !== undefined ? item.price : item.cost, // Fallback to existing cost if any, or mapped price
             owned: unlockedIds.has(item.id)
         }));
     }

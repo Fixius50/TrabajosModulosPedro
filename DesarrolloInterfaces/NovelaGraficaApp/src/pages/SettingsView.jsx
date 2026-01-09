@@ -1,216 +1,233 @@
 import { useState } from 'react';
 import { useUserProgress } from '../stores/userProgress';
+import { supabase } from '../services/supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import { uploadAvatar } from '../utils/uploadAvatar';
+import AvatarGalleryModal from '../components/AvatarGalleryModal';
 
 export default function SettingsView() {
-    const { activeTheme, activeFont, setActive, fontSize, getThemeStyles: getRemoteStyles } = useUserProgress();
+    // We only need profile and update function now.
+    // Visual settings moved to ProfileView.
+    const { profile, updateProfile, activeTheme, getThemeStyles: getRemoteStyles, userId } = useUserProgress();
+    const navigate = useNavigate();
 
-    // Local state for things not yet in global store or for UI simulation
-    const [localFontSize, setLocalFontSize] = useState(fontSize || 18);
-    const [textSpeed, setTextSpeed] = useState(30);
-    const [bgOpacity, setBgOpacity] = useState(90);
-    const [volumeMaster, setVolumeMaster] = useState(80);
-    const [volumeMusic, setVolumeMusic] = useState(60);
+    const [username, setUsername] = useState(profile.name || '');
+    const [avatarUrl, setAvatarUrl] = useState(profile.avatar || '');
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Gallery Modal State
+    const [showGallery, setShowGallery] = useState(false);
 
     const getThemeStyles = () => {
         // A. REMOTE (Database)
         const remote = getRemoteStyles(activeTheme);
         if (remote) return remote;
+        // Fallback or specific hardcoded themes if necessary for layout
+        return {
+            bg: { background: '#0a0a12', color: 'white' },
+            accent: '#8b5cf6',
+            border: '1px solid rgba(255,255,255,0.1)',
+            cardBg: 'rgba(255,255,255,0.05)'
+        };
+    };
 
-        switch (activeTheme) {
-            case 'modern':
-                return {
-                    bg: { background: '#1a0b2e', color: '#e2e8f0' },
-                    accent: '#d946ef',
-                    cardBg: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
-            case 'comic':
-                return {
-                    bg: { background: '#fff', color: 'black', backgroundImage: 'radial-gradient(circle, #e5e5e5 1px, transparent 1px)', backgroundSize: '20px 20px' },
-                    accent: '#000',
-                    cardBg: 'white',
-                    border: '3px solid black',
-                    shadow: '5px 5px 0px black'
-                };
-            case 'manga':
-                return {
-                    bg: { background: 'white', color: 'black' },
-                    accent: 'black',
-                    cardBg: 'white',
-                    border: '1px solid black'
-                };
-            default: // standard
-                return {
-                    bg: { background: '#0a0a12', color: 'white' },
-                    accent: '#8b5cf6',
-                    cardBg: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                };
+    const theme = getThemeStyles();
+
+    const handleUpdateProfile = async () => {
+        setIsSaving(true);
+        try {
+            await updateProfile({ name: username, avatar: avatarUrl });
+            alert('Perfil actualizado correctamente');
+        } catch (error) {
+            console.error(error);
+            alert('Error al actualizar perfil');
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    const rawTheme = getThemeStyles();
-    // Adapter for SettingsView
-    const theme = {
-        bg: typeof rawTheme.bg === 'string' ? { background: rawTheme.bg, color: rawTheme.text } : rawTheme.bg,
-        accent: rawTheme.accent,
-        border: rawTheme.border || rawTheme.cardBorder,
-        shadow: rawTheme.shadow || rawTheme.cardShadow,
-        cardBg: rawTheme.cardBg || (activeTheme === 'comic' ? 'white' : 'rgba(255,255,255,0.05)')
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (!error) navigate('/login');
     };
 
-    const handleSave = () => {
-        alert('Ajustes Guardados (Simulación)');
-        // Here we would actually call setActive() for all changed values
+    const handleDeleteAccount = () => {
+        const confirm = window.confirm("¿Estás seguro? Esta acción borrará TODO tu progreso y compras. No se puede deshacer.");
+        if (confirm) {
+            alert("Contacta con soporte para borrado definitivo (Simulación: Sesión cerrada)");
+            handleLogout();
+        }
     };
 
     return (
         <div style={{ ...theme.bg, minHeight: '100vh', padding: '2rem', paddingBottom: '120px' }}>
-            <h1 className="text-4xl font-black mb-2">Configuración</h1>
-            <p className="opacity-60 mb-8">Personaliza tu experiencia de lectura.</p>
+            <h1 className="text-4xl font-black mb-2">Cuenta</h1>
+            <p className="opacity-60 mb-8">Gestiona tu identidad y seguridad.</p>
 
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-6">
 
-                {/* VISUAL THEME */}
-                <Section title="Tema Visual" icon="🎨" theme={theme}>
-                    <div className="space-y-4">
-                        <label className="block text-sm font-bold opacity-70 mb-2">Estilo de la Interfaz</label>
-                        <select
-                            value={activeTheme}
-                            onChange={(e) => setActive('theme', e.target.value)}
-                            className="w-full bg-black/10 border rounded-lg p-3 outline-none focus:border-current"
-                            style={{ borderColor: theme.accent, color: 'inherit' }}
+                {/* EDITAR PERFIL */}
+                {!userId || userId === 'guest' ? (
+                    <div className="p-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 mb-6">
+                        <h3 className="text-yellow-500 font-bold mb-2">Modo Invitado</h3>
+                        <p className="opacity-70 text-sm mb-4">Debes iniciar sesión para personalizar tu perfil y guardar tu progreso en la nube.</p>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-500 rounded-lg text-sm font-bold border border-yellow-600/50 transition"
                         >
-                            <option value="modern">Modern (Default)</option>
-                            <option value="comic">Comic Style</option>
-                            <option value="manga">Manga (B&W)</option>
-                        </select>
-                        <p className="text-xs opacity-50">Desbloquea más temas en el Mercado.</p>
+                            Ir a Login
+                        </button>
                     </div>
-                </Section>
-
-                {/* TIPOGRAFÍA */}
-                <Section title="Tipografía" icon="Tt" theme={theme}>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-bold opacity-70 mb-2">Fuente del Texto</label>
-                            <select
-                                value={activeFont}
-                                onChange={(e) => setActive('font', e.target.value)}
-                                className="w-full bg-black/10 border rounded-lg p-3 outline-none focus:border-current"
-                                style={{ borderColor: theme.accent, color: 'inherit' }}
-                            >
-                                <option value="sans">Sans Serif (Moderna)</option>
-                                <option value="serif">Serif (Clásica)</option>
-                                <option value="mono">Monospace (Terminal)</option>
-                                <option value="bangers">Bangers (Cómic)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <div className="flex justify-between text-sm font-bold mb-2">
-                                <span className="opacity-70">Tamaño de Fuente</span>
-                                <span>{localFontSize}px</span>
+                ) : (
+                    <Section title="Datos de Usuario" icon="👤" theme={theme}>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold opacity-70 mb-2">Nombre de Usuario</label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full bg-black/20 border rounded-lg p-3 outline-none focus:border-current"
+                                    style={{ borderColor: theme.accent, color: 'inherit' }}
+                                />
                             </div>
-                            <input
-                                type="range" min="12" max="32"
-                                value={localFontSize}
-                                onChange={(e) => setLocalFontSize(e.target.value)}
-                                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                                style={{ accentColor: theme.accent, background: 'rgba(128,128,128,0.3)' }}
-                            />
-                        </div>
-                    </div>
-                </Section>
+                            <div>
+                                <label className="block text-sm font-bold opacity-70 mb-2">Avatar</label>
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="w-20 h-20 rounded-full bg-black border-2 overflow-hidden shrink-0" style={{ borderColor: theme.accent }}>
+                                        <img
+                                            src={avatarUrl || 'https://api.dicebear.com/7.x/adventurer/svg?seed=Guest'}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => e.target.src = 'https://api.dicebear.com/7.x/adventurer/svg?seed=Error'}
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="text"
+                                            value={avatarUrl}
+                                            onChange={(e) => setAvatarUrl(e.target.value)}
+                                            placeholder="https://..."
+                                            className="w-full bg-black/20 border rounded-lg p-3 outline-none focus:border-current text-sm"
+                                            style={{ borderColor: theme.accent, color: 'inherit' }}
+                                        />
+                                        <p className="text-xs opacity-50 mt-1">Pega una URL o usa los botones de abajo.</p>
+                                    </div>
+                                </div>
+                            </div>
 
-                {/* CAJA DE TEXTO */}
-                <Section title="Caja de Texto" icon="⬜" theme={theme}>
-                    <div>
-                        <div className="flex justify-between text-sm font-bold mb-2">
-                            <span className="opacity-70">Opacidad del Fondo</span>
-                            <span>{bgOpacity}%</span>
-                        </div>
-                        <input
-                            type="range" min="0" max="100"
-                            value={bgOpacity}
-                            onChange={(e) => setBgOpacity(e.target.value)}
-                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                            style={{ accentColor: theme.accent, background: 'rgba(128,128,128,0.3)' }}
-                        />
-                    </div>
-                </Section>
+                            {/* ACTIONS GRID */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Local Upload */}
+                                <div className="relative">
+                                    <div className="w-full py-3 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-white/5 transition-all group h-full" style={{ borderColor: theme.border }}>
+                                        <span className="text-xl group-hover:scale-110 transition-transform">📂</span>
+                                        <div className="text-left">
+                                            <span className="block text-xs font-bold uppercase opacity-60 group-hover:opacity-100">Subir Local</span>
+                                            <span className="block text-[10px] opacity-40">Desde tu PC</span>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="absolute inset-0 opacity-0 cursor-pointer"
+                                            onChange={async (e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    try {
+                                                        const url = await uploadAvatar(file, userId);
+                                                        setAvatarUrl(url);
+                                                    } catch (err) {
+                                                        console.error("Upload failed", err);
+                                                        alert(`Error al subir imagen: ${err.message || 'Check console'}`);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
 
-                {/* VELOCIDAD */}
-                <Section title="Velocidad" icon="⚡" theme={theme}>
-                    <div>
-                        <div className="flex justify-between text-sm font-bold mb-2">
-                            <span className="opacity-70">Velocidad de Texto</span>
-                            <span>{textSpeed > 50 ? 'Rápido' : 'Normal'}</span>
-                        </div>
-                        <input
-                            type="range" min="1" max="100"
-                            value={textSpeed}
-                            onChange={(e) => setTextSpeed(e.target.value)}
-                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                            style={{ accentColor: theme.accent, background: 'rgba(128,128,128,0.3)' }}
-                        />
-                    </div>
-                </Section>
+                                {/* Collection / Marketplace */}
+                                <button
+                                    onClick={() => setShowGallery(true)}
+                                    className="relative w-full py-3 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-white/5 transition-all group text-left"
+                                    style={{ borderColor: theme.border }}
+                                >
+                                    <span className="text-xl group-hover:scale-110 transition-transform">🏪</span>
+                                    <div className="text-left">
+                                        <span className="block text-xs font-bold uppercase opacity-60 group-hover:opacity-100">Colección / Tienda</span>
+                                        <span className="block text-[10px] opacity-40">Seleccionar Avatar</span>
+                                    </div>
+                                </button>
+                            </div>
 
-                {/* AUDIO */}
-                <Section title="Audio" icon="ılı" theme={theme}>
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={handleUpdateProfile}
+                                    disabled={isSaving}
+                                    className="px-6 py-2 rounded-lg font-bold shadow-lg hover:brightness-110 active:scale-95 transition"
+                                    style={{ background: theme.accent, color: 'white' }}
+                                >
+                                    {isSaving ? 'Guardando...' : '💾 Guardar Cambios'}
+                                </button>
+                            </div>
+                        </div>
+                    </Section>
+                )}
+
+                {/* ZONA DE PELIGRO */}
+                <Section title="Sesión y Seguridad" icon="🔒" theme={theme}>
                     <div className="space-y-4">
-                        <VolumeSlider label="Maestro" value={volumeMaster} setValue={setVolumeMaster} theme={theme} />
-                        <VolumeSlider label="Música" value={volumeMusic} setValue={setVolumeMusic} theme={theme} />
+                        <button
+                            onClick={handleLogout}
+                            className="w-full py-3 rounded-lg font-bold border hover:bg-white/5 transition flex items-center justify-center gap-2"
+                            style={{ borderColor: theme.border }}
+                        >
+                            🚪 Cerrar Sesión
+                        </button>
+
+                        {!(!userId || userId === 'guest') && (
+                            <div className="pt-4 border-t border-white/10">
+                                <h3 className="text-red-500 font-bold mb-2">Zona de Peligro</h3>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    className="w-full py-3 rounded-lg font-bold bg-red-500/10 text-red-500 hover:bg-red-500/20 transition border border-red-500/30"
+                                >
+                                    💀 Borrar Cuenta
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </Section>
-
-                {/* Actions */}
-                <div className="flex justify-end gap-4 pt-4 border-t" style={{ borderColor: theme.border }}>
-                    <button className="px-6 py-3 rounded-lg border font-bold hover:opacity-80" style={{ borderColor: theme.border }}>
-                        Restaurar
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className="px-8 py-3 rounded-lg font-bold shadow-lg hover:brightness-110 active:scale-95 transition flex items-center gap-2"
-                        style={{ background: theme.accent, color: activeTheme === 'modern' ? 'white' : 'white', border: '1px solid transparent' }}
-                    >
-                        💾 Guardar Cambios
-                    </button>
-                </div>
 
             </div>
+
+            {/* MODALS */}
+            <AvatarGalleryModal
+                isOpen={showGallery}
+                onClose={() => {
+                    setShowGallery(false);
+                    // Refresh avatar URL in input from profile store just in case
+                    setAvatarUrl(profile.avatar);
+                }}
+            />
         </div>
     );
 }
 
 function Section({ title, icon, children, theme }) {
+    // Safe check for theme properties
+    const bg = theme?.cardBg || 'rgba(255,255,255,0.05)';
+    const border = theme?.border || '1px solid rgba(255,255,255,0.1)';
+    const shadow = theme?.shadow || 'none';
+    const accent = theme?.accent || 'white';
+
     return (
-        <div className="p-6 rounded-xl" style={{ background: theme.cardBg, border: theme.border, boxShadow: theme.shadow || 'none' }}>
+        <div className="p-6 rounded-xl" style={{ background: bg, border: border, boxShadow: shadow }}>
             <div className="flex items-center gap-3 mb-6">
-                <span className="text-2xl" style={{ color: theme.accent }}>{icon}</span>
+                <span className="text-2xl" style={{ color: accent }}>{icon}</span>
                 <h2 className="text-xl font-bold">{title}</h2>
             </div>
             {children}
-        </div>
-    );
-}
-
-function VolumeSlider({ label, value, setValue, theme }) {
-    return (
-        <div className="flex items-center gap-4">
-            <span className="w-8 text-xl opacity-50">🔊</span>
-            <div className="flex-1">
-                <div className="flex justify-between text-xs font-bold mb-1 opacity-60">
-                    <span>{label}</span>
-                </div>
-                <input
-                    type="range" min="0" max="100"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                    style={{ accentColor: theme.accent, background: 'rgba(128,128,128,0.3)' }}
-                />
-            </div>
         </div>
     );
 }

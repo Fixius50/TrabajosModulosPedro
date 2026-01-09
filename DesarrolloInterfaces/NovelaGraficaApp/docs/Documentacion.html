@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Novela Gráfica App</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f9; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #2980b9; margin-top: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: 'Consolas', monospace; color: #c7254e; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .file-list { list-style: none; padding: 0; }
+        .file-list li { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold; }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-wip { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>📚 Documentación del Proyecto: NovelaVerse</h1>
+    
+    <div class="card">
+        <h2>Resumen del Estado</h2>
+        <p><strong>Versión Actual:</strong> v3.0 (Guest Access & Marketplace Fixes)</p>
+        <p>La aplicación ha migrado a un modelo "Freemium" donde el acceso de lectura es público, pero las funciones sociales y de personalización requieren autenticación.</p>
+        <p><span class="status-badge status-ok">Backend Stable</span> <span class="status-badge status-ok">Web App Active</span> <span class="status-badge status-wip">Mobile Optimization</span></p>
+    </div>
+
+    <div class="card">
+        <h2>📂 Archivos de Documentación</h2>
+        <ul class="file-list">
+            <li>
+                <strong>📄 <a href="_historial_proyecto.md">Historial del Proyecto (_historial_proyecto.md)</a></strong>
+                <br>Bitácora completa de todas las sesiones de desarrollo, decisiones arquitectónicas y evolución del código.
+            </li>
+            <li>
+                <strong>📝 <a href="3_features_changelog.txt">Changelog de Features (3_features_changelog.txt)</a></strong>
+                <br>Lista detallada de funcionalidades implementadas, pendientes y descartadas.
+            </li>
+            <li>
+                <strong>🔧 <a href="2_errores_fixes.txt">Registro de Errores y Fixes (2_errores_fixes.txt)</a></strong>
+                <br>Base de conocimientos sobre bugs resueltos (ej. Login Freeze, 403 Forbidden en Storage).
+            </li>
+            <li>
+                <strong>☁️ <a href="4_storage_architecture.txt">Arquitectura de Storage (4_storage_architecture.txt)</a></strong>
+                <br>Estructura de Buckets en Supabase (Comics/Themes) y convención de nombres.
+            </li>
+            <li>
+                <strong>🏗️ <a href="4_stack_arch.txt">Stack Tecnológico (4_stack_arch.txt)</a></strong>
+                <br>Definición de tecnologías: React + Vite + Supabase.
+            </li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Arquitectura de Base de Datos (Supabase)</h2>
+        <p>El esquema actual se define en <code>src/db/RESET_AND_SEED_EVERYTHING.sql</code>.</p>
+        <ul>
+            <li><strong>Módulos Core:</strong> <code>profiles</code>, <code>user_game_state</code></li>
+            <li><strong>Contenido:</strong> <code>series</code>, <code>chapters</code> (Con columnas <code>reading_time</code>, <code>price</code>)</li>
+            <li><strong>Comercio:</strong> <code>shop_items</code>, <code>user_library</code></li>
+            <li><strong>Social:</strong> <code>reviews</code>, <code>review_comments</code></li>
+        </ul>
+    </div>
+
+</body>
+</html>

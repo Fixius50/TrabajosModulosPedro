@@ -1,0 +1,115 @@
+{
+    "comic_title": "Neon Rain: Protocolo Fantasma",
+    "theme": "Neon Rain",
+    "initial_scene_id": "scene_01_alley",
+    "scenes": {
+        "scene_01_alley": {
+            "id": "scene_01_alley",
+            "panels": [
+                {
+                    "panel_id": 1,
+                    "description": "Plano General Hiperrealista. Un callejón de Neo-Tokyo bajo una lluvia torrencial. Luces de neón rosa y azul se reflejan en el asfalto mojado. Un detective con gabardina (Kaito) fuma un cigarrillo holográfico junto a un cuerpo cibernético.",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Otra noche, otro cortocircuito. La lluvia ácida no limpia la sangre sintética, solo la esparce."
+                        }
+                    ]
+                },
+                {
+                    "panel_id": 2,
+                    "description": "Plano Detalle Hiperrealista. La mano robótica de la víctima sostiene un chip de memoria brillante. Al fondo, una terminal de acceso parpadea en rojo.",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Este modelo 'Arasaka-X' no debería estar aquí abajo. Tiene un chip de grado militar en la mano... y esa terminal de ahí parece haber sido forzada recientemente."
+                        },
+                        {
+                            "character": "IA Auxiliar",
+                            "text": "Detective, detecto protocolos de seguridad activos en ambos dispositivos. Solo tenemos tiempo para analizar uno antes de que llegue Seguridad Corporativa."
+                        }
+                    ]
+                }
+            ],
+            "choice_prompt": {
+                "text": "¿Qué pista analiza Kaito primero?",
+                "options": [
+                    {
+                        "option_id": "A",
+                        "text": "Extraer el Chip de Memoria (Datos del Cuerpo).",
+                        "next_scene_id": "scene_02a_chip"
+                    },
+                    {
+                        "option_id": "B",
+                        "text": "Hackear la Terminal de Acceso (Datos del Entorno).",
+                        "next_scene_id": "scene_02b_terminal"
+                    }
+                ]
+            }
+        },
+        "scene_02a_chip": {
+            "id": "scene_02a_chip",
+            "title": "Ruta: Secretos Corporativos",
+            "panels": [
+                {
+                    "panel_id": 1,
+                    "description": "Primer Plano Hiperrealista. Kaito conecta el chip a su implante ocular. Su ojo brilla con datos azules desplazándose rápidamente..",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Maldición. Esto no es un simple asesinato. Son planos de un arma biológica... y llevan la firma del Alcalde."
+                        },
+                        {
+                            "character": "IA Auxiliar",
+                            "text": "Advertencia: Rastreador activado. Unidad de limpieza en camino. Recomiendo extracción inmediata."
+                        }
+                    ]
+                },
+                {
+                    "panel_id": 2,
+                    "description": "Plano Medio. Kaito saca su revólver magnético mientras sombras tácticas descienden por las paredes.",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Que vengan. Esta noche llueve plomo."
+                        }
+                    ]
+                }
+            ],
+            "choice_prompt": null,
+            "end_of_chapter_status": "Continuará..."
+        },
+        "scene_02b_terminal": {
+            "id": "scene_02b_terminal",
+            "title": "Ruta: La Red Subterránea",
+            "panels": [
+                {
+                    "panel_id": 1,
+                    "description": "Plano Detalle Hiperrealista. Dedos con implantes de ciber-deck tecleando en la terminal holográfica. Pantallas rojas de 'ACCESO DENEGADO' cambian a verdes.",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Bingo. Acceso al servidor de la mafia Yakuza local. Alguien pagó mucho dinero por este golpe."
+                        },
+                        {
+                            "character": "Voz Desconocida (Terminal)",
+                            "text": "Detective Kaito... has mirado donde no debías. Ahora perteneces a la red."
+                        }
+                    ]
+                },
+                {
+                    "panel_id": 2,
+                    "description": "Plano General. Drones de vigilancia se activan en el techo del callejón, apuntando láseres rojos a Kaito.",
+                    "dialogues": [
+                        {
+                            "character": "Kaito",
+                            "text": "Odio tener razón siempre."
+                        }
+                    ]
+                }
+            ],
+            "choice_prompt": null,
+            "end_of_chapter_status": "Continuará..."
+        }
+    }
+}

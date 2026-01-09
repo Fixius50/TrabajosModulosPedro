@@ -3,23 +3,28 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('❌ Error: Supabase keys missing.');
+    console.error('❌ Error: ENV missing');
     process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+        autoRefreshToken: false,
+        persistSession: false
+    }
+});
 
 const themes = [
     {
-        name: 'Manga Dark',
-        description: 'El estilo manga, pero invertido para la noche.',
+        name: 'Modo Inverso (Blanco)',
+        description: 'Interfaz clara y limpia.',
         type: 'theme',
-        cost: 0,
+        price: 0,
         asset_value: 'manga-dark',
-        is_active: true
+        // is_active: true
     },
     {
         name: 'Comic Dark',
@@ -27,7 +32,7 @@ const themes = [
         type: 'theme',
         cost: 0,
         asset_value: 'comic-dark',
-        is_active: true
+        // is_active: true
     }
 ];
 
