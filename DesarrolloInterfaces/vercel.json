@@ -1,19 +1,8 @@
 {
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/NovelaGraficaApp/index.html",
-      "permanent": false
-    }
-  ],
   "rewrites": [
     {
-      "source": "/assets/(.*)",
-      "destination": "/NovelaGraficaApp/assets/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/NovelaGraficaApp/index.html"
+      "destination": "/index.html"
     }
   ]
 }
