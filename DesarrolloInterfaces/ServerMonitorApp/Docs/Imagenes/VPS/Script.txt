@@ -1,0 +1,14 @@
+#!/bin/bash
+# Actualizar el sistema automáticamente
+apt-get update && apt-get upgrade -y
+
+# Instalar Docker de forma oficial
+curl -fsSL https://get.docker.com | sh
+usermod -aG docker ubuntu
+
+# PERMISO CRÍTICO: Preparar el socket para tu app de monitoreo
+# Esto permite que el backend que instales después pueda ver los contenedores
+chmod 666 /var/run/docker.sock
+
+# Instalar dependencias básicas para el túnel y supabase
+apt-get install -y wget curl git
