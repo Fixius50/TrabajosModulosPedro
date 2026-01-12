@@ -1,0 +1,16 @@
+# Una configuración básica para Supabase local dev
+project_id = "server-monitor-local"
+
+[api]
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+# Habilitar Inbucket para correos locales
+[inbucket]
+enabled = true
+port = 54324
