@@ -1,0 +1,52 @@
+{
+    "app": {
+        "title": "Finanzas Personales",
+        "dashboard": "Resumen",
+        "transactions": "Movimientos",
+        "settings": "Ajustes",
+        "profile": "Perfil"
+    },
+    "dashboard": {
+        "totalBalance": "Balance Total",
+        "income": "Ingresos",
+        "expenses": "Gastos"
+    },
+    "transactions": {
+        "title": "Movimientos",
+        "new": "Nueva Transacción",
+        "edit": "Editar Transacción",
+        "amount": "Monto",
+        "description": "Descripción",
+        "type": "Tipo",
+        "category": "Categoría",
+        "date": "Fecha",
+        "receipt": "Recibo (Imagen)",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "confirmDelete": "Confirmar",
+        "deleteMessage": "¿Estás seguro de borrar este movimiento?",
+        "delete": "Borrar",
+        "empty": "No hay movimientos aún.",
+        "income": "Ingreso",
+        "expense": "Gasto"
+    },
+    "settings": {
+        "title": "Configuración",
+        "language": "Idioma",
+        "darkMode": "Modo Oscuro",
+        "editProfile": "Editar Perfil",
+        "logout": "Cerrar Sesión",
+        "exportData": "Exportar Datos",
+        "exportJSON": "Exportar JSON (Backup)",
+        "exportPDF": "Exportar PDF (Reporte)",
+        "downloading": "Descargando..."
+    },
+    "profile": {
+        "title": "Mi Perfil",
+        "username": "Nombre de usuario",
+        "website": "Sitio Web",
+        "save": "Guardar Cambios",
+        "saved": "Perfil actualizado",
+        "error": "Error al actualizar"
+    }
+}

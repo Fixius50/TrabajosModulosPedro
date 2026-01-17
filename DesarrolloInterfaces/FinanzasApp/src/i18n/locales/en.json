@@ -1,0 +1,52 @@
+{
+    "app": {
+        "title": "Personal Finance",
+        "dashboard": "Dashboard",
+        "transactions": "Transactions",
+        "settings": "Settings",
+        "profile": "Profile"
+    },
+    "dashboard": {
+        "totalBalance": "Total Balance",
+        "income": "Income",
+        "expenses": "Expenses"
+    },
+    "transactions": {
+        "title": "Transactions",
+        "new": "New Transaction",
+        "edit": "Edit Transaction",
+        "amount": "Amount",
+        "description": "Description",
+        "type": "Type",
+        "category": "Category",
+        "date": "Date",
+        "receipt": "Receipt (Image)",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirmDelete": "Confirm",
+        "deleteMessage": "Are you sure you want to delete this item?",
+        "delete": "Delete",
+        "empty": "No transactions yet.",
+        "income": "Income",
+        "expense": "Expense"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "darkMode": "Dark Mode",
+        "editProfile": "Edit Profile",
+        "logout": "Logout",
+        "exportData": "Export Data",
+        "exportJSON": "Export JSON (Backup)",
+        "exportPDF": "Export PDF (Report)",
+        "downloading": "Downloading..."
+    },
+    "profile": {
+        "title": "My Profile",
+        "username": "Username",
+        "website": "Website",
+        "save": "Save Changes",
+        "saved": "Profile updated",
+        "error": "Error updating"
+    }
+}

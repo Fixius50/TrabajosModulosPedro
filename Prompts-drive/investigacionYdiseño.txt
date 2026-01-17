@@ -28,4 +28,14 @@ Crea o actualiza el archivo `manifiesto.md` en la raíz con esta estructura estr
 
 # 📚 MIS REFERENCIAS DE INVESTIGACIÓN (PARA ROBERTO MONEDERO ALONSO)
 [Pega aquí tus enlaces, textos o documentos clave para que la IA los procese como verdad absoluta antes de generar el manifiesto]:
-- 
+- [https://github.com/salvadorjusaino/public-apis](https://github.com/salvadorjusaino/public-apis)
+- [https://free-apis.github.io/#/browse](https://free-apis.github.io/#/browse)
+- [https://catalogo.datosabiertos.miteco.gob.es/catalogo/openapi](https://catalogo.datosabiertos.miteco.gob.es/catalogo/openapi)
+- [https://publicapis.dev/](https://publicapis.dev/)
+- [https://www.freepublicapis.com/](https://www.freepublicapis.com/)
+- [https://www.bbvaapimarket.com/es/mundo-api/apis-y-libros-amazon-google-books-isbn-y-su-api-abierta/](https://www.bbvaapimarket.com/es/mundo-api/apis-y-libros-amazon-google-books-isbn-y-su-api-abierta/)
+- [https://vasga-floze.github.io/docs-api-book/](https://vasga-floze.github.io/docs-api-book/)
+- [https://hardcover.app/](https://hardcover.app/)
+- [https://www.apispublicas.com/](https://www.apispublicas.com/)
+- [https://github.com/public-apis/public-apis](https://github.com/public-apis/public-apis)
+- [https://apilayer.com/?utm_source=Github&utm_medium=Referral&utm_campaign=Public-apis-repo](https://apilayer.com/?utm_source=Github&utm_medium=Referral&utm_campaign=Public-apis-repo)
