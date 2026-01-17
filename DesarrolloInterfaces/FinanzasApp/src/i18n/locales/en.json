@@ -4,12 +4,20 @@
         "dashboard": "Dashboard",
         "transactions": "Transactions",
         "settings": "Settings",
-        "profile": "Profile"
+        "profile": "Profile",
+        "budgets": "Budgets"
     },
     "dashboard": {
         "totalBalance": "Total Balance",
         "income": "Income",
-        "expenses": "Expenses"
+        "expenses": "Expenses",
+        "financial_news": "Financial News",
+        "no_news": "No news available",
+        "electricity_price": "Electricity Price (Spain)",
+        "cheap_time": "Good time! (Cheap)",
+        "average_time": "Average Price",
+        "expensive_time": "Avoid high consumption (Expensive)",
+        "configure_token": "Configure Token in Settings"
     },
     "transactions": {
         "title": "Transactions",
@@ -32,6 +40,9 @@
     },
     "settings": {
         "title": "Settings",
+        "api_tokens": "API Tokens",
+        "esios_token": "ESIOS Token (Electricity)",
+        "marketaux_token": "Marketaux Token (News)",
         "language": "Language",
         "darkMode": "Dark Mode",
         "editProfile": "Edit Profile",

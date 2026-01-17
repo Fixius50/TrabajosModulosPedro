@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonDatetime, IonDatetimeButton } from '@ionic/react';
 import type { Transaction } from '../types';
 import { useTranslation } from 'react-i18next';
+import { CATEGORIES } from '../constants';
+import { convertCurrency } from '../services/apiService';
 
 interface Props {
     isOpen: boolean;
@@ -18,6 +20,42 @@ const TransactionModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
     const [date, setDate] = useState<string>(initialData?.date || new Date().toISOString());
     const [imageFile, setImageFile] = useState<File | null>(null);
     const { t } = useTranslation();
+
+    // Currency Conversion State
+    const [currency, setCurrency] = useState('EUR');
+    const [originalAmount, setOriginalAmount] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setAmount(initialData?.amount || 0);
+            setDescription(initialData?.description || '');
+            setType(initialData?.type || 'expense');
+            setCategory(initialData?.category || '');
+            setDate(initialData?.date || new Date().toISOString());
+            setImageFile(null);
+            setCurrency('EUR');
+            setOriginalAmount(null);
+        }
+    }, [isOpen, initialData]);
+
+    const updateAmountWithCurrency = async (val: string, type: 'orig' | 'curr') => {
+        if (type === 'curr') {
+            setCurrency(val);
+            if (originalAmount) {
+                const rate = await convertCurrency(1, val, 'EUR');
+                if (rate) setAmount(parseFloat((originalAmount * rate).toFixed(2)));
+            }
+        } else {
+            const amt = parseFloat(val);
+            setOriginalAmount(amt);
+            if (currency !== 'EUR') {
+                const rate = await convertCurrency(1, currency, 'EUR');
+                if (rate) setAmount(parseFloat((amt * rate).toFixed(2)));
+            } else {
+                setAmount(amt);
+            }
+        }
+    };
 
     const handleSave = () => {
         onSave({ amount, description, type, category, date, imageFile: imageFile || undefined });
@@ -39,9 +77,32 @@ const TransactionModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
             </IonHeader>
             <IonContent className="ion-padding">
                 <IonItem>
-                    <IonLabel position="stacked">{t('transactions.amount')}</IonLabel>
-                    <IonInput type="number" value={amount} onIonChange={e => setAmount(parseFloat(e.detail.value!) || 0)} />
+                    <IonLabel position="stacked">{t('transactions.amount')} (EUR)</IonLabel>
+                    <IonInput type="number" value={amount} readonly={currency !== 'EUR'} onIonChange={e => {
+                        if (currency === 'EUR') {
+                            setAmount(parseFloat(e.detail.value!) || 0);
+                            setOriginalAmount(parseFloat(e.detail.value!) || 0);
+                        }
+                    }} />
                 </IonItem>
+
+                <IonItem>
+                    <IonLabel>Divisa Original</IonLabel>
+                    <IonSelect value={currency} onIonChange={e => updateAmountWithCurrency(e.detail.value, 'curr')}>
+                        <IonSelectOption value="EUR">EUR (€)</IonSelectOption>
+                        <IonSelectOption value="USD">USD ($)</IonSelectOption>
+                        <IonSelectOption value="GBP">GBP (£)</IonSelectOption>
+                        <IonSelectOption value="JPY">JPY (¥)</IonSelectOption>
+                    </IonSelect>
+                </IonItem>
+
+                {currency !== 'EUR' && (
+                    <IonItem>
+                        <IonLabel position="stacked">Monto en {currency}</IonLabel>
+                        <IonInput type="number" value={originalAmount} onIonChange={e => updateAmountWithCurrency(e.detail.value!, 'orig')} placeholder="0.00" />
+                    </IonItem>
+                )}
+
                 <IonItem>
                     <IonLabel position="stacked">{t('transactions.description')}</IonLabel>
                     <IonInput value={description} onIonChange={e => setDescription(e.detail.value!)} />
@@ -55,7 +116,11 @@ const TransactionModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
                 </IonItem>
                 <IonItem>
                     <IonLabel position="stacked">{t('transactions.category')}</IonLabel>
-                    <IonInput value={category} placeholder="Ej: Comida, Transporte" onIonChange={e => setCategory(e.detail.value!)} />
+                    <IonSelect value={category} placeholder="Selecciona una categoría" onIonChange={e => setCategory(e.detail.value)}>
+                        {CATEGORIES.map((cat: string) => (
+                            <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>
+                        ))}
+                    </IonSelect>
                 </IonItem>
                 <IonItem>
                     <IonLabel position="stacked">{t('transactions.receipt')}</IonLabel>

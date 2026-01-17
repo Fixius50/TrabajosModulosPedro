@@ -1,0 +1,36 @@
+# Tareas del Proyecto: App Gestión Finanzas Personales
+
+- [x] **Fase 0: Inicialización y Análisis** <!-- id: 0 -->
+    - [x] Localizar/Cargar instrucciones de rol (Investigación y Diseño) <!-- id: 1 -->
+    - [x] Analizar requisitos de la imagen/prompt <!-- id: 2 -->
+    - [ ] Definir estructura de carpetas (DesarrolloInterfaces/FinanzasApp) <!-- id: 3 -->
+- [x] **Fase 1: Definición y Manifiesto** <!-- id: 4 -->
+    - [x] Crear `Docs/` y `Docs/manifiesto.md` <!-- id: 5 -->
+    - [x] Definir stack tecnológico (Ionic/React + Supabase) <!-- id: 6 -->
+    - [x] Diseñar modelo de datos inicial <!-- id: 7 -->
+- [ ] **Fase 2: Estrategia y Ejecución** <!-- id: 8 -->
+    - [x] Inicializar proyecto (React + Ionic + Capacitor) <!-- id: 9 -->
+    - [x] Configurar repositorio y conectar Supabase <!-- id: 10 -->
+- [ ] **Fase 3: Desarrollo Core (Auth & UI)** <!-- id: 11 -->
+    - [x] Implementar Pantallas de Autenticación (Login/Registro) <!-- id: 12 -->
+    - [x] Crear estructura de navegación (Tabs/Menu) <!-- id: 13 -->
+    - [x] Implementar Dashboard básico (Placeholder) <!-- id: 14 -->
+- [ ] **Fase 4: Lógica de Negocio y Datos** <!-- id: 15 -->
+    - [x] Implementar Servicio de Transacciones (Supabase + Offline Cache) <!-- id: 16 -->
+    - [x] CRUD Transacciones (Crear, Leer, Editar, Borrar) <!-- id: 17 -->
+    - [x] Dashboard Real (Gráficos y Balance Total) <!-- id: 18 -->
+- [ ] **Fase 5: Funcionalidades Avanzadas** <!-- id: 19 -->
+    - [x] Subida de Ficheros (Imágenes de recibos en Storage) <!-- id: 20 -->
+    - [x] Perfil de Usuario (Avatar, Datos) <!-- id: 21 -->
+    - [x] Configuración: Multiidioma (i18n) <!-- id: 22 -->
+    - [x] Configuración: Modo Oscuro/Claro <!-- id: 23 -->
+- [ ] **Fase 6: Extras y Exportación** <!-- id: 24 -->
+    - [x] Exportar Datos (JSON/PDF) <!-- id: 25 -->
+    - [ ] Generación APK (Android) (Pausado por usuario) <!-- id: 26 -->
+    - [x] Dashboard Dinámico (Auto-refresh) <!-- id: 27 -->
+    - [x] Investigación y Expansión de Features (APIs Externas) <!-- id: 28 -->
+    - [x] Widget Cripto (API Externa) <!-- id: 29 -->
+    - [x] Analíticas Avanzadas (Gráficos) <!-- id: 30 -->
+- [/] **Fase 7: Ampliación (Propuestas)** <!-- id: 31 -->
+    - [x] Gestión de Presupuestos <!-- id: 32 -->
+    - [ ] Transacciones Recurrentes <!-- id: 33 -->

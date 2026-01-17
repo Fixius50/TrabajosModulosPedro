@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon } from '@ionic/react';
+import { documentTextOutline } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +52,32 @@ const Settings: React.FC = () => {
                 <IonItem>
                     <IonLabel>{t('settings.darkMode')}</IonLabel>
                     <IonToggle checked={darkMode} onIonChange={e => toggleDarkMode(e.detail.checked)} />
+                </IonItem>
+
+                <IonItemDivider>
+                    <IonLabel>{t('settings.api_tokens')}</IonLabel>
+                </IonItemDivider>
+                <IonItem>
+                    <IonLabel position="stacked">{t('settings.esios_token')}</IonLabel>
+                    <IonInput
+                        value={localStorage.getItem('esios_token') || ''}
+                        placeholder="Pegar Token ESIOS"
+                        onIonChange={e => {
+                            if (e.detail.value) localStorage.setItem('esios_token', e.detail.value);
+                            else localStorage.removeItem('esios_token');
+                        }}
+                    />
+                </IonItem>
+                <IonItem>
+                    <IonLabel position="stacked">{t('settings.marketaux_token')}</IonLabel>
+                    <IonInput
+                        value={localStorage.getItem('marketaux_token') || ''}
+                        placeholder="Pegar Token Marketaux"
+                        onIonChange={e => {
+                            if (e.detail.value) localStorage.setItem('marketaux_token', e.detail.value);
+                            else localStorage.removeItem('marketaux_token');
+                        }}
+                    />
                 </IonItem>
 
                 <IonButton expand="block" routerLink="/app/profile" className="ion-margin-bottom">

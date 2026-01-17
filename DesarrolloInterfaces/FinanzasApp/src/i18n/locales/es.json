@@ -4,12 +4,20 @@
         "dashboard": "Resumen",
         "transactions": "Movimientos",
         "settings": "Ajustes",
-        "profile": "Perfil"
+        "profile": "Perfil",
+        "budgets": "Presupuestos"
     },
     "dashboard": {
         "totalBalance": "Balance Total",
         "income": "Ingresos",
-        "expenses": "Gastos"
+        "expenses": "Gastos",
+        "financial_news": "Noticias Financieras",
+        "no_news": "No hay noticias disponibles",
+        "electricity_price": "Precio Luz (PVPC)",
+        "cheap_time": "¡Buen momento! (Barato)",
+        "average_time": "Precio Medio",
+        "expensive_time": "Evita consumo alto (Caro)",
+        "configure_token": "Configura tu Token en Ajustes"
     },
     "transactions": {
         "title": "Movimientos",
@@ -32,6 +40,9 @@
     },
     "settings": {
         "title": "Configuración",
+        "api_tokens": "Tokens de API",
+        "esios_token": "Token ESIOS (Luz)",
+        "marketaux_token": "Token Marketaux (Noticias)",
         "language": "Idioma",
         "darkMode": "Modo Oscuro",
         "editProfile": "Editar Perfil",

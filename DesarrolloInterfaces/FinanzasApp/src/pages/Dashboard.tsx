@@ -3,10 +3,15 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardH
 import { getTransactions } from '../services/transactionService';
 import { useTranslation } from 'react-i18next';
 
+import { getBitcoinPrice } from '../services/apiService';
+import ElectricityWidget from '../components/ElectricityWidget';
+import NewsWidget from '../components/NewsWidget';
+
 const Dashboard: React.FC = () => {
     const [balance, setBalance] = useState(0);
     const [income, setIncome] = useState(0);
     const [expense, setExpense] = useState(0);
+    const [btcPrice, setBtcPrice] = useState<number | null>(null);
     const { t } = useTranslation();
 
     const loadData = async () => {
@@ -17,6 +22,10 @@ const Dashboard: React.FC = () => {
             setIncome(inc);
             setExpense(exp);
             setBalance(inc - exp);
+
+            // Fetch BTC Price
+            const btc = await getBitcoinPrice();
+            setBtcPrice(btc);
         } catch (error) {
             console.error(error);
         }
@@ -65,6 +74,20 @@ const Dashboard: React.FC = () => {
                         </IonGrid>
                     </IonCardContent>
                 </IonCard>
+
+                {/* Crypto Widget */}
+                <IonCard color="dark">
+                    <IonCardHeader>
+                        <IonCardSubtitle>Mercado Crypto</IonCardSubtitle>
+                        <IonCardTitle>Bitcoin (BTC)</IonCardTitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                        <h2>{btcPrice ? `${btcPrice.toLocaleString()} €` : 'Cargando...'}</h2>
+                    </IonCardContent>
+                </IonCard>
+
+                <ElectricityWidget />
+                <NewsWidget />
             </IonContent>
         </IonPage>
     );
