@@ -29,6 +29,7 @@
         "category": "Category",
         "date": "Date",
         "receipt": "Receipt (Image)",
+        "extract_data": "Scan Data (OCR)",
         "save": "Save",
         "cancel": "Cancel",
         "confirmDelete": "Confirm",
@@ -47,7 +48,8 @@
         "darkMode": "Dark Mode",
         "editProfile": "Edit Profile",
         "logout": "Logout",
-        "exportData": "Export Data",
+        "exportData": "Data Management",
+        "import_csv": "Import CSV (Bank)",
         "exportJSON": "Export JSON (Backup)",
         "exportPDF": "Export PDF (Report)",
         "downloading": "Downloading..."

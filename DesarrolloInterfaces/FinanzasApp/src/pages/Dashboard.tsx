@@ -12,6 +12,7 @@ const Dashboard: React.FC = () => {
     const [income, setIncome] = useState(0);
     const [expense, setExpense] = useState(0);
     const [btcPrice, setBtcPrice] = useState<number | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
     const { t } = useTranslation();
 
     const loadData = async () => {
@@ -33,6 +34,7 @@ const Dashboard: React.FC = () => {
 
     useIonViewWillEnter(() => {
         loadData();
+        setRefreshKey(prev => prev + 1); // Force widget refresh
     });
 
     const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
@@ -86,8 +88,8 @@ const Dashboard: React.FC = () => {
                     </IonCardContent>
                 </IonCard>
 
-                <ElectricityWidget />
-                <NewsWidget />
+                <ElectricityWidget key={`elec-${refreshKey}`} />
+                <NewsWidget key={`news-${refreshKey}`} />
             </IonContent>
         </IonPage>
     );

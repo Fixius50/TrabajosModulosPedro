@@ -21,8 +21,11 @@ export const createTransaction = async (transaction: Transaction) => {
         .select();
 
     if (error) throw error;
+    if (error) throw error;
     return data;
 };
+
+export const upsertTransaction = createTransaction;
 
 export const deleteTransaction = async (id: number) => {
     const { error } = await supabase

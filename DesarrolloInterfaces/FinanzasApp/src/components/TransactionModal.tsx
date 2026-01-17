@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonDatetime, IonDatetimeButton } from '@ionic/react';
+import { IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonDatetime, IonDatetimeButton, IonIcon } from '@ionic/react';
 import type { Transaction } from '../types';
 import { useTranslation } from 'react-i18next';
 import { CATEGORIES } from '../constants';
@@ -129,6 +129,53 @@ const TransactionModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
                         const file = e.target.files ? e.target.files[0] : null;
                         setImageFile(file);
                     }} style={{ marginTop: '10px' }} />
+
+                    {imageFile && (
+                        <div className="ion-margin-top">
+                            <IonButton size="small" fill="outline" onClick={async () => {
+                                const { analyzeReceipt } = await import('../services/ocrService');
+                                const toast = document.createElement('ion-toast');
+                                toast.message = 'Analizando recibo... espera unos segundos';
+                                toast.duration = 2000;
+                                document.body.appendChild(toast);
+                                await toast.present();
+
+                                try {
+                                    const result = await analyzeReceipt(imageFile);
+                                    if (result.amount) {
+                                        setAmount(result.amount);
+                                        // Update original amount for foreign currency logic if needed
+                                        setOriginalAmount(result.amount);
+                                    }
+                                    if (result.date) setDate(result.date);
+                                    if (result.text) {
+                                        // Try to get a description from first non-empty line
+                                        const lines = result.text.split('\n').filter(l => l.trim().length > 3);
+                                        if (lines.length > 0 && !description) setDescription(lines[0].substring(0, 30));
+                                    }
+
+                                    const successToast = document.createElement('ion-toast');
+                                    successToast.message = '¡Datos extraídos!';
+                                    successToast.color = 'success';
+                                    successToast.duration = 2000;
+                                    document.body.appendChild(successToast);
+                                    await successToast.present();
+
+                                } catch (e) {
+                                    console.error(e);
+                                    const errToast = document.createElement('ion-toast');
+                                    errToast.message = 'No se pudo leer el recibo';
+                                    errToast.color = 'warning';
+                                    errToast.duration = 2000;
+                                    document.body.appendChild(errToast);
+                                    await errToast.present();
+                                }
+                            }}>
+                                <IonIcon slot="start" icon={require('ionicons/icons').scanOutline} />
+                                ✨ {t('transactions.extract_data') || 'Escanear Datos'}
+                            </IonButton>
+                        </div>
+                    )}
                 </IonItem>
                 <IonItem>
                     <IonLabel>{t('transactions.date')}</IonLabel>
