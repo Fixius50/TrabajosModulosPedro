@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanzasApp - Documentación Técnica</title>
+    <style>
+        :root {
+            --primary-color: #3880ff;
+            --secondary-color: #5260ff;
+            --bg-color: #f4f5f8;
+            --text-color: #1c1c1e;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: var(--primary-color);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0; font-size: 2.5em; }
+        h2 { color: var(--secondary-color); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px; }
+        h3 { color: #333; margin-top: 25px; }
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            color: #d63384;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th { background-color: #f8f9fa; }
+        nav {
+            position: sticky;
+            top: 20px;
+            float: right;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav a {
+            display: block;
+            margin: 5px 0;
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+        nav a:hover { text-decoration: underline; }
+        .status-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .status-done { background-color: #2dd36f; }
+        .status-pending { background-color: #ffc409; color: black; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>FinanzasApp</h1>
+        <p>Documentación Técnica Consolidada</p>
+        <p><em>Generado Automáticamente por el Asistente Técnico</em></p>
+    </header>
+
+    <div class="card" id="vision">
+        <h2>1. Visión y Manifiesto</h2>
+        <p><strong>Gestión de Finanzas Personales</strong> es una aplicación multiplataforma (Web y Android) diseñada para el control exhaustivo de ingresos y gastos, priorizando el funcionamiento offline y la sincronización en la nube.</p>
+        
+        <h3>Estrategia Técnica</h3>
+        <ul>
+            <li><strong>Frontend:</strong> React + TypeScript + Vite.</li>
+            <li><strong>UI Framework:</strong> Ionic Framework (v8).</li>
+            <li><strong>Mobile Runtime:</strong> Capacitor (APK Nativo).</li>
+            <li><strong>Backend:</strong> Supabase (PostgreSQL, Auth, Storage).</li>
+            <li><strong>Persistencia:</strong> LocalStorage + Cloud Sync.</li>
+        </ul>
+    </div>
+
+    <div class="card" id="arquitectura">
+        <h2>2. Arquitectura de Software</h2>
+        <p>El proyecto sigue una arquitectura modular basada en <strong>Componentes y Servicios</strong>, desacoplando la lógica de negocio de la interfaz de usuario.</p>
+        
+        <h3>Estructura del Proyecto (/src)</h3>
+        <ul>
+            <li><code>/components</code>: UI reutilizable ("BudgetModal", "TransactionModal").</li>
+            <li><code>/pages</code>: Vistas principales ("Dashboard", "Transactions").</li>
+            <li><code>/services</code>: Comunicación con Supabase ("transactionService.ts", "ocrService.ts").</li>
+            <li><code>/i18n</code>: Configuración multiidioma.</li>
+        </ul>
+
+        <h3>Patrones de Diseño</h3>
+        <ul>
+            <li><strong>Service Repository Pattern:</strong> Las vistas nunca llaman a la BD directamente.</li>
+            <li><strong>Cloud-First + Offline Cache:</strong> Los datos críticos residen en Supabase; preferencias en local.</li>
+        </ul>
+    </div>
+
+    <div class="card" id="funcionalidades">
+        <h2>3. Funcionalidades Implementadas</h2>
+        
+        <h3>Core (MVP)</h3>
+        <ul>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Autenticación:</strong> Login y Registro con Supabase Auth.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>CRUD Transacciones:</strong> Crear, Leer, Editar, Borrar ingresos/gastos.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Dashboard:</strong> Gráficos de sectores y balance total.</li>
+        </ul>
+
+        <h3>Expansión (Fase Avanzada)</h3>
+        <ul>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Carga de Imágenes:</strong> Adjuntar fotos de recibos a Supabase Storage.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>i18n + Dark Mode:</strong> Soporte completo inglés/español y tema oscuro.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Exportación:</strong> Generación de reportes PDF y backup JSON.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Presupuestos:</strong> Gestión de límites de gasto por categoría.</li>
+        </ul>
+
+        <h3>Integraciones Externas (APIs)</h3>
+        <ul>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Precio Luz (PVPC):</strong> Widget con API ESIOS.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Noticias Financieras:</strong> Feed integrado con Marketaux.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Conversor Divisas:</strong> Integración con ExchangeRate-API.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>Importación CSV:</strong> Engine de parsing con <code>papaparse</code>.</li>
+            <li><span class="status-tag status-done">Cómpletado</span> <strong>OCR de Recibos:</strong> Lectura automática con <code>Tesseract.js</code>.</li>
+        </ul>
+    </div>
+
+    <div class="card" id="tecnologias">
+        <h2>4. Stack Tecnológico Detallado</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tecnología</th>
+                    <th>Rol en el proyecto</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>React 18</td><td>Biblioteca de UI base</td></tr>
+                <tr><td>Ionic 8</td><td>Componentes móviles y navegación</td></tr>
+                <tr><td>TypeScript</td><td>Seguridad de tipos y mantenibilidad</td></tr>
+                <tr><td>Supabase</td><td>Base de datos, Auth y API</td></tr>
+                <tr><td>Tesseract.js</td><td>OCR (Reconocimiento de texto) en cliente</td></tr>
+                <tr><td>Chart.js</td><td>Visualización de datos</td></tr>
+                <tr><td>i18next</td><td>Internacionalización</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
