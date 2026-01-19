@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# 1. Actualización y Preparación del Sistema
+echo ">>> Actualizando paquetes..."
+apt-get update && apt-get upgrade -y
+
+# 2. Instalación de Docker y Docker Compose
+echo ">>> Instalando Docker..."
+curl -fsSL https://get.docker.com | sh
+
+# 3. Configurar permisos del Socket de Docker
+# Esto permite que Supabase y tu Monitor lean el estado de los contenedores
+echo ">>> Ajustando permisos del socket Docker..."
+chmod 666 /var/run/docker.sock
+
+# 4. Instalación de Cloudflare Tunnel (cloudflared)
+echo ">>> Instalando cloudflared..."
+ARCH=$(dpkg --print-architecture)
+if [ "$ARCH" = "arm64" ]; then
+    curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.deb
+else
+    curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+fi
+dpkg -i cloudflared.deb
+rm cloudflared.deb
+
+# 5. Instalación de NVM y Node.js LTS (Versión de script mejorada para Root)
+echo ">>> Instalando NVM y Node.js..."
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="/root/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install --lts
+
+echo ">>> ¡Configuración inicial completada!"
