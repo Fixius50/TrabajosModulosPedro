@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon, IonButtons, IonMenuButton } from '@ionic/react';
 import { documentTextOutline, cloudUploadOutline } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +52,9 @@ const Settings: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonMenuButton />
+                    </IonButtons>
                     <IonTitle>{t('settings.title')}</IonTitle>
                 </IonToolbar>
             </IonHeader>

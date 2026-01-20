@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast, IonButtons, IonBackButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast, IonButtons, IonBackButton, IonMenuButton } from '@ionic/react';
 import { getProfile, updateProfile, uploadAvatar } from '../services/profileService';
 // import type { Profile } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -72,6 +72,7 @@ const ProfilePage: React.FC = () => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
+                        <IonMenuButton />
                         <IonBackButton defaultHref="/app/settings" />
                     </IonButtons>
                     <IonTitle>{t('profile.title')}</IonTitle>
@@ -79,7 +80,7 @@ const ProfilePage: React.FC = () => {
             </IonHeader>
             <IonContent className="ion-padding">
                 <div className="ion-text-center ion-margin-bottom">
-                    <IonAvatar style={{ width: '100px', height: '100px', margin: '0 auto' }}>
+                    <IonAvatar style={{ width: '6rem', height: '6rem', margin: '0 auto' }}>
                         <img src={avatarUrl || 'https://ionicframework.com/docs/img/demos/avatar.svg'} alt="Avatar" />
                     </IonAvatar>
                     <br />

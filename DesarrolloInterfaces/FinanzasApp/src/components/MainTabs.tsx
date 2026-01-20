@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonTabBar, IonTabButton, IonIcon, IonLabel, IonPage, IonFooter } from '@ionic/react';
-import { Route, Navigate, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { pieChartOutline, listOutline, settingsOutline, walletOutline, trendingUpOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -18,10 +18,11 @@ const MainTabs: React.FC = () => {
     const location = useLocation();
 
     const currentTab = location.pathname.split('/').pop() || 'dashboard';
+    console.log('MainTabs Render:', { path: location.pathname, currentTab });
 
     return (
-        <IonPage>
-            <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        <IonPage style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ flex: 1, overflow: 'hidden', position: 'relative', width: '100%' }}>
                 <div style={{ width: '100%', height: '100%', display: currentTab === 'dashboard' ? 'block' : 'none' }}>
                     <Dashboard />
                 </div>
@@ -45,30 +46,32 @@ const MainTabs: React.FC = () => {
                 </div>
             </div>
 
-            <IonFooter>
-                <IonTabBar slot="bottom" selectedTab={currentTab}>
-                    <IonTabButton tab="dashboard" selected={currentTab === 'dashboard'} onClick={(e) => { e.preventDefault(); navigate('/app/dashboard'); }}>
-                        <IonIcon icon={pieChartOutline} />
-                        <IonLabel>{t('app.dashboard')}</IonLabel>
-                    </IonTabButton>
-                    <IonTabButton tab="transactions" selected={currentTab === 'transactions'} onClick={(e) => { e.preventDefault(); navigate('/app/transactions'); }}>
-                        <IonIcon icon={listOutline} />
-                        <IonLabel>{t('app.transactions')}</IonLabel>
-                    </IonTabButton>
-                    <IonTabButton tab="market" selected={currentTab === 'market'} onClick={(e) => { e.preventDefault(); navigate('/app/market'); }}>
-                        <IonIcon icon={trendingUpOutline} />
-                        <IonLabel>Mercado</IonLabel>
-                    </IonTabButton>
-                    <IonTabButton tab="budgets" selected={currentTab === 'budgets'} onClick={(e) => { e.preventDefault(); navigate('/app/budgets'); }}>
-                        <IonIcon icon={walletOutline} />
-                        <IonLabel>{t('app.budgets')}</IonLabel>
-                    </IonTabButton>
-                    <IonTabButton tab="settings" selected={currentTab === 'settings'} onClick={(e) => { e.preventDefault(); navigate('/app/settings'); }}>
-                        <IonIcon icon={settingsOutline} />
-                        <IonLabel>{t('app.settings')}</IonLabel>
-                    </IonTabButton>
-                </IonTabBar>
-            </IonFooter>
+            <div className="ion-hide-md-up">
+                <IonFooter>
+                    <IonTabBar slot="bottom" selectedTab={currentTab}>
+                        <IonTabButton tab="dashboard" selected={currentTab === 'dashboard'} onClick={(e) => { e.preventDefault(); navigate('/app/dashboard'); }}>
+                            <IonIcon icon={pieChartOutline} />
+                            <IonLabel>{t('app.dashboard')}</IonLabel>
+                        </IonTabButton>
+                        <IonTabButton tab="transactions" selected={currentTab === 'transactions'} onClick={(e) => { e.preventDefault(); navigate('/app/transactions'); }}>
+                            <IonIcon icon={listOutline} />
+                            <IonLabel>{t('app.transactions')}</IonLabel>
+                        </IonTabButton>
+                        <IonTabButton tab="market" selected={currentTab === 'market'} onClick={(e) => { e.preventDefault(); navigate('/app/market'); }}>
+                            <IonIcon icon={trendingUpOutline} />
+                            <IonLabel>Mercado</IonLabel>
+                        </IonTabButton>
+                        <IonTabButton tab="budgets" selected={currentTab === 'budgets'} onClick={(e) => { e.preventDefault(); navigate('/app/budgets'); }}>
+                            <IonIcon icon={walletOutline} />
+                            <IonLabel>{t('app.budgets')}</IonLabel>
+                        </IonTabButton>
+                        <IonTabButton tab="settings" selected={currentTab === 'settings'} onClick={(e) => { e.preventDefault(); navigate('/app/settings'); }}>
+                            <IonIcon icon={settingsOutline} />
+                            <IonLabel>{t('app.settings')}</IonLabel>
+                        </IonTabButton>
+                    </IonTabBar>
+                </IonFooter>
+            </div>
         </IonPage>
     );
 };

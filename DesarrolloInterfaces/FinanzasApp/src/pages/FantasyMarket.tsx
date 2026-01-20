@@ -3,7 +3,7 @@ import {
     IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
     IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonText,
-    IonIcon, useIonViewWillEnter
+    IonIcon, useIonViewWillEnter, IonButtons, IonMenuButton
 } from '@ionic/react';
 import { arrowUp, arrowDown } from 'ionicons/icons';
 import { getMarketData, tickMarket, type MarketAsset } from '../services/marketSimulationService';
@@ -73,6 +73,9 @@ const FantasyMarket: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonMenuButton />
+                    </IonButtons>
                     <IonTitle>Mercado de Fantasía 🧙‍♂️</IonTitle>
                 </IonToolbar>
             </IonHeader>
@@ -87,7 +90,7 @@ const FantasyMarket: React.FC = () => {
                     <IonRow>
                         {/* Selected Asset Chart Card */}
                         <IonCol size="12" sizeMd="8">
-                            <IonCard style={{ height: '350px', display: 'flex', flexDirection: 'column' }}>
+                            <IonCard style={{ height: '40vh', display: 'flex', flexDirection: 'column' }}>
                                 <IonCardHeader>
                                     <IonCardSubtitle>{selectedAsset?.symbol}</IonCardSubtitle>
                                     <IonCardTitle>
@@ -98,7 +101,7 @@ const FantasyMarket: React.FC = () => {
                                         </span>
                                     </IonCardTitle>
                                 </IonCardHeader>
-                                <div style={{ flex: 1, position: 'relative', width: '99%', maxHeight: '250px', padding: '10px' }}>
+                                <div style={{ flex: 1, position: 'relative', width: '99%', maxHeight: '30vh', padding: '0.6rem' }}>
                                     {selectedAsset && <Line data={chartData} options={chartOptions} />}
                                 </div>
                             </IonCard>
@@ -106,7 +109,7 @@ const FantasyMarket: React.FC = () => {
 
                         {/* Asset List Side Panel */}
                         <IonCol size="12" sizeMd="4">
-                            <h3 style={{ marginLeft: '10px' }}>Activos</h3>
+                            <h3 style={{ marginLeft: '0.6rem' }}>Activos</h3>
                             {assets.map(asset => {
                                 const isUp = asset.history[asset.history.length - 1] > asset.history[asset.history.length - 2];
                                 return (
@@ -116,7 +119,7 @@ const FantasyMarket: React.FC = () => {
                                         onClick={() => setSelectedAssetId(asset.id)}
                                         color={selectedAssetId === asset.id ? 'light' : undefined}
                                     >
-                                        <div style={{ padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <div>
                                                 <div style={{ fontWeight: 'bold' }}>{asset.symbol}</div>
                                                 <div style={{ fontSize: '0.8em', opacity: 0.7 }}>{asset.name}</div>

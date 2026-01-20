@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail, IonButtons, IonMenuButton } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../services/transactionService';
 import type { Transaction } from '../types';
@@ -98,6 +98,9 @@ const Transactions: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonMenuButton />
+                    </IonButtons>
                     <IonTitle>{t('transactions.title')}</IonTitle>
                 </IonToolbar>
             </IonHeader>

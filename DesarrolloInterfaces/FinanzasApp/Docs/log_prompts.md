@@ -50,4 +50,9 @@
 - **UPGRADE OBLIGATORIO**: React Router 6.
 - Eliminación de `@ionic/react-router`.
 - Refactor completo de `App.tsx`, `MainTabs.tsx` y Páginas (`useHistory` -> `useNavigate`).
-- Verificación de Build (`npm run build` OK).
+## 8. UX Optimization & Performance
+**Prompt:** "no quiero que se monte de nuevo al ir" / "quita el dialogo de Iniciando"
+**Acciones:**
+- **Persistent Tabs**: Cambio de arquitectura en `MainTabs.tsx`. Reemplazo de routing reactivo (`Routes`) por vistas persistentes (`display: block/none`).
+- **Eliminación de Blocking UI**: Retirada del diálogo "Iniciando..." en `App.tsx` para arranque instantáneo.
+- **Build Fixes**: Optimización de imports dinámicos en `Settings.tsx` para evitar circular dependencies. Build exitoso.

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonLabel, IonNote, IonProgressBar, IonFab, IonFabButton, IonIcon, IonSpinner, IonCard, IonCardContent, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonToast } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonLabel, IonNote, IonProgressBar, IonFab, IonFabButton, IonIcon, IonSpinner, IonCard, IonCardContent, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonToast, IonButtons, IonMenuButton } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { getBudgets, upsertBudget, type Budget } from '../services/budgetService';
 import { getTransactions } from '../services/transactionService';
@@ -87,6 +87,9 @@ const Budgets: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonMenuButton />
+                    </IonButtons>
                     <IonTitle>{t('app.budgets')}</IonTitle>
                 </IonToolbar>
             </IonHeader>
@@ -111,7 +114,7 @@ const Budgets: React.FC = () => {
                         return (
                             <IonCard key={b.id} onClick={() => openEditModal(b)}>
                                 <IonCardContent>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                         <IonLabel><h2>{b.category}</h2></IonLabel>
                                         <IonNote color={isOver ? 'danger' : 'medium'}>
                                             {spent.toFixed(2)}€ / {b.amount}€

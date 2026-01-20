@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonButtons, IonMenuButton } from '@ionic/react';
 import { getTransactions } from '../services/transactionService';
 import { useTranslation } from 'react-i18next';
 
@@ -46,6 +46,9 @@ const Dashboard: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonMenuButton />
+                    </IonButtons>
                     <IonTitle>{t('app.dashboard')}</IonTitle>
                 </IonToolbar>
             </IonHeader>

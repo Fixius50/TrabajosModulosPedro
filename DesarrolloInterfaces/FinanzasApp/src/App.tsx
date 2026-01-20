@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
-import { IonApp, IonSplitPane, setupIonicReact, IonLoading } from '@ionic/react';
+import { IonApp, setupIonicReact, IonLoading } from '@ionic/react';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MainTabs from './components/MainTabs';
@@ -32,38 +32,66 @@ setupIonicReact();
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("App initialization started");
+
+    // Safety timeout to prevent infinite loading
+    const timer = setTimeout(() => {
+      console.warn("Safety timeout triggered: Forcing loading completion");
+      setLoading(false);
+    }, 5000);
+
     // 1. Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) console.error("Session error:", error);
+      console.log("Session retrieved:", session ? "Active" : "Null");
       setSession(session);
+      setLoading(false);
     }).catch(err => {
       console.error("Unexpected session error:", err);
+      setLoading(false);
     });
 
     // 2. Listen for changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state change:", _event);
       setSession(session);
+      setLoading(false);
     });
 
     // 3. Process recurring transactions on startup
-    recurringService.processDueRecurrences().catch(e => console.error("Recurring error:", e));
+    recurringService.processDueRecurrences()
+      .then(() => console.log("Recurring transactions processed"))
+      .catch(e => console.error("Recurring error:", e));
 
     return () => {
+      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
+
+  if (loading) {
+    return (
+      <IonApp>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', flexDirection: 'column' }}>
+          <IonLoading isOpen={true} message="Cargando..." spinner="crescent" />
+          <p style={{ marginTop: '20px', color: '#666' }}>Iniciando aplicación...</p>
+        </div>
+      </IonApp>
+    );
+  }
 
   return (
     <IonApp>
       <BrowserRouter>
         {session ? (
-          <IonSplitPane contentId="main">
+          <>
             <Menu />
-            <div id="main">
+            <div id="main" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
               <Routes>
                 <Route path="/app/*" element={<MainTabs />} />
                 <Route path="/" element={<Navigate to="/app/dashboard" />} />
@@ -71,7 +99,7 @@ const App: React.FC = () => {
                 <Route path="/register" element={<Navigate to="/app/dashboard" />} />
               </Routes>
             </div>
-          </IonSplitPane>
+          </>
         ) : (
           <Routes>
             <Route path="/login" element={<Login />} />
