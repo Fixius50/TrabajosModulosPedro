@@ -21,7 +21,11 @@ const Register: React.FC = () => {
 
         setLoading(false);
         if (error) {
-            setToastMessage(error.message);
+            if (error.message.includes("User already registered")) {
+                setToastMessage("Este email ya está registrado. Intenta iniciar sesión.");
+            } else {
+                setToastMessage(error.message);
+            }
             setShowToast(true);
         } else {
             setToastMessage('¡Cuenta creada! Revisa tu email para confirmar antes de entrar.');

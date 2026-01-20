@@ -10,6 +10,7 @@ import Settings from '../pages/Settings';
 import ProfilePage from '../pages/Profile';
 import Budgets from '../pages/Budgets';
 import FantasyMarket from '../pages/FantasyMarket';
+import RecurringTransactions from '../pages/RecurringTransactions';
 
 const MainTabs: React.FC = () => {
     const { t } = useTranslation();
@@ -23,6 +24,7 @@ const MainTabs: React.FC = () => {
                 <Route path="/app/market" component={FantasyMarket} exact={true} />
                 <Route path="/app/settings" component={Settings} exact={true} />
                 <Route path="/app/profile" component={ProfilePage} exact={true} />
+                <Route path="/app/recurring" component={RecurringTransactions} exact={true} />
                 <Route exact path="/app">
                     <Redirect to="/app/dashboard" />
                 </Route>

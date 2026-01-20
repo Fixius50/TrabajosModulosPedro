@@ -28,3 +28,18 @@
 ## 4. Debugging
 **Error:** Fallo en `npm run dev` por incompatibilidad de `react-router-dom` v7/v6.
 **Acciones:** Downgrade a `react-router-dom@5` (requerido por Ionic 8). Refactorización de componentes a sintaxis v5.
+
+## 5. Recurring Transactions
+**Prompt:** "Continuar" (Fase 7: Transacciones Recurrentes)
+**Acciones:**
+- Creación de tabla SQL `recurring_transactions`.
+- Implementación de `recurring.service.ts` para procesar cobros automáticos al abrir la app.
+- Creación de página `RecurringTransactions.tsx` con modal de alta.
+- Agregado al Menú Lateral.
+
+## 6. Fixes & Improvements
+**Prompt:** "al iniciar me debe salir la pantalla de login y no el dashboard directamente"
+**Acciones:**
+- Implementación de **Auth Guard** global en `App.tsx`.
+- Monitorización de `onAuthStateChange` de Supabase.
+- Redirección automática Login <-> Dashboard según estado de sesión.

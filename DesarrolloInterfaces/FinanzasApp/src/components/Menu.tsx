@@ -11,7 +11,7 @@ import {
 } from '@ionic/react';
 
 import { useLocation } from 'react-router-dom';
-import { pieChartOutline, listOutline, settingsOutline, walletOutline, trendingUpOutline, personOutline } from 'ionicons/icons';
+import { pieChartOutline, listOutline, settingsOutline, walletOutline, trendingUpOutline, personOutline, repeatOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import './Menu.css';
 
@@ -62,6 +62,12 @@ const Menu: React.FC = () => {
             url: '/app/profile',
             iosIcon: personOutline,
             mdIcon: personOutline
+        },
+        {
+            title: 'Recurrentes',
+            url: '/app/recurring',
+            iosIcon: repeatOutline,
+            mdIcon: repeatOutline
         }
     ];
 
