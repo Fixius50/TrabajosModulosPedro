@@ -21,17 +21,28 @@ const MainTabs: React.FC = () => {
 
     return (
         <IonPage>
-            <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-                <Routes>
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="transactions" element={<Transactions />} />
-                    <Route path="budgets" element={<Budgets />} />
-                    <Route path="market" element={<FantasyMarket />} />
-                    <Route path="settings" element={<Settings />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="recurring" element={<RecurringTransactions />} />
-                    <Route path="/" element={<Navigate to="dashboard" />} />
-                </Routes>
+            <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'dashboard' ? 'block' : 'none' }}>
+                    <Dashboard />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'transactions' ? 'block' : 'none' }}>
+                    <Transactions />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'budgets' ? 'block' : 'none' }}>
+                    <Budgets />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'market' ? 'block' : 'none' }}>
+                    <FantasyMarket />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'settings' ? 'block' : 'none' }}>
+                    <Settings />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'profile' ? 'block' : 'none' }}>
+                    <ProfilePage />
+                </div>
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'recurring' ? 'block' : 'none' }}>
+                    <RecurringTransactions />
+                </div>
             </div>
 
             <IonFooter>
