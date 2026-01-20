@@ -15,7 +15,6 @@
     "@ionic/react": "^8.7.17",
     "@supabase/supabase-js": "^2.90.1",
     "@types/papaparse": "^5.5.2",
-    "@types/react-router-dom": "^5.3.3",
     "chart.js": "^4.5.1",
     "i18next": "^25.7.4",
     "ionicons": "^8.0.13",

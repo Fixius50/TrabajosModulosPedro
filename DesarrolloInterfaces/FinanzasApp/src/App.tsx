@@ -35,41 +35,50 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("App initialization started");
+    let mounted = true;
 
-    // Safety timeout to prevent infinite loading
-    const timer = setTimeout(() => {
-      console.warn("Safety timeout triggered: Forcing loading completion");
-      setLoading(false);
-    }, 5000);
+    // GUARANTEED 3-SECOND MAXIMUM - App WILL load no matter what
+    const forceLoadTimeout = setTimeout(() => {
+      console.warn("[EMERGENCY TIMEOUT] Forcing app load after 3 seconds");
+      if (mounted) setLoading(false);
+    }, 3000);
 
-    // 1. Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) console.error("Session error:", error);
-      console.log("Session retrieved:", session ? "Active" : "Null");
-      setSession(session);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Unexpected session error:", err);
-      setLoading(false);
+    const initApp = async () => {
+      try {
+        // 1. Get initial session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+
+        if (mounted) {
+          if (error) console.error("Session check error:", error);
+          setSession(initialSession);
+        }
+
+        // 2. Process recurring transactions (Non-blocking)
+        recurringService.processDueRecurrences().catch(e => console.warn("Recurring task error:", e));
+
+      } catch (err) {
+        console.error("Critical App Init Error:", err);
+      } finally {
+        if (mounted) {
+          clearTimeout(forceLoadTimeout);
+          setLoading(false);
+        }
+      }
+    };
+
+    initApp();
+
+    // 3. Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (mounted) {
+        setSession(newSession);
+        setLoading(false); // Ensure loading is off on auth change
+      }
     });
-
-    // 2. Listen for changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state change:", _event);
-      setSession(session);
-      setLoading(false);
-    });
-
-    // 3. Process recurring transactions on startup
-    recurringService.processDueRecurrences()
-      .then(() => console.log("Recurring transactions processed"))
-      .catch(e => console.error("Recurring error:", e));
 
     return () => {
-      clearTimeout(timer);
+      mounted = false;
+      clearTimeout(forceLoadTimeout);
       subscription.unsubscribe();
     };
   }, []);
@@ -97,6 +106,7 @@ const App: React.FC = () => {
                 <Route path="/" element={<Navigate to="/app/dashboard" />} />
                 <Route path="/login" element={<Navigate to="/app/dashboard" />} />
                 <Route path="/register" element={<Navigate to="/app/dashboard" />} />
+                <Route path="*" element={<Navigate to="/app/dashboard" />} />
               </Routes>
             </div>
           </>

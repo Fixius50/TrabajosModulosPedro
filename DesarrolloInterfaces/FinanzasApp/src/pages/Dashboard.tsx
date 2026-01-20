@@ -1,41 +1,43 @@
-import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonButtons, IonMenuButton } from '@ionic/react';
+import React, { useEffect, useState } from 'react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonButtons, IonMenuButton } from '@ionic/react';
 import { getTransactions } from '../services/transactionService';
 import { useTranslation } from 'react-i18next';
 
 import { getBitcoinPrice } from '../services/apiService';
-import ElectricityWidget from '../components/ElectricityWidget';
-import NewsWidget from '../components/NewsWidget';
+// import ElectricityWidget from '../components/ElectricityWidget';
+// import NewsWidget from '../components/NewsWidget';
 
 const Dashboard: React.FC = () => {
     const [balance, setBalance] = useState(0);
     const [income, setIncome] = useState(0);
     const [expense, setExpense] = useState(0);
     const [btcPrice, setBtcPrice] = useState<number | null>(null);
-    const [refreshKey, setRefreshKey] = useState(0);
     const { t } = useTranslation();
 
     const loadData = async () => {
         try {
-            const data = await getTransactions();
-            const inc = data.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
-            const exp = data.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+            // Parallel Fetching for performance
+            const [transactions, btcPriceData] = await Promise.all([
+                getTransactions(),
+                getBitcoinPrice()
+            ]);
+
+            const inc = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+            const exp = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+
             setIncome(inc);
             setExpense(exp);
             setBalance(inc - exp);
-
-            // Fetch BTC Price
-            const btc = await getBitcoinPrice();
-            setBtcPrice(btc);
+            setBtcPrice(btcPriceData);
         } catch (error) {
-            console.error(error);
+            console.error("Dashboard data load error:", error);
         }
     };
 
-    useIonViewWillEnter(() => {
+    useEffect(() => {
+        console.log("Dashboard: Component Mounted (useEffect)");
         loadData();
-        setRefreshKey(prev => prev + 1); // Force widget refresh
-    });
+    }, []); // Run once on mount
 
     const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
         await loadData();
@@ -87,12 +89,13 @@ const Dashboard: React.FC = () => {
                         <IonCardTitle>Bitcoin (BTC)</IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
-                        <h2>{btcPrice ? `${btcPrice.toLocaleString()} €` : 'Cargando...'}</h2>
+                        <h2>{btcPrice ? `${btcPrice.toLocaleString()} €` : 'Calculando...'}</h2>
                     </IonCardContent>
                 </IonCard>
 
-                <ElectricityWidget key={`elec-${refreshKey}`} />
-                <NewsWidget key={`news-${refreshKey}`} />
+                {/* Temporarily disabled to debug loading issues */}
+                {/* <ElectricityWidget /> */}
+                {/* <NewsWidget /> */}
             </IonContent>
         </IonPage>
     );

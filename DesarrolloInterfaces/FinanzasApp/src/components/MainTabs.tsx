@@ -17,8 +17,25 @@ const MainTabs: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const currentTab = location.pathname.split('/').pop() || 'dashboard';
-    console.log('MainTabs Render:', { path: location.pathname, currentTab });
+    const validTabs = ['dashboard', 'transactions', 'budgets', 'market', 'settings', 'profile', 'recurring'];
+    let currentTab = location.pathname.split('/').pop() || 'dashboard';
+
+    // Prevent blank screen by validating tab
+    if (!validTabs.includes(currentTab)) {
+        console.warn('Invalid tab detected:', currentTab, 'Redirecting to dashboard...');
+        // We can't navigate immediately during render, but we can default the view to dashboard 
+        // while the useEffect (if we added one) or this fallback handles it visually.
+        // For visual stability, let's default to dashboard if invalid
+        currentTab = 'dashboard';
+
+        // Optional: Force URL sync if needed, but visual fallback is critical first
+        if (currentTab !== 'app') { // don't loop indefinitely
+            // Use a timeout to avoid render-cycle warning if we wanted to navigate, 
+            // but visually overriding is safer and faster.
+        }
+    }
+
+    console.log('MainTabs Render:', { path: location.pathname, calculatedTab: currentTab });
 
     return (
         <IonPage style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
