@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon } from '@ionic/react';
 import { documentTextOutline, cloudUploadOutline } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ImportModal from '../components/ImportModal';
 
+import { getTransactions } from '../services/transactionService';
+import { exportToJSON, exportToPDF } from '../services/exportService';
+
 const Settings: React.FC = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const [darkMode, setDarkMode] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -22,7 +25,7 @@ const Settings: React.FC = () => {
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        history.push('/login');
+        navigate('/login');
     };
 
     const changeLanguage = (lng: string) => {
@@ -36,16 +39,12 @@ const Settings: React.FC = () => {
     };
 
     const handleExportJSON = async () => {
-        const { getTransactions } = await import('../services/transactionService');
         const transactions = await getTransactions();
-        const { exportToJSON } = await import('../services/exportService');
         exportToJSON(transactions, 'finanzas_backup');
     };
 
     const handleExportPDF = async () => {
-        const { getTransactions } = await import('../services/transactionService');
         const transactions = await getTransactions();
-        const { exportToPDF } = await import('../services/exportService');
         exportToPDF(transactions);
     };
 

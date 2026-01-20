@@ -13,7 +13,6 @@
     "@capacitor/android": "^8.0.1",
     "@capacitor/core": "^8.0.1",
     "@ionic/react": "^8.7.17",
-    "@ionic/react-router": "^8.7.17",
     "@supabase/supabase-js": "^2.90.1",
     "@types/papaparse": "^5.5.2",
     "@types/react-router-dom": "^5.3.3",
@@ -27,7 +26,7 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^16.5.3",
-    "react-router-dom": "^5.3.4",
+    "react-router-dom": "^6.22.0",
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {

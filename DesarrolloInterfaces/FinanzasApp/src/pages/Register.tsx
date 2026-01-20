@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonInput, IonButton, IonItem, IonLabel, IonLoading, IonToast } from '@ionic/react';
 import { supabase } from '../supabaseClient';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -9,7 +9,7 @@ const Register: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +30,7 @@ const Register: React.FC = () => {
         } else {
             setToastMessage('¡Cuenta creada! Revisa tu email para confirmar antes de entrar.');
             setShowToast(true);
-            setTimeout(() => history.push('/login'), 2000);
+            setTimeout(() => navigate('/login'), 2000);
         }
     };
 

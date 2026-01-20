@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonLoading, IonToast, IonButtons, IonBackButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast, IonButtons, IonBackButton } from '@ionic/react';
 import { getProfile, updateProfile, uploadAvatar } from '../services/profileService';
 // import type { Profile } from '../types';
 import { useTranslation } from 'react-i18next';
@@ -99,7 +99,12 @@ const ProfilePage: React.FC = () => {
                     {t('profile.save')}
                 </IonButton>
 
-                <IonLoading isOpen={loading} message="Cargando..." />
+                {loading && (
+                    <div className="ion-text-center ion-padding">
+                        <IonSpinner name="crescent" />
+                        <p>Cargando perfil...</p>
+                    </div>
+                )}
                 <IonToast isOpen={showToast} message={toastMessage} duration={2000} onDidDismiss={() => setShowToast(false)} />
             </IonContent>
         </IonPage>

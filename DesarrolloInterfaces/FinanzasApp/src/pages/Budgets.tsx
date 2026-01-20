@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonLabel, IonNote, IonProgressBar, IonFab, IonFabButton, IonIcon, IonLoading, IonCard, IonCardContent, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonToast } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonLabel, IonNote, IonProgressBar, IonFab, IonFabButton, IonIcon, IonSpinner, IonCard, IonCardContent, IonRefresher, IonRefresherContent, type RefresherEventDetail, useIonViewWillEnter, IonToast } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { getBudgets, upsertBudget, type Budget } from '../services/budgetService';
 import { getTransactions } from '../services/transactionService';
@@ -95,7 +95,12 @@ const Budgets: React.FC = () => {
                     <IonRefresherContent />
                 </IonRefresher>
 
-                <IonLoading isOpen={loading} message="Cargando..." />
+                {loading && (
+                    <div className="ion-text-center ion-padding">
+                        <IonSpinner name="crescent" />
+                        <p>Cargando presupuestos...</p>
+                    </div>
+                )}
 
                 <IonList>
                     {budgets.map(b => {

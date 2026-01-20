@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonLoading, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../services/transactionService';
 import type { Transaction } from '../types';
@@ -106,7 +106,12 @@ const Transactions: React.FC = () => {
                     <IonRefresherContent />
                 </IonRefresher>
 
-                {loading && <IonLoading isOpen={loading} message="Procesando..." />}
+                {loading && (
+                    <div className="ion-text-center ion-padding">
+                        <IonSpinner name="crescent" />
+                        <p>Cargando movimientos...</p>
+                    </div>
+                )}
 
                 <IonList>
                     {transactions.map(t => (

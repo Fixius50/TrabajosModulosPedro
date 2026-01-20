@@ -43,3 +43,11 @@
 - Implementación de **Auth Guard** global en `App.tsx`.
 - Monitorización de `onAuthStateChange` de Supabase.
 - Redirección automática Login <-> Dashboard según estado de sesión.
+
+## 7. Critical Migration (Blank Screen Fix)
+**Error:** Pantalla blanca perpetua por incompatibilidad Ionic 8 / React Router 5.
+**Acciones:**
+- **UPGRADE OBLIGATORIO**: React Router 6.
+- Eliminación de `@ionic/react-router`.
+- Refactor completo de `App.tsx`, `MainTabs.tsx` y Páginas (`useHistory` -> `useNavigate`).
+- Verificación de Build (`npm run build` OK).
