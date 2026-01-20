@@ -11,8 +11,8 @@
 ### Infraestructura Híbrida
 -   **Nube Pública (Frontend)**: Vercel (Next.js App Router).
 -   **Servidor Remoto (Backend/Infra)**: VPS Oracle Cloud.
--   **Conectividad Segura**: Cloudflare Tunnel (Zero Trust).
-    -   *Justificación*: Máxima seguridad (sin puertos abiertos), URL persistente, HTTPS automático.
+-   **Conectividad**: DuckDNS (Dynamic DNS).
+    -   *Justificación*: Acceso directo mediante nombre de dominio dinámico (requiere apertura de puertos o proxy inverso).
 
 ### Stack Tecnológico
 -   **Frontend**: Next.js, Tremor (Componentes de Dashboard), Tailwind CSS.
