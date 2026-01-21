@@ -82,10 +82,12 @@ const AuthPage: React.FC = () => {
                                 <IonItem className="ion-margin-bottom" lines="none" style={{ border: '1px solid var(--ion-color-light-shade)', borderRadius: '10px' }}>
                                     <IonIcon icon={mailOutline} slot="start" style={{ marginLeft: '10px' }} />
                                     <IonInput
+                                        name="email"
+                                        autocomplete="username"
                                         placeholder="Email"
                                         type="email"
                                         value={email}
-                                        onIonChange={e => setEmail(e.detail.value!)}
+                                        onIonInput={e => setEmail(e.detail.value!)}
                                         required
                                     />
                                 </IonItem>
@@ -93,10 +95,12 @@ const AuthPage: React.FC = () => {
                                 <IonItem className="ion-margin-bottom" lines="none" style={{ border: '1px solid var(--ion-color-light-shade)', borderRadius: '10px' }}>
                                     <IonIcon icon={lockClosedOutline} slot="start" style={{ marginLeft: '10px' }} />
                                     <IonInput
+                                        name="password"
+                                        autocomplete={authMode === 'login' ? 'current-password' : 'new-password'}
                                         placeholder="Contraseña"
                                         type="password"
                                         value={password}
-                                        onIonChange={e => setPassword(e.detail.value!)}
+                                        onIonInput={e => setPassword(e.detail.value!)}
                                         required
                                     />
                                 </IonItem>

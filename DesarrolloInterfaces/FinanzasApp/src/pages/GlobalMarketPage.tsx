@@ -1,60 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
     IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
     IonCardTitle, IonCardSubtitle, IonText,
-    IonIcon, useIonViewWillEnter, IonButtons, IonMenuButton
+    IonIcon, useIonViewWillEnter, IonButtons, IonMenuButton,
+    IonSearchbar, IonSpinner, IonButton
 } from '@ionic/react';
-import { arrowUp, arrowDown, newspaperOutline, trendingUpOutline } from 'ionicons/icons';
-import { getMarketData, tickMarket, type MarketAsset } from '../services/marketSimulationService';
+import { arrowUp, arrowDown, newspaperOutline, searchOutline, pricetagOutline } from 'ionicons/icons';
+import { marketService, type MarketAsset } from '../services/market.service';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-
-// Widgets migrated from Dashboard
 import NewsWidget from '../components/NewsWidget';
-import { getBitcoinPrice } from '../services/apiService';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const GlobalMarketPage: React.FC = () => {
-    const [assets, setAssets] = useState<MarketAsset[]>([]);
-    const [selectedAssetId, setSelectedAssetId] = useState<string>('mithril');
-    const [btcPrice, setBtcPrice] = useState<number | null>(null);
+    // State
+    const [cryptoAssets, setCryptoAssets] = useState<MarketAsset[]>([]);
+    const [searchedAsset, setSearchedAsset] = useState<MarketAsset | null>(null);
+    const [selectedAsset, setSelectedAsset] = useState<MarketAsset | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchLoading, setSearchLoading] = useState(false);
 
-    // Initial Data Load
+    // Initial Load (Crypto)
     useIonViewWillEnter(() => {
-        setAssets(getMarketData());
-        loadCryptoData();
+        loadCryptoMarket();
     });
 
-    // Real-time Simulation
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const data = tickMarket();
-            setAssets([...data]);
-        }, 3000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const loadCryptoData = async () => {
-        const price = await getBitcoinPrice();
-        setBtcPrice(price);
+    const loadCryptoMarket = async () => {
+        setLoading(true);
+        const data = await marketService.getCryptoAssets();
+        setCryptoAssets(data);
+        if (data.length > 0 && !selectedAsset) {
+            setSelectedAsset(data[0]); // Default to Bitcoin
+        }
+        setLoading(false);
     };
 
-    const selectedAsset = assets.find(a => a.id === selectedAssetId) || assets[0];
+    const handleSearch = async () => {
+        if (!searchTerm) return;
+        setSearchLoading(true);
+        setSearchedAsset(null);
 
-    // Chart Configuration
-    const chartData = {
-        labels: Array.from({ length: selectedAsset?.history.length || 0 }, (_, i) => i + 1),
-        datasets: [{
-            label: selectedAsset?.name,
-            data: selectedAsset?.history,
-            borderColor: selectedAsset?.color,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            tension: 0.4,
-            pointRadius: 0,
-            borderWidth: 2
-        }]
+        // Try to find as stock first (using Finnhub)
+        const asset = await marketService.getStockQuote(searchTerm.toUpperCase());
+        if (asset) {
+            // Fetch history for chart
+            const history = await marketService.getStockHistory(asset.symbol);
+            asset.history = history;
+            setSearchedAsset(asset);
+            setSelectedAsset(asset);
+        } else {
+            // Handle not found
+            console.log("Asset not found");
+        }
+        setSearchLoading(false);
+    };
+
+    // Chart Data Construction
+    const buildChartData = () => {
+        if (!selectedAsset || !selectedAsset.history || selectedAsset.history.length === 0) return null;
+
+        return {
+            labels: Array.from({ length: selectedAsset.history.length }, (_, i) => i + 1),
+            datasets: [{
+                label: selectedAsset.name,
+                data: selectedAsset.history,
+                borderColor: selectedAsset.type === 'crypto' ? '#ffc409' : '#3880ff', // Yellow for crypto, Blue for stocks
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 2
+            }]
+        };
     };
 
     const chartOptions = {
@@ -78,66 +97,20 @@ const GlobalMarketPage: React.FC = () => {
             <IonContent fullscreen className="ion-padding">
                 <IonGrid>
                     <IonRow>
-                        {/* LEFT COLUMN: INFORMATION & REAL WORLD DATA */}
-                        <IonCol size="12" sizeMd="6">
-                            {/* Real Crypto Widget */}
-                            <IonCard color="dark">
-                                <IonCardHeader>
-                                    <IonCardSubtitle>Mercado Real</IonCardSubtitle>
-                                    <IonCardTitle style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span>Bitcoin (BTC)</span>
-                                        <IonIcon icon={trendingUpOutline} color="warning" />
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <div style={{ padding: '0 20px 20px' }}>
-                                    <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: 0 }}>
-                                        {btcPrice ? `${btcPrice.toLocaleString()} €` : '...'}
-                                    </h1>
-                                    <p style={{ opacity: 0.7, marginTop: '5px' }}>Precio en vivo (CoinGecko)</p>
-                                </div>
-                            </IonCard>
+                        {/* LEFT COLUMN: WATCHLIST & CRYPTO */}
+                        <IonCol size="12" sizeMd="4">
+                            <h3 style={{ marginLeft: '10px' }}>Top Cripto (Live)</h3>
+                            {loading && <IonSpinner />}
 
-                            {/* News Feed */}
-                            <div style={{ marginTop: '20px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', marginLeft: '5px' }}>
-                                    <IonIcon icon={newspaperOutline} style={{ marginRight: '10px' }} />
-                                    <h3 style={{ margin: 0 }}>Noticias Financieras</h3>
-                                </div>
-                                <NewsWidget />
-                            </div>
-                        </IonCol>
-
-                        {/* RIGHT COLUMN: FANTASY MARKET GAME */}
-                        <IonCol size="12" sizeMd="6">
-                            <h3 style={{ marginLeft: '5px', marginTop: '0' }}>Simulador de Fantasía</h3>
-
-                            {/* Main Chart */}
-                            <IonCard>
-                                <IonCardHeader>
-                                    <IonCardSubtitle>{selectedAsset?.symbol}</IonCardSubtitle>
-                                    <IonCardTitle>
-                                        {selectedAsset?.name}
-                                        <span style={{ float: 'right', color: selectedAsset?.history[selectedAsset.history.length - 1] > selectedAsset?.history[selectedAsset.history.length - 2] ? '#2dd36f' : '#eb445a', fontSize: '0.8em' }}>
-                                            {selectedAsset?.price.toFixed(2)}
-                                            <IonIcon icon={selectedAsset?.history[selectedAsset.history.length - 1] > selectedAsset?.history[selectedAsset.history.length - 2] ? arrowUp : arrowDown} />
-                                        </span>
-                                    </IonCardTitle>
-                                </IonCardHeader>
-                                <div style={{ height: '30vh', padding: '10px' }}>
-                                    {selectedAsset && <Line data={chartData} options={chartOptions} />}
-                                </div>
-                            </IonCard>
-
-                            {/* Asset List Selector */}
-                            <div style={{ maxHeight: '40vh', overflowY: 'auto' }}>
-                                {assets.map(asset => {
-                                    const isUp = asset.history[asset.history.length - 1] > asset.history[asset.history.length - 2];
+                            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                                {cryptoAssets.map(asset => {
+                                    const isUp = asset.change_24h_percent >= 0;
                                     return (
                                         <IonCard
                                             key={asset.id}
                                             button
-                                            onClick={() => setSelectedAssetId(asset.id)}
-                                            color={selectedAssetId === asset.id ? 'medium' : undefined}
+                                            onClick={() => setSelectedAsset(asset)}
+                                            color={selectedAsset?.id === asset.id ? 'medium' : undefined}
                                             style={{ margin: '5px 0' }}
                                         >
                                             <div style={{ padding: '10px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -146,9 +119,9 @@ const GlobalMarketPage: React.FC = () => {
                                                     <div style={{ fontSize: '0.8em', opacity: 0.7 }}>{asset.name}</div>
                                                 </div>
                                                 <div style={{ textAlign: 'right' }}>
-                                                    <div style={{ fontWeight: 'bold' }}>{asset.price.toFixed(2)}</div>
+                                                    <div style={{ fontWeight: 'bold' }}>{asset.price.toLocaleString()} €</div>
                                                     <IonText color={isUp ? 'success' : 'danger'} style={{ fontSize: '0.8em' }}>
-                                                        {isUp ? '+' : ''}{((asset.price - asset.history[asset.history.length - 2]) / asset.history[asset.history.length - 2] * 100).toFixed(2)}%
+                                                        {isUp ? '▲' : '▼'} {Math.abs(asset.change_24h_percent).toFixed(2)}%
                                                     </IonText>
                                                 </div>
                                             </div>
@@ -156,6 +129,78 @@ const GlobalMarketPage: React.FC = () => {
                                     );
                                 })}
                             </div>
+
+                            <div style={{ marginTop: '30px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', marginLeft: '5px' }}>
+                                    <IonIcon icon={newspaperOutline} style={{ marginRight: '10px' }} />
+                                    <h3 style={{ margin: 0 }}>Noticias</h3>
+                                </div>
+                                <NewsWidget />
+                            </div>
+                        </IonCol>
+
+                        {/* RIGHT COLUMN: DETAIL & SEARCH */}
+                        <IonCol size="12" sizeMd="8">
+                            {/* SEARCH BAR */}
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <IonSearchbar
+                                    placeholder="Buscar acción (ej. AAPL, TSLA)"
+                                    value={searchTerm}
+                                    onIonInput={e => setSearchTerm(e.detail.value!)}
+                                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                                    animated
+                                />
+                                <IonButton onClick={handleSearch} disabled={searchLoading}>
+                                    {searchLoading ? <IonSpinner name="dots" /> : <IonIcon icon={searchOutline} />}
+                                </IonButton>
+                            </div>
+
+                            {/* MAIN CHART CARD */}
+                            <IonCard style={{ minHeight: '400px' }}>
+                                {selectedAsset ? (
+                                    <>
+                                        <IonCardHeader>
+                                            <IonCardSubtitle>{selectedAsset.type === 'crypto' ? 'Criptomoneda' : 'Stock (USA)'}</IonCardSubtitle>
+                                            <IonCardTitle style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span>
+                                                    {selectedAsset.name} <span style={{ fontSize: '0.6em', opacity: 0.7 }}>({selectedAsset.symbol})</span>
+                                                </span>
+                                                <span style={{
+                                                    color: selectedAsset.change_24h_percent >= 0 ? '#2dd36f' : '#eb445a',
+                                                    fontSize: '0.9em'
+                                                }}>
+                                                    {selectedAsset.price.toLocaleString()} {selectedAsset.type === 'crypto' ? '€' : '$'}
+                                                    <IonIcon icon={selectedAsset.change_24h_percent >= 0 ? arrowUp : arrowDown} style={{ marginLeft: '5px' }} />
+                                                </span>
+                                            </IonCardTitle>
+                                        </IonCardHeader>
+                                        <div style={{ height: '350px', padding: '15px' }}>
+                                            {buildChartData() ? (
+                                                <Line data={buildChartData()!} options={chartOptions} />
+                                            ) : (
+                                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', flexDirection: 'column', opacity: 0.5 }}>
+                                                    <IonIcon icon={pricetagOutline} size="large" />
+                                                    <p>Gráfico no disponible para este activo</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                        <p>Selecciona un activo o busca una acción</p>
+                                    </div>
+                                )}
+                            </IonCard>
+
+                            {/* IF SEARCHED ASSET EXISTS BUT NOT SAVED */}
+                            {searchedAsset && searchedAsset.id !== selectedAsset?.id && (
+                                <IonCard color="light" button onClick={() => setSelectedAsset(searchedAsset)}>
+                                    <div style={{ padding: '15px' }}>
+                                        <strong>Resultado:</strong> {searchedAsset.name} ({searchedAsset.symbol}) - {searchedAsset.price} $
+                                    </div>
+                                </IonCard>
+                            )}
+
                         </IonCol>
                     </IonRow>
                 </IonGrid>

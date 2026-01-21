@@ -4,7 +4,7 @@ import { add } from 'ionicons/icons';
 import { getBudgets, upsertBudget, type Budget } from '../services/budgetService';
 import { getTransactions } from '../services/transactionService';
 import BudgetModal from '../components/BudgetModal';
-import { useTranslation } from 'react-i18next';
+
 
 const Budgets: React.FC = () => {
     const [budgets, setBudgets] = useState<Budget[]>([]);
