@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon, IonButtons, IonMenuButton } from '@ionic/react';
+import { IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon } from '@ionic/react';
 import { documentTextOutline, cloudUploadOutline } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import { useNavigate } from 'react-router-dom';
@@ -49,16 +49,8 @@ const Settings: React.FC = () => {
     };
 
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonButtons slot="start">
-                        <IonMenuButton />
-                    </IonButtons>
-                    <IonTitle>{t('settings.title')}</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding">
+        <div style={{ height: '100%', overflowY: 'auto' }}>
+            <div className="ion-padding">
                 <h2>{t('settings.title')}</h2>
 
                 <IonList>
@@ -130,8 +122,8 @@ const Settings: React.FC = () => {
                 </IonButton>
 
                 <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} />
-            </IonContent>
-        </IonPage>
+            </div>
+        </div>
     );
 };
 

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
-import { IonApp, setupIonicReact, IonLoading } from '@ionic/react';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { IonApp, setupIonicReact } from '@ionic/react';
 import MainTabs from './components/MainTabs';
 import Menu from './components/Menu';
 
@@ -27,8 +25,12 @@ import './theme/variables.css';
 import { recurringService } from './services/recurring.service';
 import { supabase } from './supabaseClient';
 import type { Session } from '@supabase/supabase-js';
+import AuthPage from './pages/AuthPage';
 
-setupIonicReact();
+setupIonicReact({
+  mode: 'md', // Material Design mode (no iOS swipe animations)
+  animated: false // Disable ALL transition animations
+});
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -36,28 +38,29 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
+    console.log("[APP v2.0] Initialization starting - FIREFOX FIX");
 
-    // GUARANTEED 3-SECOND MAXIMUM - App WILL load no matter what
+    // ULTRA-AGGRESSIVE 1 SECOND TIMEOUT - FIREFOX EDITION
     const forceLoadTimeout = setTimeout(() => {
-      console.warn("[EMERGENCY TIMEOUT] Forcing app load after 3 seconds");
-      if (mounted) setLoading(false);
-    }, 3000);
+      console.error("[FIREFOX FIX] FORCING APP LOAD NOW!");
+      if (mounted) {
+        setLoading(false);
+      }
+    }, 1000);
 
     const initApp = async () => {
       try {
-        // 1. Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
 
         if (mounted) {
-          if (error) console.error("Session check error:", error);
+          if (error) console.error("Session error:", error);
           setSession(initialSession);
         }
 
-        // 2. Process recurring transactions (Non-blocking)
-        recurringService.processDueRecurrences().catch(e => console.warn("Recurring task error:", e));
+        recurringService.processDueRecurrences().catch(e => console.warn("Recurring:", e));
 
       } catch (err) {
-        console.error("Critical App Init Error:", err);
+        console.error("Init error:", err);
       } finally {
         if (mounted) {
           clearTimeout(forceLoadTimeout);
@@ -68,11 +71,10 @@ const App: React.FC = () => {
 
     initApp();
 
-    // 3. Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (mounted) {
         setSession(newSession);
-        setLoading(false); // Ensure loading is off on auth change
+        setLoading(false);
       }
     });
 
@@ -86,9 +88,20 @@ const App: React.FC = () => {
   if (loading) {
     return (
       <IonApp>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', flexDirection: 'column' }}>
-          <IonLoading isOpen={true} message="Cargando..." spinner="crescent" />
-          <p style={{ marginTop: '20px', color: '#666' }}>Iniciando aplicación...</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', flexDirection: 'column', backgroundColor: '#121212' }}>
+          {/* Use standard HTML spinner to avoid Ionic Portal issues sticking on screen */}
+          <div className="simple-spinner" style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #333',
+            borderTop: '4px solid #3880ff',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <style>{`
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          `}</style>
+          <p style={{ marginTop: '20px', color: '#666', fontFamily: 'sans-serif' }}>Iniciando...</p>
         </div>
       </IonApp>
     );
@@ -112,8 +125,8 @@ const App: React.FC = () => {
           </>
         ) : (
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/register" element={<Navigate to="/login" />} />
             <Route path="/app/*" element={<Navigate to="/login" />} />
             <Route path="/" element={<Navigate to="/login" />} />
           </Routes>

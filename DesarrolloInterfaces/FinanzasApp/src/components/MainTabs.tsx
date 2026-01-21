@@ -1,65 +1,66 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IonTabBar, IonTabButton, IonIcon, IonLabel, IonPage, IonFooter } from '@ionic/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { pieChartOutline, listOutline, settingsOutline, walletOutline, trendingUpOutline } from 'ionicons/icons';
+import { pieChartOutline, walletOutline, trendingUpOutline, personCircleOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 
 import Dashboard from '../pages/Dashboard';
-import Transactions from '../pages/Transactions';
-import Settings from '../pages/Settings';
-import ProfilePage from '../pages/Profile';
-import Budgets from '../pages/Budgets';
-import FantasyMarket from '../pages/FantasyMarket';
-import RecurringTransactions from '../pages/RecurringTransactions';
+import FinancesPage from '../pages/FinancesPage';
+import GlobalMarketPage from '../pages/GlobalMarketPage';
+import AccountPage from '../pages/AccountPage';
 
 const MainTabs: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const validTabs = ['dashboard', 'transactions', 'budgets', 'market', 'settings', 'profile', 'recurring'];
+    // Valid tabs for the new structure
+    const validTabs = ['dashboard', 'finances', 'market', 'account'];
     let currentTab = location.pathname.split('/').pop() || 'dashboard';
 
-    // Prevent blank screen by validating tab
-    if (!validTabs.includes(currentTab)) {
-        console.warn('Invalid tab detected:', currentTab, 'Redirecting to dashboard...');
-        // We can't navigate immediately during render, but we can default the view to dashboard 
-        // while the useEffect (if we added one) or this fallback handles it visually.
-        // For visual stability, let's default to dashboard if invalid
-        currentTab = 'dashboard';
-
-        // Optional: Force URL sync if needed, but visual fallback is critical first
-        if (currentTab !== 'app') { // don't loop indefinitely
-            // Use a timeout to avoid render-cycle warning if we wanted to navigate, 
-            // but visually overriding is safer and faster.
+    // Auto-redirect valid old routes to new containers
+    useEffect(() => {
+        const path = location.pathname;
+        if (path.includes('/transactions') || path.includes('/budgets') || path.includes('/recurring')) {
+            // These are now sub-tabs of FinancesPage, handled internally by state, 
+            // but for main nav highlighting we treat them as 'finances'
+            // NOTE: Deep linking to sub-tabs inside FinancesPage would require passing props or context,
+            // for now, we just ensure the MainTab highlights 'Finances'.
         }
+    }, [location.pathname]);
+
+    // Safety check
+    if (!validTabs.includes(currentTab)) {
+        // If it's one of the old routes, map it visually to the new parent
+        if (['transactions', 'budgets', 'recurring'].includes(currentTab)) currentTab = 'finances';
+        else if (['profile', 'settings'].includes(currentTab)) currentTab = 'account';
+        else currentTab = 'dashboard';
     }
 
-    console.log('MainTabs Render:', { path: location.pathname, calculatedTab: currentTab });
-
     return (
-        <IonPage style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div style={{ flex: 1, overflow: 'hidden', position: 'relative', width: '100%' }}>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'dashboard' ? 'block' : 'none' }}>
-                    <Dashboard />
+        <IonPage style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', zIndex: 1000, boxSizing: 'border-box', position: 'absolute', top: 0, left: 0 }}>
+            <div style={{ flex: '1 1 auto', overflow: 'hidden', position: 'relative', width: '100%', display: 'flex', flexDirection: 'column' }}>
+
+                {/* 1. DASHBOARD */}
+                <div style={{ flex: 1, width: '100%', display: currentTab === 'dashboard' ? 'flex' : 'none', flexDirection: 'column' }}>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <Dashboard />
+                    </div>
                 </div>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'transactions' ? 'block' : 'none' }}>
-                    <Transactions />
+
+                {/* 2. FINANCES (Unified) */}
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'finances' ? 'block' : 'none' }}>
+                    <FinancesPage />
                 </div>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'budgets' ? 'block' : 'none' }}>
-                    <Budgets />
-                </div>
+
+                {/* 3. MARKET (Unified) */}
                 <div style={{ width: '100%', height: '100%', display: currentTab === 'market' ? 'block' : 'none' }}>
-                    <FantasyMarket />
+                    <GlobalMarketPage />
                 </div>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'settings' ? 'block' : 'none' }}>
-                    <Settings />
-                </div>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'profile' ? 'block' : 'none' }}>
-                    <ProfilePage />
-                </div>
-                <div style={{ width: '100%', height: '100%', display: currentTab === 'recurring' ? 'block' : 'none' }}>
-                    <RecurringTransactions />
+
+                {/* 4. ACCOUNT (Unified) */}
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'account' ? 'block' : 'none' }}>
+                    <AccountPage />
                 </div>
             </div>
 
@@ -70,21 +71,17 @@ const MainTabs: React.FC = () => {
                             <IonIcon icon={pieChartOutline} />
                             <IonLabel>{t('app.dashboard')}</IonLabel>
                         </IonTabButton>
-                        <IonTabButton tab="transactions" selected={currentTab === 'transactions'} onClick={(e) => { e.preventDefault(); navigate('/app/transactions'); }}>
-                            <IonIcon icon={listOutline} />
-                            <IonLabel>{t('app.transactions')}</IonLabel>
+                        <IonTabButton tab="finances" selected={currentTab === 'finances'} onClick={(e) => { e.preventDefault(); navigate('/app/finances'); }}>
+                            <IonIcon icon={walletOutline} />
+                            <IonLabel>Finanzas</IonLabel>
                         </IonTabButton>
                         <IonTabButton tab="market" selected={currentTab === 'market'} onClick={(e) => { e.preventDefault(); navigate('/app/market'); }}>
                             <IonIcon icon={trendingUpOutline} />
                             <IonLabel>Mercado</IonLabel>
                         </IonTabButton>
-                        <IonTabButton tab="budgets" selected={currentTab === 'budgets'} onClick={(e) => { e.preventDefault(); navigate('/app/budgets'); }}>
-                            <IonIcon icon={walletOutline} />
-                            <IonLabel>{t('app.budgets')}</IonLabel>
-                        </IonTabButton>
-                        <IonTabButton tab="settings" selected={currentTab === 'settings'} onClick={(e) => { e.preventDefault(); navigate('/app/settings'); }}>
-                            <IonIcon icon={settingsOutline} />
-                            <IonLabel>{t('app.settings')}</IonLabel>
+                        <IonTabButton tab="account" selected={currentTab === 'account'} onClick={(e) => { e.preventDefault(); navigate('/app/account'); }}>
+                            <IonIcon icon={personCircleOutline} />
+                            <IonLabel>Cuenta</IonLabel>
                         </IonTabButton>
                     </IonTabBar>
                 </IonFooter>

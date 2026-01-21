@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonRefresher, IonRefresherContent, type RefresherEventDetail, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail, IonButtons, IonMenuButton } from '@ionic/react';
+import { IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../services/transactionService';
 import type { Transaction } from '../types';
@@ -30,10 +30,7 @@ const Transactions: React.FC = () => {
         loadData();
     }, []);
 
-    const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
-        await loadData();
-        event.detail.complete();
-    };
+
 
     const handleSave = async (transactionData: Partial<Transaction> & { imageFile?: File }) => {
         try {
@@ -95,83 +92,69 @@ const Transactions: React.FC = () => {
     };
 
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonButtons slot="start">
-                        <IonMenuButton />
-                    </IonButtons>
-                    <IonTitle>{t('transactions.title')}</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding">
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-                    <IonRefresherContent />
-                </IonRefresher>
+        <div style={{ height: '100%', overflowY: 'auto' }}>
+            {loading && (
+                <div className="ion-text-center ion-padding">
+                    <IonSpinner name="crescent" />
+                    <p>Cargando movimientos...</p>
+                </div>
+            )}
 
-                {loading && (
+            <IonList style={{ background: 'transparent' }}>
+                {transactions.map(t => (
+                    <IonItemSliding key={t.id}>
+                        <IonItem button onClick={() => openEditModal(t)}>
+                            {t.image_url && (
+                                <IonThumbnail slot="start">
+                                    <img src={t.image_url} alt="Recibo" />
+                                </IonThumbnail>
+                            )}
+                            <IonLabel>
+                                <h2>{t.description}</h2>
+                                <p>{t.category} - {new Date(t.date).toLocaleDateString()}</p>
+                            </IonLabel>
+                            <IonNote slot="end" color={t.type === 'income' ? 'success' : 'danger'}>
+                                {t.type === 'income' ? '+' : '-'}{t.amount.toFixed(2)} €
+                            </IonNote>
+                        </IonItem>
+                        <IonItemOptions side="end">
+                            <IonItemOption color="danger" onClick={() => confirmDelete(t.id!)}>
+                                <IonIcon slot="icon-only" icon={trash} />
+                            </IonItemOption>
+                        </IonItemOptions>
+                    </IonItemSliding>
+                ))}
+                {!loading && transactions.length === 0 && (
                     <div className="ion-text-center ion-padding">
-                        <IonSpinner name="crescent" />
-                        <p>Cargando movimientos...</p>
+                        <p>{t('transactions.empty')}</p>
                     </div>
                 )}
+            </IonList>
 
-                <IonList>
-                    {transactions.map(t => (
-                        <IonItemSliding key={t.id}>
-                            <IonItem button onClick={() => openEditModal(t)}>
-                                {t.image_url && (
-                                    <IonThumbnail slot="start">
-                                        <img src={t.image_url} alt="Recibo" />
-                                    </IonThumbnail>
-                                )}
-                                <IonLabel>
-                                    <h2>{t.description}</h2>
-                                    <p>{t.category} - {new Date(t.date).toLocaleDateString()}</p>
-                                </IonLabel>
-                                <IonNote slot="end" color={t.type === 'income' ? 'success' : 'danger'}>
-                                    {t.type === 'income' ? '+' : '-'}{t.amount.toFixed(2)} €
-                                </IonNote>
-                            </IonItem>
-                            <IonItemOptions side="end">
-                                <IonItemOption color="danger" onClick={() => confirmDelete(t.id!)}>
-                                    <IonIcon slot="icon-only" icon={trash} />
-                                </IonItemOption>
-                            </IonItemOptions>
-                        </IonItemSliding>
-                    ))}
-                    {!loading && transactions.length === 0 && (
-                        <div className="ion-text-center ion-padding">
-                            <p>{t('transactions.empty')}</p>
-                        </div>
-                    )}
-                </IonList>
+            <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{ marginBottom: '60px', marginRight: '10px' }}>
+                <IonFabButton onClick={openCreateModal}>
+                    <IonIcon icon={add} />
+                </IonFabButton>
+            </IonFab>
 
-                <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                    <IonFabButton onClick={openCreateModal}>
-                        <IonIcon icon={add} />
-                    </IonFabButton>
-                </IonFab>
+            <TransactionModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onSave={handleSave}
+                initialData={selectedTransaction}
+            />
 
-                <TransactionModal
-                    isOpen={showModal}
-                    onClose={() => setShowModal(false)}
-                    onSave={handleSave}
-                    initialData={selectedTransaction}
-                />
-
-                <IonAlert
-                    isOpen={showAlert}
-                    onDidDismiss={() => setShowAlert(false)}
-                    header={t('transactions.confirmDelete')}
-                    message={t('transactions.deleteMessage')}
-                    buttons={[
-                        { text: t('transactions.cancel'), role: 'cancel', handler: () => setTransactionToDelete(null) },
-                        { text: t('transactions.delete'), handler: handleDelete }
-                    ]}
-                />
-            </IonContent>
-        </IonPage>
+            <IonAlert
+                isOpen={showAlert}
+                onDidDismiss={() => setShowAlert(false)}
+                header={t('transactions.confirmDelete')}
+                message={t('transactions.deleteMessage')}
+                buttons={[
+                    { text: t('transactions.cancel'), role: 'cancel', handler: () => setTransactionToDelete(null) },
+                    { text: t('transactions.delete'), handler: handleDelete }
+                ]}
+            />
+        </div>
     );
 };
 

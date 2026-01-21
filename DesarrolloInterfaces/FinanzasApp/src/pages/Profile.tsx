@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast, IonButtons, IonBackButton, IonMenuButton } from '@ionic/react';
+import { IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast } from '@ionic/react';
 import { getProfile, updateProfile, uploadAvatar } from '../services/profileService';
-// import type { Profile } from '../types';
 import { useTranslation } from 'react-i18next';
 
 const ProfilePage: React.FC = () => {
@@ -68,17 +67,8 @@ const ProfilePage: React.FC = () => {
     };
 
     return (
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonButtons slot="start">
-                        <IonMenuButton />
-                        <IonBackButton defaultHref="/app/settings" />
-                    </IonButtons>
-                    <IonTitle>{t('profile.title')}</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent className="ion-padding">
+        <div style={{ height: '100%', overflowY: 'auto', paddingBottom: '20px' }}>
+            <div className="ion-padding">
                 <div className="ion-text-center ion-margin-bottom">
                     <IonAvatar style={{ width: '6rem', height: '6rem', margin: '0 auto' }}>
                         <img src={avatarUrl || 'https://ionicframework.com/docs/img/demos/avatar.svg'} alt="Avatar" />
@@ -107,8 +97,8 @@ const ProfilePage: React.FC = () => {
                     </div>
                 )}
                 <IonToast isOpen={showToast} message={toastMessage} duration={2000} onDidDismiss={() => setShowToast(false)} />
-            </IonContent>
-        </IonPage>
+            </div>
+        </div>
     );
 };
 

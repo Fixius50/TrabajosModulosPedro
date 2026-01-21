@@ -11,7 +11,7 @@ import {
 } from '@ionic/react';
 
 import { useLocation } from 'react-router-dom';
-import { pieChartOutline, listOutline, settingsOutline, walletOutline, trendingUpOutline, personOutline, repeatOutline } from 'ionicons/icons';
+import { pieChartOutline, walletOutline, trendingUpOutline, personOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import './Menu.css';
 
@@ -34,40 +34,22 @@ const Menu: React.FC = () => {
             mdIcon: pieChartOutline
         },
         {
-            title: t('app.transactions') || 'Movimientos',
-            url: '/app/transactions',
-            iosIcon: listOutline,
-            mdIcon: listOutline
-        },
-        {
-            title: t('app.budgets') || 'Presupuestos',
-            url: '/app/budgets',
+            title: 'Finanzas',
+            url: '/app/finances',
             iosIcon: walletOutline,
             mdIcon: walletOutline
         },
         {
-            title: 'Mercado Fantasía',
+            title: 'Mercado',
             url: '/app/market',
             iosIcon: trendingUpOutline,
             mdIcon: trendingUpOutline
         },
         {
-            title: t('app.settings') || 'Ajustes',
-            url: '/app/settings',
-            iosIcon: settingsOutline,
-            mdIcon: settingsOutline
-        },
-        {
-            title: 'Perfil',
-            url: '/app/profile',
+            title: 'Cuenta',
+            url: '/app/account',
             iosIcon: personOutline,
             mdIcon: personOutline
-        },
-        {
-            title: 'Recurrentes',
-            url: '/app/recurring',
-            iosIcon: repeatOutline,
-            mdIcon: repeatOutline
         }
     ];
 
