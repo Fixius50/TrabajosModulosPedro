@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             --text: #1e293b;
             --card-bg: #ffffff;
         }
+
         body {
             font-family: system-ui, -apple-system, sans-serif;
             line-height: 1.6;
@@ -19,19 +21,30 @@
             margin: 0;
             padding: 2rem;
         }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
         }
+
         header {
             text-align: center;
             margin-bottom: 3rem;
             padding-bottom: 2rem;
             border-bottom: 1px solid #e2e8f0;
         }
-        h1 { font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem; }
-        .subtitle { color: #64748b; font-size: 1.1rem; }
-        
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
         section {
             background: var(--card-bg);
             padding: 2rem;
@@ -39,9 +52,19 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             margin-bottom: 2rem;
         }
-        
-        h2 { color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; }
-        
+
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: #475569;
+            margin-top: 1.5rem;
+        }
+
+        /* Bitácora Styles */
         .prompt-card {
             background: #f1f5f9;
             border-left: 4px solid var(--primary);
@@ -49,8 +72,16 @@
             margin: 1.5rem 0;
             border-radius: 0 8px 8px 0;
         }
-        .prompt-text { font-style: italic; color: #475569; }
-        .implementation { margin-top: 1rem; }
+
+        .prompt-text {
+            font-style: italic;
+            color: #475569;
+        }
+
+        .implementation {
+            margin-top: 1rem;
+        }
+
         .tag {
             display: inline-block;
             background: #dbeafe;
@@ -60,7 +91,27 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
-        
+
+        /* Feature Cards Styles */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .feature-card h4 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+        }
+
         footer {
             text-align: center;
             margin-top: 4rem;
@@ -69,93 +120,216 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
             <h1>ServerMonitorApp</h1>
             <div class="subtitle">Infraestructura Híbrida de Monitorización (Next.js + Supabase + Docker)</div>
+            <p><strong>Versión:</strong> 1.0.0 | <strong>Estado:</strong> <span
+                    style="color:#16a34a; font-weight:bold;">Completado</span></p>
         </header>
 
         <section id="vision">
             <h2>1. Visión y Estrategia</h2>
-            <p><strong>ServerMonitorApp</strong> es una aplicación de monitorización y gestión de infraestructura diseñada para controlar servidores remotos (nodos en contenedores) alojados en una Máquina Virtual Local (o VPS) desde un panel web centralizado en la nube.</p>
+            <p><strong>ServerMonitorApp</strong> es un dashboard de control centralizado para infraestructura remota.
+                Permite visualizar métricas en tiempo real, gestionar contenedores Docker y controlar servidores via
+                RPC, todo bajo una interfaz moderna y segura.</p>
             <ul>
-                <li><strong>Infraestructura</strong>: MV Local (Ubuntu Server 24.04 LTS) con Cloudflare Tunnel.</li>
-                <li><strong>Backend</strong>: Agente Node.js + Supabase (Self-hosted).</li>
-                <li><strong>Frontend</strong>: Next.js + Tremor (Visualización de datos en tiempo real).</li>
+                <li><strong>Infraestructura</strong>: MV Local (192.168.1.155) / VPS Ubuntu 24.04 con Cloudflare Tunnel.
+                </li>
+                <li><strong>Backend</strong>: Agente Node.js + Supabase (Self-hosted) + Edge Functions.</li>
+                <li><strong>Frontend</strong>: Next.js 14 + Tremor UI + Tailwind CSS.</li>
             </ul>
         </section>
 
+        <section id="features">
+            <h2>2. Características Destacadas (v1.0)</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎨 Interfaz Premium & Temas</h4>
+                    <p>Dashboard reactivo con <strong>Modo Oscuro/Claro</strong> automático. Diseño tipo "Glassmorphism"
+                        con animaciones suaves.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎲 Modo Simulación</h4>
+                    <p>Permite demo offline usando <code>mockData.ts</code>. Genera métricas sinusoidal realistas y
+                        simula un entorno Docker activo.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🌐 Monitorización Externa</h4>
+                    <p>Integración con <strong>GitHub/NPM Status</strong> y <strong>Security Feed (CVEs)</strong>
+                        mediante Proxy interno para evitar CORS.</p>
+                </div>
+            </div>
+        </section>
+
         <section id="bitacora">
-            <h2>2. Bitácora de Desarrollo</h2>
-            
+            <h2>3. Bitácora de Desarrollo</h2>
+
             <div class="entry">
                 <div class="prompt-card">
-                    <div class="prompt-text">"¿Qué vamos a hacer hoy? (He analizado el PDF y estoy listo para crear el Manifiesto y el Hito 1 de infraestructura)."</div>
+                    <div class="prompt-text">"¿Qué vamos a hacer hoy? (He analizado el PDF y estoy listo para crear el
+                        Manifiesto y el Hito 1 de infraestructura)."</div>
                 </div>
                 <div class="implementation">
                     <span class="tag">Inicio del Proyecto</span>
-                    <p>Se inicializó la estructura del proyecto y se creó el <code>manifiesto.md</code> definiendo la arquitectura híbrida (Vercel + Oracle Cloud/Local VM).</p>
+                    <p>Se inicializó la estructura del proyecto y se creó el <code>manifiesto.md</code>.</p>
                 </div>
             </div>
 
             <div class="entry">
                 <div class="prompt-card">
-                    <div class="prompt-text">"he cambiado donde se aloja el servidor, esta vez en una mv local. Aquí te paso la info..."</div>
+                    <div class="prompt-text">"he cambiado donde se aloja el servidor, esta vez en una mv local..."</div>
                 </div>
                 <div class="implementation">
                     <span class="tag">Re-Planificación</span>
-                    <p>Adaptación del Manifiesto y credenciales para usar una MV Local (192.168.2.154) en lugar de Oracle Cloud. Se guardaron las credenciales en <code>Docs/credentials_local.md</code>.</p>
+                    <p>Adaptación de credenciales para usar MV Local (192.168.2.154).</p>
                 </div>
             </div>
 
             <div class="entry">
                 <div class="prompt-card">
-                    <div class="prompt-text">"investiga apis que te he dejado en el archivo de Investigador.txt PARA aplicarlo bien"</div>
+                    <div class="prompt-text">"investiga apis que te he dejado en el archivo de Investigador.txt PARA
+                        aplicarlo bien"</div>
                 </div>
                 <div class="implementation">
                     <span class="tag">Investigación</span>
-                    <p>Se incorporó la API de Geolocalización (<code>ip-api.com</code>) al Dashboard para mostrar datos ricos del host, basado en las referencias de investigación.</p>
+                    <p>Incorporación de API de Geolocalización (<code>ip-api.com</code>).</p>
                 </div>
             </div>
 
-             <div class="entry">
-                <div class="prompt-card">
-                    <div class="prompt-text">"si, de la base de datos como se esta compartiendo con otros proyectos altera tablas si existen o crea nuevas usando un numero..."</div>
-                </div>
-                <div class="implementation">
-                    <span class="tag">Backend Logic</span>
-                    <ul>
-                        <li>Diseño de Schema SQL con prefijo <code>sm_</code> para evitar colisiones.</li>
-                        <li>Desarrollo del Agente Node.js (<code>agent/index.js</code>) para reportar métricas y controlar Docker.</li>
-                    </ul>
-                </div>
-            </div>
-            
-             <div class="entry">
+            <div class="entry">
                 <div class="prompt-card">
                     <div class="prompt-text">"me sale esto (Screenshots de éxito)"</div>
                 </div>
                 <div class="implementation">
                     <span class="tag">Verificación Final</span>
-                    <ul>
-                        <li>Validación visual del Dashboard funcionando.</li>
-                        <li>Corrección de dependencias (<code>dockerode</code>) en el Agente.</li>
-                        <li>Generación de documentación técnica final.</li>
-                    </ul>
+                    <p>Validación visual del Dashboard funcionando y corrección de dependencias.</p>
+                </div>
+            </div>
+
+            <!-- Nuevas Entradas (Sesión Actual) -->
+            <div class="entry">
+                <div class="prompt-card">
+                    <div class="prompt-text">"opción para simular datos y modo claro/oscuro"</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">Frontend Feature</span>
+                    <p>
+                        - Implementado <strong>Modo Simulación</strong> con generador de datos local
+                        (`mockData.ts`).<br>
+                        - Implementado <strong>Cambio de Tema</strong> (Light/Dark) con `next-themes`.
+                    </p>
+                </div>
+            </div>
+
+            <div class="entry">
+                <div class="prompt-card">
+                    <div class="prompt-text">"aplicame la de github y la de CVes"</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">API Integration</span>
+                    <p>
+                        - Creación de <code>ExternalStatus.tsx</code> para GitHub/NPM status.<br>
+                        - Creación de <code>SecurityFeed.tsx</code> para lista de CVEs.<br>
+                        - Integración en Dashboard (Layout Grid Footer).
+                    </p>
+                </div>
+            </div>
+
+            <div class="entry">
+                <div class="prompt-card">
+                    <div class="prompt-text">"sigue cargando el CVES... he montado al final una vm local..."</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">Bugfix & Config</span>
+                    <p>
+                        - <strong>Fix CORS:</strong> Implementado Proxy API (`/api/cve`) para peticiones externas.<br>
+                        - <strong>Fix Disk Usage:</strong> Parsing dinámico de métricas de disco.<br>
+                        - Actualización de `.env.local` para nueva IP (192.168.1.155).
+                    </p>
+                </div>
+            </div>
+
+            <div class="entry">
+                <div class="prompt-card">
+                    <div class="prompt-text">"documenta esto: ¡Excelente decisión! Con el espacio en disco
+                        solucionado..."</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">Documentation</span>
+                    <p>Inclusión de la <strong>Guía de Instalación desde Cero</strong> para despliegue en VM limpia.</p>
                 </div>
             </div>
 
         </section>
 
-        <section id="tecnologia">
-            <h2>3. Stack Tecnológico</h2>
-            <ul>
-                <li><strong>Frontend:</strong> Next.js 14 (App Router), Tailwind CSS, Tremor Components.</li>
-                <li><strong>Backend:</strong> Supabase (PostgreSQL + Realtime), Node.js (Agente).</li>
-                <li><strong>Infraestructura:</strong> Docker, Cloudflare Tunnel.</li>
-                <li><strong>Herramientas IA:</strong> Google AI Studio (Modelos Thinking).</li>
-            </ul>
+        <section id="instalacion">
+            <h2>4. Guía de Instalación (Clean Install)</h2>
+            <p>Procedimiento para desplegar el backend y agente en una VM Ubuntu limpia (192.168.1.155).</p>
+
+            <h3>1️⃣ Requisitos del Sistema</h3>
+            <pre style="background:#1e293b; color:#cbd5e1; padding:15px; border-radius:8px; overflow-x:auto;"><code># Actualizar sistema e instalar Docker/Node
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io nodejs npm curl
+
+# Configurar permisos de Docker
+sudo usermod -aG docker $USER
+newgrp docker</code></pre>
+
+            <h3>2️⃣ Backend (Supabase)</h3>
+            <pre style="background:#1e293b; color:#cbd5e1; padding:15px; border-radius:8px; overflow-x:auto;"><code># Instalar CLI y arrancar
+mkdir -p ~/ServerMonitorApp && cd ~/ServerMonitorApp
+curl -L https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz -o supabase.tar.gz
+tar -xf supabase.tar.gz && sudo mv supabase /usr/local/bin/
+
+supabase init
+supabase start</code></pre>
+            <p><em>Nota: Copia la <code>service_role key</code> y la <code>API URL</code> que aparecen al
+                    finalizar.</em></p>
+
+            <h3>3️⃣ Aplicar Esquema SQL</h3>
+            <p>Accede a <a href="http://192.168.1.155:54323" target="_blank">http://192.168.1.155:54323</a> -> SQL
+                Editor y ejecuta el script <code>schema.sql</code>.</p>
+
+            <h3>4️⃣ Agente de Monitorización</h3>
+            <pre style="background:#1e293b; color:#cbd5e1; padding:15px; border-radius:8px; overflow-x:auto;"><code>mkdir -p ~/ServerMonitorApp/agent && cd ~/ServerMonitorApp/agent
+npm init -y
+npm install @supabase/supabase-js os-utils
+
+# Crear index.js (Ver archivo del proyecto para contenido completo)
+# Recuerda poner tu URL y SERVICE_ROLE_KEY</code></pre>
+
+            <h3>5️⃣ Persistencia (PM2)</h3>
+            <pre style="background:#1e293b; color:#cbd5e1; padding:15px; border-radius:8px; overflow-x:auto;"><code>sudo npm install -g pm2
+pm2 start index.js --name "agente-servidor"
+pm2 save
+pm2 startup</code></pre>
+        </section>
+
+        <section id="accesos">
+            <h2>5. Resumen de Acceso (Entorno Local)</h2>
+            <div class="feature-card" style="background: #1e293b; color: white; border: none;">
+                <h4 style="color: #60a5fa; margin-bottom: 15px;">📝 Datos de Conexión (VM: 192.168.1.155)</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;">
+                        <strong>🩺 Dashboard (Studio):</strong><br>
+                        <a href="http://192.168.1.155:54323" target="_blank"
+                            style="color: #38bdf8; text-decoration: none;">http://192.168.1.155:54323</a>
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <strong>🔌 API URL (Supabase):</strong><br>
+                        <code style="background: #334155; color: #e2e8f0;">http://192.168.1.155:54321</code>
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <strong>🐞 Logs del Agente:</strong><br>
+                        <span style="color: #94a3b8;">Escribe </span><code
+                            style="background: #334155; color: #fbbf24;">pm2 logs</code><span style="color: #94a3b8;">
+                            en la terminal para depurar.</span>
+                    </li>
+                </ul>
+            </div>
         </section>
 
         <footer>
@@ -164,4 +338,5 @@
         </footer>
     </div>
 </body>
+
 </html>

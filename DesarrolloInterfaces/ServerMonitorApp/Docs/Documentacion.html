@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - ServerMonitorApp</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: #2563eb;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #1e40af;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #4b5563;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 5px;
+            rounded: 4px;
+            font-family: monospace;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .log-table th,
+        .log-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .log-table th {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>ServerMonitorApp - Documentación Técnica</h1>
+    <p><strong>Versión:</strong> 1.0.0 | <strong>Estado:</strong> <span class="success">Completado</span></p>
+
+    <h2>1. Visión del Proyecto</h2>
+    <p>
+        <strong>ServerMonitorApp</strong> es un dashboard de control centralizado para infraestructura remota.
+        Permite visualizar métricas en tiempo real, gestionar contenedores Docker y controlar servidores via RPC,
+        todo bajo una interfaz moderna y segura.
+    </p>
+
+    <h2>2. Arquitectura (Híbrida)</h2>
+    <ul>
+        <li><strong>Frontend:</strong> Next.js 14 (App Router) + Tremor UI + Tailwind CSS.</li>
+        <li><strong>Backend:</strong> Supabase (Self-hosted) + Edge Functions.</li>
+        <li><strong>Conectividad:</strong> Cloudflare Tunnel (Zero Trust) para exposición segura.</li>
+        <li><strong>Despliegue:</strong> Vercel (Static Export).</li>
+    </ul>
+
+    <h2>3. Características Implementadas</h2>
+
+    <div class="feature-card">
+        <h3>🎨 Interfaz Premium & Temas</h3>
+        <p>Dashboard reactivo con <strong>Modo Oscuro/Claro</strong> automático. Diseño tipo "Glassmorphism" con
+            animaciones suaves.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>🎲 Modo Simulación</h3>
+        <p>Permite demo offline usando <code>mockData.ts</code>. Genera métricas de ondas sinusoidales realistas y
+            simula un entorno Docker activo sin conexión a DB.</p>
+    </div>
+
+    <div class="feature-card">
+        <h3>🌐 Monitorización Externa</h3>
+        <p>
+            Integración con APIs públicas (sin key) para enriquecer el panel:
+        <ul>
+            <li><strong>Service Status:</strong> Monitorización en vivo de GitHub y NPM.</li>
+            <li><strong>Security Feed:</strong> Listado de últimos CVEs críticos via Proxy interno (bypass CORS).</li>
+        </ul>
+        </p>
+    </div>
+
+    <div class="feature-card">
+        <h3>🛠️ Correcciones Críticas</h3>
+        <p>
+            - <strong>Fix Build:</strong> Soporte híbrido para Static Export + Dynamic API Routes.<br>
+            - <strong>Fix Disk Usage:</strong> Cálculo dinámico de porcentaje de disco.<br>
+            - <strong>Config Local:</strong> Adaptación de <code>.env.local</code> para VM 192.168.1.155.
+        </p>
+    </div>
+
+    <h2>4. Registro de Cambios (Resumen)</h2>
+    <table class="log-table">
+        <tr>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+        </tr>
+        <tr>
+            <td>FEATURE</td>
+            <td>Dashboard Base (Visualizer, Terminal)</td>
+            <td>✅ Completado</td>
+        </tr>
+        <tr>
+            <td>FEATURE</td>
+            <td>Integración Supabase Realtime</td>
+            <td>✅ Completado</td>
+        </tr>
+        <tr>
+            <td>REFACTOR</td>
+            <td>Migración a Next.js 14 & Tremor</td>
+            <td>✅ Completado</td>
+        </tr>
+        <tr>
+            <td>FEATURE</td>
+            <td>External APIs & Security Feed (Proxy)</td>
+            <td>✅ Completado</td>
+        </tr>
+    </table>
+
+    <footer>
+        <p style="margin-top: 50px; text-align: center; color: #999; font-size: 0.8em;">
+            Generado automáticamente por Asistente AI - 2026
+        </p>
+    </footer>
+
+</body>
+
+</html>
