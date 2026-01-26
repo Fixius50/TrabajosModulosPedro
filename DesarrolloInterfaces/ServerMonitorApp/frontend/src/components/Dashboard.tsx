@@ -6,50 +6,65 @@ import TerminalComponent from "./Terminal";
 import HeaderInfo from "./HeaderInfo";
 import ActionPanel from "./ActionPanel";
 import ServerVisualizer from "./ServerVisualizer";
-import { Title, Text } from "@tremor/react";
+import { Title, Text, Button, Badge } from "@tremor/react";
+import { ThemeToggle } from "./ThemeToggle";
+import { Play, Database } from "lucide-react";
+import { generateMockMetrics, generateMockContainers, type Container, type HostMetrics } from "@/lib/mockData";
+import ExternalStatus from "./ExternalStatus";
+import SecurityFeed from "./SecurityFeed";
 
 type ServerStatus = "checking" | "online" | "offline";
-type Container = {
-    id: string;
-    name: string;
-    image: string;
-    state: string;
-    status: string;
-    cpu_usage: number;
-};
 
 export default function Dashboard() {
     const [status, setStatus] = useState<ServerStatus>("checking");
     const [containers, setContainers] = useState<Container[]>([]);
-    const [hostMetrics, setHostMetrics] = useState<any>(null); // Última métrica del host
+    const [hostMetrics, setHostMetrics] = useState<HostMetrics | null>(null);
+    const [isSimulated, setIsSimulated] = useState(false);
 
     useEffect(() => {
-        // 1. Suscripción a Contenedores
-        const channelContainers = supabase
-            .channel('public:sm_containers')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'sm_containers' }, (payload) => {
-                fetchContainers(); // Recargar lista completa para simplificar
-            })
-            .subscribe();
+        let interval: NodeJS.Timeout;
 
-        // 2. Suscripción a Métricas de Host (solo necesitamos la última)
-        const channelMetrics = supabase
-            .channel('public:sm_metrics')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sm_metrics' }, (payload) => {
-                setHostMetrics(payload.new);
-                setStatus("online"); // Si llegan métricas, el agente está vivo
-            })
-            .subscribe();
+        if (isSimulated) {
+            // Simulation Loop
+            setStatus("online");
+            setContainers(generateMockContainers()); // Static list for now
+            // Force immediate update
+            setHostMetrics(generateMockMetrics());
 
-        // Carga inicial
-        fetchContainers();
-        fetchLatestMetrics();
+            interval = setInterval(() => {
+                setHostMetrics(generateMockMetrics());
+            }, 2000);
+        } else {
+            // Real Supabase Logic
+            setContainers([]); // Clear mock data immediately
+            setHostMetrics(null);
+            setStatus("checking");
 
-        return () => {
-            supabase.removeChannel(channelContainers);
-            supabase.removeChannel(channelMetrics);
-        };
-    }, []);
+            fetchContainers();
+            fetchLatestMetrics();
+
+            const channelContainers = supabase
+                .channel('public:sm_containers')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'sm_containers' }, () => fetchContainers())
+                .subscribe();
+
+            const channelMetrics = supabase
+                .channel('public:sm_metrics')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sm_metrics' }, (payload) => {
+                    // Type assertion to fix build error
+                    setHostMetrics(payload.new as unknown as HostMetrics);
+                    setStatus("online");
+                })
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channelContainers);
+                supabase.removeChannel(channelMetrics);
+            };
+        }
+
+        return () => clearInterval(interval);
+    }, [isSimulated]);
 
     const fetchContainers = async () => {
         const { data } = await supabase.from("sm_containers").select("*").order("name");
@@ -65,49 +80,75 @@ export default function Dashboard() {
     };
 
     const sendCommand = async (command: string, containerId?: string) => {
+        if (isSimulated) {
+            console.log(`[SIMULATION] Command sent: ${command}`);
+            return;
+        }
         await supabase.from("sm_commands").insert({
             command,
             target_container_id: containerId
         });
-        // El agente lo leerá y ejecutará
     };
 
     return (
-        <div className="p-4 md:p-6 bg-slate-950 min-h-screen text-slate-100 font-sans">
+        <div className="p-4 md:p-6 bg-slate-50 dark:bg-slate-950 min-h-screen text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
             {/* Header Section */}
-            <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end border-b border-slate-800 pb-4">
+            <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end border-b border-slate-200 dark:border-slate-800 pb-4">
                 <div>
-                    <Title className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                    <Title className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600 dark:from-blue-400 dark:to-emerald-400">
                         NUCLEUS
                     </Title>
                     <Text className="text-slate-500 text-xs tracking-widest uppercase">Server Control Center</Text>
                 </div>
-                <div className="mt-2 md:mt-0 flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                    <span className="text-xs text-slate-400 font-mono uppercase">
-                        {status === 'online' ? 'System Online' : 'System Offline'}
-                    </span>
+
+                <div className="mt-2 md:mt-0 flex items-center gap-3">
+                    <Button
+                        size="xs"
+                        variant={isSimulated ? "primary" : "secondary"}
+                        color="amber"
+                        icon={Database}
+                        onClick={() => setIsSimulated(!isSimulated)}
+                    >
+                        {isSimulated ? "Simulating" : "Live Data"}
+                    </Button>
+
+                    <ThemeToggle />
+
+                    <div className="flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-800">
+                        <div className={`w-3 h-3 rounded-full ${status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono uppercase">
+                            {status === 'online' ? 'System Online' : 'System Offline'}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             {/* Top Widgets */}
             <HeaderInfo />
 
-            {/* Main Grid Layout (Left: Actions, Center: Visualizer, Right: Terminal) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-320px)] min-h-[600px]">
-                {/* Left Panel: Actions (2 cols) */}
-                <div className="lg:col-span-2 h-full">
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
+                {/* Left Panel: Actions */}
+                <div className="lg:col-span-2 h-[600px]">
                     <ActionPanel onCommand={sendCommand} />
                 </div>
 
-                {/* Center Panel: Visualizer (6 cols) */}
-                <div className="lg:col-span-6 h-full">
+                {/* Center Panel: Visualizer */}
+                <div className="lg:col-span-6 h-[600px]">
                     <ServerVisualizer containers={containers} metrics={hostMetrics} />
                 </div>
 
-                {/* Right Panel: Terminal (4 cols) */}
-                <div className="lg:col-span-4 h-full flex flex-col">
+                {/* Right Panel: Terminal */}
+                <div className="lg:col-span-4 h-[600px] flex flex-col">
                     <TerminalComponent />
+                </div>
+
+                {/* New Footer Row: Status & Security */}
+                <div className="lg:col-span-4 h-64">
+                    <ExternalStatus />
+                </div>
+                <div className="lg:col-span-8 h-64">
+                    <SecurityFeed />
                 </div>
             </div>
         </div>

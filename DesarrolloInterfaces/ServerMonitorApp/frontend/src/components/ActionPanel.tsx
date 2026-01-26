@@ -9,8 +9,8 @@ type ActionPanelProps = {
 
 export default function ActionPanel({ onCommand }: ActionPanelProps) {
     return (
-        <Card className="bg-slate-900 border-slate-800 ring-0 h-full flex flex-col">
-            <Title className="text-slate-300 text-sm font-semibold mb-4 uppercase tracking-wider border-b border-slate-800 pb-2">
+        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 ring-0 h-full flex flex-col transition-colors">
+            <Title className="text-slate-700 dark:text-slate-300 text-sm font-semibold mb-4 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 pb-2">
                 Acciones Rápidas
             </Title>
 

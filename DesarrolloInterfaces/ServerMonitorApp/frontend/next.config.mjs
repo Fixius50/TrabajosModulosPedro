@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+
 const nextConfig = {
-    output: 'export',
-    basePath: '/ServerMonitorApp/frontend', // Must match the folder structure in Vercel
+    // output: 'export', // Disabled to allow Dynamic API Routes (CVE Proxy)
+    basePath: isProd ? '/ServerMonitorApp/frontend' : '',
     images: {
         unoptimized: true
     }

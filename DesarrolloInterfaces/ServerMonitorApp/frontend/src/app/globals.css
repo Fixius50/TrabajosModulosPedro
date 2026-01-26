@@ -2,7 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force Dark Mode base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 255 255 255; 
+  --foreground: 15 23 42; 
+}
+
+[data-theme='dark'] {
+  --background: 15 23 42; 
+  --foreground: 226 232 240; 
+}
+
 body {
-  @apply bg-slate-950 text-slate-100;
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
 }

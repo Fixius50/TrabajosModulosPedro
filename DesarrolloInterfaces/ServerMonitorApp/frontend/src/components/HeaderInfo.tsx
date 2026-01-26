@@ -75,32 +75,32 @@ export default function HeaderInfo() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {/* Location */}
-            <Card className="bg-slate-900 border-slate-800 ring-0 p-4">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 ring-0 p-4 transition-colors">
                 <Flex justifyContent="start" className="space-x-4">
                     <div className="bg-indigo-500/10 p-2 rounded-lg">
-                        <MapPin className="text-indigo-400 w-6 h-6" />
+                        <MapPin className="text-indigo-500 dark:text-indigo-400 w-6 h-6" />
                     </div>
                     <div>
-                        <Text className="text-slate-400 text-xs uppercase tracking-wide">Ubicación</Text>
-                        <Metric className="text-slate-100 text-lg truncate" title={geo ? `${geo.city}, ${geo.country}` : "..."}>
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">Ubicación</Text>
+                        <Metric className="text-slate-900 dark:text-slate-100 text-lg truncate" title={geo ? `${geo.city}, ${geo.country}` : "..."}>
                             {geo ? `${geo.city}, ${geo.country}` : "Localizando..."}
                         </Metric>
                         <Text className="text-xs text-slate-500 truncate">{geo?.isp || "Detectando ISP..."}</Text>
-                        <Text className="text-[10px] text-slate-600 font-mono">{geo?.query}</Text>
+                        <Text className="text-[10px] text-slate-400 dark:text-slate-600 font-mono">{geo?.query}</Text>
                     </div>
                 </Flex>
             </Card>
 
             {/* DateTime */}
-            <Card className="bg-slate-900 border-slate-800 ring-0 p-4">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 ring-0 p-4 transition-colors">
                 <Flex justifyContent="start" className="space-x-4">
                     <div className="bg-emerald-500/10 p-2 rounded-lg">
-                        <Clock className="text-emerald-400 w-6 h-6" />
+                        <Clock className="text-emerald-500 dark:text-emerald-400 w-6 h-6" />
                     </div>
                     <div>
-                        <Text className="text-slate-400 text-xs uppercase tracking-wide">Fecha y Hora</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">Fecha y Hora</Text>
                         <div className="flex items-baseline space-x-2">
-                            <Metric className="text-slate-100 text-2xl font-mono">
+                            <Metric className="text-slate-900 dark:text-slate-100 text-2xl font-mono">
                                 {time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                             </Metric>
                             <Text className="text-slate-400 text-xs font-mono">
@@ -119,14 +119,14 @@ export default function HeaderInfo() {
             </Card>
 
             {/* Weather */}
-            <Card className="bg-slate-900 border-slate-800 ring-0 p-4">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 ring-0 p-4 transition-colors">
                 <Flex justifyContent="start" className="space-x-4">
                     <div className="bg-amber-500/10 p-2 rounded-lg">
-                        <CloudSun className="text-amber-400 w-6 h-6" />
+                        <CloudSun className="text-amber-500 dark:text-amber-400 w-6 h-6" />
                     </div>
                     <div>
-                        <Text className="text-slate-400 text-xs uppercase tracking-wide">Tiempo (Local)</Text>
-                        <Metric className="text-slate-100 text-lg">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">Tiempo (Local)</Text>
+                        <Metric className="text-slate-900 dark:text-slate-100 text-lg">
                             {weather ? `${weather.temperature}°C` : "--°C"}
                         </Metric>
                         <Text className="text-xs text-slate-500">
