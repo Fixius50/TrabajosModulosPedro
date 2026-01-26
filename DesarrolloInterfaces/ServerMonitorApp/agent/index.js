@@ -88,14 +88,29 @@ function listenForCommands() {
 
             try {
                 if (commandRow.command === 'start_all_buckets') {
-                    // Lógica custom: Iniciar todos los que tengan cierto label o simplemente todos
-                    // Aquí simulamos iniciar uno de prueba
+                    // Lógica custom: Iniciar todos los que tengan cierto label
                     result = "Simulación: Todos los buckets iniciados.";
                 } else if (commandRow.target_container_id) {
                     const container = docker.getContainer(commandRow.target_container_id);
                     if (commandRow.command === 'start') await container.start();
                     if (commandRow.command === 'stop') await container.stop();
                     if (commandRow.command === 'restart') await container.restart();
+                } else {
+                    // Ejecución de comandos Raw (Shell)
+                    // SEGURIDAD: En producción esto es peligroso. Aquí permitimos todo para la demo.
+                    // Idealmente filtrar: if (!commandRow.command.startsWith('docker')) throw new Error("Solo Docker permitido");
+
+                    const { exec } = require('child_process');
+                    await new Promise((resolve, reject) => {
+                        exec(commandRow.command, (error, stdout, stderr) => {
+                            if (error) {
+                                result = `Error: ${error.message}\n${stderr}`;
+                            } else {
+                                result = stdout || stderr || "Comando ejecutado (sin salida)";
+                            }
+                            resolve();
+                        });
+                    });
                 }
             } catch (e) {
                 status = "failed";

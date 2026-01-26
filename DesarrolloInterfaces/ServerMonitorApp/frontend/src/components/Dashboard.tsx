@@ -4,6 +4,7 @@ import { Card, Title, Text, Metric, Grid, Badge, Button, Flex, Table, TableHead,
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Activity, Server, Radio, Zap, Play, Square, RefreshCw } from "lucide-react";
+import TerminalComponent from "./Terminal";
 
 type ServerStatus = "checking" | "online" | "offline";
 type Container = {
@@ -165,6 +166,8 @@ export default function Dashboard() {
                     </TableBody>
                 </Table>
             </Card>
+
+            <TerminalComponent />
         </div>
     );
 }
