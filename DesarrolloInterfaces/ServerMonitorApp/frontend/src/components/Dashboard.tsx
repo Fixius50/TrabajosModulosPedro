@@ -3,7 +3,7 @@
 import { Card, Title, Text, Metric, Grid, Badge, Button, Flex, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from "@tremor/react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Activity, Server, Radio, Zap, Play, Square, RefreshCw } from "lucide-react";
+import { Activity, Server, Radio, Zap, Play, Square, RefreshCw, HardDrive, Network, Clock } from "lucide-react";
 import TerminalComponent from "./Terminal";
 
 type ServerStatus = "checking" | "online" | "offline";
@@ -108,22 +108,66 @@ export default function Dashboard() {
 
             <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6 mb-6">
                 <Card decoration="top" decorationColor="indigo" className="bg-slate-900 border-slate-800 ring-0">
-                    <Text className="text-slate-400">CPU Host</Text>
-                    <Metric className="text-slate-100">{hostMetrics?.cpu_usage || 0}%</Metric>
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">CPU Host</Text>
+                            <Metric className="text-slate-100">{hostMetrics?.cpu_usage || 0}%</Metric>
+                        </div>
+                        <Activity className="text-indigo-500 w-5 h-5" />
+                    </Flex>
                 </Card>
                 <Card decoration="top" decorationColor="purple" className="bg-slate-900 border-slate-800 ring-0">
-                    <Text className="text-slate-400">RAM Host</Text>
-                    <Metric className="text-slate-100">{hostMetrics?.ram_usage || 0}%</Metric>
-                    <Text className="text-xs text-slate-500 mt-1">{hostMetrics?.memory_usage}</Text>
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">RAM Host</Text>
+                            <Metric className="text-slate-100">{hostMetrics?.ram_usage || 0}%</Metric>
+                            <Text className="text-xs text-slate-500 mt-1">{hostMetrics?.memory_usage}</Text>
+                        </div>
+                        <Server className="text-purple-500 w-5 h-5" />
+                    </Flex>
+                </Card>
+                <Card decoration="top" decorationColor="cyan" className="bg-slate-900 border-slate-800 ring-0">
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">Disco Principal</Text>
+                            <Metric className="text-slate-100 truncate text-xl">{hostMetrics?.disk_usage_gb || "N/A"}</Metric>
+                            <Text className="text-xs text-slate-500 mt-1">Usado / Total</Text>
+                        </div>
+                        <HardDrive className="text-cyan-500 w-5 h-5" />
+                    </Flex>
                 </Card>
                 <Card decoration="top" decorationColor="amber" className="bg-slate-900 border-slate-800 ring-0">
-                    <Text className="text-slate-400">Ubicación</Text>
-                    <Metric className="text-slate-100 truncate text-xl">{geo?.city || "-"}</Metric>
-                    <Text className="text-xs text-slate-500 mt-1">{geo?.isp}</Text>
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">Red (Rx / Tx)</Text>
+                            <div className="flex gap-2 items-baseline">
+                                <Metric className="text-slate-100 text-xl">⬇ {hostMetrics?.net_rx_mb || 0}</Metric>
+                                <Text className="text-xs text-slate-500">MB/s</Text>
+                            </div>
+                            <div className="flex gap-2 items-baseline">
+                                <Metric className="text-slate-100 text-xl">⬆ {hostMetrics?.net_tx_mb || 0}</Metric>
+                                <Text className="text-xs text-slate-500">MB/s</Text>
+                            </div>
+                        </div>
+                        <Network className="text-amber-500 w-5 h-5" />
+                    </Flex>
                 </Card>
                 <Card decoration="top" decorationColor="emerald" className="bg-slate-900 border-slate-800 ring-0">
-                    <Text className="text-slate-400">Contenedores Activos</Text>
-                    <Metric className="text-slate-100">{containers.filter(c => c.state === 'running').length}</Metric>
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">Uptime</Text>
+                            <Metric className="text-slate-100 text-xl">{hostMetrics?.uptime || "00:00:00"}</Metric>
+                            <Text className="text-xs text-slate-500 mt-1">Tiempo encendido</Text>
+                        </div>
+                        <Clock className="text-emerald-500 w-5 h-5" />
+                    </Flex>
+                </Card>
+                <Card decoration="top" decorationColor="rose" className="bg-slate-900 border-slate-800 ring-0">
+                    <Text className="text-slate-400">Acciones Globales</Text>
+                    <Flex className="mt-3 space-x-2">
+                        <Button size="xs" color="emerald" icon={Play} onClick={() => sendCommand('start_all')} variant="secondary">Start All</Button>
+                        <Button size="xs" color="rose" icon={Square} onClick={() => sendCommand('stop_all')} variant="secondary">Stop All</Button>
+                    </Flex>
                 </Card>
             </Grid>
 
