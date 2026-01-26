@@ -2,9 +2,9 @@
     "name": "desarrollo-interfaces-root",
     "private": true,
     "scripts": {
-        "install": "cd NovelaGraficaApp && npm install",
-        "dev": "cd NovelaGraficaApp && npm run dev",
-        "build": "cd NovelaGraficaApp && npm install && npm run build && cd .. && rm -rf dist && mkdir dist && cp -r NovelaGraficaApp/dist/* dist/"
+        "install": "cd ServerMonitorApp/frontend && npm install",
+        "dev": "cd ServerMonitorApp/frontend && npm run dev",
+        "build": "rm -rf dist && mkdir dist && cp index.html dist/ && cd ServerMonitorApp/frontend && npm install && npm run build && cd ../.. && mkdir -p dist/ServerMonitorApp/frontend && cp -r ServerMonitorApp/frontend/out/* dist/ServerMonitorApp/frontend/"
     },
     "engines": {
         "node": ">=18"
