@@ -96,19 +96,38 @@ function listenForCommands() {
                     if (commandRow.command === 'stop') await container.stop();
                     if (commandRow.command === 'restart') await container.restart();
                 } else {
-                    // Ejecución de comandos Raw (Shell)
-                    // SEGURIDAD: En producción esto es peligroso. Aquí permitimos todo para la demo.
-                    // Idealmente filtrar: if (!commandRow.command.startsWith('docker')) throw new Error("Solo Docker permitido");
+                    // Ejecución REMOTA vía SSH
+                    const { Client } = require('ssh2');
+                    const conn = new Client();
 
-                    const { exec } = require('child_process');
                     await new Promise((resolve, reject) => {
-                        exec(commandRow.command, (error, stdout, stderr) => {
-                            if (error) {
-                                result = `Error: ${error.message}\n${stderr}`;
-                            } else {
-                                result = stdout || stderr || "Comando ejecutado (sin salida)";
-                            }
-                            resolve();
+                        conn.on('ready', () => {
+                            conn.exec(commandRow.command, (err, stream) => {
+                                if (err) {
+                                    result = "SSH Exec Error: " + err.message;
+                                    conn.end();
+                                    return resolve();
+                                }
+                                let stdout = "";
+                                let stderr = "";
+                                stream.on('close', (code, signal) => {
+                                    result = stdout + stderr; // Combinamos salidas
+                                    conn.end();
+                                    resolve();
+                                }).on('data', (data) => {
+                                    stdout += data.toString();
+                                }).stderr.on('data', (data) => {
+                                    stderr += data.toString();
+                                });
+                            });
+                        }).on('error', (err) => {
+                            result = "SSH Connection Error: " + err.message;
+                            resolve(); // Resolvemos para reportar el error en DB
+                        }).connect({
+                            host: process.env.SSH_HOST || '192.168.2.154',
+                            port: 22,
+                            username: process.env.SSH_USER || 'usuario',
+                            password: process.env.SSH_PASS // O privateKey: require('fs').readFileSync(...)
                         });
                     });
                 }
