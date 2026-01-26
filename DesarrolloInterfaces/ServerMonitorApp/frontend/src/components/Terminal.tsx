@@ -54,13 +54,13 @@ export default function TerminalComponent() {
     };
 
     return (
-        <Card className="bg-slate-950 border-slate-800 ring-0 mt-6 p-0 overflow-hidden">
-            <div className="bg-slate-900/50 p-3 border-b border-slate-800 flex items-center space-x-2">
+        <Card className="bg-slate-950 border-slate-800 ring-0 p-0 overflow-hidden h-full flex flex-col">
+            <div className="bg-slate-900/50 p-3 border-b border-slate-800 flex items-center space-x-2 shrink-0">
                 <TerminalIcon className="w-5 h-5 text-emerald-400" />
-                <Title className="text-slate-300 text-sm font-mono">Terminal de Agente (Server: 192.168.2.154)</Title>
+                <Title className="text-slate-300 text-sm font-mono">Terminal</Title>
             </div>
 
-            <div className="h-64 overflow-y-auto p-4 font-mono text-sm space-y-4 bg-black/40">
+            <div className="flex-grow overflow-y-auto p-4 font-mono text-sm space-y-4 bg-black/40 h-0 min-h-0">
                 {history.map((entry) => (
                     <div key={entry.id}>
                         <div className="flex items-center text-slate-400">
@@ -80,9 +80,9 @@ export default function TerminalComponent() {
                 <div ref={bottomRef} />
             </div>
 
-            <div className="p-3 bg-slate-900 border-t border-slate-800 flex gap-2">
+            <div className="p-3 bg-slate-900 border-t border-slate-800 flex gap-2 shrink-0">
                 <TextInput
-                    placeholder="Escribe un comando Docker (ej: docker ps)..."
+                    placeholder="Comando (ej: docker ps)..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
