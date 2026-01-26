@@ -17,23 +17,16 @@ export default function SecurityFeed() {
     useEffect(() => {
         const fetchCVEs = async () => {
             try {
-                // Fetch from internal proxy to avoid CORS
-                // Conditional path based on environment to match next.config.mjs
-                const isProd = process.env.NODE_ENV === 'production';
-                const endpoint = isProd ? '/ServerMonitorApp/frontend/api/cve' : '/api/cve';
+                // Direct client-side fetch (Static Export compatible)
+                // Note: This may encounter CORS on localhost. In production, it depends on CIRCL's headers or user browser.
+                const res = await fetch("https://vulnerability.circl.lu/api/last/5");
 
-                const res = await fetch(endpoint);
                 if (res.ok) {
                     const data = await res.json();
-                    // Map API response to our type. Note: Structure varies, robust mapping needed.
-                    // CIRCL usually returns array directly or object with keys.
-                    // Assuming array for 'last' endpoint based on typical behavior, 
-                    // or we adapt if it returns an object.
 
                     // Simple safeguard mapping
                     const list = Array.isArray(data) ? data : [];
 
-                    // Map to cleaner objects
                     const mapped = list.map((item: any) => ({
                         id: item.id || "Unknown CVE",
                         summary: item.summary ? item.summary.substring(0, 60) + "..." : "No summary available",
@@ -42,9 +35,12 @@ export default function SecurityFeed() {
                     }));
 
                     setCves(mapped);
+                } else {
+                    console.warn("CVE Fetch CORS/Network Error involved?");
                 }
             } catch (e) {
-                console.error("CVE fetch error", e);
+                console.error("CVE fetch error (likely CORS on localhost)", e);
+                // Optional: Set a dummy "CORS Blocked" item if needed, or just leave empty
             }
         };
 

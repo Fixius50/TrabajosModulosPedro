@@ -2,7 +2,7 @@
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-    // output: 'export', // Disabled to allow Dynamic API Routes (CVE Proxy)
+    output: 'export', // Re-enabled for Static Site Generation (Essential for 'out/' folder)
     basePath: isProd ? '/ServerMonitorApp/frontend' : '',
     images: {
         unoptimized: true
