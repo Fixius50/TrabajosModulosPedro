@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async (req: { method: string; json: () => PromiseLike<{ url: any; method?: "GET" | undefined; headers?: {} | undefined; body: any }> | { url: any; method?: "GET" | undefined; headers?: {} | undefined; body: any } }) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
