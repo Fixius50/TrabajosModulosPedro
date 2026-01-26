@@ -3,7 +3,7 @@
 import { Card, Title, Text, Metric, Grid, Badge, Button, Flex, Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell } from "@tremor/react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Activity, Server, Radio, Zap, Play, Square, RefreshCw, HardDrive, Network, Clock } from "lucide-react";
+import { Activity, Server, Radio, Zap, Play, Square, RefreshCw, HardDrive, Network, Clock, MapPin } from "lucide-react";
 import TerminalComponent from "./Terminal";
 
 type ServerStatus = "checking" | "online" | "offline";
@@ -20,6 +20,7 @@ type GeoData = {
     country?: string;
     isp?: string;
     city?: string;
+    query?: string; // IP
 };
 
 export default function Dashboard() {
@@ -73,10 +74,21 @@ export default function Dashboard() {
 
     const fetchGeo = async () => {
         try {
-            const res = await fetch("http://ip-api.com/json/");
+            // Using ipapi.co (HTTPS supported)
+            const res = await fetch("https://ipapi.co/json/");
+            if (!res.ok) throw new Error("Geo API Error");
             const data = await res.json();
-            setGeo(data);
-        } catch (e) { console.error(e); }
+
+            setGeo({
+                country: data.country_name,
+                city: data.city,
+                isp: data.org,
+                query: data.ip
+            });
+        } catch (e) {
+            console.error("Geo fetch failed:", e);
+            // Fallback or empty state is handled by null geo
+        }
     }
 
     const sendCommand = async (command: string, containerId?: string) => {
@@ -152,6 +164,31 @@ export default function Dashboard() {
                         <Network className="text-amber-500 w-5 h-5" />
                     </Flex>
                 </Card>
+                <Card decoration="top" decorationColor="rose" className="bg-slate-900 border-slate-800 ring-0">
+                    <Text className="text-slate-400">Acciones Globales</Text>
+                    <Flex className="mt-3 space-x-2">
+                        <Button size="xs" color="emerald" icon={Play} onClick={() => sendCommand('start_all')} variant="secondary">Start All</Button>
+                        <Button size="xs" color="rose" icon={Square} onClick={() => sendCommand('stop_all')} variant="secondary">Stop All</Button>
+                    </Flex>
+                </Card>
+
+                {/* Geolocation Card */}
+                <Card decoration="top" decorationColor="orange" className="bg-slate-900 border-slate-800 ring-0">
+                    <Flex alignItems="start">
+                        <div>
+                            <Text className="text-slate-400">Ubicación</Text>
+                            <Metric className="text-slate-100 text-xl truncate" title={geo ? `${geo.city}, ${geo.country}` : "Cargando..."}>
+                                {geo ? `${geo.city}` : "Localizando..."}
+                            </Metric>
+                            <Text className="text-xs text-slate-500 mt-1 truncate" title={geo?.isp}>
+                                {geo ? geo.country : "-"}
+                            </Text>
+                            {geo?.isp && <Text className="text-xs text-slate-600 mt-0.5 truncate">{geo.isp}</Text>}
+                        </div>
+                        <MapPin className="text-orange-500 w-5 h-5" />
+                    </Flex>
+                </Card>
+
                 <Card decoration="top" decorationColor="emerald" className="bg-slate-900 border-slate-800 ring-0">
                     <Flex alignItems="start">
                         <div>
@@ -160,13 +197,6 @@ export default function Dashboard() {
                             <Text className="text-xs text-slate-500 mt-1">Tiempo encendido</Text>
                         </div>
                         <Clock className="text-emerald-500 w-5 h-5" />
-                    </Flex>
-                </Card>
-                <Card decoration="top" decorationColor="rose" className="bg-slate-900 border-slate-800 ring-0">
-                    <Text className="text-slate-400">Acciones Globales</Text>
-                    <Flex className="mt-3 space-x-2">
-                        <Button size="xs" color="emerald" icon={Play} onClick={() => sendCommand('start_all')} variant="secondary">Start All</Button>
-                        <Button size="xs" color="rose" icon={Square} onClick={() => sendCommand('stop_all')} variant="secondary">Stop All</Button>
                     </Flex>
                 </Card>
             </Grid>
