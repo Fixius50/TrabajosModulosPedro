@@ -1,0 +1,16 @@
+{
+    "name": "server-monitor-agent",
+    "version": "1.0.0",
+    "description": "Agente Node.js para controlar Docker y sincronizar con Supabase",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.39.0",
+        "dockerode": "^4.0.0",
+        "dotenv": "^16.3.1",
+        "ssh2": "^1.17.0",
+        "systeminformation": "^5.21.0"
+    }
+}
