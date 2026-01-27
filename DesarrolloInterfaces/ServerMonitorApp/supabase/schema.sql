@@ -9,7 +9,9 @@ create table if not exists sm_containers (
   image text not null,
   state text not null, -- 'running', 'exited'
   status text, -- 'Up 2 hours'
-  cpu_usage float default 0, -- % de uso del contenedor
+  cpu_usage float default 0, -- % de uso
+  memory_usage text, -- Ej: "50MB / 1GB"
+  ports text, -- Ej: "0.0.0.0:80->80/tcp"
   last_updated timestamptz default now()
 );
 
