@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  root: 'resources/frontend',
+  envDir: '../../',
   plugins: [
     react(),
     VitePWA({
@@ -29,4 +31,8 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    outDir: '../../dist',
+    emptyOutDir: true,
+  }
 })
