@@ -64,10 +64,14 @@ const MetricCircle = ({ value, label, icon: Icon, color }: { value: number, labe
     );
 };
 
+import Link from "next/link"; // Asegúrate de importar esto arriba
+
+// ... (Rest module code)
+
 export default function ServerVisualizer({ containers, metrics }: ServerVisualizerProps) {
     return (
         <Card className="bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-slate-800 h-full flex flex-col relative overflow-hidden backdrop-blur-sm transition-colors">
-            {/* Background Effect */}
+            {/* ... (Background & Header code unchanged) ... */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-200/20 dark:from-blue-900/10 via-transparent to-transparent pointer-events-none" />
 
             {/* Header / Host Metrics */}
@@ -111,30 +115,31 @@ export default function ServerVisualizer({ containers, metrics }: ServerVisualiz
             <div className="flex-grow overflow-y-auto pr-1 custom-scrollbar">
                 <Grid numItems={1} numItemsLg={2} className="gap-3">
                     {containers.map((c) => (
-                        <div
-                            key={c.id}
-                            className={`
-                                relative p-3 rounded-md border transition-all duration-300 group
-                                ${c.state === 'running'
-                                    ? 'bg-white/80 dark:bg-slate-900/60 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:border-emerald-500/40'
-                                    : 'bg-slate-200/50 dark:bg-slate-900/30 border-slate-300 dark:border-slate-800 opacity-60'}
-                            `}
-                        >
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-1.5 rounded bg-slate-50 dark:bg-slate-950 ${c.state === 'running' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                                        <Box className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <div className="text-slate-800 dark:text-slate-200 text-sm font-medium leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
-                                            {c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name}
+                        <Link key={c.id} href={`/container?id=${c.id}`} className="block">
+                            <div
+                                className={`
+                                    relative p-3 rounded-md border transition-all duration-300 group
+                                    ${c.state === 'running'
+                                        ? 'bg-white/80 dark:bg-slate-900/60 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:border-emerald-500/40'
+                                        : 'bg-slate-200/50 dark:bg-slate-900/30 border-slate-300 dark:border-slate-800 opacity-60'}
+                                `}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-1.5 rounded bg-slate-50 dark:bg-slate-950 ${c.state === 'running' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                                            <Box className="w-5 h-5" />
                                         </div>
-                                        <div className="text-slate-500 text-[10px] font-mono">{c.image}</div>
+                                        <div>
+                                            <div className="text-slate-800 dark:text-slate-200 text-sm font-medium leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
+                                                {c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name}
+                                            </div>
+                                            <div className="text-slate-500 text-[10px] font-mono">{c.image}</div>
+                                        </div>
                                     </div>
+                                    <div className={`w-2 h-2 rounded-full ${c.state === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`} />
                                 </div>
-                                <div className={`w-2 h-2 rounded-full ${c.state === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-red-500'}`} />
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </Grid>
             </div>

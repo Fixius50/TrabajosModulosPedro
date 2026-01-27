@@ -54,6 +54,16 @@ export default function ActionPanel({ onCommand }: ActionPanelProps) {
                     <Button
                         size="sm"
                         variant="secondary"
+                        color="blue"
+                        className="w-full justify-start hover:bg-blue-950/30"
+                        icon={RefreshCw}
+                        onClick={() => window.location.reload()}
+                    >
+                        Recargar App
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="secondary"
                         color="slate"
                         className="w-full justify-start hover:bg-slate-800"
                         icon={Power}

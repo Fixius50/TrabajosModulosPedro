@@ -263,6 +263,48 @@
                 </div>
             </div>
 
+            <div class="entry">
+                <div class="prompt-card">
+                    <div class="prompt-text">"documenta esto: ¡Excelente decisión! Con el espacio en disco
+                        solucionado..."</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">Documentation</span>
+                    <p>Inclusión de la <strong>Guía de Instalación desde Cero</strong> para despliegue en VM limpia.</p>
+                </div>
+            </div>
+
+            <div class="entry">
+                 <div class="prompt-card">
+                     <div class="prompt-text">"hazme un script autoarrancable... actualizame los archivos env"</div>
+                 </div>
+                 <div class="implementation">
+                     <span class="tag">Final Polish</span>
+                     <p>
+                         - <strong>Server Auto-Start:</strong> Script `server_autostart.sh` para SystemD y Docker.<br>
+                         - <strong>Container Mgmt:</strong> Gestión de contenedores (Start/Stop) desde el Frontend.<br>
+                         - <strong>Deploy Fixes:</strong> Ajuste de permisos Docker (usermod) y mapeo de puertos.
+                     </p>
+                 </div>
+             </div>
+        </section>
+
+        <section id="features-new">
+            <h2>4.0 Novedades Finales</h2>
+            <div class="feature-grid">
+                 <div class="feature-card">
+                     <h4>📦 Gestión de Contenedores</h4>
+                     <p>Control total con rutas dinámicas <code>/container?id=x</code> compatibles con Exportación Estática. Gráficos de CPU/RAM por contenedor.</p>
+                 </div>
+                 <div class="feature-card">
+                     <h4>🤖 Auto-Pilot Server</h4>
+                     <p>Script <code>server_autostart.sh</code> que garantiza la resiliencia: Si el servidor reinicia, el Agente y Supabase reviven solos.</p>
+                 </div>
+                 <div class="feature-card">
+                     <h4>🛠️ Utilitarios CLI</h4>
+                     <p>Herramienta <code>./monitor-status.sh</code> en el servidor para diagnóstico instantáneo de salud.</p>
+                 </div>
+            </div>
         </section>
 
         <section id="instalacion">
