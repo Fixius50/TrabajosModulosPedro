@@ -275,35 +275,38 @@
             </div>
 
             <div class="entry">
-                 <div class="prompt-card">
-                     <div class="prompt-text">"hazme un script autoarrancable... actualizame los archivos env"</div>
-                 </div>
-                 <div class="implementation">
-                     <span class="tag">Final Polish</span>
-                     <p>
-                         - <strong>Server Auto-Start:</strong> Script `server_autostart.sh` para SystemD y Docker.<br>
-                         - <strong>Container Mgmt:</strong> Gestión de contenedores (Start/Stop) desde el Frontend.<br>
-                         - <strong>Deploy Fixes:</strong> Ajuste de permisos Docker (usermod) y mapeo de puertos.
-                     </p>
-                 </div>
-             </div>
+                <div class="prompt-card">
+                    <div class="prompt-text">"hazme un script autoarrancable... actualizame los archivos env"</div>
+                </div>
+                <div class="implementation">
+                    <span class="tag">Final Polish</span>
+                    <p>
+                        - <strong>Server Auto-Start:</strong> Script `server_autostart.sh` para SystemD y Docker.<br>
+                        - <strong>Container Mgmt:</strong> Gestión de contenedores (Start/Stop) desde el Frontend.<br>
+                        - <strong>Deploy Fixes:</strong> Ajuste de permisos Docker (usermod) y mapeo de puertos.
+                    </p>
+                </div>
+            </div>
         </section>
 
         <section id="features-new">
             <h2>4.0 Novedades Finales</h2>
             <div class="feature-grid">
-                 <div class="feature-card">
-                     <h4>📦 Gestión de Contenedores</h4>
-                     <p>Control total con rutas dinámicas <code>/container?id=x</code> compatibles con Exportación Estática. Gráficos de CPU/RAM por contenedor.</p>
-                 </div>
-                 <div class="feature-card">
-                     <h4>🤖 Auto-Pilot Server</h4>
-                     <p>Script <code>server_autostart.sh</code> que garantiza la resiliencia: Si el servidor reinicia, el Agente y Supabase reviven solos.</p>
-                 </div>
-                 <div class="feature-card">
-                     <h4>🛠️ Utilitarios CLI</h4>
-                     <p>Herramienta <code>./monitor-status.sh</code> en el servidor para diagnóstico instantáneo de salud.</p>
-                 </div>
+                <div class="feature-card">
+                    <h4>📦 Gestión de Contenedores</h4>
+                    <p>Control total con rutas dinámicas <code>/container?id=x</code> compatibles con Exportación
+                        Estática. Gráficos de CPU/RAM por contenedor.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🤖 Auto-Pilot Server</h4>
+                    <p>Script <code>server_autostart.sh</code> que garantiza la resiliencia: Si el servidor reinicia, el
+                        Agente y Supabase reviven solos.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🛠️ Utilitarios CLI</h4>
+                    <p>Herramienta <code>./monitor-status.sh</code> en el servidor para diagnóstico instantáneo de
+                        salud.</p>
+                </div>
             </div>
         </section>
 
@@ -372,6 +375,30 @@ pm2 startup</code></pre>
                     </li>
                 </ul>
             </div>
+        </section>
+
+        <!-- Seccion 6: Acceso Remoto -->
+        <section id="tunnel">
+            <h2>6. Acceso Remoto Seguro (Cloudflare Tunnel)</h2>
+            <p>Script <code>Docs/setup_tunnel.sh</code> incluido para exponer el servidor de forma segura.</p>
+            <ul>
+                <li><strong>Instalación:</strong> Detecta la arquitectura y descarga <code>cloudflared</code>.</li>
+                <li><strong>Uso:</strong> Ejecutar <code>./Docs/setup_tunnel.sh</code> en la VM y seguir las
+                    instrucciones.</li>
+            </ul>
+        </section>
+
+        <!-- Seccion 7: Construcción y Despliegue -->
+        <section id="build">
+            <h2>7. Compilación Multi-Plataforma (Windows/Linux)</h2>
+            <p>El proyecto incluye scripts personalizados para facilitar la compilación en Windows (sin WSL) y Linux.
+            </p>
+            <ul>
+                <li><strong>Comando Principal:</strong> <code>npm run build</code> (en la raíz)</li>
+                <li><strong>Mecanismo:</strong> Usa <code>build.js</code> (Node.js) en lugar de scripts Bash.</li>
+                <li><strong>Output:</strong> Genera la carpeta <code>dist/</code> con el frontend estático y copia la
+                    documentación.</li>
+            </ul>
         </section>
 
         <footer>

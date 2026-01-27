@@ -28,7 +28,15 @@ export default function TerminalComponent() {
                 setHistory(prev => prev.map(cmd => cmd.id === updatedCmd.id ? updatedCmd : cmd));
                 setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
             })
-            .subscribe();
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'sm_commands' }, (payload) => {
+                console.log("🔴 Terminal Realtime Event:", payload);
+                const updatedCmd = payload.new as CommandLog;
+                setHistory(prev => prev.map(cmd => cmd.id === updatedCmd.id ? updatedCmd : cmd));
+                setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+            })
+            .subscribe((status) => {
+                console.log("🔌 Terminal Subscription Status:", status);
+            });
 
         return () => { supabase.removeChannel(channel); };
     }, []);

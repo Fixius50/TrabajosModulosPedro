@@ -72,7 +72,7 @@ export default function Dashboard() {
     };
 
     const fetchLatestMetrics = async () => {
-        const { data } = await supabase.from("sm_metrics").select("*").order("created_at", { ascending: false }).limit(1).single();
+        const { data } = await supabase.from("sm_metrics").select("*").order("created_at", { ascending: false }).limit(1).maybeSingle();
         if (data) {
             setHostMetrics(data);
             setStatus("online");

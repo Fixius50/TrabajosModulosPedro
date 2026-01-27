@@ -1,0 +1,9 @@
+{
+    "name": "server-monitor-root",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "cd frontend && npm run dev",
+        "build": "node build.js"
+    }
+}
