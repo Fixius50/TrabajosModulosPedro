@@ -5,9 +5,9 @@ import {
     IonToast, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent
 } from '@ionic/react';
 import { add, repeatOutline, trashOutline } from 'ionicons/icons';
-import { recurringService } from '../services/recurring.service';
-import type { RecurringTransaction } from '../types';
-import { supabase } from '../supabaseClient';
+import { recurringService } from '../ts/recurring.service';
+import type { RecurringTransaction } from '../ts/types';
+import { supabase } from '../ts/supabaseClient';
 
 const RecurringTransactions: React.FC = () => {
     // const { t } = useTranslation();

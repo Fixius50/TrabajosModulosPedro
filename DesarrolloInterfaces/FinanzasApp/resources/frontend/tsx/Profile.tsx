@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast } from '@ionic/react';
-import { getProfile, updateProfile, uploadAvatar } from '../services/profileService';
+import { getProfile, updateProfile, uploadAvatar } from '../ts/profileService';
 import { useTranslation } from 'react-i18next';
 
 const ProfilePage: React.FC = () => {

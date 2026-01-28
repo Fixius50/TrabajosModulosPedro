@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { IonButton, IonItem, IonLabel, IonSelect, IonSelectOption, IonToggle, IonInput, IonItemDivider, IonList, IonIcon } from '@ionic/react';
 import { documentTextOutline, cloudUploadOutline } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../ts/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import ImportModal from '../components/ImportModal';
+import ImportModal from './ImportModal';
 
-import { getTransactions } from '../services/transactionService';
-import { exportToJSON, exportToPDF } from '../services/exportService';
+import { getTransactions } from '../ts/transactionService';
+import { exportToJSON, exportToPDF } from '../ts/exportService';
 
 const Settings: React.FC = () => {
     const navigate = useNavigate();

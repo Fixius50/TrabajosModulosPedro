@@ -13,7 +13,7 @@ import {
 import { useLocation } from 'react-router-dom';
 import { pieChartOutline, walletOutline, trendingUpOutline, personOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
-import './Menu.css';
+import '../css/Menu.css';
 
 interface AppPage {
     url: string;

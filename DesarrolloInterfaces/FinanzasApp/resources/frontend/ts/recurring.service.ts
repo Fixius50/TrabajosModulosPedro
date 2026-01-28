@@ -1,5 +1,5 @@
-import { supabase } from '../supabaseClient';
-import type { RecurringTransaction, Transaction } from '../types';
+import { supabase } from './supabaseClient';
+import type { RecurringTransaction, Transaction } from './types';
 
 export const recurringService = {
     // Obtener transacciones recurrentes activas

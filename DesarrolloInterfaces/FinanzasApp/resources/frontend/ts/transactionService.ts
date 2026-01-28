@@ -1,5 +1,5 @@
-import { supabase } from '../supabaseClient';
-import type { Transaction } from '../types';
+import { supabase } from './supabaseClient';
+import type { Transaction } from './types';
 
 export const getTransactions = async () => {
     const { data, error } = await supabase

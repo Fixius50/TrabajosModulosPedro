@@ -1,5 +1,5 @@
-import { supabase } from '../supabaseClient';
-import type { Profile } from '../types';
+import { supabase } from './supabaseClient';
+import type { Profile } from './types';
 
 export const getProfile = async () => {
     const user = (await supabase.auth.getUser()).data.user;

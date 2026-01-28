@@ -4,10 +4,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { pieChartOutline, walletOutline, trendingUpOutline, personCircleOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 
-import Dashboard from '../pages/Dashboard';
-import FinancesPage from '../pages/FinancesPage';
-import GlobalMarketPage from '../pages/GlobalMarketPage';
-import AccountPage from '../pages/AccountPage';
+import Inventory from './Inventory';
+import Dashboard from './Dashboard';
+import FinancesPage from './FinancesPage';
+import GlobalMarketPage from './GlobalMarketPage';
+import AccountPage from './AccountPage';
 
 const MainTabs: React.FC = () => {
     const { t } = useTranslation();
@@ -15,7 +16,7 @@ const MainTabs: React.FC = () => {
     const location = useLocation();
 
     // Valid tabs for the new structure
-    const validTabs = ['dashboard', 'finances', 'market', 'account'];
+    const validTabs = ['dashboard', 'inventory', 'finances', 'market', 'account'];
     let currentTab = location.pathname.split('/').pop() || 'dashboard';
 
     // Auto-redirect valid old routes to new containers
@@ -24,8 +25,6 @@ const MainTabs: React.FC = () => {
         if (path.includes('/transactions') || path.includes('/budgets') || path.includes('/recurring')) {
             // These are now sub-tabs of FinancesPage, handled internally by state, 
             // but for main nav highlighting we treat them as 'finances'
-            // NOTE: Deep linking to sub-tabs inside FinancesPage would require passing props or context,
-            // for now, we just ensure the MainTab highlights 'Finances'.
         }
     }, [location.pathname]);
 
@@ -48,17 +47,22 @@ const MainTabs: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. FINANCES (Unified) */}
+                {/* 2. INVENTORY (New Galería) */}
+                <div style={{ width: '100%', height: '100%', display: currentTab === 'inventory' ? 'block' : 'none' }}>
+                    <Inventory />
+                </div>
+
+                {/* 3. FINANCES (Unified) */}
                 <div style={{ width: '100%', height: '100%', display: currentTab === 'finances' ? 'block' : 'none' }}>
                     <FinancesPage />
                 </div>
 
-                {/* 3. MARKET (Unified) */}
+                {/* 4. MARKET (Unified) */}
                 <div style={{ width: '100%', height: '100%', display: currentTab === 'market' ? 'block' : 'none' }}>
                     <GlobalMarketPage />
                 </div>
 
-                {/* 4. ACCOUNT (Unified) */}
+                {/* 5. ACCOUNT (Unified) */}
                 <div style={{ width: '100%', height: '100%', display: currentTab === 'account' ? 'block' : 'none' }}>
                     <AccountPage />
                 </div>
@@ -66,18 +70,18 @@ const MainTabs: React.FC = () => {
 
             <div className="ion-hide-md-up">
                 <IonFooter>
-                    <IonTabBar slot="bottom" selectedTab={currentTab}>
+                    <IonTabBar slot="bottom" selectedTab={currentTab} style={{ '--background': '#0a080c', '--border': '1px solid rgba(255,255,255,0.1)' }}>
                         <IonTabButton tab="dashboard" selected={currentTab === 'dashboard'} onClick={(e) => { e.preventDefault(); navigate('/app/dashboard'); }}>
                             <IonIcon icon={pieChartOutline} />
                             <IonLabel>{t('app.dashboard')}</IonLabel>
                         </IonTabButton>
-                        <IonTabButton tab="finances" selected={currentTab === 'finances'} onClick={(e) => { e.preventDefault(); navigate('/app/finances'); }}>
-                            <IonIcon icon={walletOutline} />
-                            <IonLabel>Finanzas</IonLabel>
+                        <IonTabButton tab="inventory" selected={currentTab === 'inventory'} onClick={(e) => { e.preventDefault(); navigate('/app/inventory'); }}>
+                            <IonIcon icon={walletOutline} /> {/* Using wallet for inventory/assets */}
+                            <IonLabel>Galería</IonLabel>
                         </IonTabButton>
-                        <IonTabButton tab="market" selected={currentTab === 'market'} onClick={(e) => { e.preventDefault(); navigate('/app/market'); }}>
+                        <IonTabButton tab="finances" selected={currentTab === 'finances'} onClick={(e) => { e.preventDefault(); navigate('/app/finances'); }}>
                             <IonIcon icon={trendingUpOutline} />
-                            <IonLabel>Mercado</IonLabel>
+                            <IonLabel>Finanzas</IonLabel>
                         </IonTabButton>
                         <IonTabButton tab="account" selected={currentTab === 'account'} onClick={(e) => { e.preventDefault(); navigate('/app/account'); }}>
                             <IonIcon icon={personCircleOutline} />

@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonLabel, IonSelect, IonSelectOption, IonList, IonProgressBar, IonIcon, IonItemDivider } from '@ionic/react';
 import { cloudUploadOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
-import { parseCSV, normalizeTransaction, type CSVRow, type ImportMapping } from '../services/importService';
-import { upsertTransaction } from '../services/transactionService';
+import { parseCSV, normalizeTransaction, type CSVRow, type ImportMapping } from '../ts/importService';
+import { upsertTransaction } from '../ts/transactionService';
 
 interface Props {
     isOpen: boolean;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonButtons, IonList, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption } from '@ionic/react';
 import { useTranslation } from 'react-i18next';
-import type { Budget } from '../services/budgetService';
-import { CATEGORIES } from '../constants';
+import type { Budget } from '../ts/budgetService';
+import { CATEGORIES } from '../ts/constants';
 
 interface Props {
     isOpen: boolean;

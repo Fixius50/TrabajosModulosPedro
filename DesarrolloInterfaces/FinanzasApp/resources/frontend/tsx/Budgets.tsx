@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { IonList, IonLabel, IonNote, IonProgressBar, IonFab, IonFabButton, IonIcon, IonSpinner, IonCard, IonCardContent, IonToast } from '@ionic/react';
 import { add } from 'ionicons/icons';
-import { getBudgets, upsertBudget, type Budget } from '../services/budgetService';
-import { getTransactions } from '../services/transactionService';
-import BudgetModal from '../components/BudgetModal';
+import { getBudgets, upsertBudget, type Budget } from '../ts/budgetService';
+import { getTransactions } from '../ts/transactionService';
+import BudgetModal from './BudgetModal';
 
 
 const Budgets: React.FC = () => {

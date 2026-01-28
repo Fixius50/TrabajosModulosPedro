@@ -5,7 +5,7 @@ import {
     IonLoading, IonToast, IonIcon
 } from '@ionic/react';
 import { lockClosedOutline, mailOutline } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../ts/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 
 const AuthPage: React.FC = () => {

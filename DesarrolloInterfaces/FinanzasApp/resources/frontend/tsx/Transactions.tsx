@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
-import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../services/transactionService';
-import type { Transaction } from '../types';
-import TransactionModal from '../components/TransactionModal';
+import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../ts/transactionService';
+import type { Transaction } from '../ts/types';
+import TransactionModal from './TransactionModal';
 import { useTranslation } from 'react-i18next';
 
 const Transactions: React.FC = () => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, IonIcon, IonText } from '@ionic/react';
 import { flash } from 'ionicons/icons';
-import { getElectricityPrice } from '../services/apiService';
+import { getElectricityPrice } from '../ts/apiService';
 import { useTranslation } from 'react-i18next';
 
 const ElectricityWidget: React.FC = () => {

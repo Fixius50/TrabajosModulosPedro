@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonDatetime, IonDatetimeButton, IonIcon } from '@ionic/react';
-import type { Transaction } from '../types';
+import type { Transaction } from '../ts/types';
 import { useTranslation } from 'react-i18next';
-import { CATEGORIES } from '../constants';
-import { convertCurrency } from '../services/apiService';
+import { CATEGORIES } from '../ts/constants';
+import { convertCurrency } from '../ts/apiService';
 
 interface Props {
     isOpen: boolean;
@@ -133,7 +133,7 @@ const TransactionModal: React.FC<Props> = ({ isOpen, onClose, onSave, initialDat
                     {imageFile && (
                         <div className="ion-margin-top">
                             <IonButton size="small" fill="outline" onClick={async () => {
-                                const { analyzeReceipt } = await import('../services/ocrService');
+                                const { analyzeReceipt } = await import('../ts/ocrService');
                                 const toast = document.createElement('ion-toast');
                                 toast.message = 'Analizando recibo... espera unos segundos';
                                 toast.duration = 2000;

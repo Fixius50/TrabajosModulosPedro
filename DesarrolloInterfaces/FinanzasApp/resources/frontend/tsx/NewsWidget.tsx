@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonCard, IonCardHeader, IonCardSubtitle, IonCardContent, IonList, IonItem, IonLabel, IonNote } from '@ionic/react';
-import { getFinancialNews } from '../services/apiService';
+import { getFinancialNews } from '../ts/apiService';
 import { useTranslation } from 'react-i18next';
 
 const NewsWidget: React.FC = () => {
@@ -11,7 +11,7 @@ const NewsWidget: React.FC = () => {
         const fetchNews = async () => {
             const token = localStorage.getItem('marketaux_token');
             if (token) {
-                const data = await getFinancialNews(token);
+                const data = await getFinancialNews();
                 if (data) setNews(data.slice(0, 3)); // Show top 3
             }
         };

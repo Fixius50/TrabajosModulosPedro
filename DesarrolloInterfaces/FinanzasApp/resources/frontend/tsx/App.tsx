@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
 import { IonApp, setupIonicReact } from '@ionic/react';
-import MainTabs from './components/MainTabs';
-import Menu from './components/Menu';
+import MainTabs from './MainTabs';
+import Menu from './Menu';
+import Layout from './Layout';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -12,7 +13,7 @@ import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 import '@ionic/react/css/padding.css';
 import '@ionic/react/css/float-elements.css';
 import '@ionic/react/css/text-alignment.css';
@@ -21,15 +22,17 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
 /* Theme variables */
-import './theme/variables.css';
-import { recurringService } from './services/recurring.service';
-import { supabase } from './supabaseClient';
+import '../css/variables.css';
+import '../css/index.css'; // Global Tailwind Styles
+
+import { recurringService } from '../ts/recurring.service';
+import { supabase } from '../ts/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
-import AuthPage from './pages/AuthPage';
+import AuthPage from './AuthPage';
 
 setupIonicReact({
-  mode: 'md', // Material Design mode (no iOS swipe animations)
-  animated: false // Disable ALL transition animations
+  mode: 'md',
+  animated: false
 });
 
 const App: React.FC = () => {
@@ -38,15 +41,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
-    console.log("[APP v2.0] Initialization starting - FIREFOX FIX");
+    console.log("[APP v3.0] Initialization starting (Prisma Redesign)");
 
-    // ULTRA-AGGRESSIVE 1 SECOND TIMEOUT - FIREFOX EDITION
     const forceLoadTimeout = setTimeout(() => {
-      console.error("[FIREFOX FIX] FORCING APP LOAD NOW!");
-      if (mounted) {
-        setLoading(false);
-      }
-    }, 1000);
+      console.warn("[TIMEOUT] Forcing app load.");
+      if (mounted) setLoading(false);
+    }, 1500);
 
     const initApp = async () => {
       try {
@@ -88,20 +88,14 @@ const App: React.FC = () => {
   if (loading) {
     return (
       <IonApp>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', flexDirection: 'column', backgroundColor: '#121212' }}>
-          {/* Use standard HTML spinner to avoid Ionic Portal issues sticking on screen */}
-          <div className="simple-spinner" style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid #333',
-            borderTop: '4px solid #3880ff',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-          <style>{`
-            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-          `}</style>
-          <p style={{ marginTop: '20px', color: '#666', fontFamily: 'sans-serif' }}>Iniciando...</p>
+        <div className="flex flex-col items-center justify-center h-screen w-screen bg-[#0f0a0a] text-[#c5a059] font-[Cinzel]">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 border-4 border-[#8a1c1c] border-t-[#c5a059] rounded-full animate-spin"></div>
+            <div className="absolute inset-2 border-2 border-[#4a4e5a] border-b-[#c5a059] rounded-full animate-spin-reverse opacity-50"></div>
+          </div>
+          <p className="mt-8 animate-pulse tracking-[0.3em] uppercase text-sm drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]">
+            Abriendo Portal Dimensional...
+          </p>
         </div>
       </IonApp>
     );
@@ -111,18 +105,17 @@ const App: React.FC = () => {
     <IonApp>
       <BrowserRouter>
         {session ? (
-          <>
-            <Menu />
-            <div id="main" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1 }}>
-              <Routes>
-                <Route path="/app/*" element={<MainTabs />} />
-                <Route path="/" element={<Navigate to="/app/dashboard" />} />
-                <Route path="/login" element={<Navigate to="/app/dashboard" />} />
-                <Route path="/register" element={<Navigate to="/app/dashboard" />} />
-                <Route path="*" element={<Navigate to="/app/dashboard" />} />
-              </Routes>
-            </div>
-          </>
+          <Layout>
+            {/* Note: Menu might need redesign or removal if Layout handles nav. Keeping for now but hidden if needed. */}
+            <div className="hidden"><Menu /></div>
+            <Routes>
+              <Route path="/app/*" element={<MainTabs />} />
+              <Route path="/" element={<Navigate to="/app/dashboard" />} />
+              <Route path="/login" element={<Navigate to="/app/dashboard" />} />
+              <Route path="/register" element={<Navigate to="/app/dashboard" />} />
+              <Route path="*" element={<Navigate to="/app/dashboard" />} />
+            </Routes>
+          </Layout>
         ) : (
           <Routes>
             <Route path="/login" element={<AuthPage />} />

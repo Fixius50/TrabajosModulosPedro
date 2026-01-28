@@ -1,0 +1,2550 @@
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_1 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>El Prisma del Patrimonio Híbrido</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af37",
+                        "electric-cyan": "#00f5ff",
+                        "deep-charcoal": "#0a0c12",
+                        "midnight": "#05070a",
+                        "silver-zen": "#e2e8f0",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --gold: #d4af37;
+            --cyan: #00f5ff;
+            --silver: #cbd5e1;
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #05070a;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0a0c12 0%, #05070a 100%);
+        }
+        .data-fractal {
+            background: conic-gradient(from 0deg at 50% 50%, 
+                transparent 0deg, 
+                var(--gold) 60deg, 
+                transparent 120deg, 
+                var(--cyan) 180deg, 
+                transparent 240deg, 
+                var(--gold) 300deg, 
+                transparent 360deg);
+            filter: blur(40px);
+            opacity: 0.15;
+        }
+        .zen-card {
+            background: rgba(10, 12, 18, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(203, 213, 225, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .nav-rune-modern {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(203, 213, 225, 0.1);
+            color: var(--silver);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .nav-rune-modern:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 245, 255, 0.05);
+            transform: scale(1.1);
+        }
+        .ticker-bar {
+            background: rgba(5, 7, 10, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .astrolabe-ring {
+            transition: all 0.8s ease;
+        }
+        .tech-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex items-center justify-center relative font-display">
+<button class="nav-rune-modern top-8 left-8">
+<span class="material-symbols-outlined text-xl">grid_view</span>
+</button>
+<button class="nav-rune-modern top-8 right-8">
+<span class="material-symbols-outlined text-xl">settings_input_component</span>
+</button>
+<button class="nav-rune-modern bottom-20 left-8">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+</button>
+<button class="nav-rune-modern bottom-20 right-8">
+<span class="material-symbols-outlined text-xl">query_stats</span>
+</button>
+<header class="fixed top-0 left-0 w-full p-10 flex flex-col items-center pointer-events-none">
+<h1 class="text-3xl font-light tracking-[0.5em] uppercase text-silver-zen/90">El Prisma Alquímico</h1>
+<p class="text-[10px] tech-num uppercase tracking-[0.8em] text-primary mt-2">Harmonización del Patrimonio Híbrido</p>
+</header>
+<div class="relative flex items-center justify-center w-[800px] h-[800px]">
+<div class="absolute w-[300px] h-[300px] rounded-full overflow-hidden flex items-center justify-center">
+<div class="data-fractal absolute inset-0 animate-pulse"></div>
+<div class="relative text-center z-10">
+<p class="text-[10px] uppercase tracking-[0.4em] text-primary/80 mb-1">Esencia del Capital</p>
+<p class="text-4xl font-bold tracking-tighter tech-num">€742.108,00</p>
+<div class="mt-4 flex justify-center gap-1">
+<div class="w-1 h-1 bg-electric-cyan rounded-full"></div>
+<div class="w-1 h-1 bg-primary rounded-full"></div>
+<div class="w-1 h-1 bg-silver-zen/30 rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="absolute w-[680px] h-[680px] rounded-full border border-white/5 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90 opacity-60" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="48" stroke="rgba(212, 175, 55, 0.2)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="48" stroke="#00f5ff" stroke-dasharray="25 301.6" stroke-dashoffset="0" stroke-width="1.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="rgba(255, 255, 255, 0.1)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="#d4af37" stroke-dasharray="40 301.6" stroke-dashoffset="-80" stroke-width="1.5"></circle>
+</svg>
+<div class="absolute inset-0 pointer-events-none">
+<div class="absolute top-[10%] left-1/2 -translate-x-1/2 tech-num text-[10px] text-electric-cyan">ALPHA_09</div>
+<div class="absolute bottom-[10%] left-1/2 -translate-x-1/2 tech-num text-[10px] text-primary">SIGMA_V2</div>
+</div>
+</div>
+<div class="absolute -left-20 top-[15%] w-72 zen-card p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-medium tracking-widest text-silver-zen italic">Geometría de Inversión</h3>
+<span class="material-symbols-outlined text-primary text-lg">insights</span>
+</div>
+<div class="flex items-end gap-1.5 h-16 mb-4">
+<div class="flex-1 bg-white/10 h-[30%]"></div>
+<div class="flex-1 bg-white/10 h-[55%]"></div>
+<div class="flex-1 bg-primary/40 h-[45%]"></div>
+<div class="flex-1 bg-primary h-[85%]"></div>
+<div class="flex-1 bg-electric-cyan h-[95%] shadow-[0_0_15px_rgba(0,245,255,0.3)]"></div>
+<div class="flex-1 bg-white/10 h-[60%]"></div>
+<div class="flex-1 bg-white/10 h-[75%]"></div>
+</div>
+<div class="flex justify-between items-center tech-num text-[10px] text-white/40">
+<span>Rendimiento Global</span>
+<span class="text-electric-cyan">+18.42%</span>
+</div>
+</div>
+<div class="absolute -right-24 top-[30%] w-80 zen-card p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-medium tracking-widest text-silver-zen italic">Flujo de Transacciones</h3>
+<span class="material-symbols-outlined text-electric-cyan text-lg">cyclone</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between border-b border-white/5 pb-2">
+<span class="text-xs text-white/60">Contrato Arrendamiento</span>
+<span class="tech-num text-xs text-primary">+2.450,00</span>
+</div>
+<div class="flex items-center justify-between border-b border-white/5 pb-2">
+<span class="text-xs text-white/60">Aquisición de Activos</span>
+<span class="tech-num text-xs text-red-400">-1.120,50</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs text-white/60">Dividendo Perpetuo</span>
+<span class="tech-num text-xs text-electric-cyan">+890,20</span>
+</div>
+</div>
+</div>
+<div class="absolute left-0 -bottom-10 w-64 zen-card p-6">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-1.5 h-1.5 rounded-full bg-electric-cyan"></div>
+<h3 class="text-xs uppercase tracking-[0.2em] text-white/50">Métrica de Riesgo</h3>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-light tech-num">2.4</span>
+<span class="text-[10px] uppercase text-white/30 tracking-widest">Nivel de Volatilidad</span>
+</div>
+<div class="w-full bg-white/5 h-[2px] mt-4 relative">
+<div class="absolute top-0 left-0 h-full w-[24%] bg-electric-cyan"></div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 w-full h-12 ticker-bar flex items-center px-10 z-50">
+<div class="flex items-center gap-3 mr-12 border-r border-white/10 pr-12">
+<span class="material-symbols-outlined text-electric-cyan text-sm">hub</span>
+<span class="text-[9px] uppercase tracking-[0.3em] text-white/80">Sincronía Técnica</span>
+</div>
+<div class="flex-1 flex items-center gap-10 overflow-hidden whitespace-nowrap opacity-60">
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-primary/80">BTC/EUR</span>
+<span class="text-white">64,231.12</span>
+<span class="text-electric-cyan">↑ 2.1%</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-primary/80">GOLD_OZ</span>
+<span class="text-white">2,145.00</span>
+<span class="text-red-400">↓ 0.4%</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-primary/80">SPX_INDEX</span>
+<span class="text-white">5,123.44</span>
+<span class="text-electric-cyan">↑ 0.8%</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-primary/80">VIX_BASE</span>
+<span class="text-white">13.2</span>
+<span class="text-white/40">STABLE</span>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-12">
+<div class="text-[9px] tech-num text-white/30">REF: 0X_FRACTAL_UI</div>
+<span class="material-symbols-outlined text-primary text-sm">security</span>
+</div>
+</div>
+<div class="fixed inset-0 pointer-events-none -z-10">
+<div class="absolute inset-0 opacity-[0.02] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-white/5 rounded-full"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1600px] h-[1600px] border border-white/5 rounded-full"></div>
+<div class="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-electric-cyan/5 blur-[120px] rounded-full"></div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_2 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bestiario de Egresos Digitales - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af37",
+                        "crimson-neon": "#ff003c",
+                        "deep-charcoal": "#0a0c12",
+                        "jet-black": "#020305",
+                        "silver-zen": "#e2e8f0",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --gold: #d4af37;
+            --crimson: #ff003c;
+            --silver: #cbd5e1;
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #020305;
+            background: radial-gradient(circle at center, #0a0c12 0%, #020305 100%);
+            min-height: 100vh;
+        }
+        .beast-card {
+            background: rgba(10, 12, 18, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 0, 60, 0.05);
+            transition: all 0.3s ease;
+        }
+        .beast-card:hover {
+            border-color: var(--crimson);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(255, 0, 60, 0.15);
+        }
+        .nav-rune-modern {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(203, 213, 225, 0.1);
+            color: var(--silver);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .nav-rune-modern:hover {
+            border-color: var(--crimson);
+            color: var(--crimson);
+            background: rgba(255, 0, 60, 0.05);
+        }
+        .tech-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .health-bar-bg {
+            background: rgba(255, 255, 255, 0.05);
+            height: 4px;
+            overflow: hidden;
+        }
+        .health-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--crimson), #ff4d7a);
+            box-shadow: 0 0 10px var(--crimson);
+        }
+        .hologram-effect {
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="text-white relative font-display overflow-x-hidden">
+<div class="fixed top-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center scale-75 opacity-90">
+<div class="relative w-32 h-32 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border border-primary/20 animate-[spin_20s_linear_infinite]"></div>
+<div class="absolute inset-2 rounded-full border border-crimson-neon/10 animate-[spin_15s_linear_infinite_reverse]"></div>
+<div class="text-center">
+<p class="text-[8px] uppercase tracking-[0.2em] text-primary/70">Patrimonio</p>
+<p class="text-lg font-bold tech-num tracking-tighter">€742k</p>
+</div>
+</div>
+</div>
+<div class="fixed left-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-40">
+<button class="nav-rune-modern rounded-full"><span class="material-symbols-outlined">auto_fix_high</span></button>
+<button class="nav-rune-modern rounded-full"><span class="material-symbols-outlined">menu_book</span></button>
+<button class="nav-rune-modern rounded-full border-crimson-neon text-crimson-neon"><span class="material-symbols-outlined">skull</span></button>
+<button class="nav-rune-modern rounded-full"><span class="material-symbols-outlined">radar</span></button>
+</div>
+<header class="pt-16 pb-12 flex flex-col items-center">
+<h1 class="text-4xl font-light tracking-[0.6em] uppercase text-silver-zen/90">Bestiario de Egresos</h1>
+<div class="flex items-center gap-4 mt-4">
+<span class="h-[1px] w-12 bg-crimson-neon/30"></span>
+<p class="text-[10px] tech-num uppercase tracking-[0.5em] text-crimson-neon">Amenazas de Capital Detectadas</p>
+<span class="h-[1px] w-12 bg-crimson-neon/30"></span>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-16 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="beast-card p-6 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-[10px] tech-num text-crimson-neon/60 mb-1">ID: ENTITY_SUB_01</p>
+<h2 class="text-xl font-medium tracking-widest uppercase">Suscripción Hydra</h2>
+</div>
+<span class="material-symbols-outlined text-crimson-neon text-3xl opacity-50">cyclone</span>
+</div>
+<div class="h-40 w-full mb-6 relative flex items-center justify-center bg-white/5 rounded-sm overflow-hidden">
+<span class="material-symbols-outlined text-8xl text-crimson-neon/10 absolute">stream</span>
+<div class="text-center relative z-10 hologram-effect">
+<span class="material-symbols-outlined text-6xl text-crimson-neon">widgets</span>
+<p class="text-[10px] tech-num mt-2">Drenaje pasivo activo</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] tech-num mb-1 uppercase tracking-tighter">
+<span class="text-white/50">Vitalidad Presupuestaria</span>
+<span class="text-white">€85 / €120</span>
+</div>
+<div class="health-bar-bg">
+<div class="health-bar-fill w-[70%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-center py-2 border-y border-white/5">
+<span class="text-xs italic text-white/40">Nivel de Daño Mensual</span>
+<span class="tech-num text-crimson-neon font-bold">-€35.00</span>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-2 py-2 bg-crimson-neon/10 hover:bg-crimson-neon/20 border border-crimson-neon/30 transition-all">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Neutralizar</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Sellar</span>
+</button>
+</div>
+</div>
+</div>
+<div class="beast-card p-6 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-[10px] tech-num text-crimson-neon/60 mb-1">ID: DOMUS_HEAVY_04</p>
+<h2 class="text-xl font-medium tracking-widest uppercase">Titán de Alquiler</h2>
+</div>
+<span class="material-symbols-outlined text-crimson-neon text-3xl opacity-50">account_balance</span>
+</div>
+<div class="h-40 w-full mb-6 relative flex items-center justify-center bg-white/5 rounded-sm overflow-hidden">
+<span class="material-symbols-outlined text-8xl text-crimson-neon/10 absolute">architecture</span>
+<div class="text-center relative z-10 hologram-effect">
+<span class="material-symbols-outlined text-6xl text-crimson-neon">domain</span>
+<p class="text-[10px] tech-num mt-2">Carga estructural fija</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] tech-num mb-1 uppercase tracking-tighter">
+<span class="text-white/50">Vitalidad Presupuestaria</span>
+<span class="text-white">€0 / €1.200</span>
+</div>
+<div class="health-bar-bg">
+<div class="health-bar-fill w-0"></div>
+</div>
+</div>
+<div class="flex justify-between items-center py-2 border-y border-white/5">
+<span class="text-xs italic text-white/40">Nivel de Daño Mensual</span>
+<span class="tech-num text-crimson-neon font-bold">-€1,200.00</span>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-2 py-2 bg-crimson-neon/10 hover:bg-crimson-neon/20 border border-crimson-neon/30 transition-all">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Neutralizar</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Sellar</span>
+</button>
+</div>
+</div>
+</div>
+<div class="beast-card p-6 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-[10px] tech-num text-crimson-neon/60 mb-1">ID: IMPULSE_V3</p>
+<h2 class="text-xl font-medium tracking-widest uppercase">Gasto Espectro</h2>
+</div>
+<span class="material-symbols-outlined text-crimson-neon text-3xl opacity-50">shopping_cart</span>
+</div>
+<div class="h-40 w-full mb-6 relative flex items-center justify-center bg-white/5 rounded-sm overflow-hidden">
+<span class="material-symbols-outlined text-8xl text-crimson-neon/10 absolute">blur_on</span>
+<div class="text-center relative z-10 hologram-effect">
+<span class="material-symbols-outlined text-6xl text-crimson-neon">shopping_bag</span>
+<p class="text-[10px] tech-num mt-2">Detección de impulso</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] tech-num mb-1 uppercase tracking-tighter">
+<span class="text-white/50">Vitalidad Presupuestaria</span>
+<span class="text-white">€450 / €500</span>
+</div>
+<div class="health-bar-bg">
+<div class="health-bar-fill w-[90%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-center py-2 border-y border-white/5">
+<span class="text-xs italic text-white/40">Nivel de Daño Mensual</span>
+<span class="tech-num text-crimson-neon font-bold">-€50.20</span>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-2 py-2 bg-crimson-neon/10 hover:bg-crimson-neon/20 border border-crimson-neon/30 transition-all">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Neutralizar</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Sellar</span>
+</button>
+</div>
+</div>
+</div>
+<div class="beast-card p-6 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-[10px] tech-num text-crimson-neon/60 mb-1">ID: MOBILITY_09</p>
+<h2 class="text-xl font-medium tracking-widest uppercase">Quimera de Transporte</h2>
+</div>
+<span class="material-symbols-outlined text-crimson-neon text-3xl opacity-50">directions_car</span>
+</div>
+<div class="h-40 w-full mb-6 relative flex items-center justify-center bg-white/5 rounded-sm overflow-hidden">
+<span class="material-symbols-outlined text-8xl text-crimson-neon/10 absolute">speed</span>
+<div class="text-center relative z-10 hologram-effect">
+<span class="material-symbols-outlined text-6xl text-crimson-neon">local_gas_station</span>
+<p class="text-[10px] tech-num mt-2">Consumo cinético</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] tech-num mb-1 uppercase tracking-tighter">
+<span class="text-white/50">Vitalidad Presupuestaria</span>
+<span class="text-white">€120 / €300</span>
+</div>
+<div class="health-bar-bg">
+<div class="health-bar-fill w-[40%]"></div>
+</div>
+</div>
+<div class="flex justify-between items-center py-2 border-y border-white/5">
+<span class="text-xs italic text-white/40">Nivel de Daño Mensual</span>
+<span class="tech-num text-crimson-neon font-bold">-€180.00</span>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-2 py-2 bg-crimson-neon/10 hover:bg-crimson-neon/20 border border-crimson-neon/30 transition-all">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Neutralizar</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+<span class="text-[10px] uppercase font-bold tracking-widest">Sellar</span>
+</button>
+</div>
+</div>
+</div>
+<div class="beast-card p-6 border-primary/40 bg-primary/5 flex flex-col justify-between">
+<div>
+<h2 class="text-xl font-medium tracking-widest uppercase text-primary">Reserva de Oro</h2>
+<p class="text-[10px] tech-num text-primary/60 mt-1 uppercase tracking-[0.2em]">Mitigación de Daños Total</p>
+</div>
+<div class="py-8">
+<p class="text-4xl font-bold tech-num text-primary">€12.450,80</p>
+<div class="flex items-center gap-2 text-[10px] tech-num text-primary/80 mt-2">
+<span class="material-symbols-outlined text-sm">shield</span>
+<span>CAPACIDAD DE ABSORCIÓN: 84%</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-[10px] tech-num uppercase">
+<span class="text-white/40">Defensa Total</span>
+<span class="text-primary">+€1.200,00</span>
+</div>
+<button class="w-full py-3 bg-primary/10 border border-primary/40 text-primary uppercase text-[10px] font-bold tracking-widest hover:bg-primary/20 transition-all">
+                        Reforzar Ciudadela
+                    </button>
+</div>
+</div>
+<div class="border border-dashed border-white/10 flex flex-col items-center justify-center p-6 hover:border-crimson-neon/40 hover:bg-white/5 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-4xl text-white/20 mb-4">add_circle</span>
+<p class="text-[10px] uppercase tracking-widest text-white/40">Invocar Nueva Amenaza</p>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 w-full h-12 bg-jet-black/90 border-t border-white/5 flex items-center px-10 z-50">
+<div class="flex items-center gap-3 mr-12 border-r border-white/10 pr-12">
+<span class="material-symbols-outlined text-crimson-neon text-sm">radar</span>
+<span class="text-[9px] uppercase tracking-[0.3em] text-white/80">Monitor de Egresos</span>
+</div>
+<div class="flex-1 flex items-center gap-10 overflow-hidden whitespace-nowrap opacity-60">
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-crimson-neon">HYDRA_NET</span>
+<span class="text-white">35.00</span>
+<span class="text-crimson-neon">ALERTA</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-primary">RESERVA_A</span>
+<span class="text-white">12,450.00</span>
+<span class="text-primary">ESTABLE</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-crimson-neon">TITAN_H</span>
+<span class="text-white">1,200.00</span>
+<span class="text-white/40">PENDIENTE</span>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-12">
+<div class="text-[9px] tech-num text-white/30">TERMINAL: BESTIARY_ROOT</div>
+<span class="material-symbols-outlined text-crimson-neon text-sm">security</span>
+</div>
+</div>
+<div class="fixed inset-0 pointer-events-none -z-10">
+<div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+<div class="absolute top-[-10%] right-[10%] w-[500px] h-[500px] bg-crimson-neon/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full"></div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_3 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro de Gestas - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d4af37",
+                        "electric-cyan": "#00f5ff",
+                        "deep-charcoal": "#0a0c12",
+                        "midnight": "#05070a",
+                        "silver-zen": "#e2e8f0",
+                        "crystal-dark": "rgba(10, 12, 18, 0.8)",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --gold: #d4af37;
+            --cyan: #00f5ff;
+            --silver: #cbd5e1;
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #000000;
+            overflow: hidden;
+        }
+        .quest-card {
+            background: linear-gradient(145deg, rgba(20, 22, 28, 0.9) 0%, rgba(5, 7, 10, 1) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.7);
+            position: relative;
+            overflow: hidden;
+        }
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4), transparent);
+        }
+        .runic-progress {
+            filter: drop-shadow(0 0 8px var(--cyan));
+        }
+        .medal-hologram {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+        .medal-hologram::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(0,245,255,0.1) 50%, transparent 60%);
+            background-size: 200% 200%;
+        }
+        .nav-diagonal {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(10, 12, 18, 0.8);
+            color: var(--gold);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+        .nav-diagonal span {
+            transform: rotate(-45deg);
+        }
+        .nav-diagonal:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+        }
+        .tech-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metal-border {
+            border: 1px solid #2a2d35;
+            box-shadow: inset 0 0 2px #4a4e5a;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center justify-center relative font-display bg-black">
+<div class="fixed inset-0 flex items-center justify-center pointer-events-none z-40">
+<div class="relative w-[850px] h-[600px]">
+<button class="nav-diagonal top-0 left-0 pointer-events-auto" title="Noroeste: Archivos">
+<span class="material-symbols-outlined text-xl">auto_stories</span>
+</button>
+<button class="nav-diagonal top-0 right-0 pointer-events-auto" title="Noreste: Mercado">
+<span class="material-symbols-outlined text-xl">account_balance</span>
+</button>
+<button class="nav-diagonal bottom-0 left-0 pointer-events-auto" title="Suroeste: Inventario">
+<span class="material-symbols-outlined text-xl">package_2</span>
+</button>
+<button class="nav-diagonal bottom-0 right-0 pointer-events-auto" title="Sureste: Ajustes">
+<span class="material-symbols-outlined text-xl">settings_input_component</span>
+</button>
+</div>
+</div>
+<header class="fixed top-0 left-0 w-full p-12 flex flex-col items-center z-50">
+<h1 class="text-3xl font-light tracking-[0.6em] uppercase text-silver-zen/90">Registro de Gestas</h1>
+<div class="h-px w-64 bg-gradient-to-r from-transparent via-primary/50 to-transparent mt-4"></div>
+<p class="text-[10px] tech-num uppercase tracking-[0.8em] text-primary mt-3 italic">Objetivos del Astrolabio Financiero</p>
+</header>
+<main class="relative z-10 w-full max-w-5xl px-8 flex flex-col gap-6 mt-16 mb-40">
+<div class="quest-card p-6 flex items-center gap-8 rounded-sm group">
+<div class="relative w-24 h-24 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="42" stroke="rgba(255,255,255,0.05)" stroke-width="4"></circle>
+<circle class="runic-progress" cx="50" cy="50" fill="transparent" r="42" stroke="var(--cyan)" stroke-dasharray="263.8" stroke-dashoffset="65.9" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="tech-num text-lg font-bold text-electric-cyan">75%</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h2 class="text-xl tracking-widest text-white/90 uppercase font-medium">Forjar Fondo de Emergencia</h2>
+<p class="text-xs text-white/40 italic mt-1 uppercase tracking-tighter">Estado: En curso - Nivel de prioridad I</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-primary uppercase tracking-widest">Recompensa estimada</p>
+<p class="tech-num text-sm text-primary">15.000,00 €</p>
+</div>
+</div>
+<div class="w-full bg-white/5 h-1.5 mt-4 rounded-full overflow-hidden border border-white/5">
+<div class="bg-gradient-to-r from-electric-cyan/20 to-electric-cyan h-full w-3/4 shadow-[0_0_10px_rgba(0,245,255,0.5)]"></div>
+</div>
+</div>
+<button class="metal-border bg-black/50 px-6 py-2 text-[10px] uppercase tracking-[0.2em] hover:bg-primary/10 transition-colors">Ver Detalles</button>
+</div>
+<div class="quest-card p-6 flex items-center gap-8 rounded-sm opacity-90">
+<div class="relative w-24 h-24 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="42" stroke="rgba(255,255,255,0.05)" stroke-width="4"></circle>
+<circle class="opacity-50" cx="50" cy="50" fill="transparent" r="42" stroke="var(--gold)" stroke-dasharray="263.8" stroke-dashoffset="184.6" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="tech-num text-lg font-bold text-primary/60">30%</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h2 class="text-xl tracking-widest text-white/90 uppercase font-medium">Asalto a la Hipoteca</h2>
+<p class="text-xs text-white/40 italic mt-1 uppercase tracking-tighter">Estado: Amortización activa - Nivel de prioridad II</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-primary uppercase tracking-widest">Capital Pendiente</p>
+<p class="tech-num text-sm text-white/80">142.500,00 €</p>
+</div>
+</div>
+<div class="w-full bg-white/5 h-1.5 mt-4 rounded-full overflow-hidden border border-white/5">
+<div class="bg-gradient-to-r from-primary/20 to-primary/80 h-full w-[30%]"></div>
+</div>
+</div>
+<button class="metal-border bg-black/50 px-6 py-2 text-[10px] uppercase tracking-[0.2em] hover:bg-primary/10 transition-colors">Aportar Esencia</button>
+</div>
+<div class="quest-card p-6 flex items-center gap-8 rounded-sm ring-1 ring-electric-cyan/30">
+<div class="relative w-24 h-24 flex-shrink-0">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="42" stroke="rgba(0,245,255,0.1)" stroke-width="4"></circle>
+<circle class="runic-progress" cx="50" cy="50" fill="transparent" r="42" stroke="var(--cyan)" stroke-dasharray="263.8" stroke-dashoffset="0" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-electric-cyan shadow-cyan-500/50">task_alt</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h2 class="text-xl tracking-widest text-electric-cyan/80 uppercase font-medium">Santuario del Jubilado</h2>
+<p class="text-xs text-electric-cyan/40 italic mt-1 uppercase tracking-tighter">Gesta Completada - Hito Alcanzado</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-primary uppercase tracking-widest">Estado Final</p>
+<p class="tech-num text-sm text-white">Consolidado</p>
+</div>
+</div>
+<div class="w-full bg-electric-cyan/10 h-1.5 mt-4 rounded-full overflow-hidden">
+<div class="bg-electric-cyan h-full w-full"></div>
+</div>
+</div>
+<div class="px-6 py-2 text-[10px] uppercase tracking-[0.2em] text-electric-cyan">Completado</div>
+</div>
+</main>
+<section class="fixed bottom-0 left-0 w-full bg-black/90 border-t border-white/10 p-8 z-50">
+<div class="max-w-6xl mx-auto flex items-center gap-12">
+<div class="flex-shrink-0 border-r border-white/10 pr-12">
+<h3 class="text-xs uppercase tracking-[0.4em] text-primary mb-2">Botín Acumulado</h3>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl tech-num font-bold">12</span>
+<span class="text-[10px] text-white/40 uppercase tracking-widest">Medallas de Honor</span>
+</div>
+</div>
+<div class="flex-1 flex gap-8">
+<div class="medal-hologram w-14 h-14 rounded-full flex items-center justify-center group cursor-help" title="Maestro del Ahorro">
+<span class="material-symbols-outlined text-primary/80 group-hover:text-primary transition-colors">military_tech</span>
+</div>
+<div class="medal-hologram w-14 h-14 rounded-full flex items-center justify-center group cursor-help" title="Estratega de Deuda">
+<span class="material-symbols-outlined text-electric-cyan/80 group-hover:text-electric-cyan transition-colors">verified</span>
+</div>
+<div class="medal-hologram w-14 h-14 rounded-full flex items-center justify-center group cursor-help" title="Visión de Futuro">
+<span class="material-symbols-outlined text-silver-zen/80 group-hover:text-white transition-colors">diamond</span>
+</div>
+<div class="medal-hologram w-14 h-14 rounded-full flex items-center justify-center opacity-30 grayscale cursor-not-allowed">
+<span class="material-symbols-outlined">lock</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[9px] tech-num text-white/30 uppercase tracking-[0.2em]">Resumen de Activos</span>
+<div class="flex items-center gap-4 text-xs tech-num">
+<span class="text-white/60">DISPONIBLE:</span>
+<span class="text-electric-cyan font-bold">42.890 €</span>
+</div>
+</div>
+</div>
+</section>
+<div class="fixed inset-0 pointer-events-none -z-10">
+<div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1200px] border border-white/5 rounded-full"></div>
+<div class="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-electric-cyan/5 blur-[150px] rounded-full"></div>
+<div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-primary/5 blur-[150px] rounded-full"></div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_4 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Taberna del Gremio: Arcas Comunes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "sapphire": "#0f52ba",
+                        "azure-light": "#00f5ff",
+                        "platinum": "#e5e4e2",
+                        "deep-abyss": "#020408",
+                        "glass-bg": "rgba(10, 15, 25, 0.7)",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --sapphire: #0f52ba;
+            --azure: #00f5ff;
+            --platinum: #e5e4e2;
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #020408;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0a0f19 0%, #020408 100%);
+        }
+        .frosted-glass {
+            background: rgba(15, 25, 45, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(229, 228, 226, 0.1);
+        }
+        .platinum-border {
+            border: 1px solid rgba(229, 228, 226, 0.3);
+            box-shadow: 0 0 15px rgba(229, 228, 226, 0.05);
+        }
+        .light-thread {
+            background: linear-gradient(90deg, transparent, var(--azure), transparent);
+            height: 1px;
+            opacity: 0.3;
+        }
+        .energy-bar-bg {
+            background: rgba(255, 255, 255, 0.05);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .energy-bar-fill {
+            background: linear-gradient(90deg, var(--sapphire), var(--azure));
+            box-shadow: 0 0 10px var(--azure);
+        }
+        .guild-ring {
+            border: 2px solid rgba(15, 82, 186, 0.2);
+            border-radius: 50%;
+        }
+        .tech-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .portrait-frame {
+            padding: 2px;
+            background: linear-gradient(135deg, var(--platinum), transparent, var(--sapphire));
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex items-center justify-center relative font-display">
+<div class="fixed inset-0 pointer-events-none -z-10">
+<div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] border border-sapphire/10 rounded-full"></div>
+<div class="absolute top-[-10%] left-[10%] w-[600px] h-[600px] bg-sapphire/10 blur-[150px] rounded-full"></div>
+<div class="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-azure-light/5 blur-[150px] rounded-full"></div>
+</div>
+<button class="fixed top-8 left-8 w-12 h-12 flex items-center justify-center border border-platinum/10 text-platinum/60 hover:text-azure-light hover:border-azure-light/50 transition-all duration-300">
+<span class="material-symbols-outlined">menu_book</span>
+</button>
+<button class="fixed top-8 right-8 w-12 h-12 flex items-center justify-center border border-platinum/10 text-platinum/60 hover:text-azure-light hover:border-azure-light/50 transition-all duration-300">
+<span class="material-symbols-outlined">group</span>
+</button>
+<header class="fixed top-0 left-0 w-full p-10 flex flex-col items-center pointer-events-none">
+<h1 class="text-3xl font-light tracking-[0.6em] uppercase text-platinum/90">La Taberna del Gremio</h1>
+<p class="text-[10px] tech-num uppercase tracking-[0.8em] text-sapphire mt-2">Gestión de Arcas Comunes • El Astrolabio</p>
+</header>
+<main class="relative w-full max-w-[1400px] h-[800px] flex items-center justify-between px-12">
+<div class="w-80 space-y-6 z-20">
+<h2 class="text-xs uppercase tracking-[0.4em] text-platinum/40 mb-8 border-b border-platinum/10 pb-2">Aventureros Activos</h2>
+<div class="frosted-glass p-5 relative group cursor-pointer hover:bg-white/5 transition-all">
+<div class="flex items-center gap-4 mb-4">
+<div class="portrait-frame w-14 h-14">
+<img alt="Avatar" class="rounded-full bg-deep-abyss" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtLGxOa_DHXpoXGN5Kxs5kSTGSfRgTuDdHSEMkflRt9B3a-dwRwTqryJvxpPcU4d-sP5PkaNXdoZEsuyV4obn2sdeg2var17s8TaIFjtjYxYGIwWoAfW_KYF5W_oXMbnpuI9gTTAeL9WrnW7YLFEuKDJ9CXUq2lF0zZJde_wX08hH-6mBqyMiev_JQjMV3Gal-FaYlBcQAJxHNxrQRVQlmFFl6imvMLUoA4w8BViodjC31OIvP--tAdBzohVwZLZ2jTPAr0JMUA5u6"/>
+</div>
+<div>
+<p class="text-sm font-medium tracking-wider">El Capitán</p>
+<p class="text-[10px] tech-num text-sapphire">CONTRIBUCIÓN: 1.200€</p>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[9px] tech-num text-white/40">
+<span>ENERGÍA DE APORTE</span>
+<span>85%</span>
+</div>
+<div class="energy-bar-bg">
+<div class="energy-bar-fill h-full w-[85%]"></div>
+</div>
+</div>
+<div class="absolute -right-24 top-1/2 w-24 light-thread opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="frosted-glass p-5 relative group cursor-pointer hover:bg-white/5 transition-all">
+<div class="flex items-center gap-4 mb-4">
+<div class="portrait-frame w-14 h-14">
+<img alt="Avatar" class="rounded-full bg-deep-abyss" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtPW4W_JRVrUsfhSnSB359KEYdITrq8ZtKbhnO9-7IVDEURC8E3bxC4q1I51qFMekrJa2Z9XAl9mmt1x010HW5mdt-nBaK0Ab9joRdTtRE0XEOnfPohaA4sdy91iG55g_WSuqdeFxnPXO7rAi-JtsgzQ_1p0Tm2bGAYX0lsgBipVSW6S-iKv_MqO8avojODIzyuvKAs8WzRHwbUJvNTB54Nwigl57RHcvTHrZ3rq2ZDfiXW3aGzGiVIC9R2w3NYAh8E3dptvNeOJNe"/>
+</div>
+<div>
+<p class="text-sm font-medium tracking-wider">La Tesorera</p>
+<p class="text-[10px] tech-num text-sapphire">CONTRIBUCIÓN: 950€</p>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[9px] tech-num text-white/40">
+<span>ENERGÍA DE APORTE</span>
+<span>72%</span>
+</div>
+<div class="energy-bar-bg">
+<div class="energy-bar-fill h-full w-[72%]"></div>
+</div>
+</div>
+<div class="absolute -right-24 top-1/2 w-24 light-thread opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div class="relative flex items-center justify-center">
+<div class="absolute w-[500px] h-[500px] guild-ring flex items-center justify-center">
+<div class="absolute w-[400px] h-[400px] guild-ring opacity-50 flex items-center justify-center">
+<div class="absolute w-[300px] h-[300px] guild-ring opacity-30"></div>
+</div>
+<svg class="absolute w-[520px] h-[520px] -rotate-90" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="48" stroke="rgba(15, 82, 186, 0.1)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="48" stroke="#0f52ba" stroke-dasharray="180 300" stroke-linecap="round" stroke-width="1"></circle>
+<circle cx="50" cy="50" fill="transparent" r="44" stroke="rgba(0, 245, 255, 0.1)" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="44" stroke="#00f5ff" stroke-dasharray="120 300" stroke-dashoffset="-180" stroke-linecap="round" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="relative w-64 h-64 rounded-full frosted-glass flex items-center justify-center overflow-hidden platinum-border">
+<div class="absolute inset-0 bg-gradient-to-b from-sapphire/20 to-transparent"></div>
+<div class="relative z-10 text-center">
+<span class="material-symbols-outlined text-6xl text-platinum/80 mb-4 block">shield</span>
+<p class="text-[10px] uppercase tracking-[0.3em] text-azure-light mb-1">Tesoro Común</p>
+<p class="text-4xl font-bold tech-num tracking-tight text-white">24.502,80€</p>
+<p class="text-[10px] text-white/40 mt-2 tech-num">RECURSOS DISPONIBLES</p>
+</div>
+</div>
+</div>
+<div class="w-80 space-y-6 z-20">
+<h2 class="text-xs uppercase tracking-[0.4em] text-platinum/40 mb-8 border-b border-platinum/10 pb-2 text-right">Métricas del Pacto</h2>
+<div class="frosted-glass p-6 text-right">
+<p class="text-[10px] text-sapphire tech-num mb-1 uppercase tracking-widest">Ahorro Mensual</p>
+<p class="text-2xl font-light">+2.150,00€</p>
+<div class="w-full bg-white/5 h-[1px] my-4"></div>
+<p class="text-[10px] text-azure-light tech-num mb-1 uppercase tracking-widest">Crecimiento Anual</p>
+<p class="text-2xl font-light text-platinum">14.2%</p>
+</div>
+<div class="frosted-glass p-6">
+<h3 class="text-[10px] uppercase tracking-widest text-white/50 mb-4">Estado del Gremio</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs">
+<span class="text-platinum/60 italic">Armonía Fiscal</span>
+<span class="text-azure-light tech-num">Óptima</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-platinum/60 italic">Riesgo Compartido</span>
+<span class="text-sapphire tech-num">Bajo</span>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-16 left-1/2 -translate-x-1/2 w-[1100px] flex gap-6 z-30">
+<div class="flex-1 frosted-glass p-5 platinum-border relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="absolute top-0 right-0 w-16 h-16 bg-platinum/5 -rotate-45 translate-x-8 -translate-y-8"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-sapphire">fort</span>
+<span class="text-[9px] tech-num text-white/30 uppercase">META: 50.000€</span>
+</div>
+<h4 class="text-sm font-medium tracking-widest uppercase mb-1">Refugio de Invierno</h4>
+<p class="text-[10px] text-white/50 italic mb-4">Fondo para la nueva vivienda</p>
+<div class="flex justify-between items-end">
+<span class="text-xl tech-num">12.400€</span>
+<span class="text-[10px] tech-num text-azure-light">24% COMPLETADO</span>
+</div>
+</div>
+<div class="flex-1 frosted-glass p-5 platinum-border relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-sapphire">sailing</span>
+<span class="text-[9px] tech-num text-white/30 uppercase">META: 4.500€</span>
+</div>
+<h4 class="text-sm font-medium tracking-widest uppercase mb-1">Travesía Estival</h4>
+<p class="text-[10px] text-white/50 italic mb-4">Expedición de vacaciones</p>
+<div class="flex justify-between items-end">
+<span class="text-xl tech-num">3.150€</span>
+<span class="text-[10px] tech-num text-azure-light">70% COMPLETADO</span>
+</div>
+</div>
+<div class="flex-1 frosted-glass p-5 platinum-border relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-sapphire">auto_awesome</span>
+<span class="text-[9px] tech-num text-white/30 uppercase">RESERVA EMERGENCIA</span>
+</div>
+<h4 class="text-sm font-medium tracking-widest uppercase mb-1">Escudo del Gremio</h4>
+<p class="text-[10px] text-white/50 italic mb-4">Reserva de seguridad</p>
+<div class="flex justify-between items-end">
+<span class="text-xl tech-num">8.952€</span>
+<span class="text-[10px] tech-num text-azure-light">NIVEL SEGURO</span>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 w-full h-10 bg-deep-abyss/80 border-t border-platinum/5 flex items-center px-10 z-50">
+<div class="flex-1 flex items-center gap-10 overflow-hidden whitespace-nowrap opacity-40">
+<div class="flex items-center gap-3 text-[9px] tech-num tracking-widest uppercase">
+<span class="text-sapphire">Sincronización_Gremial:</span>
+<span class="text-white">Activa</span>
+<span class="text-platinum">|</span>
+<span class="text-sapphire">Última_Aportación:</span>
+<span class="text-white">Hace 2 horas</span>
+<span class="text-platinum">|</span>
+<span class="text-sapphire">Contrato_Inteligente:</span>
+<span class="text-white">0x71...f9a2</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[9px] tech-num text-white/20">ESTADO DEL PACTO: INVIOLABLE</span>
+<span class="material-symbols-outlined text-sapphire text-xs">verified_user</span>
+</div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_5 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bóveda de Activos e Inversiones - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "emerald-mystic": "#064e3b",
+                        "emerald-bright": "#10b981",
+                        "old-gold": "#b08d57",
+                        "deep-graphite": "#121417",
+                        "void-black": "#08090a",
+                        "silver-mist": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --emerald: #10b981;
+            --gold: #b08d57;
+            --graphite: #121417;
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #08090a;
+            color: #e2e8f0;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #121417 0%, #08090a 100%);
+        }
+        .oracle-fractal {
+            background: conic-gradient(from 180deg at 50% 50%, 
+                transparent 0deg, 
+                var(--emerald) 90deg, 
+                transparent 180deg, 
+                var(--emerald) 270deg, 
+                transparent 360deg);
+            filter: blur(60px);
+            opacity: 0.2;
+        }
+        .gold-border-card {
+            background: rgba(18, 20, 23, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1.5px solid var(--gold);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(176, 141, 87, 0.1);
+        }
+        .tech-chart-line {
+            filter: drop-shadow(0 0 8px var(--emerald));
+        }
+        .ticker-ancient {
+            background: rgba(8, 9, 10, 0.98);
+            border-top: 1px solid rgba(176, 141, 87, 0.3);
+            font-family: 'JetBrains Mono', monospace;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+        .rune-btn {
+            border: 1px solid rgba(176, 141, 87, 0.4);
+            background: rgba(176, 141, 87, 0.05);
+            transition: all 0.3s ease;
+        }
+        .rune-btn:hover {
+            border-color: var(--emerald);
+            color: var(--emerald);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .candle-up { background-color: #10b981; }
+        .candle-down { background-color: #ef4444; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative font-display">
+<nav class="fixed inset-0 pointer-events-none p-8 flex flex-col justify-between z-50">
+<div class="flex justify-between w-full pointer-events-auto">
+<button class="rune-btn w-12 h-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">auto_awesome_motion</span>
+</button>
+<button class="rune-btn w-12 h-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">account_balance</span>
+</button>
+</div>
+<div class="flex justify-between w-full pointer-events-auto">
+<button class="rune-btn w-12 h-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+</button>
+<button class="rune-btn w-12 h-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">shield_moon</span>
+</button>
+</div>
+</nav>
+<header class="fixed top-12 left-0 w-full text-center pointer-events-none">
+<h1 class="text-4xl font-light tracking-[0.6em] uppercase text-old-gold mb-2">Bóveda de Activos</h1>
+<div class="flex items-center justify-center gap-4">
+<div class="h-[1px] w-24 bg-gradient-to-r from-transparent to-old-gold/40"></div>
+<p class="text-[10px] font-technical uppercase tracking-[0.4em] text-emerald-bright/70">Oráculo de Inversiones de El Astrolabio</p>
+<div class="h-[1px] w-24 bg-gradient-to-l from-transparent to-old-gold/40"></div>
+</div>
+</header>
+<main class="relative flex items-center justify-center w-full max-w-[1400px] h-[700px] gap-8">
+<aside class="w-72 space-y-6 z-20">
+<div class="gold-border-card p-5">
+<h3 class="text-xs font-technical uppercase tracking-widest text-old-gold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">pie_chart</span> Asignación
+                </h3>
+<div class="space-y-4">
+<div class="group cursor-pointer">
+<div class="flex justify-between text-[11px] mb-2 uppercase tracking-tighter">
+<span class="text-silver-mist">Renta Variable</span>
+<span class="font-technical text-emerald-bright">42%</span>
+</div>
+<div class="h-1 bg-white/5 overflow-hidden">
+<div class="h-full bg-emerald-mystic w-[42%] group-hover:bg-emerald-bright transition-all"></div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex justify-between text-[11px] mb-2 uppercase tracking-tighter">
+<span class="text-silver-mist">Bienes Raíces</span>
+<span class="font-technical text-emerald-bright">28%</span>
+</div>
+<div class="h-1 bg-white/5 overflow-hidden">
+<div class="h-full bg-emerald-mystic w-[28%] group-hover:bg-emerald-bright transition-all"></div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex justify-between text-[11px] mb-2 uppercase tracking-tighter">
+<span class="text-silver-mist">Criptoactivos</span>
+<span class="font-technical text-emerald-bright">15%</span>
+</div>
+<div class="h-1 bg-white/5 overflow-hidden">
+<div class="h-full bg-emerald-mystic w-[15%] group-hover:bg-emerald-bright transition-all"></div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex justify-between text-[11px] mb-2 uppercase tracking-tighter">
+<span class="text-silver-mist">Oro y Metales</span>
+<span class="font-technical text-emerald-bright">15%</span>
+</div>
+<div class="h-1 bg-white/5 overflow-hidden">
+<div class="h-full bg-emerald-mystic w-[15%] group-hover:bg-emerald-bright transition-all"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="gold-border-card p-5">
+<h3 class="text-xs font-technical uppercase tracking-widest text-old-gold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">analytics</span> Proyección 5Y
+                </h3>
+<div class="h-24 flex items-end gap-1">
+<div class="flex-1 bg-emerald-mystic/40 h-[30%]"></div>
+<div class="flex-1 bg-emerald-mystic/50 h-[45%]"></div>
+<div class="flex-1 bg-emerald-mystic/60 h-[58%]"></div>
+<div class="flex-1 bg-emerald-mystic/80 h-[72%]"></div>
+<div class="flex-1 bg-emerald-bright h-[90%]"></div>
+</div>
+<div class="mt-4 text-center">
+<span class="text-[10px] font-technical text-silver-mist tracking-widest uppercase">+142.4% Est. Compuesto</span>
+</div>
+</div>
+</aside>
+<section class="relative flex-1 h-full flex items-center justify-center">
+<div class="absolute w-[600px] h-[600px] rounded-full overflow-hidden flex items-center justify-center opacity-60">
+<div class="oracle-fractal absolute inset-0 animate-spin-slow" style="animation: spin 30s linear infinite;"></div>
+</div>
+<div class="relative z-10 text-center">
+<div class="mb-8 relative">
+<div class="absolute inset-0 blur-2xl bg-emerald-bright/10 rounded-full scale-150"></div>
+<p class="text-[10px] font-technical uppercase tracking-[0.5em] text-emerald-bright mb-4">Patrimonio Consolidado</p>
+<h2 class="text-6xl font-technical font-bold tracking-tighter text-white drop-shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                        €2.841.050,<span class="text-3xl opacity-50">72</span>
+</h2>
+</div>
+<div class="w-[500px] h-48 relative border-x border-emerald-bright/10 mt-12 overflow-hidden px-8">
+<div class="absolute bottom-0 left-0 w-full h-full flex items-end justify-between opacity-80">
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-12 bg-emerald-bright/40"></div>
+<div class="w-full h-8 candle-up shadow-sm"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-16 bg-emerald-bright/40"></div>
+<div class="w-full h-12 candle-up"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-10 bg-red-400/40"></div>
+<div class="w-full h-6 candle-down"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-20 bg-emerald-bright/40"></div>
+<div class="w-full h-16 candle-up"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-14 bg-emerald-bright/40"></div>
+<div class="w-full h-10 candle-up"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-12 bg-red-400/40"></div>
+<div class="w-full h-4 candle-down"></div>
+</div>
+<div class="w-2 flex flex-col items-center">
+<div class="w-[1px] h-24 bg-emerald-bright/40"></div>
+<div class="w-full h-20 candle-up shadow-[0_0_15px_rgba(16,185,129,0.4)]"></div>
+</div>
+</div>
+<svg class="absolute inset-0 w-full h-full opacity-60 tech-chart-line" preserveAspectRatio="none" viewBox="0 0 500 200">
+<path d="M0,180 Q100,160 150,120 T300,80 T500,20" fill="none" stroke="#10b981" stroke-width="1.5"></path>
+<path d="M0,190 L500,190" stroke="rgba(176,141,87,0.1)" stroke-width="0.5"></path>
+</svg>
+<div class="absolute top-2 left-4 text-[9px] font-technical text-emerald-bright/50 uppercase tracking-widest">
+                        Índice de Fuerza Alquímica (RSI_MOD: 74.2)
+                    </div>
+</div>
+</div>
+<div class="absolute w-[500px] h-[500px] border border-emerald-bright/5 rounded-full"></div>
+<div class="absolute w-[650px] h-[650px] border border-old-gold/10 rounded-full"></div>
+<div class="absolute w-[750px] h-[750px] border border-white/5 rounded-full border-dashed"></div>
+</section>
+<aside class="w-72 space-y-6 z-20">
+<div class="gold-border-card p-5">
+<h3 class="text-xs font-technical uppercase tracking-widest text-old-gold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">stars</span> Activos Élite
+                </h3>
+<div class="space-y-5">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-medium text-white/80">S&amp;P 500 ETF</span>
+<span class="text-[9px] font-technical text-emerald-bright/60">ACUMULACIÓN</span>
+</div>
+<div class="text-right">
+<div class="text-[11px] font-technical text-white">€842.100</div>
+<div class="text-[9px] font-technical text-emerald-bright">↑ 12.4%</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-medium text-white/80">Bitcoin Vault</span>
+<span class="text-[9px] font-technical text-emerald-bright/60">CUSTODIA FRÍA</span>
+</div>
+<div class="text-right">
+<div class="text-[11px] font-technical text-white">€455.320</div>
+<div class="text-[9px] font-technical text-emerald-bright">↑ 41.2%</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[11px] font-medium text-white/80">Physical Gold</span>
+<span class="text-[9px] font-technical text-emerald-bright/60">RESERVA_SEC</span>
+</div>
+<div class="text-right">
+<div class="text-[11px] font-technical text-white">€321.050</div>
+<div class="text-[9px] font-technical text-white/30">± 0.2%</div>
+</div>
+</div>
+</div>
+</div>
+<div class="gold-border-card p-5">
+<h3 class="text-xs font-technical uppercase tracking-widest text-old-gold mb-4">Estado del Oráculo</h3>
+<div class="flex items-center gap-3">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="rgba(16,185,129,0.1)" stroke-width="2"></circle>
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="#10b981" stroke-dasharray="125" stroke-dashoffset="30" stroke-width="2"></circle>
+</svg>
+<span class="absolute text-[10px] font-technical text-emerald-bright">78%</span>
+</div>
+<div>
+<p class="text-[10px] text-silver-mist leading-tight italic">Sincronía de mercado optimizada. Riesgo bajo.</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<footer class="fixed bottom-0 left-0 w-full h-14 ticker-ancient flex items-center px-12 z-50">
+<div class="flex items-center gap-4 border-r border-old-gold/20 pr-8 mr-8 shrink-0">
+<span class="material-symbols-outlined text-old-gold animate-pulse">scrollable_header</span>
+<span class="text-[10px] uppercase tracking-[0.3em] text-old-gold/80 font-medium">Crónica del Mercado</span>
+</div>
+<div class="flex-1 flex items-center gap-12 overflow-hidden whitespace-nowrap">
+<div class="flex items-center gap-2 text-[11px] font-technical">
+<span class="text-silver-mist">EUR/USD:</span>
+<span class="text-white">1.0842</span>
+<span class="text-red-400">↓ 0.12%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] font-technical">
+<span class="text-silver-mist">IBEX 35:</span>
+<span class="text-white">10,942.1</span>
+<span class="text-emerald-bright">↑ 0.45%</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] font-technical">
+<span class="text-old-gold/60">NOTICIA:</span>
+<span class="text-white/70 italic uppercase text-[10px]">La Reserva Federal mantiene tasas; El oro alcanza máximos históricos...</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] font-technical">
+<span class="text-silver-mist">VOLATILIDAD VIX:</span>
+<span class="text-white">13.8</span>
+<span class="text-emerald-bright">ZEN</span>
+</div>
+<div class="flex items-center gap-2 text-[11px] font-technical">
+<span class="text-silver-mist">NASDAQ:</span>
+<span class="text-white">16,274.9</span>
+<span class="text-emerald-bright">↑ 1.2%</span>
+</div>
+</div>
+<div class="flex items-center gap-6 ml-8 shrink-0 border-l border-old-gold/20 pl-8">
+<div class="text-right">
+<div class="text-[9px] font-technical text-old-gold/40">SISTEMA: V.09_ALQUIMIA</div>
+<div class="text-[9px] font-technical text-emerald-bright/60 uppercase">Conexión Segura</div>
+</div>
+<span class="material-symbols-outlined text-emerald-bright text-xl">token</span>
+</div>
+</footer>
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+<div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/pinstriped-dark.png')]"></div>
+<div class="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-emerald-mystic/10 blur-[150px] rounded-full"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-old-gold/5 blur-[120px] rounded-full"></div>
+<div class="absolute inset-0 opacity-[0.02]" style="background-image: linear-gradient(rgba(176,141,87,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(176,141,87,0.2) 1px, transparent 1px); background-size: 100px 100px;"></div>
+</div>
+<style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin 60s linear infinite;
+        }
+    </style>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: círculo_del_patrimonio_v1_6 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cámara de Seguridad - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "cobalt-led": "#2e5bff",
+                        "electric-cyan": "#00f5ff",
+                        "obsidian": "#080a0f",
+                        "brushed-steel": "#8e9aaf",
+                        "deep-charcoal": "#0a0c12",
+                        "primary": "#d4af37",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "technical": ["JetBrains Mono", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --cobalt: #2e5bff;
+            --cyan: #00f5ff;
+            --obsidian-glass: rgba(8, 10, 15, 0.85);
+            --steel-border: rgba(142, 154, 175, 0.2);
+        }
+        body {
+            font-family: 'Newsreader', serif;
+            background-color: #05070a;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0d1117 0%, #05070a 100%);
+        }
+        .obsidian-panel {
+            background: var(--obsidian-glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--steel-border);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 10px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+        .obsidian-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hud-circle {
+            border: 1px solid rgba(46, 91, 255, 0.2);
+            box-shadow: 0 0 30px rgba(46, 91, 255, 0.1);
+        }
+        .scanning-line {
+            background: linear-gradient(to bottom, transparent, var(--cobalt), transparent);
+            height: 2px;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 15px var(--cobalt);
+        }
+        .safe-toggle-input:checked + .safe-toggle-track {
+            background: rgba(46, 91, 255, 0.2);
+            border-color: var(--cobalt);
+        }
+        .safe-toggle-input:checked + .safe-toggle-track .safe-toggle-handle {
+            transform: translateX(20px);
+            background: var(--cobalt);
+            box-shadow: 0 0 10px var(--cobalt);
+        }
+        .safe-toggle-track {
+            width: 44px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(142, 154, 175, 0.3);
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .safe-toggle-handle {
+            width: 16px;
+            height: 16px;
+            background: #4a5568;
+            border-radius: 2px;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-rune-modern {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(203, 213, 225, 0.1);
+            color: #8e9aaf;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.02);
+            z-index: 100;
+        }
+        .nav-rune-modern:hover {
+            border-color: var(--cobalt);
+            color: var(--cobalt);
+            background: rgba(46, 91, 255, 0.05);
+            transform: scale(1.1);
+        }
+        .tech-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex items-center justify-center relative font-display">
+<button class="nav-rune-modern top-8 left-8">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<button class="nav-rune-modern top-8 right-8">
+<span class="material-symbols-outlined text-xl">refresh</span>
+</button>
+<button class="nav-rune-modern bottom-12 left-8">
+<span class="material-symbols-outlined text-xl">key</span>
+</button>
+<button class="nav-rune-modern bottom-12 right-8">
+<span class="material-symbols-outlined text-xl">terminal</span>
+</button>
+<header class="fixed top-0 left-0 w-full p-12 flex flex-col items-center pointer-events-none z-10">
+<h1 class="text-3xl font-light tracking-[0.6em] uppercase text-brushed-steel/90">Cámara de Seguridad</h1>
+<p class="text-[10px] tech-num uppercase tracking-[0.8em] text-cobalt-led mt-3">Protocolos de Blindaje Digital Activos</p>
+</header>
+<div class="relative w-full max-w-[1400px] h-[800px] flex items-center justify-between px-20">
+<div class="w-80 space-y-6">
+<div class="obsidian-panel p-6 border-l-2 border-l-cobalt-led">
+<h2 class="text-xs uppercase tracking-[0.3em] text-cobalt-led mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">lock_person</span>
+                Vínculos de Acceso
+            </h2>
+<div class="space-y-5">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-silver-zen">Cifrado de Almas (2FA)</p>
+<p class="text-[9px] tech-num text-white/40 uppercase">Token de Autenticación</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only safe-toggle-input" type="checkbox"/>
+<div class="safe-toggle-track">
+<div class="safe-toggle-handle"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-silver-zen">Custodia de Datos</p>
+<p class="text-[9px] tech-num text-white/40 uppercase">AES-256 Vault</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only safe-toggle-input" type="checkbox"/>
+<div class="safe-toggle-track">
+<div class="safe-toggle-handle"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-sm text-silver-zen">Alerta de Intrusión</p>
+<p class="text-[9px] tech-num text-white/40 uppercase">Sentinel Mode</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only safe-toggle-input" type="checkbox"/>
+<div class="safe-toggle-track">
+<div class="safe-toggle-handle"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+<div class="obsidian-panel p-6 border-l-2 border-l-brushed-steel/30">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">shield_with_heart</span>
+<h3 class="text-[11px] uppercase tracking-widest text-white/60">Integridad Estructural</h3>
+</div>
+<div class="w-full bg-white/5 h-[1px] mb-4"></div>
+<div class="flex items-end justify-between tech-num">
+<span class="text-2xl font-light text-primary">99.8%</span>
+<span class="text-[9px] text-white/30 uppercase mb-1">Status: Óptimo</span>
+</div>
+</div>
+</div>
+<div class="relative flex items-center justify-center">
+<div class="absolute w-[600px] h-[600px] rounded-full border border-cobalt-led/10"></div>
+<div class="absolute w-[500px] h-[500px] rounded-full border border-white/5"></div>
+<div class="relative w-[420px] h-[420px] rounded-full hud-circle p-4 flex items-center justify-center overflow-hidden bg-black/40">
+<div class="scanning-line"></div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-8xl text-cobalt-led/40 mb-4" style="font-variation-settings: 'FILL' 0, 'wght' 100;">face</span>
+<div class="text-center">
+<p class="tech-num text-[10px] text-cobalt-led tracking-[0.3em] mb-1">SCANNING_BIOMETRY</p>
+<p class="text-xs italic text-white/60">Aguardando reconocimiento de linaje...</p>
+</div>
+</div>
+<svg class="absolute inset-0 w-full h-full transform -rotate-90 opacity-40" viewBox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="48" stroke="var(--cobalt)" stroke-dasharray="1 4" stroke-width="0.5"></circle>
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="var(--cyan)" stroke-dasharray="30 100" stroke-dashoffset="15" stroke-width="1.5"></circle>
+</svg>
+</div>
+<div class="absolute -bottom-12 tech-num text-[10px] text-cobalt-led/60 tracking-[0.5em] flex items-center gap-4">
+<span>[ SYS_ENCRYPTED ]</span>
+<span class="w-2 h-2 rounded-full bg-cobalt-led animate-pulse"></span>
+<span>[ AUTH_PENDING ]</span>
+</div>
+</div>
+<div class="w-80 space-y-6">
+<div class="obsidian-panel p-6 border-r-2 border-r-cobalt-led text-right">
+<h2 class="text-xs uppercase tracking-[0.3em] text-cobalt-led mb-6 flex items-center justify-end gap-2">
+                Hechizos de Protección
+                <span class="material-symbols-outlined text-sm">auto_fix_high</span>
+</h2>
+<div class="space-y-6">
+<div>
+<p class="text-sm text-silver-zen mb-1">Límite de Gasto Astral</p>
+<div class="flex items-center justify-end gap-3">
+<span class="tech-num text-xs text-cobalt-led">€ 5.000,00</span>
+<span class="material-symbols-outlined text-xs text-white/40">edit</span>
+</div>
+</div>
+<div>
+<p class="text-sm text-silver-zen mb-1">Geocerca de Operaciones</p>
+<div class="flex items-center justify-end gap-3">
+<span class="tech-num text-xs text-cobalt-led">EUROPA_ZONA_A</span>
+<span class="material-symbols-outlined text-xs text-white/40">location_on</span>
+</div>
+</div>
+<div>
+<p class="text-sm text-silver-zen mb-1">Aislamiento de Emergencia</p>
+<button class="mt-2 w-full py-2 border border-red-900/50 bg-red-950/20 text-red-400 text-[10px] tech-num uppercase tracking-widest hover:bg-red-900/40 transition-colors">
+                        Sellar Bóveda (Panic)
+                    </button>
+</div>
+</div>
+</div>
+<div class="obsidian-panel p-6 border-r-2 border-r-brushed-steel/30">
+<h3 class="text-[10px] uppercase tracking-widest text-white/40 mb-4 text-right">Bitácora de Eventos</h3>
+<div class="space-y-3 tech-num text-[9px]">
+<div class="flex justify-between text-white/50">
+<span class="text-cobalt-led/80">14:02:11</span>
+<span>Acceso biometrico concedido</span>
+</div>
+<div class="flex justify-between text-white/50">
+<span class="text-cobalt-led/80">11:45:02</span>
+<span>Cifrado de datos rotado</span>
+</div>
+<div class="flex justify-between text-white/30 italic">
+<span>-- Ver historial completo --</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 w-full h-12 bg-obsidian border-t border-white/5 flex items-center px-12 z-50">
+<div class="flex items-center gap-3 mr-12 border-r border-white/10 pr-12">
+<span class="material-symbols-outlined text-cobalt-led text-sm">security</span>
+<span class="text-[9px] uppercase tracking-[0.3em] text-white/80">Nivel de Seguridad: MÁXIMO</span>
+</div>
+<div class="flex-1 flex items-center gap-10 overflow-hidden whitespace-nowrap opacity-60">
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-cobalt-led/80">HASH_SIG:</span>
+<span class="text-white">8f92...a3e1</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-cobalt-led/80">ENCRYPTION:</span>
+<span class="text-white">QUANTUM_READY</span>
+</div>
+<div class="flex items-center gap-3 text-[10px] tech-num">
+<span class="text-cobalt-led/80">UPLINK:</span>
+<span class="text-electric-cyan">SECURE_STABLE</span>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-12">
+<div class="text-[9px] tech-num text-white/30">ID_NODE: ASTRO_009</div>
+<span class="material-symbols-outlined text-cobalt-led text-sm">fingerprint</span>
+</div>
+</div>
+<div class="fixed inset-0 pointer-events-none -z-10">
+<div class="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1100px] h-[1100px] border border-cobalt-led/5 rounded-full"></div>
+<div class="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cobalt-led/5 blur-[150px] rounded-full"></div>
+<div class="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-obsidian blur-[100px] rounded-full"></div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: la_galería_de_reliquias__activos_físicos_1 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>La Galería de Reliquias - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "gold": "#d4af37",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0a080c",
+                        "vault-panel": "#191022",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hologram-glow {
+            box-shadow: 0 0 40px rgba(127, 19, 236, 0.3), inset 0 0 20px rgba(127, 19, 236, 0.2);
+        }
+        .metallic-border {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: linear-gradient(145deg, #191022 0%, #0a080c 100%);
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent, rgba(127, 19, 236, 0.4), transparent);
+            height: 100px;
+            width: 100%;
+            position: absolute;
+            top: -100px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary/40 overflow-x-hidden">
+<div class="relative flex min-h-screen flex-col">
+<!-- TopNavBar Navigation -->
+<header class="flex items-center justify-between border-b border-solid border-white/10 px-10 py-4 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined text-4xl">astrophotography_mode</span>
+</div>
+<div class="flex flex-col">
+<h2 class="text-white text-lg font-bold leading-tight tracking-tight">El Astrolabio</h2>
+<span class="text-[10px] uppercase tracking-widest text-gold opacity-80">Gestión de Patrimonio Premium</span>
+</div>
+</div>
+<nav class="hidden lg:flex items-center gap-9 ml-4">
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium" href="#">Inventario</a>
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium" href="#">Mercado</a>
+<a class="text-white text-sm font-bold border-b-2 border-primary pb-1" href="#">Galería de Reliquias</a>
+<a class="text-white/70 hover:text-primary transition-colors text-sm font-medium" href="#">Bóveda</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-vault-panel rounded-lg px-3 py-1.5 border border-white/5">
+<span class="material-symbols-outlined text-primary text-xl mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 placeholder:text-white/30" placeholder="Buscar en la bóveda..."/>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-lg size-10 bg-vault-panel hover:bg-primary/20 text-white transition-all border border-white/5">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-lg size-10 bg-vault-panel hover:bg-primary/20 text-white transition-all border border-white/5">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="size-10 rounded-full border-2 border-primary p-0.5">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="User profile avatar portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDrvTBA_EC9RdwLtYOpoyXx8A66V1jbj-X3X0FEfd2NHhmrfqjbmOaeT7Dp1ab2NtzKDaeRn2oWsP8RsiVxORKe0oRDe8AKlmZswrFuCGB1wJygKBjL3Vkp7d-Pg03hjKKGtICY6huDMWCZPLNcgZt-6I9Z3bKHk1MBmDphN9ZHY1em6DBww55FHrJqHUWLFrlhNvVU07dnm2kA0PYSE2zD54J2eXkaSzF0jepkyShjXOku1YJ39k1fuEQOwl6N-bakBRlXVok24tQ_");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col px-6 lg:px-12 py-8 gap-8">
+<!-- PageHeading -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-4">
+<div class="max-w-2xl">
+<h1 class="text-white text-4xl md:text-5xl font-black leading-tight tracking-tighter">Galería de Reliquias <span class="text-primary">&amp;</span> Activos Tangibles</h1>
+<p class="text-white/50 text-lg mt-2 font-light">Visualización holográfica y tasación en tiempo real de su patrimonio físico más exclusivo.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">add_circle</span>
+                Añadir Nueva Reliquia
+            </button>
+</div>
+<!-- Main Workspace Layout -->
+<div class="grid grid-cols-12 gap-6 flex-1 h-full min-h-[800px]">
+<!-- Left Panel: Catálogo de Rarezas -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-gold text-xs font-bold uppercase tracking-[0.2em]">Catálogo de Rarezas</h3>
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full border border-primary/30">12 Objetos</span>
+</div>
+<div class="flex flex-col gap-4 overflow-y-auto pr-2 max-h-[750px] custom-scrollbar">
+<!-- Active Card -->
+<div class="metallic-border p-3 rounded-xl border-primary bg-primary/10 shadow-xl">
+<div class="flex gap-4">
+<div class="size-16 rounded-lg bg-cover bg-center shrink-0 border border-white/10" data-alt="Close-up of a luxury Patek Philippe watch" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBG9IMUwjHBvW3-791D8SOlkNmsf-AKYYN4RJgGnOlsSdyblfbO-jGL5wI-bmBnU0Z6Kx08zh1ZOEuw561IQ0sEldNuIqwlS2q1vEsDufmDZLmv_byXr12pAd_HOIamBDGBfiDDo_p6yM6ypvQoXhzygP4X8x82Yx-hStyysqAg4rt7IQAN-SnA2bmXA-HyP6NHeGltpXeLhIAUrCI1Q_FwVQSyIjGl0dlg4mtkPjsPiOI7wO1dTEvWC_FE_wEdnnfA2SXriT-y493o");'></div>
+<div class="flex flex-col justify-center">
+<span class="text-[10px] text-primary font-bold uppercase">Mítico</span>
+<h4 class="text-white font-bold text-sm">Patek Philippe Nautilus 5711</h4>
+<p class="text-white/40 text-[10px]">Relojería Fina</p>
+</div>
+</div>
+</div>
+<!-- Other Cards -->
+<div class="metallic-border p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+<div class="flex gap-4">
+<div class="size-16 rounded-lg bg-cover bg-center shrink-0 grayscale hover:grayscale-0 transition-all opacity-70" data-alt="Ancient gold coin" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBRAAJk4_0n2zNwAcaQfVBl6VoUVthU9rjh144OO7IpYZnyy60OT6brTA3FBl4fZLW4WcqG1Z1CerHMgLvGe78h72Fuk_Qg7umLKN-h9m3_6W9ePqNqjr4XgGzagb8iS-RmvYm98w4QtqIZp1ggLvbzLYw43wEVLi0TD_FNG28MgXB8e-a5jIXASP9CPPQkQiMvwO16GQv_0GKg0pR5ntyntY5RAudZ2EvKgbLjcW0gp2TkHMQkvwdi8AyukSkekWan5pH-1o6q1nbf");'></div>
+<div class="flex flex-col justify-center">
+<span class="text-[10px] text-orange-400 font-bold uppercase">Legendario</span>
+<h4 class="text-white/70 font-bold text-sm">Doblón de Oro Español 1732</h4>
+<p class="text-white/40 text-[10px]">Numismática</p>
+</div>
+</div>
+</div>
+<div class="metallic-border p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+<div class="flex gap-4">
+<div class="size-16 rounded-lg bg-cover bg-center shrink-0 grayscale hover:grayscale-0 transition-all opacity-70" data-alt="Abstract modern oil painting" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD_qXQ8UvLRi2-gAVD9AWWskxNrtcrnI_Yu5POw5wj9AJ8m1NBah7S5tZ7Evxu4lrkNxPOpjlP1zf5An64klXFCcs09WPZItKeUZLoyrv-ueNxCyuFIGI4fhvSU9dAnUmRH9kV84k44n2Q1R_8Rrnp50YiymVJMiCyqaIcolH95pre-0FbUax6qtbilsdApjdkxblT5JYP9Zr-mqaFwMttsDHrvrke8EpQ5n4dWTQRvypxOmIwgfOz4TPTFTsDh-p1v5s1aagIbg9Ak");'></div>
+<div class="flex flex-col justify-center">
+<span class="text-[10px] text-blue-400 font-bold uppercase">Épico</span>
+<h4 class="text-white/70 font-bold text-sm">Óleo Abstracto: 'Nebulosa'</h4>
+<p class="text-white/40 text-[10px]">Arte Moderno</p>
+</div>
+</div>
+</div>
+<div class="metallic-border p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+<div class="flex gap-4">
+<div class="size-16 rounded-lg bg-cover bg-center shrink-0 grayscale hover:grayscale-0 transition-all opacity-70" data-alt="Vintage gold bar 1kg" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCloNYFYOya1TZQCFtQ5dyOniO1jcz4q6kyFSbkK3IJ1MZQWPnQli_85O7DZvssHwUyHKIt01YEoagv-oolttp6oYCf3rxe86nO0Yg9k7D34vMmpVUtf_rtA9QCVM-ZnJbM_fDLZHEK7_9_wUfFbswO5SaeWNzPYQNO8EaLRbmi5o7tIoSPzFP384SuU-I3htv8DhkjPegWRgzH6Ct5-QNKBNPi2prqQq2iwVJCCKT3HvEpJhvtbZx9eOKzlE9v632Qyv7ckynPt0l2");'></div>
+<div class="flex flex-col justify-center">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Común</span>
+<h4 class="text-white/70 font-bold text-sm">Lingote de Oro 24K - 1kg</h4>
+<p class="text-white/40 text-[10px]">Metales Preciosos</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Center: Hologram Pedestal -->
+<div class="col-span-12 lg:col-span-6 relative flex flex-col items-center justify-center py-10">
+<!-- Diagonal Navigation Dots -->
+<div class="absolute inset-0 pointer-events-none">
+<div class="absolute top-0 left-0 w-32 h-32 border-l border-t border-primary/30 rounded-tl-3xl"></div>
+<div class="absolute top-0 right-0 w-32 h-32 border-r border-t border-primary/30 rounded-tr-3xl"></div>
+<div class="absolute bottom-0 left-0 w-32 h-32 border-l border-b border-primary/30 rounded-bl-3xl"></div>
+<div class="absolute bottom-0 right-0 w-32 h-32 border-r border-b border-primary/30 rounded-br-3xl"></div>
+</div>
+<!-- Diagonal Action Buttons -->
+<div class="absolute top-10 left-10 group cursor-pointer z-10 text-center">
+<div class="size-12 rounded-full bg-vault-panel border border-primary/50 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">palette</span>
+</div>
+<span class="text-[10px] mt-1 block font-bold text-white/50 group-hover:text-white transition-colors">ARTE</span>
+</div>
+<div class="absolute top-10 right-10 group cursor-pointer z-10 text-center">
+<div class="size-12 rounded-full bg-vault-panel border border-primary/50 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">watch</span>
+</div>
+<span class="text-[10px] mt-1 block font-bold text-white/50 group-hover:text-white transition-colors">RELOJES</span>
+</div>
+<div class="absolute bottom-10 left-10 group cursor-pointer z-10 text-center">
+<div class="size-12 rounded-full bg-vault-panel border border-primary/50 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">drive_sketch</span>
+</div>
+<span class="text-[10px] mt-1 block font-bold text-white/50 group-hover:text-white transition-colors">METALES</span>
+</div>
+<div class="absolute bottom-10 right-10 group cursor-pointer z-10 text-center">
+<div class="size-12 rounded-full bg-vault-panel border border-primary/50 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">monetization_on</span>
+</div>
+<span class="text-[10px] mt-1 block font-bold text-white/50 group-hover:text-white transition-colors">MONEDAS</span>
+</div>
+<!-- Central Hologram -->
+<div class="relative w-full max-w-md aspect-square flex items-center justify-center">
+<div class="absolute w-64 h-24 bg-primary/20 blur-[80px] rounded-full bottom-10"></div>
+<div class="relative z-20 w-4/5 aspect-square rounded-2xl hologram-glow border border-primary/40 p-1 backdrop-blur-sm overflow-hidden flex items-center justify-center">
+<div class="scanline"></div>
+<img class="w-full h-full object-cover rounded-xl" data-alt="Holographic 3D render of a luxury Patek Philippe watch floating" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoigkrce2u7asFLYnI4glfhsVKbRWvFVYRJeObFiM5wxOhXpIRUpJgJgzurafjzOH16M4yZht56qHrHOq3FI2e163Qi4VnhuTrz5QnpwgmnyIC0d2M_AEwAqZmHDXL_CIotxRFBnLR15UfwkvfH_Lr3wg-SuoxNbP4SNARQwyrZq4GGNJjISjkYMzKvSA5qHpw8V7rqGl6AK6vzJDWJo6b0VrPtvx-mS5HmTd_uoa92ksmb6-2eL2OVnwBkFxWxRaBL38dWQkY1ldR"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
+</div>
+<!-- Pedestal Base -->
+<div class="absolute -bottom-4 w-72 h-8 bg-zinc-800 rounded-full flex items-center justify-center border-t-2 border-primary/50 shadow-2xl">
+<div class="w-64 h-1 bg-primary/40 rounded-full blur-sm"></div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Tasación del Oráculo -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-4">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-gold text-xs font-bold uppercase tracking-[0.2em]">Tasación del Oráculo</h3>
+<span class="text-primary material-symbols-outlined text-sm">query_stats</span>
+</div>
+<div class="metallic-border p-5 rounded-2xl flex flex-col gap-6">
+<div class="flex flex-col gap-1">
+<p class="text-white/50 text-xs font-medium">Valor de Mercado Actual</p>
+<p class="text-3xl font-black text-white">$145,200.00 <span class="text-[10px] font-bold text-green-400 align-middle ml-2">+12.4%</span></p>
+</div>
+<div class="h-24 w-full bg-primary/5 rounded-lg border border-primary/10 flex items-end px-2 pb-1 gap-1">
+<!-- Tiny Chart bars -->
+<div class="bg-primary/30 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-primary/40 w-full h-[55%] rounded-t-sm"></div>
+<div class="bg-primary/50 w-full h-[45%] rounded-t-sm"></div>
+<div class="bg-primary/60 w-full h-[70%] rounded-t-sm"></div>
+<div class="bg-primary/70 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-primary w-full h-[90%] rounded-t-sm shadow-[0_0_10px_#7f13ec]"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white/5 p-3 rounded-lg border border-white/10">
+<p class="text-[10px] text-white/40 uppercase">Precio Compra</p>
+<p class="text-sm font-bold text-white">$129,000</p>
+</div>
+<div class="bg-white/5 p-3 rounded-lg border border-white/10">
+<p class="text-[10px] text-white/40 uppercase">Plusvalía</p>
+<p class="text-sm font-bold text-green-400">+$16,200</p>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between text-[10px]">
+<span class="text-white/50 italic">Estado de Liquidez: Moderado</span>
+<span class="text-gold">Nivel de Rareza: 98/100</span>
+</div>
+<button class="w-full bg-vault-panel hover:bg-primary transition-all text-white border border-primary/40 py-2 rounded-lg text-xs font-bold uppercase tracking-wider">
+                            Solicitar Peritaje
+                        </button>
+</div>
+</div>
+<!-- Mini Widget: Alerta de Mercado -->
+<div class="bg-primary/10 border border-primary/20 p-4 rounded-xl flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<p class="text-[10px] text-white/80 leading-snug">El mercado de relojería fina de nivel Mítico ha subido un 4% en la última subasta de Ginebra.</p>
+</div>
+</div>
+</div>
+<!-- Bottom Panel: Historial de Procedencia -->
+<div class="mt-4 metallic-border rounded-2xl overflow-hidden bg-background-dark">
+<div class="flex border-b border-white/10">
+<button class="px-8 py-4 text-xs font-bold text-primary border-b-2 border-primary uppercase tracking-wider">Crónica de Adquisición</button>
+<button class="px-8 py-4 text-xs font-bold text-white/50 hover:text-white transition-colors uppercase tracking-wider">Sellos de Autenticidad</button>
+<button class="px-8 py-4 text-xs font-bold text-white/50 hover:text-white transition-colors uppercase tracking-wider">Estado de Conservación</button>
+</div>
+<div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="flex flex-col gap-4">
+<h5 class="text-white text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">history_edu</span>
+                        Historial de Origen
+                    </h5>
+<div class="space-y-4">
+<div class="relative pl-6 border-l-2 border-primary/30 py-1">
+<div class="absolute -left-[9px] top-0 size-4 rounded-full bg-primary border-2 border-background-dark"></div>
+<p class="text-xs text-white/40">14 Mar, 2022</p>
+<p class="text-sm text-white">Adquisición en Subasta Christie's - Lote 422</p>
+</div>
+<div class="relative pl-6 border-l-2 border-primary/30 py-1">
+<div class="absolute -left-[9px] top-0 size-4 rounded-full bg-zinc-600 border-2 border-background-dark"></div>
+<p class="text-xs text-white/40">20 Feb, 2020</p>
+<p class="text-sm text-white/70">Certificación por el Consejo de Relojería de Suiza</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h5 class="text-white text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">verified_user</span>
+                        Certificados Digitales
+                    </h5>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between bg-white/5 p-3 rounded-lg group hover:bg-primary/20 transition-all cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="text-xs">Certificado_PP_5711.pdf</span>
+</div>
+<span class="material-symbols-outlined text-xs">download</span>
+</div>
+<div class="flex items-center justify-between bg-white/5 p-3 rounded-lg group hover:bg-primary/20 transition-all cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">verified</span>
+<span class="text-xs">NFT_Proof_of_Ownership.json</span>
+</div>
+<span class="material-symbols-outlined text-xs">open_in_new</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h5 class="text-white text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-green-400 text-sm">health_and_safety</span>
+                        Estado Actual
+                    </h5>
+<div class="bg-white/5 p-4 rounded-lg space-y-3">
+<div class="flex justify-between items-center">
+<span class="text-xs text-white/50">Conservación:</span>
+<span class="text-xs font-bold text-green-400">Excelente (Grade A+)</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-white/50">Ubicación:</span>
+<span class="text-xs font-bold text-white">Bóveda Privada #022 - Madrid</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-white/50">Último Mantenimiento:</span>
+<span class="text-xs font-bold text-white">05 Ene, 2024</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Stats -->
+<footer class="mt-auto px-10 py-4 bg-vault-panel border-t border-white/5 flex flex-wrap justify-between items-center gap-4">
+<div class="flex gap-8">
+<div class="flex flex-col">
+<span class="text-[10px] text-white/40 uppercase">Patrimonio Físico Total</span>
+<span class="text-lg font-bold text-gold">$1,245,000.00</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] text-white/40 uppercase">Activos en Gestión</span>
+<span class="text-lg font-bold text-white">24 Reliquias</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] text-primary font-bold animate-pulse">● SERVIDOR BÓVEDA CONECTADO</span>
+<div class="h-8 w-[1px] bg-white/10 mx-2"></div>
+<span class="text-[10px] text-white/40">Última sincronización: Hace 2 minutos</span>
+</div>
+</footer>
+</div>
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: la_galería_de_reliquias__activos_físicos_2 -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Informe de Tasación Detallada - El Astrolabio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f13ec",
+                        "gold": "#d4af37",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0a080c",
+                        "vault-panel": "#191022",
+                        "obsidian": "#0d0b14",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .hologram-glow {
+                box-shadow: 0 0 40px rgba(127, 19, 236, 0.3), inset 0 0 20px rgba(127, 19, 236, 0.2);
+            }
+            .metallic-border {
+                border: 1px solid rgba(212, 175, 55, 0.3);
+                background: linear-gradient(145deg, #191022 0%, #0a080c 100%);
+            }
+            .glass-panel {
+                background: rgba(13, 11, 20, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(127, 19, 236, 0.4);
+                box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(127, 19, 236, 0.1);
+            }
+            .scanline {
+                background: linear-gradient(to bottom, transparent, rgba(127, 19, 236, 0.2), transparent);
+                height: 100px;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                pointer-events: none;
+            }
+            .seal-button {
+                @apply relative overflow-hidden transition-all duration-300;
+                background: linear-gradient(135deg, #2a1f3d 0%, #150e1f 100%);
+                border: 1px solid #4a3b63;
+                box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 6px rgba(0,0,0,0.3);
+            }
+            .seal-button:hover {
+                background: linear-gradient(135deg, #3d2d5a 0%, #1d132b 100%);
+                border-color: #7f13ec;
+                transform: translateY(-1px);
+            }
+            .chart-line {
+                stroke-dasharray: 1000;
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-white selection:bg-primary/40 overflow-hidden h-screen">
+<div class="fixed inset-0 z-0 opacity-30 grayscale blur-sm pointer-events-none">
+<div class="grid grid-cols-12 gap-6 p-12">
+<div class="col-span-3 space-y-4">
+<div class="h-32 bg-vault-panel rounded-xl border border-white/10"></div>
+<div class="h-32 bg-vault-panel rounded-xl border border-white/10"></div>
+<div class="h-32 bg-vault-panel rounded-xl border border-white/10"></div>
+</div>
+<div class="col-span-6 flex items-center justify-center">
+<div class="size-96 rounded-full border-4 border-primary/20"></div>
+</div>
+<div class="col-span-3 space-y-4">
+<div class="h-64 bg-vault-panel rounded-xl border border-white/10"></div>
+<div class="h-32 bg-vault-panel rounded-xl border border-white/10"></div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+<div class="glass-panel w-full max-w-7xl h-full max-h-[900px] rounded-[2rem] overflow-hidden flex flex-col relative">
+<div class="flex items-center justify-between px-10 py-6 border-b border-primary/20">
+<button class="flex items-center gap-2 group text-white/60 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl transition-transform group-hover:-translate-x-1">arrow_back</span>
+<span class="text-xs font-bold uppercase tracking-[0.2em]">Volver a la Galería</span>
+</button>
+<div class="text-center absolute left-1/2 -translate-x-1/2">
+<h1 class="text-2xl font-black tracking-tighter uppercase italic">Informe de Tasación Detallada</h1>
+<p class="text-[10px] text-primary font-bold tracking-[0.4em] uppercase">Expediente de Activo Físico #7711-N</p>
+</div>
+<div class="flex gap-4">
+<button class="seal-button px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">download_done</span>
+                        Exportar Certificado
+                    </button>
+</div>
+</div>
+<div class="flex-1 grid grid-cols-12 overflow-hidden">
+<div class="col-span-12 lg:col-span-5 border-r border-primary/10 flex flex-col p-8 gap-8">
+<div class="relative flex-1 flex flex-col items-center justify-center">
+<div class="absolute inset-0 scanline opacity-20"></div>
+<div class="relative w-full aspect-square max-w-[400px]">
+<div class="absolute inset-0 bg-primary/10 blur-[100px] rounded-full"></div>
+<div class="relative z-10 w-full h-full rounded-3xl border border-primary/30 p-2 overflow-hidden shadow-[0_0_60px_rgba(127,19,236,0.15)]">
+<img class="w-full h-full object-cover rounded-2xl opacity-90 brightness-110" data-alt="Reloj de lujo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoigkrce2u7asFLYnI4glfhsVKbRWvFVYRJeObFiM5wxOhXpIRUpJgJgzurafjzOH16M4yZht56qHrHOq3FI2e163Qi4VnhuTrz5QnpwgmnyIC0d2M_AEwAqZmHDXL_CIotxRFBnLR15UfwkvfH_Lr3wg-SuoxNbP4SNARQwyrZq4GGNJjISjkYMzKvSA5qHpw8V7rqGl6AK6vzJDWJo6b0VrPtvx-mS5HmTd_uoa92ksmb6-2eL2OVnwBkFxWxRaBL38dWQkY1ldR"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-primary/10 pointer-events-none"></div>
+</div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-48 h-4 bg-primary/40 blur-xl rounded-full"></div>
+</div>
+<div class="mt-8 text-center">
+<h2 class="text-2xl font-bold text-white">Cronógrafo de Alta Complicación</h2>
+<p class="text-gold text-sm font-medium tracking-wide">Referencia Maestra 5711/1A</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-1 bg-white/5 border border-white/10 rounded-xl overflow-hidden p-1">
+<div class="bg-obsidian/50 p-4 flex flex-col items-center justify-center text-center">
+<span class="text-[9px] text-white/40 uppercase mb-1">Serie</span>
+<span class="text-xs font-bold text-white">Nautilus Era</span>
+</div>
+<div class="bg-obsidian/50 p-4 flex flex-col items-center justify-center text-center">
+<span class="text-[9px] text-white/40 uppercase mb-1">Material</span>
+<span class="text-xs font-bold text-white">Acero Noble</span>
+</div>
+<div class="bg-obsidian/50 p-4 flex flex-col items-center justify-center text-center">
+<span class="text-[9px] text-white/40 uppercase mb-1">Calibre</span>
+<span class="text-xs font-bold text-white">26-330 SC</span>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 flex flex-col p-8 gap-8 bg-black/20">
+<div class="flex flex-col gap-6">
+<div class="flex items-end justify-between">
+<div>
+<h3 class="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Oráculo de Mercado</h3>
+<p class="text-4xl font-black text-white">$145.200,00 <span class="text-green-400 text-sm font-bold ml-2">↑ 12.4%</span></p>
+</div>
+<div class="flex gap-2 text-white/40 text-[10px] font-bold uppercase">
+<span class="px-2 py-1 rounded bg-white/5 border border-white/10 text-primary">12 Meses</span>
+<span class="px-2 py-1 rounded hover:bg-white/5 transition-colors cursor-pointer">Todo el Tiempo</span>
+</div>
+</div>
+<div class="h-56 relative group">
+<div class="absolute inset-0 flex items-end justify-between px-2 gap-1 h-40">
+<div class="w-full bg-primary/10 rounded-t-sm h-[40%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/10 rounded-t-sm h-[45%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/15 rounded-t-sm h-[42%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[55%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/25 rounded-t-sm h-[65%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/20 rounded-t-sm h-[60%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/30 rounded-t-sm h-[70%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/35 rounded-t-sm h-[80%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[75%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/50 rounded-t-sm h-[85%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary/60 rounded-t-sm h-[92%] transition-all hover:bg-primary/30"></div>
+<div class="w-full bg-primary rounded-t-sm h-full shadow-[0_0_20px_#7f13ec]"></div>
+</div>
+<div class="absolute bottom-0 w-full h-[1px] bg-white/10"></div>
+<div class="absolute bottom-0 flex justify-between w-full pt-4 text-[9px] text-white/30 uppercase tracking-tighter">
+<span>Ene 2023</span>
+<span>Abr 2023</span>
+<span>Jul 2023</span>
+<span>Oct 2023</span>
+<span>Dic 2023</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-obsidian border border-white/5 p-4 rounded-2xl">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-lg">cyclone</span>
+<span class="text-[9px] text-white/40 font-bold uppercase">Volatilidad del Mercado</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="text-xl font-bold">Baja</span>
+<span class="text-[10px] text-green-400 mb-1">0.82β</span>
+</div>
+</div>
+<div class="bg-obsidian border border-white/5 p-4 rounded-2xl">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-lg">water_drop</span>
+<span class="text-[9px] text-white/40 font-bold uppercase">Liquidez de Subasta</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="text-xl font-bold">Alta</span>
+<span class="text-[10px] text-blue-400 mb-1">Grade A</span>
+</div>
+</div>
+<div class="bg-obsidian border border-white/5 p-4 rounded-2xl">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-lg">trending_up</span>
+<span class="text-[9px] text-white/40 font-bold uppercase">Rendimiento Proyectado</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="text-xl font-bold">+8.5%</span>
+<span class="text-[10px] text-white/30 mb-1">Anual</span>
+</div>
+</div>
+</div>
+<button class="seal-button w-full py-5 rounded-xl text-xs font-black uppercase tracking-[0.3em] text-gold border-gold/40 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">verified</span>
+                        Solicitar Peritaje de Experto
+                    </button>
+</div>
+</div>
+<div class="bg-obsidian/80 border-t border-primary/20 p-8">
+<div class="flex items-center justify-between mb-6">
+<h4 class="text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">compare_arrows</span>
+                        Benchmarks Históricos (Comparativa de Activos)
+                    </h4>
+<span class="text-[10px] text-white/30 italic">Última actualización: Hace 14 minutos</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-white/5 p-4 rounded-xl border border-white/5">
+<p class="text-[10px] text-white/40 uppercase mb-2">Luxury Watches Index</p>
+<div class="flex items-end justify-between">
+<span class="text-lg font-bold">+14.2%</span>
+<div class="h-6 w-16 bg-green-400/10 rounded flex items-center justify-center">
+<span class="text-[10px] text-green-400 font-bold">Liderando</span>
+</div>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5">
+<p class="text-[10px] text-white/40 uppercase mb-2">Fine Art Benchmark</p>
+<div class="flex items-end justify-between">
+<span class="text-lg font-bold">+5.7%</span>
+<div class="h-6 w-16 bg-white/5 rounded flex items-center justify-center">
+<span class="text-[10px] text-white/50 font-bold">Estable</span>
+</div>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 opacity-60">
+<p class="text-[10px] text-white/40 uppercase mb-2">S&amp;P 500 Equities</p>
+<div class="flex items-end justify-between">
+<span class="text-lg font-bold">+9.1%</span>
+<div class="h-6 w-16 bg-white/5 rounded flex items-center justify-center">
+<span class="text-[10px] text-white/50 font-bold">Global</span>
+</div>
+</div>
+</div>
+<div class="bg-white/5 p-4 rounded-xl border border-white/5 border-primary/40">
+<p class="text-[10px] text-primary uppercase font-bold mb-2">Esta Reliquia</p>
+<div class="flex items-end justify-between">
+<span class="text-lg font-bold text-white">+12.4%</span>
+<div class="h-6 w-16 bg-primary/20 rounded flex items-center justify-center border border-primary/30">
+<span class="text-[10px] text-primary font-bold">Superior</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>
+
+
+
+<!-- ========================================= -->
+<!-- SOURCE: ritual_de_sincronización_de_datos -->
+<!-- ========================================= -->
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d41132",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#0a0506",
+                        "gold-accent": "#c5a059",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .portal-glow {
+            box-shadow: 0 0 60px -15px rgba(212, 17, 50, 0.4);
+        }
+        .rune-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+        .rotate-slow { animation: spin 12s linear infinite; }
+        .rotate-medium { animation: spin 8s linear infinite reverse; }
+        .rotate-fast { animation: spin 4s linear infinite; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .star-dust {
+            background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary/30 overflow-hidden">
+<!-- Background Layer: Digital Stardust -->
+<div class="fixed inset-0 pointer-events-none opacity-20 star-dust"></div>
+<div class="fixed inset-0 bg-gradient-to-tr from-background-dark via-transparent to-primary/10 pointer-events-none"></div>
+<div class="relative flex h-screen w-full flex-col">
+<!-- Header (In Standby Mode) -->
+<header class="flex items-center justify-between px-10 py-5 border-b border-white/5 opacity-40 grayscale-[0.5]">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-white text-lg font-bold tracking-widest uppercase italic">El Astrolabio</h2>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-8 text-xs font-semibold tracking-widest uppercase">
+<span class="text-white/40">Bóveda</span>
+<span class="text-white/40">Mercados</span>
+<span class="text-white/40">Oráculo</span>
+</nav>
+<div class="size-10 rounded-full border border-primary/20 bg-cover bg-center" data-alt="Avatar del usuario Gran Maestre" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqibPXND7LWe-UimqwpDuvSaWV0dEQdbbxUCGj2lhXB5fXCEsP75bXYYePQTULy2x_AWwvAJ-aC6FOex_XOiFjgJsq979qme9a6QlYfLJlnuRT53elFCBukZ4CT5PJqfewGorGsMShCUQZtSX9R5zjLXh54dbnZSqDyZ3ewzSvjtG6aKnPC4gBN8ul9JwI4GP7RdoKakhZrN3xD0p0swpKp2oUVsogXWSXVJ3uyjh0RQST7V4iXU1VqEYuCkkHMqaDmcd3yu7hRTt3');"></div>
+</div>
+</header>
+<main class="flex-1 relative flex items-center justify-center">
+<!-- Side Navigation (Standby) -->
+<div class="absolute left-10 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 opacity-20 grayscale">
+<div class="p-3 border border-white/10 rounded-xl bg-white/5">
+<span class="material-symbols-outlined text-white">dashboard</span>
+</div>
+<div class="p-3 border border-white/10 rounded-xl bg-white/5">
+<span class="material-symbols-outlined text-white">account_balance_wallet</span>
+</div>
+<div class="p-3 border border-white/10 rounded-xl bg-white/5">
+<span class="material-symbols-outlined text-white">monitoring</span>
+</div>
+</div>
+<!-- THE RITUAL CENTERPIECE -->
+<div class="relative flex flex-col items-center">
+<!-- Central Portal Container -->
+<div class="relative size-80 md:size-[450px] flex items-center justify-center">
+<!-- Inner User Avatar Portal -->
+<div class="absolute z-30 size-24 md:size-32 rounded-full border-4 border-primary portal-glow overflow-hidden bg-background-dark p-1">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Portal central con avatar del usuario" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgBlZehHxzvYiEXaBC2_RK6-dc2yiuEmUPBdYlg1R54_C5zdNWr7p4hYI50EXf-kkpLlfLZ1im-ZlheMCAZJf1e8_NjEPjVMNh6jagAwZ9QkGWF_VJfRlkovIz9_GlyHauBF9pVMy8qvMMeDo1K8nc2GliU6XO67yYPDLIy3bfPod1PzNci_bBm_Z0fQgGzaKGazWq9QVojqbrzT965yYIKEfIH7kUHDV40wV3M1hItZgLWvICAvlDUT-uH5YXIx6K9ftvGesXuO-b');"></div>
+</div>
+<!-- Spending Rings (The Tunnel Effect) -->
+<div class="absolute inset-0 border-[1px] border-primary/20 rounded-full rotate-slow scale-[1.0]"></div>
+<div class="absolute inset-4 border-[2px] border-dashed border-primary/40 rounded-full rotate-medium scale-[0.95]"></div>
+<div class="absolute inset-12 border-[1px] border-primary/60 rounded-full rotate-fast scale-[0.9]"></div>
+<div class="absolute inset-24 border-[4px] border-double border-gold-accent/30 rounded-full rotate-slow reverse scale-[0.85]"></div>
+<!-- Progress Arc -->
+<svg class="absolute inset-0 size-full -rotate-90">
+<circle class="text-primary/10" cx="50%" cy="50%" fill="transparent" r="48%" stroke="currentColor" stroke-width="2"></circle>
+<circle class="text-primary drop-shadow-[0_0_8px_rgba(212,17,50,0.8)]" cx="50%" cy="50%" fill="transparent" r="48%" stroke="currentColor" stroke-dasharray="100 1000" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<!-- Diagonal Nodes (The Arcas) -->
+<!-- NW: Ahorro -->
+<div class="absolute -top-10 -left-10 md:-top-20 md:-left-20 group">
+<div class="relative size-16 md:size-24 rounded-xl bg-background-dark border border-white/10 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-gold-accent group-hover:text-primary mb-1 text-xl md:text-3xl">savings</span>
+<span class="text-[8px] md:text-[10px] uppercase tracking-tighter text-white/50">Ahorro</span>
+<div class="absolute -bottom-1 w-1/2 h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform"></div>
+</div>
+<div class="absolute top-full left-full w-24 h-24 border-t border-l border-primary/20 -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-tl-full"></div>
+</div>
+<!-- NE: Inversiones -->
+<div class="absolute -top-10 -right-10 md:-top-20 md:-right-20 group">
+<div class="relative size-16 md:size-24 rounded-xl bg-background-dark border border-white/10 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-gold-accent group-hover:text-primary mb-1 text-xl md:text-3xl">trending_up</span>
+<span class="text-[8px] md:text-[10px] uppercase tracking-tighter text-white/50">Inversión</span>
+</div>
+<div class="absolute top-full right-full w-24 h-24 border-t border-r border-primary/20 translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-tr-full"></div>
+</div>
+<!-- SW: Gastos -->
+<div class="absolute -bottom-10 -left-10 md:-bottom-20 md:-left-20 group">
+<div class="relative size-16 md:size-24 rounded-xl bg-background-dark border border-white/10 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-gold-accent group-hover:text-primary mb-1 text-xl md:text-3xl">receipt_long</span>
+<span class="text-[8px] md:text-[10px] uppercase tracking-tighter text-white/50">Gastos</span>
+</div>
+<div class="absolute bottom-full left-full w-24 h-24 border-b border-l border-primary/20 -translate-x-1/2 translate-y-1/2 pointer-events-none rounded-bl-full"></div>
+</div>
+<!-- SE: Patrimonio -->
+<div class="absolute -bottom-10 -right-10 md:-bottom-20 md:-right-20 group">
+<div class="relative size-16 md:size-24 rounded-xl bg-background-dark border border-white/10 flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-gold-accent group-hover:text-primary mb-1 text-xl md:text-3xl">account_balance</span>
+<span class="text-[8px] md:text-[10px] uppercase tracking-tighter text-white/50">Patrimonio</span>
+</div>
+<div class="absolute bottom-full right-full w-24 h-24 border-b border-r border-primary/20 translate-x-1/2 translate-y-1/2 pointer-events-none rounded-br-full"></div>
+</div>
+<!-- Flowing Runes (Decorative symbols) -->
+<div class="absolute top-1/4 left-1/4 rune-pulse delay-100 text-primary/40"><span class="material-symbols-outlined text-xs">auto_awesome</span></div>
+<div class="absolute bottom-1/3 right-1/4 rune-pulse delay-500 text-gold-accent/40"><span class="material-symbols-outlined text-xs">token</span></div>
+<div class="absolute top-1/2 right-10 rune-pulse delay-700 text-primary/40"><span class="material-symbols-outlined text-xs">grid_view</span></div>
+</div>
+<!-- Messaging Section -->
+<div class="mt-20 md:mt-24 text-center max-w-md px-4">
+<h1 class="text-white text-2xl md:text-3xl font-bold tracking-tight mb-2 drop-shadow-lg">
+                        Sincronizando con el Oráculo Financiero...
+                    </h1>
+<div class="flex items-center justify-center gap-2 mb-4">
+<div class="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary"></div>
+<p class="text-gold-accent text-sm font-medium tracking-widest uppercase">Vinculando Arcas Reales</p>
+<div class="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary"></div>
+</div>
+<div class="bg-primary/5 border border-primary/20 rounded-lg p-3 inline-flex items-center gap-3">
+<div class="size-2 rounded-full bg-primary animate-ping"></div>
+<p class="text-white/70 text-xs font-normal">
+                            Extrayendo flujo de datos de <span class="text-white font-bold">Banco Santuario del Este</span>...
+                        </p>
+</div>
+</div>
+</div>
+<!-- Peripheral Panel (Standby Right) -->
+<div class="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block w-64 opacity-20 grayscale pointer-events-none">
+<div class="bg-background-dark/50 border border-white/10 rounded-xl p-5 shadow-inner">
+<div class="h-4 w-24 bg-white/10 rounded mb-4"></div>
+<div class="space-y-3">
+<div class="h-10 w-full bg-white/5 rounded-lg border border-white/5"></div>
+<div class="h-10 w-full bg-white/5 rounded-lg border border-white/5"></div>
+<div class="h-10 w-full bg-white/5 rounded-lg border border-white/5"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Progress / Status -->
+<footer class="p-8 flex items-center justify-between border-t border-white/5 opacity-60">
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-bold">Estado del Ritual</span>
+<div class="flex gap-1">
+<div class="w-4 h-1 bg-primary rounded-full"></div>
+<div class="w-4 h-1 bg-primary rounded-full"></div>
+<div class="w-4 h-1 bg-primary/20 rounded-full"></div>
+<div class="w-4 h-1 bg-primary/20 rounded-full"></div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs text-white/40 italic">La esencia de tus activos se está materializando</p>
+</div>
+</footer>
+</div>
+</body></html>
+
+

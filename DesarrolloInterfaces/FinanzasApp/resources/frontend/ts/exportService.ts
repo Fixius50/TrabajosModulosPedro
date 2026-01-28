@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { Transaction } from '../types';
+import type { Transaction } from './types';
 
 export const exportToJSON = (data: any, filename: string) => {
     const jsonString = JSON.stringify(data, null, 2);

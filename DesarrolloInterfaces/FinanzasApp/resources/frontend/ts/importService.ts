@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import type { Transaction } from '../types';
+import type { Transaction } from './types';
 
 export interface CSVRow {
     [key: string]: string;

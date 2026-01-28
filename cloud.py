@@ -30,9 +30,9 @@ def run_cmd(command):
     """Ejecuta un comando de shell y retorna el resultado."""
     print(f"🔹 Ejecutando: {command}")
     try:
-        # shell=True is required for complex commands but verify gcloud path
-        # Using utf-8 encoding for output
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True, encoding='utf-8')
+        # Removing explicit encoding='utf-8' to let Python use system default
+        # Adding errors='replace' to avoid crashing on accent characters
+        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True, errors='replace')
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         print(f"❌ Error ejecutando comando.")
@@ -42,12 +42,22 @@ def run_cmd(command):
 
 def get_gcloud_path():
     """Finds gcloud executable in path."""
-    gcloud_path = shutil.which("gcloud")
-    if not gcloud_path:
-        # Common windows fallback
-        possible_path = os.path.expandvars(r"%LOCALAPPDATA%\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd")
-        if os.path.exists(possible_path):
-            return possible_path
+    # Check common locations specifically
+    common_paths = [
+        os.path.expandvars(r"%LOCALAPPDATA%\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd"),
+        os.path.expandvars(r"%PROGRAMFILES(X86)%\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd"),
+        os.path.expandvars(r"%PROGRAMFILES%\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd")
+    ]
+    
+    for path in common_paths:
+        if os.path.exists(path):
+            print(f"✅ gcloud encontrado en: {path}")
+            return path
+            
+    # As a last resort, try just 'gcloud.cmd' which might work if 'gcloud' matches a bad python association
+    if shutil.which("gcloud.cmd"):
+        return "gcloud.cmd"
+        
     return "gcloud"
 
 def main():
