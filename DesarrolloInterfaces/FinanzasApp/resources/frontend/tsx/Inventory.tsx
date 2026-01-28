@@ -1,214 +1,140 @@
-import React from 'react';
-import { IonPage, IonContent, IonHeader, IonToolbar, IonButtons, IonMenuButton, IonTitle } from '@ionic/react';
-// import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
+import { IonPage, IonContent, IonIcon } from '@ionic/react';
+import { diamond, colorPalette, watch, searchOutline, addCircleOutline } from 'ionicons/icons';
 
 const Inventory: React.FC = () => {
-    // const { t } = useTranslation(); // Translations disabled for cohesive UI adherence
+    // Mock Data for "Reliquias"
+    const [selectedItem, setSelectedItem] = useState(0);
+    const items = [
+        { id: 0, name: 'Patek Philippe Nautilus', type: 'Mítico', category: 'Relojería', value: 145200, profit: 16200, rarity: 98, icon: watch, desc: "Forjado en las minas del tiempo eterno.", color: "text-purple-400" },
+        { id: 1, name: 'Doblón de Oro 1732', type: 'Legendario', category: 'Numismática', value: 24500, profit: 3400, rarity: 85, icon: diamond, desc: "Recuperado de un galeón fantasma.", color: "text-amber-400" },
+        { id: 2, name: 'Óleo "Nebulosa"', type: 'Épico', category: 'Arte', value: 85000, profit: 12500, rarity: 75, icon: colorPalette, desc: "Pintado con polvo de estrellas.", color: "text-blue-400" },
+    ];
+
+    const activeItem = items[selectedItem];
 
     return (
-        <IonPage className="bg-[#0a080c]">
-            {/* Simple Ionic Header for Mobile Nav (Hidden on Desktop if desired, or styled to match) */}
-            <IonHeader className="ion-no-border lg:hidden">
-                <IonToolbar style={{ '--background': '#0a080c', '--color': '#fff' }}>
-                    <IonButtons slot="start">
-                        <IonMenuButton color="light" />
-                    </IonButtons>
-                    <IonTitle>Galería</IonTitle>
-                </IonToolbar>
-            </IonHeader>
+        <IonPage>
+            <IonContent fullscreen className="bg-[#0f0a0a]">
+                {/* Background Atmosphere */}
+                <div className="fixed inset-0 pointer-events-none z-0">
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] opacity-50"></div>
+                </div>
 
-            <IonContent className="ion-padding" style={{ '--background': '#0a080c' }}>
-                <div className="relative flex min-h-screen flex-col font-display text-white selection:bg-primary-purple/40">
+                <div className="relative z-10 p-6 md:p-12 min-h-screen flex flex-col font-[MedievalSharp] text-[#e2d5b5]">
 
-                    {/* TopNavBar Navigation (Desktop Custom Header from Reference) */}
-                    <header className="hidden lg:flex items-center justify-between border-b border-solid border-white/10 px-10 py-4 bg-[#0a080c]/80 backdrop-blur-md sticky top-0 z-50">
-                        <div className="flex items-center gap-8">
-                            <div className="flex items-center gap-4 text-white">
-                                <div className="text-primary-purple">
-                                    <span className="material-symbols-outlined text-4xl">astrophotography_mode</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <h2 className="text-white text-lg font-bold leading-tight tracking-tight">El Astrolabio</h2>
-                                    <span className="text-[10px] uppercase tracking-widest text-[#d4af37] opacity-80">Gestión de Patrimonio Premium</span>
-                                </div>
-                            </div>
-                            <nav className="flex items-center gap-9 ml-4">
-                                <a className="text-white/70 hover:text-primary-purple transition-colors text-sm font-medium" href="#">Inventario</a>
-                                <a className="text-white/70 hover:text-primary-purple transition-colors text-sm font-medium" href="#">Mercado</a>
-                                <a className="text-white text-sm font-bold border-b-2 border-primary-purple pb-1" href="#">Galería de Reliquias</a>
-                                <a className="text-white/70 hover:text-primary-purple transition-colors text-sm font-medium" href="#">Bóveda</a>
-                            </nav>
+                    {/* Header */}
+                    <header className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-[#c5a059]/30 pb-4">
+                        <div>
+                            <h1 className="text-3xl md:text-5xl text-[#c5a059] font-bold tracking-[0.1em] uppercase gold-text-glow font-[Cinzel]">
+                                Galería de Reliquias
+                            </h1>
+                            <p className="text-[#9ca3af] text-sm mt-1 uppercase tracking-widest">
+                                Bóveda de Activos Tangibles
+                            </p>
                         </div>
-                        <div className="flex items-center gap-6">
-                            {/* Search Bar */}
-                            <div className="flex items-center bg-[#191022] rounded-lg px-3 py-1.5 border border-white/5">
-                                <span className="material-symbols-outlined text-primary-purple text-xl mr-2">search</span>
-                                <input className="bg-transparent border-none focus:outline-none text-sm w-48 placeholder:text-white/30 text-white" placeholder="Buscar en la bóveda..." />
+                        <div className="flex items-center gap-4 mt-4 md:mt-0">
+                            <div className="relative group">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar tesoro..."
+                                    className="bg-[#1a1616] border border-[#4a4e5a] text-[#c5a059] px-4 py-2 rounded text-xs uppercase tracking-wider w-48 focus:outline-none focus:border-[#c5a059]"
+                                />
+                                <IonIcon icon={searchOutline} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" />
                             </div>
+                            <button className="bg-[#8a1c1c] hover:bg-[#c5a059] hover:text-[#0f0a0a] text-[#e2d5b5] border border-[#c5a059]/50 px-4 py-2 rounded flex items-center gap-2 transition-all group">
+                                <IonIcon icon={addCircleOutline} />
+                                <span className="text-xs font-[Cinzel] font-bold tracking-widest uppercase">Añadir</span>
+                            </button>
                         </div>
                     </header>
 
-                    <main className="flex-1 flex flex-col px-4 lg:px-12 py-8 gap-8">
-                        {/* PageHeading */}
-                        <div className="flex flex-col md:flex-row justify-between items-end gap-4">
-                            <div className="max-w-2xl">
-                                <h1 className="text-white text-3xl md:text-5xl font-black leading-tight tracking-tighter">Galería de Reliquias <span className="text-primary-purple">&</span> Activos Tangibles</h1>
-                                <p className="text-white/50 text-sm md:text-lg mt-2 font-light">Visualización holográfica y tasación en tiempo real de su patrimonio físico más exclusivo.</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+
+                        {/* Left Panel: Inventory List */}
+                        <div className="lg:col-span-3 flex flex-col gap-4 bg-[#120c0c]/80 p-4 rounded border border-[#4a4e5a]">
+                            <h3 className="text-[#c5a059] text-xs font-[Cinzel] font-bold uppercase tracking-widest mb-2 border-b border-[#4a4e5a] pb-2">
+                                Inventario
+                            </h3>
+                            <div className="flex flex-col gap-3 overflow-y-auto max-h-[600px] custom-scrollbar">
+                                {items.map((item, index) => (
+                                    <div
+                                        key={item.id}
+                                        onClick={() => setSelectedItem(index)}
+                                        className={`p-3 rounded border cursor-pointer transition-all flex items-center gap-3 group ${selectedItem === index ? 'bg-[#2a1a1a] border-[#c5a059]' : 'bg-[#1a1616] border-[#2a2a2a] hover:border-[#c5a059]/50'}`}
+                                    >
+                                        <div className={`w-10 h-10 rounded flex items-center justify-center bg-black/50 border border-white/5 ${selectedItem === index ? 'text-[#c5a059]' : 'text-gray-500'}`}>
+                                            <IonIcon icon={item.icon} />
+                                        </div>
+                                        <div>
+                                            <p className={`text-xs font-bold uppercase ${item.color}`}>{item.type}</p>
+                                            <p className="text-sm text-[#e2d5b5] font-bold leading-tight">{item.name}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <button className="flex items-center gap-2 bg-primary-purple hover:bg-primary-purple/80 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-lg shadow-primary-purple/20">
-                                <span className="material-symbols-outlined">add_circle</span>
-                                Añadir Nueva Reliquia
+                        </div>
+
+                        {/* Center Panel: Item Detail (Pedestal) */}
+                        <div className="lg:col-span-6 flex flex-col items-center justify-center relative min-h-[400px]">
+                            {/* Magic Circle Background */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                                <div className="w-96 h-96 border border-[#c5a059] rounded-full animate-[spin_60s_linear_infinite]"></div>
+                                <div className="absolute w-80 h-80 border border-[#8a1c1c] rounded-full animate-[spin_40s_linear_infinite_reverse]"></div>
+                            </div>
+
+                            {/* Item Display */}
+                            <div className="relative z-10 flex flex-col items-center text-center animate-scaleIn">
+                                <div className="w-48 h-48 rounded-full border-4 border-[#c5a059] bg-[#0f0a0a] flex items-center justify-center shadow-[0_0_50px_rgba(197,160,89,0.2)] mb-8 relative">
+                                    <IonIcon icon={activeItem.icon} className="text-6xl text-[#e2d5b5] drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                                    <div className="absolute -bottom-4 bg-[#8a1c1c] text-[#e2d5b5] text-[10px] px-3 py-1 rounded border border-[#c5a059] font-[Cinzel] tracking-widest uppercase">
+                                        Nivel {activeItem.rarity}
+                                    </div>
+                                </div>
+
+                                <h2 className="text-3xl text-[#c5a059] font-[Cinzel] font-bold uppercase tracking-wider mb-2">{activeItem.name}</h2>
+                                <p className="text-[#9ca3af] italic max-w-md text-sm">"{activeItem.desc}"</p>
+                            </div>
+                        </div>
+
+                        {/* Right Panel: Appraisal (Stats) */}
+                        <div className="lg:col-span-3 flex flex-col gap-4 bg-[#120c0c]/80 p-4 rounded border border-[#4a4e5a]">
+                            <h3 className="text-[#c5a059] text-xs font-[Cinzel] font-bold uppercase tracking-widest mb-2 border-b border-[#4a4e5a] pb-2">
+                                Tasación del Oráculo
+                            </h3>
+
+                            <div className="bg-[#1a1616] p-4 rounded border border-[#2a2a2a] mb-4">
+                                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Valor de Mercado</p>
+                                <p className="text-3xl font-[Cinzel] text-[#e2d5b5] font-bold">
+                                    {activeItem.value.toLocaleString()} GP
+                                </p>
+                                <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[10px]">trending_up</span>
+                                    +{activeItem.profit.toLocaleString()} GP (Plusvalía)
+                                </p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center text-xs border-b border-[#2a2a2a] pb-2">
+                                    <span className="text-gray-500 uppercase">Categoría</span>
+                                    <span className="text-[#c5a059]">{activeItem.category}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs border-b border-[#2a2a2a] pb-2">
+                                    <span className="text-gray-500 uppercase">Rareza</span>
+                                    <span className={`${activeItem.color} font-bold`}>{activeItem.type}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs border-b border-[#2a2a2a] pb-2">
+                                    <span className="text-gray-500 uppercase">Estado</span>
+                                    <span className="text-white">Impecable</span>
+                                </div>
+                            </div>
+
+                            <button className="mt-auto w-full border border-[#c5a059] text-[#c5a059] hover:bg-[#c5a059] hover:text-black transition-colors py-3 rounded text-xs font-[Cinzel] font-bold uppercase tracking-widest">
+                                Solicitar Peritaje
                             </button>
                         </div>
 
-                        {/* Main Workspace Layout */}
-                        <div className="grid grid-cols-12 gap-6 flex-1 h-full min-h-[800px]">
-
-                            {/* Left Panel: Catálogo de Rarezas */}
-                            <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-[#d4af37] text-xs font-bold uppercase tracking-[0.2em]">Catálogo de Rarezas</h3>
-                                    <span className="bg-primary-purple/20 text-primary-purple text-[10px] px-2 py-0.5 rounded-full border border-primary-purple/30">12 Objetos</span>
-                                </div>
-                                <div className="flex flex-col gap-4 overflow-y-auto pr-2 max-h-[750px]">
-
-                                    {/* Active Card */}
-                                    <div className="metallic-border p-3 rounded-xl border border-primary-purple bg-primary-purple/10 shadow-xl cursor-pointer">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-16 rounded-lg bg-gray-700 shrink-0 border border-white/10 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-white/50">watch</span>
-                                            </div>
-                                            <div className="flex flex-col justify-center">
-                                                <span className="text-[10px] text-primary-purple font-bold uppercase">Mítico</span>
-                                                <h4 className="text-white font-bold text-sm">Patek Philippe Nautilus</h4>
-                                                <p className="text-white/40 text-[10px]">Relojería Fina</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Other Cards */}
-                                    <div className="metallic-border p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer opacity-70 hover:opacity-100">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-16 rounded-lg bg-gray-800 shrink-0 border border-white/10 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-white/30">monetization_on</span>
-                                            </div>
-                                            <div className="flex flex-col justify-center">
-                                                <span className="text-[10px] text-orange-400 font-bold uppercase">Legendario</span>
-                                                <h4 className="text-white/70 font-bold text-sm">Doblón de Oro 1732</h4>
-                                                <p className="text-white/40 text-[10px]">Numismática</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="metallic-border p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer opacity-70 hover:opacity-100">
-                                        <div className="flex gap-4">
-                                            <div className="w-16 h-16 rounded-lg bg-gray-800 shrink-0 border border-white/10 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-white/30">palette</span>
-                                            </div>
-                                            <div className="flex flex-col justify-center">
-                                                <span className="text-[10px] text-blue-400 font-bold uppercase">Épico</span>
-                                                <h4 className="text-white/70 font-bold text-sm">Óleo 'Nebulosa'</h4>
-                                                <p className="text-white/40 text-[10px]">Arte Moderno</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {/* Center: Hologram Pedestal */}
-                            <div className="col-span-12 lg:col-span-6 relative flex flex-col items-center justify-center py-10 min-h-[400px]">
-                                {/* Diagonal Navigation Dots Overlay */}
-                                <div className="absolute inset-0 pointer-events-none hidden md:block">
-                                    <div className="absolute top-0 left-0 w-32 h-32 border-l border-t border-primary-purple/30 rounded-tl-3xl"></div>
-                                    <div className="absolute top-0 right-0 w-32 h-32 border-r border-t border-primary-purple/30 rounded-tr-3xl"></div>
-                                    <div className="absolute bottom-0 left-0 w-32 h-32 border-l border-b border-primary-purple/30 rounded-bl-3xl"></div>
-                                    <div className="absolute bottom-0 right-0 w-32 h-32 border-r border-b border-primary-purple/30 rounded-br-3xl"></div>
-                                </div>
-
-                                {/* Central Hologram */}
-                                <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-                                    <div className="absolute w-64 h-24 bg-primary-purple/20 blur-[80px] rounded-full bottom-10"></div>
-
-                                    <div className="relative z-20 w-4/5 aspect-square rounded-2xl hologram-glow border border-primary-purple/40 p-1 backdrop-blur-sm overflow-hidden flex items-center justify-center bg-black/40">
-                                        <div className="scanline"></div>
-                                        {/* Image Placeholder */}
-                                        <div className="w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center text-white/20">
-                                            <span className="material-symbols-outlined text-9xl animate-pulse">watch</span>
-                                        </div>
-
-                                        <div className="absolute inset-0 bg-gradient-to-t from-primary-purple/20 to-transparent pointer-events-none"></div>
-                                    </div>
-
-                                    {/* Pedestal Base */}
-                                    <div className="absolute -bottom-4 w-72 h-8 bg-zinc-800 rounded-full flex items-center justify-center border-t-2 border-primary-purple/50 shadow-2xl">
-                                        <div className="w-64 h-1 bg-primary-purple/40 rounded-full blur-sm"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right Panel: Tasación del Oráculo */}
-                            <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-[#d4af37] text-xs font-bold uppercase tracking-[0.2em]">Tasación del Oráculo</h3>
-                                    <span className="text-primary-purple material-symbols-outlined text-sm">query_stats</span>
-                                </div>
-
-                                <div className="metallic-border p-5 rounded-2xl flex flex-col gap-6">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-white/50 text-xs font-medium">Valor de Mercado Actual</p>
-                                        <p className="text-3xl font-black text-white">$145,200 <span className="text-[10px] font-bold text-green-400 align-middle ml-2">+12.4%</span></p>
-                                    </div>
-
-                                    {/* Tiny Chart Visualization */}
-                                    <div className="h-24 w-full bg-primary-purple/5 rounded-lg border border-primary-purple/10 flex items-end px-2 pb-1 gap-1">
-                                        {[40, 55, 45, 70, 60, 90].map((h, i) => (
-                                            <div key={i} className={`w-full rounded-t-sm ${i === 5 ? 'bg-primary-purple shadow-[0_0_10px_#7f13ec]' : 'bg-primary-purple/30'}`} style={{ height: `${h}%` }}></div>
-                                        ))}
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-white/5 p-3 rounded-lg border border-white/10">
-                                            <p className="text-[10px] text-white/40 uppercase">Precio Compra</p>
-                                            <p className="text-sm font-bold text-white">$129,000</p>
-                                        </div>
-                                        <div className="bg-white/5 p-3 rounded-lg border border-white/10">
-                                            <p className="text-[10px] text-white/40 uppercase">Plusvalía</p>
-                                            <p className="text-sm font-bold text-green-400">+$16,200</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex justify-between text-[10px]">
-                                            <span className="text-white/50 italic">Estado: Moderado</span>
-                                            <span className="text-[#d4af37]">Rareza: 98/100</span>
-                                        </div>
-                                        <button className="w-full bg-[#191022] hover:bg-primary-purple transition-all text-white border border-primary-purple/40 py-2 rounded-lg text-xs font-bold uppercase tracking-wider">
-                                            Solicitar Peritaje
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </main>
-
-                    {/* Footer Stats */}
-                    <footer className="mt-auto px-10 py-4 bg-[#191022] border-t border-white/5 flex flex-wrap justify-between items-center gap-4">
-                        <div className="flex gap-8">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] text-white/40 uppercase">Patrimonio Físico</span>
-                                <span className="text-lg font-bold text-[#d4af37]">$1,245,000</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] text-white/40 uppercase">Activos en Gestión</span>
-                                <span className="text-lg font-bold text-white">24 Reliquias</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-[10px] text-primary-purple font-bold animate-pulse">● BÓVEDA CONECTADA</span>
-                        </div>
-                    </footer>
+                    </div>
 
                 </div>
             </IonContent>

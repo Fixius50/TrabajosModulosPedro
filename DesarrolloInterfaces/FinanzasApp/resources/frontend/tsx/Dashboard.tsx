@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { IonPage, IonContent } from '@ionic/react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
     // Login State
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loginData, setLoginData] = useState({ user: '', pass: '' });
+    const navigate = useNavigate();
 
     // Hide IonTabBar when on this page to prevent "double nav" and "mystery buttons"
     React.useEffect(() => {
@@ -53,13 +55,21 @@ const Dashboard: React.FC = () => {
 
                     {/* Corner Navigation Runes - Animate from Center-ish to Corners */}
                     <div className={`transition-all duration-1000 delay-300 ${isLoggedIn ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                        {/* Map Rune: Flies to Top Left */}
-                        <button className={`fixed w-10 h-10 border border-[#4a4e5a] rounded flex items-center justify-center bg-[#1a1616]/80 hover:border-[#c5a059] hover:text-[#c5a059] transition-all duration-1000 z-50 group transform hover:rotate-45 backdrop-blur-sm ${isLoggedIn ? 'top-6 left-6 translate-x-0 translate-y-0 rotate-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-180'}`}>
+                        {/* Map Rune: Flies to Top Left -> MERCADO */}
+                        <button
+                            onClick={() => navigate('/app/market')}
+                            className={`fixed w-10 h-10 border border-[#4a4e5a] rounded flex items-center justify-center bg-[#1a1616]/80 hover:border-[#c5a059] hover:text-[#c5a059] transition-all duration-1000 z-50 group transform hover:rotate-45 backdrop-blur-sm cursor-pointer ${isLoggedIn ? 'top-6 left-6 translate-x-0 translate-y-0 rotate-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-180'}`}
+                            title="Ir al Mercado Negro"
+                        >
                             <span className="material-symbols-outlined text-gray-400 group-hover:text-[#c5a059] text-sm">map</span>
                         </button>
 
-                        {/* Backpack Rune: Flies to Top Right */}
-                        <button className={`fixed w-10 h-10 border border-[#4a4e5a] rounded flex items-center justify-center bg-[#1a1616]/80 hover:border-[#c5a059] hover:text-[#c5a059] transition-all duration-1000 z-50 group backdrop-blur-sm ${isLoggedIn ? 'top-6 right-6 translate-x-0 translate-y-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0'}`}>
+                        {/* Backpack Rune: Flies to Top Right -> INVENTORY */}
+                        <button
+                            onClick={() => navigate('/app/inventory')}
+                            className={`fixed w-10 h-10 border border-[#4a4e5a] rounded flex items-center justify-center bg-[#1a1616]/80 hover:border-[#c5a059] hover:text-[#c5a059] transition-all duration-1000 z-50 group backdrop-blur-sm cursor-pointer ${isLoggedIn ? 'top-6 right-6 translate-x-0 translate-y-0' : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0'}`}
+                            title="Abrir Inventario"
+                        >
                             <span className="material-symbols-outlined text-gray-400 group-hover:text-[#c5a059] text-sm">backpack</span>
                         </button>
                     </div>
@@ -139,8 +149,12 @@ const Dashboard: React.FC = () => {
                     {/* ---------------- SATELLITES (FIXED POSITIONING RELATIVE TO SCREEN) ---------------- */}
                     {/* Moved out of the central div to ensure they are truly at edges */}
 
-                    {/* 1. Loot Card (Fixed Left) */}
-                    <div className={`fixed top-1/2 left-4 md:left-10 -translate-y-1/2 w-56 md:w-64 rpg-card p-4 rounded-sm border-l-4 border-l-[#c5a059] transform transition-all duration-1000 z-40 ${isLoggedIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full pointer-events-none'}`}>
+                    {/* 1. Loot Card (Fixed Left) -> MARKET */}
+                    <div
+                        onClick={() => navigate('/app/market')}
+                        className={`fixed top-1/2 left-4 md:left-10 -translate-y-1/2 w-56 md:w-64 rpg-card p-4 rounded-sm border-l-4 border-l-[#c5a059] transform transition-all duration-1000 z-40 cursor-pointer hover:scale-105 active:scale-95 ${isLoggedIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full pointer-events-none'}`}
+                        title="Ver Mercados"
+                    >
                         <div className="flex justify-between items-start mb-2">
                             <h3 className="text-[#c5a059] text-[10px] md:text-xs font-[Cinzel] uppercase tracking-widest">Botín Reciente</h3>
                             <span className="material-symbols-outlined text-[#c5a059] text-sm">diamond</span>
@@ -149,8 +163,12 @@ const Dashboard: React.FC = () => {
                         <p className="text-[9px] text-gray-500 mt-1 uppercase">Rendimiento</p>
                     </div>
 
-                    {/* 2. Quest Log (Fixed Right) */}
-                    <div className={`fixed top-1/2 right-4 md:right-10 -translate-y-1/2 w-64 md:w-72 rpg-card p-4 rounded-sm border-r-4 border-r-[#8a1c1c] transform transition-all duration-1000 z-40 ${isLoggedIn ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`}>
+                    {/* 2. Quest Log (Fixed Right) -> FINANCES */}
+                    <div
+                        onClick={() => navigate('/app/finances')}
+                        className={`fixed top-1/2 right-4 md:right-10 -translate-y-1/2 w-64 md:w-72 rpg-card p-4 rounded-sm border-r-4 border-r-[#8a1c1c] transform transition-all duration-1000 z-40 cursor-pointer hover:scale-105 active:scale-95 ${isLoggedIn ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}`}
+                        title="Ver Finanzas"
+                    >
                         <div className="flex justify-between items-start mb-2">
                             <h3 className="text-[#8a1c1c] text-[10px] md:text-xs font-[Cinzel] uppercase tracking-widest">Gastos de Campaña</h3>
                             <span className="material-symbols-outlined text-[#8a1c1c] text-sm">local_fire_department</span>
@@ -165,8 +183,12 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 3. Stats (Fixed Bottom Right) */}
-                    <div className={`fixed bottom-6 right-6 md:bottom-10 md:right-10 w-48 md:w-56 rpg-card p-4 rounded-sm border-t-2 border-t-[#4a4e5a] transition-all duration-1000 z-40 ${isLoggedIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
+                    {/* 3. Stats (Fixed Bottom Right) -> ACCOUNT */}
+                    <div
+                        onClick={() => navigate('/app/account')}
+                        className={`fixed bottom-6 right-6 md:bottom-10 md:right-10 w-48 md:w-56 rpg-card p-4 rounded-sm border-t-2 border-t-[#4a4e5a] transition-all duration-1000 z-40 cursor-pointer hover:scale-105 active:scale-95 ${isLoggedIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}
+                        title="Ver Cuenta"
+                    >
                         <h3 className="text-gray-500 text-[10px] uppercase mb-2">Mana Pool</h3>
                         <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
                             <div className="h-full bg-[#9333ea] w-[75%] shadow-[0_0_10px_#9333ea]"></div>
