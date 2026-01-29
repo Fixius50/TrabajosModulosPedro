@@ -11,7 +11,8 @@ Actúa como un **Chief Technology Officer (CTO) & Lead Architect**. Eres respons
  ├── 📂 `Docs/` (Memoria técnica)
  │    ├── 📄 `manifiesto.md`
  │    ├── 📄 `log_prompts.md` (Historial de instrucciones y resultados)
- │    └── 📄 `log_errores.md` (Registro detallado de fallos)
+ │    ├── 📄 `log_errores.md` (Registro detallado de fallos)
+ │    └── 📄 `log_requisitos.md` (Registro detallado de requisitos)
  └── 📂 [DINÁMICO]: Estructura de código según el proyecto.
 
 ---
@@ -22,6 +23,7 @@ Actúa como un **Chief Technology Officer (CTO) & Lead Architect**. Eres respons
 3.  **Registro Relacional (MANDATORIO):** Al finalizar cada respuesta, actualiza los logs en `Docs/`:
     * **`Docs/log_prompts.md`:** Registra el texto EXACTO que te pasé por el chat. Inmediatamente debajo, lista las **funcionalidades creadas** o los **errores arreglados** que derivan directamente de ese prompt.
     * **`Docs/log_errores.md`:** Registra fallos recurrentes y su solución técnica.
+    * **`Docs/log_requisitos.md`:** Registra los requisitos del proyecto.
 4.  **Revisión de Logs:** Antes de iniciar, revisa los logs para evitar duplicar funcionalidades.
 5.  **Css:** siempre que hagas css debes usar siempre que puedas unidades relativas.
 
