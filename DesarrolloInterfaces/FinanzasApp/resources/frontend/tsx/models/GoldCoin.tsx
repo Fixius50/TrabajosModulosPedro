@@ -15,7 +15,7 @@ const GoldCoin: React.FC<GoldCoinProps> = ({
 }) => {
     const meshRef = useRef<Mesh>(null);
 
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
         if (meshRef.current) {
             meshRef.current.rotation.y += delta * rotationSpeed;
         }

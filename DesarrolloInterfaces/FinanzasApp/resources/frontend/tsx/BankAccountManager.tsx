@@ -32,6 +32,10 @@ const BankAccountManager: React.FC = () => {
     const handleAccountCreated = () => {
         setShowWizard(false);
         loadAccounts();
+        
+        // Redirect to spatial navigation dashboard (center position)
+        // This enables the multi-screen layout with smooth spatial transitions
+        window.location.href = '/app/dashboard';
     };
 
     if (loading) {
