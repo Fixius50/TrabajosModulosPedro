@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { IonPage } from '@ionic/react';
 import { useLocation } from 'react-router-dom';

@@ -47,11 +47,12 @@ const App: React.FC = () => {
     console.log("[APP v3.0] Initialization starting (Prisma Redesign)");
 
     // Force Logout on Mount (Disable Persistence requested by User)
-    const forceLogout = async () => {
-      console.log("[DEV] Disabling persistence: forcing sign out.");
-      await supabase.auth.signOut();
-    };
-    forceLogout();
+    // DISABLED FOR TESTING
+    // const forceLogout = async () => {
+    //   console.log("[DEV] Disabling persistence: forcing sign out.");
+    //   await supabase.auth.signOut();
+    // };
+    // forceLogout();
 
     const forceLoadTimeout = setTimeout(() => {
       console.warn("[TIMEOUT] Forcing app load.");
