@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import OracleSync from './OracleSync';
+
 import { IonPage } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 
@@ -11,7 +11,6 @@ import AccountPage from './AccountPage';
 
 const MainTabs: React.FC = () => {
     const location = useLocation();
-    const [isSyncing, setIsSyncing] = useState(true);
 
     // 1. Determine Current Tab
     const validTabs = ['dashboard', 'inventory', 'finances', 'market', 'account'];
@@ -49,10 +48,7 @@ const MainTabs: React.FC = () => {
     return (
         <IonPage className="bg-black overflow-hidden relative">
 
-            {/* 0. ORACLE SYNC OVERLAY (Global Loading Ritual) */}
-            <div className={`fixed inset-0 z-[200] transition-opacity duration-1000 ease-out ${isSyncing ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-                <OracleSync onComplete={() => setIsSyncing(false)} />
-            </div>
+            {/* THE WORLD CONTAINER */}
             {/* THE WORLD CONTAINER */}
             <div
                 className="absolute inset-0 w-full h-full transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
