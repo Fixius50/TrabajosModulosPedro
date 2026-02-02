@@ -29,6 +29,7 @@ import { recurringService } from '../ts/recurring.service';
 import { supabase } from '../ts/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 import AuthPage from './AuthPage';
+// import SceneCanvas from './Scene3D/SceneCanvas';
 import SceneCanvas from './Scene3D/SceneCanvas';
 
 

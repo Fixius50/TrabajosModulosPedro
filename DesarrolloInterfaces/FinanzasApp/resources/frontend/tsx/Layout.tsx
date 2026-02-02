@@ -1,5 +1,5 @@
 import React from 'react';
-import GlobalHUD from './GlobalHUD';
+
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -8,7 +8,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
         <div className="relative min-h-screen text-silver-zen font-sans overflow-hidden bg-stardust">
-            <GlobalHUD />
+
 
             {/* Global Background (Optional Fallback) */}
             <div className="fixed inset-0 pointer-events-none -z-10">

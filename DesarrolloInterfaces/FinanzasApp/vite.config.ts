@@ -31,6 +31,9 @@ export default defineConfig({
     //   }
     // })
   ],
+  optimizeDeps: {
+    include: ['maath', '@use-gesture/react', 'bcryptjs'],
+  },
   build: {
     outDir: '../../dist',
     emptyOutDir: true,

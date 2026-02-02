@@ -1,6 +1,7 @@
 import React from 'react';
 import { IonPage, IonContent } from '@ionic/react';
-import BankAccountManager from './BankAccountManager.tsx';
+import BankAccountManager from './BankAccountManager';
+import EnergyWidget from './widgets/EnergyWidget';
 
 const Dashboard: React.FC = () => {
     // Hide IonTabBar when on this page to prevent "double nav" and "mystery buttons"
@@ -15,7 +16,10 @@ const Dashboard: React.FC = () => {
     return (
         <IonPage>
             <IonContent fullscreen>
-                <BankAccountManager />
+                <div style={{ padding: '1rem' }}>
+                    <EnergyWidget />
+                    <BankAccountManager />
+                </div>
             </IonContent>
         </IonPage>
     );

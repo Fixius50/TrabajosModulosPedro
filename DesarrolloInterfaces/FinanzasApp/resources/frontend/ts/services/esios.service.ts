@@ -1,83 +1,60 @@
 
-const ESIOS_TOKEN = import.meta.env.VITE_ESIOS_TOKEN || '';
-const ESIOS_API_URL = 'https://api.esios.ree.es/indicators/1001';
-
-export interface EsiosData {
-    prices: { hour: string; price: number; isCheap: boolean }[]; // hour: "00-01", price: €/kWh
-    currentPrice: { hour: string; price: number; isCheap: boolean };
-    avgPrice: number;
+export interface PVPCData {
+    value: number;
+    datetime: string;
 }
 
-// Mock Data para cuando no hay token o la API falla
-const MOCK_DATA: EsiosData = {
-    prices: Array.from({ length: 24 }, (_, i) => ({
-        hour: `${i.toString().padStart(2, '0')}-${(i + 1).toString().padStart(2, '0')}`,
-        price: Math.random() * 0.30, // 0.00 - 0.30 €
-        isCheap: false
-    })).map(p => ({ ...p, isCheap: p.price < 0.15 })),
-    currentPrice: { hour: "14-15", price: 0.1423, isCheap: true },
-    avgPrice: 0.18
-};
-
 export const esiosService = {
-    async getPvpcPrices(): Promise<EsiosData> {
-        // Retornar Mock si no hay token configurado para evitar 401s constantes en desarrollo
-        if (!ESIOS_TOKEN || ESIOS_TOKEN === 'YOUR_TOKEN_HERE') {
-            console.warn('ESIOS Token missing. Using Mock Data.');
-            return new Promise(resolve => setTimeout(() => resolve(MOCK_DATA), 500));
+    async getPVPC(): Promise<PVPCData | null> {
+        const token = import.meta.env.VITE_ESIOS_TOKEN;
+
+        // Mock Data si no hay token (para desarrollo sin bloqueo)
+        if (!token) {
+            console.warn("ESIOS Token not found. Using Mock Data.");
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        value: 142.5, // €/MWh
+                        datetime: new Date().toISOString()
+                    });
+                }, 500);
+            });
         }
 
         try {
-            const response = await fetch(ESIOS_API_URL, {
+            // Indicator 1001: PVPC 2.0TD Península, Canarias, Baleares, Ceuta, Melilla
+            // Usamos geo_id 8741 (Península) por defecto para MVP
+            const now = new Date();
+            const startDate = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+            const endDate = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+
+            const url = `https://api.esios.ree.es/indicators/1001?start_date=${startDate}&end_date=${endDate}&geo_ids[]=8741`;
+
+            const response = await fetch(url, {
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': 'application/json; application/vnd.esios-api-v1+json',
                     'Content-Type': 'application/json',
-                    'x-api-key': ESIOS_TOKEN
+                    'x-api-key': token
                 }
             });
 
             if (!response.ok) throw new Error('Network response was not ok');
 
             const data = await response.json();
-            return this.processData(data);
-        } catch (error) {
-            console.error('Error fetching ESIOS data:', error);
-            return MOCK_DATA;
-        }
-    },
 
-    processData(apiData: any): EsiosData {
-        try {
-            // ESIOS devuelve una estructura compleja. Values está en indicator.values
-            // Filtramos para geo_id = 8741 (Península) o default
-            const values = apiData.indicator.values;
-
-            // Simplificación: Tomamos el primer set de 24h disponible (usualmente el día actual)
-            // La API devuelve values con "datetime" (UTC). Convertir a local.
-            const todayValues = values.filter((v: any) => v.geo_id === 8741); // 8741 Península
-
-            const prices = todayValues.map((v: any) => {
-                const date = new Date(v.datetime);
-                const priceKwh = v.value / 1000; // API da €/MWh -> Convertir a €/kWh
-                return {
-                    hour: `${date.getHours().toString().padStart(2, '0')}-${(date.getHours() + 1).toString().padStart(2, '0')}`,
-                    price: priceKwh,
-                    isCheap: priceKwh < 0.15 // Umbral arbitrario de "barato"
-                };
-            });
-
+            // Encontrar el precio de la hora actual
             const currentHour = new Date().getHours();
-            const currentPrice = prices.find((p: any) => p.hour.startsWith(currentHour.toString().padStart(2, '0'))) || prices[0];
-            const avgPrice = prices.reduce((acc: number, cur: any) => acc + cur.price, 0) / prices.length;
+            const values = data.indicator.values;
+            const currentPrice = values.find((v: any) => new Date(v.datetime).getHours() === currentHour);
 
-            return {
-                prices,
-                currentPrice,
-                avgPrice
-            };
-        } catch (e) {
-            console.error('Error parsing ESIOS data', e);
-            return MOCK_DATA;
+            return currentPrice ? {
+                value: currentPrice.value,
+                datetime: currentPrice.datetime
+            } : null;
+
+        } catch (error) {
+            console.error("Error fetching ESIOS data:", error);
+            return null;
         }
     }
 };

@@ -82,55 +82,7 @@ const MainTabs: React.FC = () => {
 
             </div>
 
-            {/* GLOBAL HOLOGRAPHIC HUD (Overlay) */}
-            <div className="absolute inset-0 z-50 pointer-events-none flex flex-col justify-between p-4">
 
-                {/* Top Bar: Context Info (Visible if not on Dashboard) */}
-                <div className={`flex justify-between items-start transition-opacity duration-500 ${isDashboard ? 'opacity-0' : 'opacity-100'}`}>
-                    <div className="flex flex-col">
-                        <span className="material-symbols-outlined text-[#c5a059] text-2xl drop-shadow-[0_0_5px_rgba(197,160,89,0.8)]">astrophotography_mode</span>
-                    </div>
-                </div>
-
-                {/* Bottom Bar: Navigation Compass & Ticker */}
-                <div className="w-full flex flex-col items-center gap-2 mb-2">
-
-                    {/* Compass / Back Button (Only if not on Dashboard) */}
-                    {!isDashboard && (
-                        <a
-                            href="/app/dashboard"
-                            className="pointer-events-auto bg-black/50 hover:bg-[#c5a059]/10 border border-[#c5a059] text-[#c5a059] rounded-full w-12 h-12 flex items-center justify-center backdrop-blur-md shadow-[0_0_15px_rgba(197,160,89,0.3)] transition-all hover:scale-110"
-                        >
-                            <span className="material-symbols-outlined">explore</span>
-                        </a>
-                    )}
-
-                    {/* Global Ticker (Always Visible, matching reference) */}
-                    <div className="w-full bg-[#0a080c]/90 border-t border-b border-[#c5a059]/20 backdrop-blur-md overflow-hidden py-1 pointer-events-auto">
-                        <div className="whitespace-nowrap flex gap-8 animate-marquee text-[10px] font-mono text-[#c5a059]">
-                            {/* Duplicate items for seamless loop */}
-                            <span>BTC: $48,200 <span className="text-green-500">▲ 2.4%</span></span>
-                            <span className="text-gray-600">|</span>
-                            <span>ETH: $3,150 <span className="text-red-500">▼ 0.8%</span></span>
-                            <span className="text-gray-600">|</span>
-                            <span>ORO: $2,045 <span className="text-green-500">▲ 0.1%</span></span>
-                            <span className="text-gray-600">|</span>
-                            <span>MANA: 100% (Estable)</span>
-                            <span className="text-gray-600">|</span>
-                            <span>SISTEMA: EN LÍNEA</span>
-
-                            <span className="ml-8 text-white/20">///</span>
-
-                            <span>BTC: $48,200 <span className="text-green-500">▲ 2.4%</span></span>
-                            <span className="text-gray-600">|</span>
-                            <span>ETH: $3,150 <span className="text-red-500">▼ 0.8%</span></span>
-                            <span className="text-gray-600">|</span>
-                            <span>ORO: $2,045 <span className="text-green-500">▲ 0.1%</span></span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
 
         </IonPage>
     );

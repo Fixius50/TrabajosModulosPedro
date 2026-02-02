@@ -8,4 +8,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase URL or Key missing. Check .env file.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false // Forces login on every refresh
+  }
+})

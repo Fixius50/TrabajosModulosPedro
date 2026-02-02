@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export interface BankAccount {
     id: string;
