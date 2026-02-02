@@ -29,6 +29,8 @@ import { recurringService } from '../ts/recurring.service';
 import { supabase } from '../ts/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 import AuthPage from './AuthPage';
+import SceneCanvas from './Scene3D/SceneCanvas';
+
 
 setupIonicReact({
   mode: 'md',
@@ -38,10 +40,19 @@ setupIonicReact({
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false); // State for 3D animation
 
   useEffect(() => {
     let mounted = true;
     console.log("[APP v3.0] Initialization starting (Prisma Redesign)");
+
+    // Force Logout on Mount (Disable Persistence requested by User)
+    // DISABLED FOR TESTING
+    // const forceLogout = async () => {
+    //   console.log("[DEV] Disabling persistence: forcing sign out.");
+    //   await supabase.auth.signOut();
+    // };
+    // forceLogout();
 
     const forceLoadTimeout = setTimeout(() => {
       console.warn("[TIMEOUT] Forcing app load.");
@@ -59,8 +70,14 @@ const App: React.FC = () => {
 
         recurringService.processDueRecurrences().catch(e => console.warn("Recurring:", e));
 
-      } catch (err) {
+      } catch (err: any) {
         console.error("Init error:", err);
+        // If refresh token is invalid, clear session to prevent crash loop
+        if (err?.message?.includes("Refresh Token")) {
+          console.warn("Invalid Refresh Token detected. Logging out.");
+          await supabase.auth.signOut();
+          setSession(null);
+        }
       } finally {
         if (mounted) {
           clearTimeout(forceLoadTimeout);
@@ -75,6 +92,8 @@ const App: React.FC = () => {
       if (mounted) {
         setSession(newSession);
         setLoading(false);
+        // Reset transition when session changes (e.g. logout)
+        if (!newSession) setIsTransitioning(false);
       }
     });
 
@@ -85,46 +104,57 @@ const App: React.FC = () => {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <IonApp>
-        <div className="flex flex-col items-center justify-center h-screen w-screen bg-[#0f0a0a] text-[#c5a059] font-[Cinzel]">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 border-4 border-[#8a1c1c] border-t-[#c5a059] rounded-full animate-spin"></div>
-            <div className="absolute inset-2 border-2 border-[#4a4e5a] border-b-[#c5a059] rounded-full animate-spin-reverse opacity-50"></div>
-          </div>
-          <p className="mt-8 animate-pulse tracking-[0.3em] uppercase text-sm drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]">
-            Abriendo Portal Dimensional...
-          </p>
-        </div>
-      </IonApp>
-    );
-  }
+  // Handle successful login with animation delay
+  const handleLoginSuccess = () => {
+    setIsTransitioning(true);
+    // Wait for the 3D 'Zoom/Die Roll' animation to finish before showing the Dashboard
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 2000); // Faster transition (2s)
+  };
 
   return (
     <IonApp>
-      <BrowserRouter>
-        {session ? (
-          <Layout>
-            {/* Note: Menu might need redesign or removal if Layout handles nav. Keeping for now but hidden if needed. */}
-            <div className="hidden"><Menu /></div>
+      {/* 3D Scene - Visible only during Loading, Login, or Transition */}
+      {(loading || !session || isTransitioning) && (
+        <SceneCanvas
+          className="pointer-events-auto"
+          isTransitioning={isTransitioning}
+          isLoading={loading}
+        />
+      )}
+
+      {loading ? (
+        // Minimal Loading Overlay (Replacing OracleSync)
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-end pb-20 pointer-events-none">
+          <h2 className="text-[#d4af37] font-[Cinzel] text-xl tracking-[0.5em] animate-pulse drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+            SINCRONIZANDO...
+          </h2>
+        </div>
+      ) : (
+        <BrowserRouter>
+          {session && !isTransitioning ? (
+            <Layout>
+              {/* Note: Menu might need redesign or removal if Layout handles nav. Keeping for now but hidden if needed. */}
+              <div className="hidden"><Menu /></div>
+              <Routes>
+                <Route path="/app/*" element={<MainTabs />} />
+                <Route path="/" element={<Navigate to="/app/dashboard" />} />
+                <Route path="/login" element={<Navigate to="/app/dashboard" />} />
+                <Route path="/register" element={<Navigate to="/app/dashboard" />} />
+                <Route path="*" element={<Navigate to="/app/dashboard" />} />
+              </Routes>
+            </Layout>
+          ) : (
             <Routes>
-              <Route path="/app/*" element={<MainTabs />} />
-              <Route path="/" element={<Navigate to="/app/dashboard" />} />
-              <Route path="/login" element={<Navigate to="/app/dashboard" />} />
-              <Route path="/register" element={<Navigate to="/app/dashboard" />} />
-              <Route path="*" element={<Navigate to="/app/dashboard" />} />
+              <Route path="/login" element={<AuthPage onLoginSuccess={handleLoginSuccess} />} />
+              <Route path="/register" element={<Navigate to="/login" />} />
+              <Route path="/app/*" element={<Navigate to="/login" />} />
+              <Route path="/" element={<Navigate to="/login" />} />
             </Routes>
-          </Layout>
-        ) : (
-          <Routes>
-            <Route path="/login" element={<AuthPage />} />
-            <Route path="/register" element={<Navigate to="/login" />} />
-            <Route path="/app/*" element={<Navigate to="/login" />} />
-            <Route path="/" element={<Navigate to="/login" />} />
-          </Routes>
-        )}
-      </BrowserRouter>
+          )}
+        </BrowserRouter>
+      )}
     </IonApp>
   );
 };

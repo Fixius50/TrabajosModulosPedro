@@ -16,10 +16,17 @@ No te limites a repetir lo que el usuario dice. Aporta valor:
 - Sugiere librerías que encajen con el diseño visual solicitado.
 - Identifica posibles cuellos de botella técnicos basados en el análisis de las referencias.
 
+### PASO 2.5: PROTOCOLO DE CONTEXTO (MCP)
+El proyecto puede requerir "superpoderes" externos. Investiga y propón servidores MCP (Model Context Protocol) activos:
+1.  **Fuentes de Verdad:** Consulta https://github.com/modelcontextprotocol/servers y https://mcpservers.org/.
+2.  **Selección Táctica:** ¿Necesitamos conectar a una BBDD real (Postgres/SQLite)? ¿Interactuar con Git/GitHub? ¿Manipular sistema de archivos avanzado?
+3.  **Propuesta:** En el `manifiesto.md`, añade una sección "MCP Servers Sugeridos" con los comandos de instalación (ej: `npx -y @modelcontextprotocol/server-postgres`).
+
 ### PASO 3: GENERACIÓN DEL MANIFIESTO (SALIDA OBLIGATORIA)
 Crea o actualiza el archivo `manifiesto.md` en la raíz con esta estructura estricta:
 - `# Visión General`: Resumen de 2 párrafos del propósito.
 - `# Estrategia Técnica`: Stack detallado (Lenguajes, Frameworks, BBDD sugerida).
+- `# Arquitectura de Herramientas (MCP)`: Lista de servidores MCP recomendados y su configuración.
 - `# Referencias de Usuario (Base de Investigación)`: Lista de los recursos específicos proporcionados por Roberto Monedero Alonso y qué se extrajo de cada uno.
 - `# Sistema de Diseño (Design System)`: Colores, Tipografía y UI Rules.
 - `# Hoja de Ruta (MVP)`: Lista de 5 a 10 tareas iniciales para el rol de Creador.
@@ -28,6 +35,8 @@ Crea o actualiza el archivo `manifiesto.md` en la raíz con esta estructura estr
 
 # 📚 MIS REFERENCIAS DE INVESTIGACIÓN (PARA ROBERTO MONEDERO ALONSO)
 [Pega aquí tus enlaces, textos o documentos clave para que la IA los procese como verdad absoluta antes de generar el manifiesto]:
+- [https://github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) (MCP Official)
+- [https://mcpservers.org/](https://mcpservers.org/) (MCP Directory)
 - [https://github.com/salvadorjusaino/public-apis](https://github.com/salvadorjusaino/public-apis)
 - [https://free-apis.github.io/#/browse](https://free-apis.github.io/#/browse)
 - [https://catalogo.datosabiertos.miteco.gob.es/catalogo/openapi](https://catalogo.datosabiertos.miteco.gob.es/catalogo/openapi)

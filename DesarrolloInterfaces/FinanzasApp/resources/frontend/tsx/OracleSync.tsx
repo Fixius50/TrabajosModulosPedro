@@ -12,11 +12,11 @@ const OracleSync: React.FC<OracleSyncProps> = ({ onComplete }) => {
 
     useEffect(() => {
         const steps = [
-            { txt: "DETECTANDO ARCAS REALES...", time: 1000 },
-            { txt: "VINCULANDO CON EL ORÁCULO FINANCIERO...", time: 2500 },
-            { txt: "EXTRAYENDO FLUJO DE DATOS DEL SANTUARIO...", time: 4000 },
-            { txt: "MATERIALIZANDO ACTIVOS...", time: 5500 },
-            { txt: "COMPLETADO", time: 6500 }
+            { txt: "DETECTANDO ARCAS REALES...", time: 500 },
+            { txt: "VINCULANDO CON EL ORÁCULO FINANCIERO...", time: 1000 },
+            { txt: "EXTRAYENDO FLUJO DE DATOS...", time: 1500 },
+            { txt: "MATERIALIZANDO ACTIVOS...", time: 2000 },
+            { txt: "COMPLETADO", time: 2500 }
         ];
 
         let currentStep = 0;
@@ -30,7 +30,7 @@ const OracleSync: React.FC<OracleSyncProps> = ({ onComplete }) => {
                 clearInterval(interval);
                 if (onComplete) onComplete();
             }
-        }, 1200);
+        }, 400); // Faster interval for dev/testing experience
 
         return () => clearInterval(interval);
     }, [onComplete]);
