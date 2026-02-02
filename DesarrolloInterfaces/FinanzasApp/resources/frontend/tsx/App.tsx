@@ -16,7 +16,7 @@ import '../css/index.css';
 import { supabase } from '../ts/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
 
-setupIonicReact({ mode: 'md', animated: false });
+setupIonicReact({ mode: 'md', animated: true });
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
