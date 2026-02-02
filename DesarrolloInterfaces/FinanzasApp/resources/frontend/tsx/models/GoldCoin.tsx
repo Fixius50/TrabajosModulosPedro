@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Mesh } from 'three';
+import { useGLTF } from '@react-three/drei';
+import { Group } from 'three';
 
 interface GoldCoinProps {
     position?: [number, number, number];
@@ -13,26 +14,27 @@ const GoldCoin: React.FC<GoldCoinProps> = ({
     scale = 1,
     rotationSpeed = 2
 }) => {
-    const meshRef = useRef<Mesh>(null);
+    const groupRef = useRef<Group>(null);
+    const { scene } = useGLTF('/models/coin.glb');
 
     useFrame((_, delta) => {
-        if (meshRef.current) {
-            meshRef.current.rotation.y += delta * rotationSpeed;
+        if (groupRef.current) {
+            groupRef.current.rotation.y += delta * rotationSpeed;
         }
     });
 
     return (
-        <mesh ref={meshRef} position={position} scale={scale} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.5, 0.5, 0.1, 32]} />
-            <meshStandardMaterial
-                color="#FFD700"
-                metalness={1}
-                roughness={0.1}
-                emissive="#d4af37"
-                emissiveIntensity={0.3}
-            />
-        </mesh>
+        <primitive
+            object={scene}
+            ref={groupRef}
+            position={position}
+            scale={scale}
+        // Additional fallback rotation if needed, but primitive usually respects scene
+        />
     );
 };
+
+// Preload
+useGLTF.preload('/models/coin.glb');
 
 export default GoldCoin;
