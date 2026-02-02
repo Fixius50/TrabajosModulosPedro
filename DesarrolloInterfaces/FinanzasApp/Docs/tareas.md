@@ -33,4 +33,4 @@
     - [x] Analíticas Avanzadas (Gráficos) <!-- id: 30 -->
 - [/] **Fase 7: Ampliación (Propuestas)** <!-- id: 31 -->
     - [x] Gestión de Presupuestos <!-- id: 32 -->
-    - [ ] Transacciones Recurrentes <!-- id: 33 -->
+    - [x] Transacciones Recurrentes <!-- id: 33 -->
