@@ -48,14 +48,15 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
                         </span>
                     </button>
 
-                    {/* Downward Radial Expansion (4 Directions) */}
-                    <div className={`absolute top-0 w-[300px] h-[200px] pointer-events-none transition-all duration-700 ease-out ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-                        <div className="relative w-full h-full flex items-center justify-center">
+                    {/* Downward Radial Expansion (4 Directions) - 3D ENHANCED */}
+                    <div className={`absolute top-0 w-[320px] h-[180px] transition-all duration-700 ease-out ${isExpanded ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-50 pointer-events-none'}`}>
+                        <div className="relative w-full h-full flex items-center justify-center" style={{ perspective: '1000px' }}>
 
                             {/* Target 1: South-West (Inventory) */}
                             <button
                                 onClick={() => navigateTo('/app/inventory')}
-                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[0ms] ${isExpanded ? 'translate-x-[-100px] translate-y-[80px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('inventory') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                className={`absolute w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 hover:shadow-[0_8px_20px_rgba(212,175,55,0.6)] transition-all duration-500 delay-[0ms] ${isExpanded ? 'translate-x-[-70px] translate-y-[50px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('inventory') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.6)]' : ''}`}
+                                style={{ transform: isExpanded ? 'translateZ(20px)' : 'translateZ(0)' }}
                                 title="Cofre"
                             >
                                 <IonIcon icon={layersOutline} className="text-xl" />
@@ -64,7 +65,8 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
                             {/* Target 2: South-South-West (Market) */}
                             <button
                                 onClick={() => navigateTo('/app/market')}
-                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[50ms] ${isExpanded ? 'translate-x-[-40px] translate-y-[120px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('market') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                className={`absolute w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 hover:shadow-[0_8px_20px_rgba(212,175,55,0.6)] transition-all duration-500 delay-[50ms] ${isExpanded ? 'translate-x-[-25px] translate-y-[90px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('market') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.6)]' : ''}`}
+                                style={{ transform: isExpanded ? 'translateZ(30px)' : 'translateZ(0)' }}
                                 title="Mercado"
                             >
                                 <IonIcon icon={trendingUpOutline} className="text-xl" />
@@ -73,7 +75,8 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
                             {/* Target 3: South-South-East (Finances) */}
                             <button
                                 onClick={() => navigateTo('/app/finances')}
-                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[100ms] ${isExpanded ? 'translate-x-[40px] translate-y-[120px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('finances') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                className={`absolute w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 hover:shadow-[0_8px_20px_rgba(212,175,55,0.6)] transition-all duration-500 delay-[100ms] ${isExpanded ? 'translate-x-[25px] translate-y-[90px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('finances') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.6)]' : ''}`}
+                                style={{ transform: isExpanded ? 'translateZ(30px)' : 'translateZ(0)' }}
                                 title="Arcas"
                             >
                                 <IonIcon icon={walletOutline} className="text-xl" />
@@ -82,8 +85,9 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
                             {/* Target 4: South-East (Account) */}
                             <button
                                 onClick={() => navigateTo('/app/account')}
-                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[150ms] ${isExpanded ? 'translate-x-[100px] translate-y-[80px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('account') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
-                                title="Altar"
+                                className={`absolute w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 hover:shadow-[0_8px_20px_rgba(212,175,55,0.6)] transition-all duration-500 delay-[150ms] ${isExpanded ? 'translate-x-[70px] translate-y-[50px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('account') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.6)]' : ''}`}
+                                style={{ transform: isExpanded ? 'translateZ(20px)' : 'translateZ(0)' }}
+                                title="Torre del Mago"
                             >
                                 <IonIcon icon={personOutline} className="text-xl" />
                             </button>

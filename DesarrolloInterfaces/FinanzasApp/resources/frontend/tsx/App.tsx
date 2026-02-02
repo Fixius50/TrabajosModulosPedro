@@ -21,6 +21,7 @@ setupIonicReact({ mode: 'md', animated: false });
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAppUnlocked, setIsAppUnlocked] = useState(false);
 
   useEffect(() => {
     const initApp = async () => {
@@ -33,6 +34,8 @@ const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       setLoading(false);
+      // Reset unlock state on logout
+      if (!newSession) setIsAppUnlocked(false);
     });
 
     return () => subscription.unsubscribe();
@@ -50,7 +53,7 @@ const App: React.FC = () => {
         {session ? (
           <Layout>
             <Routes>
-              <Route path="/app/*" element={<MainTabs isAppUnlocked={true} onUnlock={() => { }} />} />
+              <Route path="/app/*" element={<MainTabs isAppUnlocked={isAppUnlocked} onUnlock={() => setIsAppUnlocked(true)} />} />
               <Route path="/" element={<Navigate to="/app/dashboard" />} />
               <Route path="*" element={<Navigate to="/app/dashboard" />} />
             </Routes>
