@@ -92,7 +92,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
                     }
                 `}
             </style>
-            <IonContent className="ion-padding" scrollY={false}>
+            <IonContent className="ion-padding" scrollY={false} style={{ '--background': '#0a0a0a' }}>
                 <div style={{
                     display: 'flex',
                     justifyContent: 'center',

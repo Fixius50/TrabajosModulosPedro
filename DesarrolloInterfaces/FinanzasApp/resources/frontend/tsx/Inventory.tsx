@@ -3,15 +3,12 @@ import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import { diamond, colorPalette, watch, searchOutline, addCircleOutline } from 'ionicons/icons';
 
 const Inventory: React.FC = () => {
-    // Mock Data for "Reliquias"
-    const [selectedItem, setSelectedItem] = useState(0);
-    const items = [
-        { id: 0, name: 'Patek Philippe Nautilus', type: 'Mítico', category: 'Relojería', value: 145200, profit: 16200, rarity: 98, icon: watch, desc: "Forjado en las minas del tiempo eterno.", color: "text-purple-400" },
-        { id: 1, name: 'Doblón de Oro 1732', type: 'Legendario', category: 'Numismática', value: 24500, profit: 3400, rarity: 85, icon: diamond, desc: "Recuperado de un galeón fantasma.", color: "text-amber-400" },
-        { id: 2, name: 'Óleo "Nebulosa"', type: 'Épico', category: 'Arte', value: 85000, profit: 12500, rarity: 75, icon: colorPalette, desc: "Pintado con polvo de estrellas.", color: "text-blue-400" },
-    ];
+    // Inventory items (Reliquias) - Now empty by default to allow for real registration
+    const [selectedItem, setSelectedItem] = useState(-1);
+    const [items, setItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const activeItem = items[selectedItem];
+    const activeItem = items[selectedItem] || null;
 
     return (
         <IonPage>

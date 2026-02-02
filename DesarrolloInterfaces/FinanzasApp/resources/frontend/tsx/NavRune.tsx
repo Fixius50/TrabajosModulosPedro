@@ -29,53 +29,15 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
 
     return (
         <>
-            {/* DESKTOP VERSION: Compact Corner Gate (Bottom-Right) */}
+            {/* DESKTOP VERSION: Top-Center Rune */}
             <div
-                className="hidden md:block fixed bottom-6 right-6 z-[100]"
+                className="hidden md:block fixed top-6 left-1/2 -translate-x-1/2 z-[100]"
                 onMouseEnter={() => setIsExpanded(true)}
                 onMouseLeave={() => setIsExpanded(false)}
             >
-                <div className="relative flex items-center justify-center">
+                <div className="relative flex flex-col items-center">
 
-                    {/* The menu items (visible when expanded) */}
-                    <div className={`absolute transition-all duration-500 ease-out ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'}`}>
-                        <div className="relative w-48 h-48">
-                            {/* North: Inventory */}
-                            <button
-                                onClick={() => navigateTo('/app/inventory')}
-                                className={`absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all ${currentPath.includes('inventory') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.3)]' : ''}`}
-                                title="Cofre"
-                            >
-                                <IonIcon icon={layersOutline} />
-                            </button>
-                            {/* West: Market */}
-                            <button
-                                onClick={() => navigateTo('/app/market')}
-                                className={`absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all ${currentPath.includes('market') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.3)]' : ''}`}
-                                title="Mercado"
-                            >
-                                <IonIcon icon={trendingUpOutline} />
-                            </button>
-                            {/* East: Finances */}
-                            <button
-                                onClick={() => navigateTo('/app/finances')}
-                                className={`absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all ${currentPath.includes('finances') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.3)]' : ''}`}
-                                title="Arcas"
-                            >
-                                <IonIcon icon={walletOutline} />
-                            </button>
-                            {/* South: Account */}
-                            <button
-                                onClick={() => navigateTo('/app/account')}
-                                className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all ${currentPath.includes('account') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.3)]' : ''}`}
-                                title="Altar"
-                            >
-                                <IonIcon icon={personOutline} />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Central Trigger Rune */}
+                    {/* Central Trigger Rune (Top) */}
                     <button
                         onClick={() => navigateTo('/app/dashboard')}
                         className={`relative z-20 w-16 h-16 rounded-full flex items-center justify-center bg-black/90 border-2 transition-all duration-500 shadow-[0_0_20px_rgba(0,0,0,0.5)] ${isExpanded ? 'border-[#d4af37] rotate-180 scale-110' : 'border-[#d4af37]/20 hover:border-[#d4af37]/60'}`}
@@ -84,17 +46,49 @@ const NavRune: React.FC<NavRuneProps> = ({ isVisible }) => {
                         <span className={`font-[MedievalSharp] text-2xl transition-all duration-500 ${isExpanded ? 'text-[#d4af37] drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]' : 'text-[#d4af37]/40'}`}>
                             {currentPath.includes('dashboard') ? 'ᚦ' : 'ᛟ'}
                         </span>
-
-                        {/* Miniature indicators */}
-                        {!isExpanded && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-1 h-1 bg-[#d4af37]/40 rounded-full absolute top-2"></div>
-                                <div className="w-1 h-1 bg-[#d4af37]/40 rounded-full absolute bottom-2"></div>
-                                <div className="w-1 h-1 bg-[#d4af37]/40 rounded-full absolute left-2"></div>
-                                <div className="w-1 h-1 bg-[#d4af37]/40 rounded-full absolute right-2"></div>
-                            </div>
-                        )}
                     </button>
+
+                    {/* Downward Radial Expansion (4 Directions) */}
+                    <div className={`absolute top-0 w-[300px] h-[200px] pointer-events-none transition-all duration-700 ease-out ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+                        <div className="relative w-full h-full flex items-center justify-center">
+
+                            {/* Target 1: South-West (Inventory) */}
+                            <button
+                                onClick={() => navigateTo('/app/inventory')}
+                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[0ms] ${isExpanded ? 'translate-x-[-100px] translate-y-[80px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('inventory') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                title="Cofre"
+                            >
+                                <IonIcon icon={layersOutline} className="text-xl" />
+                            </button>
+
+                            {/* Target 2: South-South-West (Market) */}
+                            <button
+                                onClick={() => navigateTo('/app/market')}
+                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[50ms] ${isExpanded ? 'translate-x-[-40px] translate-y-[120px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('market') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                title="Mercado"
+                            >
+                                <IonIcon icon={trendingUpOutline} className="text-xl" />
+                            </button>
+
+                            {/* Target 3: South-South-East (Finances) */}
+                            <button
+                                onClick={() => navigateTo('/app/finances')}
+                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[100ms] ${isExpanded ? 'translate-x-[40px] translate-y-[120px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('finances') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                title="Arcas"
+                            >
+                                <IonIcon icon={walletOutline} className="text-xl" />
+                            </button>
+
+                            {/* Target 4: South-East (Account) */}
+                            <button
+                                onClick={() => navigateTo('/app/account')}
+                                className={`absolute pointer-events-auto w-12 h-12 rounded-full flex items-center justify-center bg-black/90 border border-[#d4af37]/40 text-[#d4af37] hover:scale-110 transition-all duration-500 delay-[150ms] ${isExpanded ? 'translate-x-[100px] translate-y-[80px]' : 'translate-x-0 translate-y-0'} ${currentPath.includes('account') ? 'bg-[#d4af37]/20 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.4)]' : ''}`}
+                                title="Altar"
+                            >
+                                <IonIcon icon={personOutline} className="text-xl" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

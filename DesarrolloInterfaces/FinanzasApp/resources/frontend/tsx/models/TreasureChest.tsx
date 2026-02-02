@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Group } from 'three';
@@ -13,14 +13,13 @@ interface TreasureChestProps {
 const TreasureChest: React.FC<TreasureChestProps> = ({
     position = [0, 0, 0],
     scale = 1,
-    isOpen = false,
     onClick
 }) => {
     const groupRef = useRef<Group>(null);
-    const [hovered, setHovered] = useState(false);
+    // const [hovered, setHovered] = useState(false); // Removed unused state
 
     // Attempt to load the model
-    const { scene, animations } = useGLTF('/models/chest.glb');
+    const { scene } = useGLTF('/models/chest.glb'); // Removed unused animations
 
     useFrame(() => {
         // Optional: Add simple floating or animation logic here if needed
@@ -33,10 +32,8 @@ const TreasureChest: React.FC<TreasureChestProps> = ({
             position={position}
             scale={scale}
             onClick={onClick}
-            onPointerOver={() => setHovered(true)}
-            onPointerOut={() => setHovered(false)}
-        // Simple visual feedback for hover/open state if the model supports it 
-        // otherwise we rely on the component props/logic
+        // onPointerOver={() => setHovered(true)} // Removed unused handlers
+        // onPointerOut={() => setHovered(false)} // Removed unused handlers
         />
     );
 };

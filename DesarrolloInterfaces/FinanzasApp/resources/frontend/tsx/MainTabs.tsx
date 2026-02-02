@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { Suspense } from 'react';
 import { IonPage } from '@ionic/react';
 import { useLocation } from 'react-router-dom';
 
@@ -28,69 +27,63 @@ const MainTabs: React.FC<MainTabsProps> = ({ isAppUnlocked, onUnlock }) => {
         else currentTab = 'dashboard';
     }
 
-    // 2. Calculate Spatial Coordinates based on Tab
-    // Dashboard: Center (0,0)
-    // Inventory: Top (0, -100vh)
-    // Market: Left (-100vw, 0)
-    // Finances: Right (100vw, 0)
-    // Account: Bottom (0, 100vh)
-
     const getCoordinates = (tab: string) => {
         switch (tab) {
-            case 'inventory': return { x: 0, y: 100 }; // Move world DOWN to see TOP
-            case 'market': return { x: 100, y: 0 };    // Move world RIGHT to see LEFT
-            case 'finances': return { x: -100, y: 0 }; // Move world LEFT to see RIGHT
-            case 'account': return { x: 0, y: -100 };  // Move world UP to see BOTTOM
+            case 'inventory': return { x: 0, y: 100 };
+            case 'market': return { x: 100, y: 0 };
+            case 'finances': return { x: -100, y: 0 };
+            case 'account': return { x: 0, y: -100 };
             case 'dashboard':
             default: return { x: 0, y: 0 };
         }
     };
 
     const { x, y } = getCoordinates(currentTab);
-
-    // Determine if we are on the dashboard
     const isDashboard = currentTab === 'dashboard';
 
     return (
         <IonPage className="bg-black overflow-hidden relative">
-
-            {/* THE WORLD CONTAINER */}
-            {/* THE WORLD CONTAINER */}
             <div
                 className="absolute inset-0 w-full h-full transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                 style={{ transform: `translate3d(${x}vw, ${y}vh, 0)` }}
             >
-
-                {/* 1. DASHBOARD (CENTER 0,0) */}
-                <div className="absolute inset-0 w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: isDashboard ? 1 : 0.2, pointerEvents: isDashboard ? 'auto' : 'none' }}>
-                    <Dashboard onUnlock={onUnlock} />
+                {/* 1. DASHBOARD */}
+                <div className="absolute inset-0 w-full h-full z-10" style={{ opacity: isDashboard ? 1 : 0, pointerEvents: isDashboard ? 'auto' : 'none' }}>
+                    <Suspense fallback={<div className="bg-black h-full flex items-center justify-center text-gold font-[Cinzel]">Invocando Dashboard...</div>}>
+                        <Dashboard onUnlock={onUnlock} />
+                    </Suspense>
                 </div>
 
-                {/* 2. INVENTORY (TOP: 0, -100vh) */}
-                <div className="absolute top-[-100vh] left-0 w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: currentTab === 'inventory' ? 1 : 0.2, pointerEvents: currentTab === 'inventory' ? 'auto' : 'none' }}>
-                    <Inventory />
+                {/* 2. INVENTORY */}
+                <div className="absolute top-[-100vh] left-0 w-full h-full z-10" style={{ opacity: currentTab === 'inventory' ? 1 : 0, pointerEvents: currentTab === 'inventory' ? 'auto' : 'none' }}>
+                    <Suspense fallback={<div className="bg-black h-full flex items-center justify-center text-gold font-[Cinzel]">Abriendo Cofre...</div>}>
+                        <Inventory />
+                    </Suspense>
                 </div>
 
-                {/* 3. MARKET (LEFT: -100vw, 0) */}
-                <div className="absolute top-0 left-[-100vw] w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: currentTab === 'market' ? 1 : 0.2, pointerEvents: currentTab === 'market' ? 'auto' : 'none' }}>
-                    <GlobalMarketPage />
+                {/* 3. MARKET */}
+                <div className="absolute top-0 left-[-100vw] w-full h-full z-10" style={{ opacity: currentTab === 'market' ? 1 : 0, pointerEvents: currentTab === 'market' ? 'auto' : 'none' }}>
+                    <Suspense fallback={<div className="bg-black h-full flex items-center justify-center text-gold font-[Cinzel]">Consultando Mercado...</div>}>
+                        <GlobalMarketPage />
+                    </Suspense>
                 </div>
 
-                {/* 4. FINANCES (RIGHT: 100vw, 0) */}
-                <div className="absolute top-0 left-[100vw] w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: currentTab === 'finances' ? 1 : 0.2, pointerEvents: currentTab === 'finances' ? 'auto' : 'none' }}>
-                    <FinancesPage />
+                {/* 4. FINANCES */}
+                <div className="absolute top-0 left-[100vw] w-full h-full z-10" style={{ opacity: currentTab === 'finances' ? 1 : 0, pointerEvents: currentTab === 'finances' ? 'auto' : 'none' }}>
+                    <Suspense fallback={<div className="bg-black h-full flex items-center justify-center text-gold font-[Cinzel]">Abriendo Arcas...</div>}>
+                        <FinancesPage />
+                    </Suspense>
                 </div>
 
-                {/* 5. ACCOUNT (BOTTOM: 0, 100vh) */}
-                <div className="absolute top-[100vh] left-0 w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: currentTab === 'account' ? 1 : 0.2, pointerEvents: currentTab === 'account' ? 'auto' : 'none' }}>
-                    <AccountPage />
+                {/* 5. ACCOUNT */}
+                <div className="absolute top-[100vh] left-0 w-full h-full z-10" style={{ opacity: currentTab === 'account' ? 1 : 0, pointerEvents: currentTab === 'account' ? 'auto' : 'none' }}>
+                    <Suspense fallback={<div className="bg-black h-full flex items-center justify-center text-gold font-[Cinzel]">Accediendo al Altar...</div>}>
+                        <AccountPage />
+                    </Suspense>
                 </div>
-
             </div>
 
-            {/* NAV RUNE (Floating Navigation Controller) */}
-            <NavRune isVisible={isAppUnlocked} />
-
+            <NavRune isVisible={true} />
         </IonPage>
     );
 };

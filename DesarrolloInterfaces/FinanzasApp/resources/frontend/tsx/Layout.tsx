@@ -7,7 +7,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
-        <div className="relative min-h-screen text-silver-zen font-sans overflow-hidden bg-stardust">
+        <div className="relative min-h-screen text-[#e2d5b5] font-sans overflow-hidden bg-black">
 
 
             {/* Global Background (Optional Fallback) */}

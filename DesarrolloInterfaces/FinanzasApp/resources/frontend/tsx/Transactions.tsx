@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../ts/transactionService';
 import type { Transaction } from '../ts/types';
 import TransactionModal from './TransactionModal';
 import { useTranslation } from 'react-i18next';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment } from '@react-three/drei';
+import GoldCoin from './models/GoldCoin';
 
 const Transactions: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -93,6 +96,19 @@ const Transactions: React.FC = () => {
 
     return (
         <div style={{ height: '100%', overflowY: 'auto' }}>
+            {/* 3D Accent Section */}
+            <div className="h-32 mb-4 relative z-0">
+                <Canvas camera={{ position: [0, 0, 3], fov: 40 }}>
+                    <ambientLight intensity={0.7} />
+                    <pointLight position={[5, 1, 5]} intensity={1.5} color="#ffd700" />
+                    <Suspense fallback={null}>
+                        <GoldCoin position={[0, 0, 0]} scale={1.2} />
+                        <Environment preset="city" />
+                    </Suspense>
+                    <OrbitControls enableZoom={false} autoRotate />
+                </Canvas>
+            </div>
+
             {loading && (
                 <div className="ion-text-center ion-padding">
                     <IonSpinner name="crescent" />
