@@ -1,688 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanzasApp - Documentación Técnica</title>
+    <title>Documentación del Proyecto: FinanzasApp</title>
     <style>
-        :root {
-            --primary-color: #3880ff;
-            --secondary-color: #5260ff;
-            --bg-color: #f4f5f8;
-            --text-color: #1c1c1e;
-            --card-bg: #ffffff;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            background: var(--primary-color);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-
-        h2 {
-            color: var(--secondary-color);
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 40px;
-        }
-
-        h3 {
-            color: #333;
-            margin-top: 25px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-
-        code {
-            background-color: #f1f1f1;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-family: Consolas, monospace;
-            color: #d63384;
-        }
-
-        pre {
-            background-color: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f8f9fa;
-        }
-
-        nav {
-            position: sticky;
-            top: 20px;
-            float: right;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        nav a {
-            display: block;
-            margin: 5px 0;
-            text-decoration: none;
-            color: var(--primary-color);
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        .status-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: white;
-        }
-
-        .status-done {
-            background-color: #2dd36f;
-        }
-
-        .status-pending {
-            background-color: #ffc409;
-            color: black;
-        }
+        body { font-family: 'Segoe UI'; user-select: none; background: #0f172a; color: #e2e8f0; line-height: 1.6; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #1e293b; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        h1, h2, h3 { color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 10px; }
+        h1 { font-size: 2.5em; text-align: center; border-bottom: none; margin-bottom: 40px; color: #d4af37; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .done { background: #059669; color: white; }
+        .wip { background: #d97706; color: white; }
+        .pending { background: #475569; color: #cbd5e1; }
+        code { background: #0f172a; padding: 2px 6px; border-radius: 4px; color: #f472b6; font-family: 'Consolas', monospace; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 10px; padding-left: 20px; position: relative; }
+        li::before { content: "•"; color: #38bdf8; font-weight: bold; position: absolute; left: 0; }
+        .feature-card { background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #d4af37; }
+        footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 0.9em; border-top: 1px solid #334155; padding-top: 20px; }
     </style>
 </head>
-
 <body>
-
     <div class="container">
-        <header>
-            <h1>FinanzasApp</h1>
-            <p>Documentación Técnica Consolidada</p>
-            <p><em>Generado Automáticamente por el Asistente Técnico</em></p>
-        </header>
+        <h1>Gestión de Finanzas Personales</h1>
+        <p style="text-align: center; font-style: italic;">Documentación Técnica & Estado del Proyecto</p>
 
-        <div class="card" id="vision">
-            <h2>1. Visión y Manifiesto</h2>
-            <p><strong>Gestión de Finanzas Personales</strong> es una aplicación multiplataforma (Web y Android)
-                diseñada para el control exhaustivo de ingresos y gastos, priorizando el funcionamiento offline y la
-                sincronización en la nube.</p>
+        <h2>1. Visión General</h2>
+        <p>Aplicación multiplataforma (Web y Android) para el control exhaustivo de finanzas personales. Prioriza la experiencia de usuario inmersiva ("Cosmic Financial"), la flexibilidad offline-first y la sincronización en la nube mediante Supabase.</p>
 
-            <h3>Estrategia Técnica</h3>
+        <h2>2. Estado del Proyecto <span class="status-badge done">FASE 8 COMPLETADA</span></h2>
+        
+        <div class="feature-card">
+            <h3>🚀 Hitos Recientes (Fase 8 & Optimización)</h3>
             <ul>
-                <li><strong>Frontend:</strong> React + TypeScript + Vite.</li>
-                <li><strong>UI Framework:</strong> Ionic Framework (v8).</li>
-                <li><strong>Mobile Runtime:</strong> Capacitor (APK Nativo).</li>
-                <li><strong>Backend:</strong> Supabase (PostgreSQL, Auth, Storage).</li>
-                <li><strong>Persistencia:</strong> LocalStorage + Cloud Sync.</li>
+                <li><strong>Refactorización UI/UX:</strong> Consolidación de navegación en 4 pestañas principales (Resumen, Finanzas, Mercado, Cuenta).</li>
+                <li><strong>Login 3D Inmersivo:</strong> Implementación de experiencia de entrada "Surface Reveal" con Three.js.</li>
+                <li><strong>Optimización Móvil:</strong> Renderizado eficiente (DPR capping, geometría ligera) para dispositivos móviles.</li>
+                <li><strong>Navegación Robusta:</strong> Sistema de renderizado diferido para garantizar animaciones fluidas sin cortes.</li>
             </ul>
         </div>
 
-        <div class="card" id="arquitectura">
-            <h2>2. Arquitectura de Software</h2>
-            <p>El proyecto sigue una arquitectura modular basada en <strong>Componentes y Servicios</strong>,
-                desacoplando la lógica de negocio de la interfaz de usuario.</p>
+        <h3>Progreso por Fases</h3>
+        <ul>
+            <li><span class="status-badge done">100%</span> <strong>Fase 0-1:</strong> Definición, Stack Tecnológico (Ionic/React), Diseño de Datos.</li>
+            <li><span class="status-badge done">100%</span> <strong>Fase 2-3:</strong> Core UI, Autenticación Híbrida, Navegación.</li>
+            <li><span class="status-badge done">100%</span> <strong>Fase 4:</strong> Lógica de Negocio, CRUD Transacciones, Cache Offline.</li>
+            <li><span class="status-badge done">100%</span> <strong>Fase 5:</strong> Ficheros (Storage), Perfil, Configuración (i18n, Dark Mode).</li>
+            <li><span class="status-badge done">100%</span> <strong>Fase 6:</strong> Extras: Dashboard Dinámico, Widgets Cripto/Noticias, Exportación JSON/PDF.</li>
+            <li><span class="status-badge wip">90%</span> <strong>Fase 7:</strong> Presupuestos y Recurrentes (Implementados, en pulido).</li>
+            <li><span class="status-badge pending">PENDIENTE</span> <strong>Compilación:</strong> Generación de APK Android firmado.</li>
+        </ul>
 
-            <h3>Estructura del Proyecto (/src)</h3>
-            <ul>
-                <li><code>/components</code>: UI reutilizable ("BudgetModal", "TransactionModal").</li>
-                <li><code>/pages</code>: Vistas principales ("Dashboard", "Transactions").</li>
-                <li><code>/services</code>: Comunicación con Supabase ("transactionService.ts", "ocrService.ts").</li>
-                <li><code>/i18n</code>: Configuración multiidioma.</li>
-            </ul>
+        <h2>3. Arquitectura Técnica</h2>
+        <ul>
+            <li><strong>Frontend:</strong> <code>React 18</code> + <code>TypeScript</code> + <code>Vite</code>.</li>
+            <li><strong>Estilos & UI:</strong> <code>Ionic Framework 8</code> (Componentes Adaptativos) + CSS Variables customizadas.</li>
+            <li><strong>Gráficos 3D:</strong> <code>Three.js</code> (@react-three/fiber) para la experiencia de Login.</li>
+            <li><strong>Backend:</strong> <code>Supabase</code> (PostgreSQL, Auth, Storage, Edge Functions).</li>
+            <li><strong>Estado:</strong> React Hooks + Context API.</li>
+        </ul>
 
-            <h3>Patrones de Diseño</h3>
-            <ul>
-                <li><strong>Service Repository Pattern:</strong> Las vistas nunca llaman a la BD directamente.</li>
-                <li><strong>Cloud-First + Offline Cache:</strong> Los datos críticos residen en Supabase; preferencias
-                    en local.</li>
-                <li><strong>Persistent Navigation:</strong> Arquitectura SPA con vistas persistentes (display: none)
-                    para navegación instantánea.</li>
-            </ul>
-        </div>
+        <h2>4. Detalle de Características Especiales</h2>
 
-        <div class="card" id="funcionalidades">
-            <h2>3. Funcionalidades Implementadas</h2>
+        <h3>Experiencia "Surface Reveal" (Login)</h3>
+        <p>Un sistema de autenticación único que comienza en la superficie de un dado D20 gigante y revela el entorno espacial tras el éxito.</p>
+        <ul>
+            <li><strong>Tecnología:</strong> React Three Fiber.</li>
+            <li><strong>Mecánica:</strong> Zoom out dramático (1.5s) + Spin aleatorio (2.5s) con vectores dinámicos.</li>
+            <li><strong>Seguridad:</strong> Integración completa con Supabase Auth (Login/Registro) y gestión de errores en tiempo real.</li>
+            <li><strong>Estabilidad:</strong> Lógica de <code>authAnimationDone</code> en <code>App.tsx</code> para evitar condiciones de carrera en la navegación.</li>
+        </ul>
 
-            <h3>Core (MVP)</h3>
-            <ul>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Autenticación:</strong> Login y
-                    Registro con Supabase Auth.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>CRUD Transacciones:</strong> Crear,
-                    Leer, Editar, Borrar ingresos/gastos.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Dashboard:</strong> Gráficos de
-                    sectores y balance total.</li>
-            </ul>
+        <h3>Diseño Adaptativo</h3>
+        <p>La interfaz utiliza unidades relativas (<code>rem</code>) y <code>vh/vw</code> para adaptarse a cualquier pantalla, desde móviles compactos hasta monitores de escritorio, manteniendo la estética "Cosmic Financial".</p>
 
-            <h3>Expansión (Fase Avanzada)</h3>
-            <ul>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Carga de Imágenes:</strong> Adjuntar
-                    fotos de recibos a Supabase Storage.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>i18n + Dark Mode:</strong> Soporte
-                    completo inglés/español y tema oscuro.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Exportación:</strong> Generación de
-                    reportes PDF y backup JSON.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Presupuestos:</strong> Gestión de
-                    límites de gasto por categoría.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Transacciones Recurrentes:</strong>
-                    Automatización de ingresos/gastos fijos.</li>
-            </ul>
-
-            <h3>Estabilidad, UX y Navegación Mística</h3>
-            <ul>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>React Router 6 Migration:</strong>
-                    Upgrade del núcleo de navegación para soporte Ionic 8.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Instant Tabs:</strong> Eliminación de
-                    re-renders al cambiar de pestaña mediante vistas en caché.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Auth Guard:</strong> Protección de
-                    rutas robusta.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Anti-Overlap Navigation:</strong>
-                    Rediseño de <code>NavRune</code> como Portal de Esquina (Desktop) y Bottom Dock (Mobile) para
-                    eliminar interferencias táctiles.</li>
-            </ul>
-
-            <h3>Integraciones Externas (APIs)</h3>
-            <ul>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Precio Luz (PVPC):</strong> Widget
-                    con API ESIOS.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Noticias Financieras:</strong> Feed
-                    integrado con Marketaux.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Conversor Divisas:</strong>
-                    Integración con ExchangeRate-API.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>Importación CSV:</strong> Engine de
-                    parsing con <code>papaparse</code>.</li>
-                <li><span class="status-tag status-done">Cómpletado</span> <strong>OCR de Recibos:</strong> Lectura
-                    automática con <code>Tesseract.js</code>.</li>
-            </ul>
-        </div>
-
-        <div class="card" id="tecnologias">
-            <h2>4. Stack Tecnológico Detallado</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tecnología</th>
-                        <th>Rol en el proyecto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>React 18</td>
-                        <td>Biblioteca de UI base</td>
-                    </tr>
-                    <tr>
-                        <td>Ionic 8</td>
-                        <td>Componentes móviles y navegación</td>
-                    </tr>
-                    <tr>
-                        <td>React Router 6</td>
-                        <td>Enrutamiento SPA</td>
-                    </tr>
-                    <tr>
-                        <td>TypeScript</td>
-                        <td>Seguridad de tipos y mantenibilidad</td>
-                    </tr>
-                    <tr>
-                        <td>Supabase</td>
-                        <td>Base de datos, Auth y API</td>
-                    </tr>
-                    <tr>
-                        <td>Tesseract.js</td>
-                        <td>OCR (Reconocimiento de texto) en cliente</td>
-                    </tr>
-                    <tr>
-                        <td>Chart.js</td>
-                        <td>Visualización de datos</td>
-                    </tr>
-                    <tr>
-                        <td>i18next</td>
-                        <td>Internacionalización</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="card" id="bank-accounts">
-            <h2>5. Sistema de Gestión de Cuentas Bancarias</h2>
-            <p>Sistema completo de gestión de cuentas bancarias con seguridad tipo "bóveda" inspirado en estética D&D.
-            </p>
-
-            <h3>Funcionalidades Principales</h3>
-            <ul>
-                <li><span class="status-tag status-done">Completado</span> <strong>Wizard de Creación (4
-                        Pasos):</strong>
-                    <ul>
-                        <li>Paso 1: Información básica (Nombre, Banco, País, Sucursal)</li>
-                        <li>Paso 2: Código de seguridad con confirmación</li>
-                        <li>Paso 3: Métodos de recuperación (Email/SMS)</li>
-                        <li>Paso 4: Confirmación y creación</li>
-                    </ul>
-                </li>
-                <li><span class="status-tag status-done">Completado</span> <strong>Sistema de
-                        Bloqueo/Desbloqueo:</strong> Cuentas bloqueadas por defecto, requieren código de seguridad para
-                    acceder.</li>
-                <li><span class="status-tag status-done">Completado</span> <strong>Recuperación de Código:</strong>
-                    Sistema de tokens con expiración de 10 minutos.</li>
-                <li><span class="status-tag status-done">Completado</span> <strong>Generación Automática de
-                        IBAN:</strong> IBANs válidos generados según estándar europeo.</li>
-                <li><span class="status-tag status-done">Completado</span> <strong>Seguridad:</strong> Códigos hasheados
-                    con bcrypt, tokens únicos por cuenta.</li>
-            </ul>
-
-            <h3>Arquitectura de Seguridad</h3>
-            <ul>
-                <li><code>security_code_hash</code>: Almacenamiento seguro con bcrypt (10 rounds).</li>
-                <li><code>failed_attempts</code>: Contador de intentos fallidos (límite: 3).</li>
-                <li><code>is_locked</code>: Estado de bloqueo de la cuenta.</li>
-                <li><code>recovery_tokens</code>: Tabla separada con tokens de un solo uso y expiración.</li>
-            </ul>
-        </div>
-
-        <div class="card" id="3d-models">
-            <h2>6. Modelos 3D Integrados (React Three Fiber)</h2>
-            <p>Integración de modelos 3D interactivos con estética D&D para enriquecer la experiencia visual.</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Modelo</th>
-                        <th>Ubicación</th>
-                        <th>Características</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>D20 Dice</strong></td>
-                        <td>The Vault (Pantalla de Cuentas)</td>
-                        <td>Material dorado metálico, rotación automática</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Treasure Chest</strong></td>
-                        <td>Dashboard</td>
-                        <td>Cofre interactivo, animación de apertura</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Gold Coin</strong></td>
-                        <td>Transacciones</td>
-                        <td>Moneda giratoria con brillo dorado</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Magic Rune</strong></td>
-                        <td>Settings</td>
-                        <td>Runa mágica con efectos de partículas</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Tecnologías 3D</h3>
-            <ul>
-                <li><code>@react-three/fiber</code>: Renderizado 3D en React</li>
-                <li><code>@react-three/drei</code>: Helpers y utilidades 3D</li>
-                <li><code>three.js</code>: Motor 3D subyacente</li>
-            </ul>
-
-            <h3>Fuentes de Modelos 3D</h3>
-            <ul>
-                <li><strong>D20 Dice:</strong> <span class="tag tag-success">GitHub (A-Frame Examples)</span> - Low-poly icosaedro.</li>
-                <li><strong>Treasure Chest:</strong> <span class="tag tag-warning">Carga Manual</span> - Modelo GLB externo (Poly Pizza / GitHub).</li>
-                <li><strong>Gold Coin:</strong> <span class="tag tag-warning">Carga Manual</span> - Modelo GLB externo (Poly Pizza / GitHub).</li>
-            </ul>
-        </div>
-
-        <div class="card" id="testing">
-            <h2>7. Resultados de Testing Completo</h2>
-            <p><strong>Fecha:</strong> 30 de Enero de 2026 | <strong>Duración:</strong> ~45 minutos</p>
-
-            <h3>Cobertura de Tests</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <th>Estado</th>
-                        <th>Notas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Registro y Persistencia de Sesión</td>
-                        <td><span class="status-tag status-done">PASS</span></td>
-                        <td>Sesión persiste correctamente tras registro</td>
-                    </tr>
-                    <tr>
-                        <td>Wizard de Creación (4 pasos)</td>
-                        <td><span class="status-tag status-done">PASS</span></td>
-                        <td>Todos los pasos funcionan con input manual</td>
-                    </tr>
-                    <tr>
-                        <td>Desbloqueo de Cuenta</td>
-                        <td><span class="status-tag status-done">PASS</span></td>
-                        <td>Desbloqueo correcto con código válido</td>
-                    </tr>
-                    <tr>
-                        <td>Recuperación de Código</td>
-                        <td><span class="status-tag status-done">PASS</span></td>
-                        <td>Bug de token corregido, flujo end-to-end OK</td>
-                    </tr>
-                    <tr>
-                        <td>Integración Modelos 3D</td>
-                        <td><span class="status-tag status-done">PASS</span></td>
-                        <td>D20 renderiza correctamente en The Vault</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h3>Métricas de Calidad</h3>
-            <ul>
-                <li><strong>Bugs Encontrados:</strong> 3 (2 críticos, 1 menor)</li>
-                <li><strong>Bugs Resueltos:</strong> 3/3 (100%)</li>
-                <li><strong>Cobertura:</strong> Flujos end-to-end completos</li>
-                <li><strong>Regresiones:</strong> 0</li>
-            </ul>
-        </div>
-
-        <div class="card" id="bugs-criticos">
-            <h2>8. Bugs Críticos Resueltos</h2>
-
-            <h3>Bug #1: Persistencia de Sesión</h3>
-            <p><strong>Severidad:</strong> Alta | <strong>Estado:</strong> <span
-                    class="status-tag status-done">RESUELTO</span></p>
-            <ul>
-                <li><strong>Problema:</strong> Usuarios forzadamente deslogueados tras registro.</li>
-                <li><strong>Causa:</strong> Código de desarrollo que forzaba logout.</li>
-                <li><strong>Solución:</strong> Deshabilitado código de logout forzado en <code>App.tsx</code>.</li>
-            </ul>
-
-            <h3>Bug #2: Token de Recuperación Doble-Validación</h3>
-            <p><strong>Severidad:</strong> Crítica | <strong>Estado:</strong> <span
-                    class="status-tag status-done">RESUELTO</span></p>
-            <ul>
-                <li><strong>Problema:</strong> Token marcado como "usado" durante verificación, causando fallo en paso
-                    final.</li>
-                <li><strong>Causa:</strong> <code>verifyRecoveryToken</code> marcaba token como usado prematuramente.
-                </li>
-                <li><strong>Solución:</strong> Refactorización de <code>recoveryService.ts</code>:
-                    <ul>
-                        <li><code>verifyRecoveryToken</code>: Solo valida, no marca como usado.</li>
-                        <li><code>resetSecurityCode</code>: Marca token como usado DESPUÉS de actualizar código.</li>
-                    </ul>
-                </li>
-                <li><strong>Archivo:</strong> <code>resources/frontend/ts/recoveryService.ts</code> (Líneas 76-148)</li>
-            </ul>
-
-            <h3>Bug #3: Resolución de Módulos TypeScript</h3>
-            <p><strong>Severidad:</strong> Media | <strong>Estado:</strong> <span
-                    class="status-tag status-done">RESUELTO</span></p>
-            <ul>
-                <li><strong>Problema:</strong> Imports sin extensión <code>.tsx</code> fallaban en compilación.</li>
-                <li><strong>Causa:</strong> <code>tsconfig.app.json</code> con <code>verbatimModuleSyntax: true</code>.
-                </li>
-                <li><strong>Solución:</strong> Añadidas extensiones <code>.tsx</code> explícitas en todos los imports de
-                    componentes.</li>
-            </ul>
-        </div>
-
-        <div class="card" id="desarrollo-bitacora">
-            <h2>9. Bitácora de Desarrollo</h2>
-            <p>Registro cronológico de prompts y funcionalidades implementadas.</p>
-
-            <h3>Prompt 1: Inicialización del Proyecto</h3>
-            <blockquote>
-                <p><em>"Construir una app para la gestión de finanzas personales."</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Estructura de carpetas <code>DesarrolloInterfaces/FinanzasApp</code></li>
-                <li>Manifiesto en <code>Docs/manifiesto.md</code></li>
-                <li>Scaffolding React + Ionic + Capacitor</li>
-                <li>Instalación de dependencias (Vite, Ionic, Supabase)</li>
-                <li>Configuración inicial de <code>App.tsx</code> y <code>capacitor.config.ts</code></li>
-            </ul>
-
-            <h3>Prompt 2: Módulo de Autenticación</h3>
-            <blockquote>
-                <p><em>"adelante"</em> (Continuar con autenticación)</p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Páginas <code>Login.tsx</code> y <code>Register.tsx</code></li>
-                <li>Integración con <code>supabase.auth</code></li>
-                <li>Rutas protegidas con React Router</li>
-                <li>Corrección de hooks (useHistory → useNavigate)</li>
-            </ul>
-
-            <h3>Prompt 3: Interfaz Principal</h3>
-            <blockquote>
-                <p><em>"Luego arrancame el proyecto"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Páginas: Dashboard, Transactions, Settings</li>
-                <li>Sistema de tabs con <code>IonTabs</code></li>
-                <li>Enrutamiento anidado (<code>/app/dashboard</code>)</li>
-                <li>Integración en <code>App.tsx</code></li>
-            </ul>
-
-            <h3>Prompt 4: Transacciones Recurrentes</h3>
-            <blockquote>
-                <p><em>"Continuar"</em> (Fase 7: Transacciones Recurrentes)</p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Tabla SQL <code>recurring_transactions</code></li>
-                <li>Servicio <code>recurring.service.ts</code></li>
-                <li>Página <code>RecurringTransactions.tsx</code> con modal de alta</li>
-                <li>Agregado al menú lateral</li>
-            </ul>
-
-            <h3>Prompt 5: Auth Guard</h3>
-            <blockquote>
-                <p><em>"al iniciar me debe salir la pantalla de login y no el dashboard directamente"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Auth Guard global en <code>App.tsx</code></li>
-                <li>Monitorización de <code>onAuthStateChange</code></li>
-                <li>Redirección automática Login ↔ Dashboard</li>
-            </ul>
-
-            <h3>Prompt 6: Migración React Router 6</h3>
-            <blockquote>
-                <p><em>"Pantalla blanca perpetua"</em> (Error crítico)</p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Upgrade obligatorio a React Router 6</li>
-                <li>Eliminación de <code>@ionic/react-router</code></li>
-                <li>Refactor completo de navegación</li>
-                <li>Actualización de hooks (useHistory → useNavigate)</li>
-            </ul>
-
-            <h3>Prompt 7: Optimización UX</h3>
-            <blockquote>
-                <p><em>"no quiero que se monte de nuevo al ir" / "quita el dialogo de Iniciando"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Persistent Tabs: Vistas con <code>display: block/none</code></li>
-                <li>Eliminación de diálogo "Iniciando..."</li>
-                <li>Optimización de imports dinámicos</li>
-                <li>Build exitoso sin circular dependencies</li>
-            </ul>
-
-            <h3>Prompt 8: Sistema de Cuentas Bancarias</h3>
-            <blockquote>
-                <p><em>"Implementar sistema de gestión de cuentas bancarias con seguridad tipo bóveda"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Wizard de creación de 4 pasos</li>
-                <li>Sistema de bloqueo/desbloqueo con código de seguridad</li>
-                <li>Recuperación de código con tokens</li>
-                <li>Generación automática de IBAN</li>
-                <li>Integración con Supabase (tablas <code>bank_accounts</code> y <code>recovery_tokens</code>)</li>
-            </ul>
-
-            <h3>Prompt 9: Modelos 3D</h3>
-            <blockquote>
-                <p><em>"Añadir modelos 3D con estética D&D"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Modelo D20 Dice (dado de 20 caras)</li>
-                <li>Modelo Treasure Chest (cofre del tesoro)</li>
-                <li>Modelo Gold Coin (moneda de oro)</li>
-                <li>Modelo Magic Rune (runa mágica)</li>
-                <li>Integración con React Three Fiber</li>
-            </ul>
-
-            <h3>Prompt 10: Testing Completo</h3>
-            <blockquote>
-                <p><em>"Testear el sistema completo de cuentas bancarias"</em></p>
-            </blockquote>
-            <p><strong>Acciones Realizadas:</strong></p>
-            <ul>
-                <li>Testing end-to-end de todos los flujos</li>
-                <li>Identificación y corrección de 3 bugs</li>
-                <li>Verificación de persistencia de sesión</li>
-                <li>Validación de seguridad (hashing, tokens)</li>
-                <li>Generación de documentación de testing</li>
-            </ul>
-            <h3>Prompt 11: Pulido de UI y Restauración 3D</h3>
-            <blockquote>
-                <p><em>"Refinar UI y Funcionalidades 3D"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Limpieza de elementos de UI superpuestos (Footer/Ticker bar).</li>
-                <li>Reactivación de la escena 3D global (<code>SceneCanvas</code>).</li>
-                <li>Desactivación de persistencia de sesión por seguridad de desarrollo.</li>
-                <li>Optimización de modelos procedimentales D&D.</li>
-            </ul>
-
-            <h3>Prompt 12: Navegación por Desbloqueo</h3>
-            <blockquote>
-                <p><em>"Habilitar la transición entre las distintas páginas tras meter la contraseña"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Sincronización de estado <code>isAppUnlocked</code> global.</li>
-                <li>Implementación del componente <code>NavRune</code> (Runa de Navegación).</li>
-                <li>Lógica de desbloqueo vinculada al ritual de acceso bancario.</li>
-            </ul>
-
-            <h3>Prompt 13: Adaptación Móvil (Responsive)</h3>
-            <blockquote>
-                <p><em>"Para la versión móvil, haz que esto cambie a un desplegable en la parte superior"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li>Layout dual en <code>NavRune.tsx</code>.</li>
-                <li>Menú desplegable "El Oráculo" para dispositivos móviles.</li>
-            </ul>
-
-            <h3>Prompt 14: Navegación Re-imaginada (Anti-Overlap)</h3>
-            <blockquote>
-                <p><em>"El navegador de pestañas está encima de botones, reimaginalo"</em></p>
-            </blockquote>
-            <p><strong>Funcionalidades Implementadas:</strong></p>
-            <ul>
-                <li><strong>Desktop:</strong> Portal de Esquina compacto con expansión por hover.</li>
-                <li><strong>Mobile:</strong> Mystical Bottom Dock (barra inferior mística).</li>
-                <li>Garantía de acceso total a botones de funcionalidades bancarias.</li>
-            </ul>
-        </div>
-
-        <div class="card" id="proximos-pasos">
-            <h2>10. Próximos Pasos Recomendados</h2>
-
-            <h3>Mejoras Funcionales</h3>
-            <ul>
-                <li><span class="status-tag status-pending">Pendiente</span> Integrar modelos 3D restantes en Dashboard
-                </li>
-                <li><span class="status-tag status-pending">Pendiente</span> Implementar edición de cuentas bancarias
-                </li>
-                <li><span class="status-tag status-pending">Pendiente</span> Implementar eliminación de cuentas con
-                    confirmación</li>
-                <li><span class="status-tag status-pending">Pendiente</span> Testing de múltiples cuentas por usuario
-                </li>
-                <li><span class="status-tag status-pending">Pendiente</span> Testing de bloqueo tras intentos fallidos
-                </li>
-            </ul>
-
-            <h3>Consideraciones de Producción</h3>
-            <ul>
-                <li><span class="status-tag status-pending">Pendiente</span> Implementar envío real de Email/SMS
-                    (Supabase Edge Functions)</li>
-                <li><span class="status-tag status-pending">Pendiente</span> Verificar expiración de tokens (10 minutos)
-                </li>
-                <li><span class="status-tag status-pending">Pendiente</span> Auditoría de seguridad completa</li>
-                <li><span class="status-tag status-pending">Pendiente</span> Rate limiting para generación de tokens
-                </li>
-                <li><span class="status-tag status-pending">Pendiente</span> Generación de APK para Android</li>
-            </ul>
-        </div>
-
-        <footer
-            style="text-align: center; margin-top: 60px; padding: 30px; background: var(--primary-color); color: white; border-radius: 12px;">
-            <p style="margin: 0; font-size: 1.1em;"><strong>Desarrollado por Roberto Monedero Alonso</strong></p>
-            <p style="margin: 10px 0 0 0; opacity: 0.9;">Documentación generada automáticamente | Última actualización:
-                2 de Febrero de 2026</p>
+        <footer>
+            <p>Generado automáticamente por Asistente de Desarrollo AI (Antigravity)</p>
+            <p>Fecha: 2 de Febrero de 2026</p>
         </footer>
-
     </div>
-
 </body>
-
 </html>

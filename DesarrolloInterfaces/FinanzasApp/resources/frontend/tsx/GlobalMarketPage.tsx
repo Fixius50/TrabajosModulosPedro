@@ -97,10 +97,10 @@ const GlobalMarketPage: React.FC = () => {
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-[Cinzel] text-[#8a1c1c] uppercase tracking-[0.2em] font-bold drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                            Mercado Negro
+                            Mercado Global
                         </h1>
                         <p className="text-[10px] text-gray-400 font-[MedievalSharp] uppercase tracking-widest mt-1">
-                            - Intercambio de Reliquias & Divisas -
+                            - Seguimiento de Cripto & Acciones -
                         </p>
                     </div>
 
@@ -145,7 +145,7 @@ const GlobalMarketPage: React.FC = () => {
 
                                 <div className="mt-8">
                                     <h3 className="text-[#c5a059] font-[Cinzel] text-sm mb-4 border-b border-[#c5a059]/30 pb-2">
-                                        Pergaminos de Noticias
+                                        Noticias Económicas
                                     </h3>
                                     <div className="bg-[#1a1616]/40 p-2 rounded border border-[#4a4e5a]">
                                         <NewsWidget />
@@ -191,7 +191,7 @@ const GlobalMarketPage: React.FC = () => {
                                                     </h2>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="text-xs uppercase px-2 py-0.5 rounded bg-[#4a4e5a]/30 text-gray-400 border border-[#4a4e5a]">
-                                                            {selectedAsset.type === 'crypto' ? 'Artefacto Mágico' : 'Pergamino Real'}
+                                                            {selectedAsset.type === 'crypto' ? 'Criptomoneda' : 'Acción Bursátil'}
                                                         </span>
                                                     </div>
                                                 </div>

@@ -20,13 +20,13 @@ const FinancesPage: React.FC = () => {
 
                 <div className="relative z-10 p-6 pt-20 h-full flex flex-col">
 
-                    {/* RPG Header "Libro de Cuentas" */}
+                    {/* Normal Header "Finanzas" */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-[Cinzel] text-[#c5a059] uppercase tracking-[0.2em] gold-text-glow">
-                            Libro de Cuentas
+                            Finanzas
                         </h1>
                         <p className="text-[10px] text-gray-500 font-[MedievalSharp] uppercase tracking-widest mt-1">
-                            - Registros del Tesorero Real -
+                            - Gestión de Activos y Patrimonio -
                         </p>
                     </div>
 
@@ -43,7 +43,7 @@ const FinancesPage: React.FC = () => {
                             >
                                 {view === 'transactions' && 'Movimientos'}
                                 {view === 'budgets' && 'Presupuestos'}
-                                {view === 'recurring' && 'Diezmos'}
+                                {view === 'recurring' && 'Recurrentes'}
                             </button>
                         ))}
                     </div>
