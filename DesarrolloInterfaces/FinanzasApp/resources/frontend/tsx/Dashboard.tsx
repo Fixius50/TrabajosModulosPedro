@@ -3,22 +3,17 @@ import { IonPage, IonContent } from '@ionic/react';
 import BankAccountManager from './BankAccountManager';
 import EnergyWidget from './widgets/EnergyWidget';
 
-const Dashboard: React.FC = () => {
-    // Hide IonTabBar when on this page to prevent "double nav" and "mystery buttons"
-    React.useEffect(() => {
-        const tabBar = document.querySelector('ion-tab-bar');
-        if (tabBar) tabBar.style.display = 'none';
-        return () => {
-            if (tabBar) tabBar.style.display = 'flex';
-        };
-    }, []);
+interface DashboardProps {
+    onUnlock: () => void;
+}
 
+const Dashboard: React.FC<DashboardProps> = ({ onUnlock }) => {
     return (
         <IonPage>
             <IonContent fullscreen>
                 <div style={{ padding: '1rem' }}>
                     <EnergyWidget />
-                    <BankAccountManager />
+                    <BankAccountManager onUnlock={onUnlock} />
                 </div>
             </IonContent>
         </IonPage>

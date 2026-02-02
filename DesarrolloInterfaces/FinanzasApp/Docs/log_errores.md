@@ -39,10 +39,20 @@ El Dashboard aparecía completamente vacío (fondo negro/blanco sin contenido) o
 El componente `MainTabs` usaba `height: 100%`. Al estar anidado dentro de rutas de `App.tsx` que no garantizaban una altura explícita en toda la cadena de contenedores, el cálculo de altura colapsaba a 0px.
 **Solución:**
 Se cambiaron las unidades relativas al padre (`%`) por unidades relativas al viewport (`vh/vw`) para forzar la ocupación total de la pantalla independientemente del contenedor padre.
-```tsx
-// Antes
-<IonPage style={{ height: '100%' }}>
-// Ahora
-<IonPage style={{ height: '100vh', width: '100vw', position: 'absolute' }}>
-```
----
+## 6. [API] Deprecated useHistory in React Router v6
+**Fecha:** 2026-02-02
+**Síntoma:**
+El componente `NavRune` fallaba al intentar importar `useHistory` de `react-router-dom`, provocando error de compilación.
+**Causa:**
+El proyecto fue migrado previamente a React Router v6, el cual reemplaza `useHistory` por el hook `useNavigate`.
+**Solución:**
+Refactorización de `NavRune.tsx` para utilizar `useNavigate()` y llamar a `navigate(path)` en lugar de `history.push(path)`.
+
+## 7. [TYPES] Prop Mismatch in Navigation Hierarchy
+**Fecha:** 2026-02-02
+**Síntoma:**
+Build fallido por error de tipos TS2322: `Property 'isUnlocked' does not exist on type 'IntrinsicAttributes & BankAccountManagerProps'`.
+**Causa:**
+Inconsistencia en el paso de props entre `MainTabs` -> `Dashboard` -> `BankAccountManager`. Se estaba pasando un prop `isUnlocked` que el componente hijo ya no esperaba en su interfaz actualizada.
+**Solución:**
+Limpieza exhaustiva de props en la jerarquía de componentes. Eliminación de variables no utilizadas en las interfaces de Props y sincronización de los llamados a componentes.

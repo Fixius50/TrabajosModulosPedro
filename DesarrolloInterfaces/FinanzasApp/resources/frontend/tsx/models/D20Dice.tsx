@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Mesh } from 'three';
+import { useGLTF } from '@react-three/drei';
+import { Group } from 'three';
 
 interface D20DiceProps {
     position?: [number, number, number];
@@ -15,27 +16,28 @@ const D20Dice: React.FC<D20DiceProps> = ({
     rotation = [0, 0, 0],
     autoRotate = true
 }) => {
-    const meshRef = useRef<Mesh>(null);
+    const groupRef = useRef<Group>(null);
+    const { scene } = useGLTF('/models/d20.glb');
 
     useFrame((_, delta) => {
-        if (meshRef.current && autoRotate) {
-            meshRef.current.rotation.x += delta * 0.3;
-            meshRef.current.rotation.y += delta * 0.5;
+        if (groupRef.current && autoRotate) {
+            groupRef.current.rotation.x += delta * 0.3;
+            groupRef.current.rotation.y += delta * 0.5;
         }
     });
 
     return (
-        <mesh ref={meshRef} position={position} rotation={rotation} scale={scale}>
-            <icosahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial
-                color="#d4af37"
-                metalness={0.8}
-                roughness={0.2}
-                emissive="#c5a059"
-                emissiveIntensity={0.2}
-            />
-        </mesh>
+        <primitive
+            object={scene}
+            ref={groupRef}
+            position={position}
+            rotation={rotation}
+            scale={scale * 0.5}
+        />
     );
 };
+
+// Pre-load the model
+useGLTF.preload('/models/d20.glb');
 
 export default D20Dice;

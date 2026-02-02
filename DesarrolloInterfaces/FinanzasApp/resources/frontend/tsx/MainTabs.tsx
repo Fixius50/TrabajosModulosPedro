@@ -8,8 +8,14 @@ import Dashboard from './Dashboard';
 import FinancesPage from './FinancesPage';
 import GlobalMarketPage from './GlobalMarketPage';
 import AccountPage from './AccountPage';
+import NavRune from './NavRune';
 
-const MainTabs: React.FC = () => {
+interface MainTabsProps {
+    isAppUnlocked: boolean;
+    onUnlock: () => void;
+}
+
+const MainTabs: React.FC<MainTabsProps> = ({ isAppUnlocked, onUnlock }) => {
     const location = useLocation();
 
     // 1. Determine Current Tab
@@ -57,7 +63,7 @@ const MainTabs: React.FC = () => {
 
                 {/* 1. DASHBOARD (CENTER 0,0) */}
                 <div className="absolute inset-0 w-full h-full z-10 transition-opacity duration-500 delay-200" style={{ opacity: isDashboard ? 1 : 0.2, pointerEvents: isDashboard ? 'auto' : 'none' }}>
-                    <Dashboard />
+                    <Dashboard onUnlock={onUnlock} />
                 </div>
 
                 {/* 2. INVENTORY (TOP: 0, -100vh) */}
@@ -82,7 +88,8 @@ const MainTabs: React.FC = () => {
 
             </div>
 
-
+            {/* NAV RUNE (Floating Navigation Controller) */}
+            <NavRune isVisible={isAppUnlocked} />
 
         </IonPage>
     );

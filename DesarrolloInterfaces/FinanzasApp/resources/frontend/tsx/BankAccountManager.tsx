@@ -3,7 +3,11 @@ import { bankAccountService, type BankAccount } from '../ts/bankAccountService';
 import CreateAccountWizard from './CreateAccountWizard.tsx';
 import BankAccountDashboard from './BankAccountDashboard.tsx';
 
-const BankAccountManager: React.FC = () => {
+interface BankAccountManagerProps {
+    onUnlock: () => void;
+}
+
+const BankAccountManager: React.FC<BankAccountManagerProps> = ({ onUnlock }) => {
     const [accounts, setAccounts] = useState<BankAccount[]>([]);
     const [loading, setLoading] = useState(true);
     const [showWizard, setShowWizard] = useState(false);
@@ -32,7 +36,7 @@ const BankAccountManager: React.FC = () => {
     const handleAccountCreated = () => {
         setShowWizard(false);
         loadAccounts();
-        
+
         // Redirect to spatial navigation dashboard (center position)
         // This enables the multi-screen layout with smooth spatial transitions
         window.location.href = '/app/dashboard';
@@ -65,6 +69,7 @@ const BankAccountManager: React.FC = () => {
             accounts={accounts}
             onRefresh={loadAccounts}
             onAddAccount={() => setShowWizard(true)}
+            onUnlock={onUnlock}
         />
     );
 };

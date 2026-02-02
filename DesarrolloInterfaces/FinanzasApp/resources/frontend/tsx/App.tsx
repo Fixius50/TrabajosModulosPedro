@@ -43,6 +43,8 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false); // State for 3D animation
 
+  const [isAppUnlocked, setIsAppUnlocked] = useState(false); // Global unlock state for navigation
+
   useEffect(() => {
     let mounted = true;
     console.log("[APP v3.0] Initialization starting (Prisma Redesign)");
@@ -139,7 +141,7 @@ const App: React.FC = () => {
               {/* Note: Menu might need redesign or removal if Layout handles nav. Keeping for now but hidden if needed. */}
               <div className="hidden"><Menu /></div>
               <Routes>
-                <Route path="/app/*" element={<MainTabs />} />
+                <Route path="/app/*" element={<MainTabs isAppUnlocked={isAppUnlocked} onUnlock={() => setIsAppUnlocked(true)} />} />
                 <Route path="/" element={<Navigate to="/app/dashboard" />} />
                 <Route path="/login" element={<Navigate to="/app/dashboard" />} />
                 <Route path="/register" element={<Navigate to="/app/dashboard" />} />

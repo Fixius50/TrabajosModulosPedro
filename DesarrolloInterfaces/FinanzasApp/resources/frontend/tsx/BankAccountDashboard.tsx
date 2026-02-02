@@ -9,12 +9,14 @@ interface BankAccountDashboardProps {
     accounts: BankAccount[];
     onRefresh: () => void;
     onAddAccount: () => void;
+    onUnlock: () => void;
 }
 
 const BankAccountDashboard: React.FC<BankAccountDashboardProps> = ({
     accounts,
     onRefresh,
     onAddAccount,
+    onUnlock,
 }) => {
     const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
     const [showUnlockModal, setShowUnlockModal] = useState(false);
@@ -24,6 +26,7 @@ const BankAccountDashboard: React.FC<BankAccountDashboardProps> = ({
     const handleUnlockSuccess = (accountId: string) => {
         setUnlockedAccounts(prev => new Set(prev).add(accountId));
         setShowUnlockModal(false);
+        onUnlock(); // Signal spatial navigation to show up
     };
 
     const handleAccountClick = (account: BankAccount) => {

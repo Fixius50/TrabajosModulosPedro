@@ -50,9 +50,32 @@
 - **UPGRADE OBLIGATORIO**: React Router 6.
 - Eliminación de `@ionic/react-router`.
 - Refactor completo de `App.tsx`, `MainTabs.tsx` y Páginas (`useHistory` -> `useNavigate`).
-## 8. UX Optimization & Performance
-**Prompt:** "no quiero que se monte de nuevo al ir" / "quita el dialogo de Iniciando"
+## 9. UI Polish & 3D Restoration
+**Prompt:** Refinar UI y Funcionalidades 3D (Eliminar superposiciones, reactivar 3D, desactivar persistencia).
 **Acciones:**
-- **Persistent Tabs**: Cambio de arquitectura en `MainTabs.tsx`. Reemplazo de routing reactivo (`Routes`) por vistas persistentes (`display: block/none`).
-- **Eliminación de Blocking UI**: Retirada del diálogo "Iniciando..." en `App.tsx` para arranque instantáneo.
-- **Build Fixes**: Optimización de imports dinámicos en `Settings.tsx` para evitar circular dependencies. Build exitoso.
+- Eliminación de `GlobalHUD` y Ticker Bar en `Layout` y `MainTabs`.
+- Activación de `SceneCanvas` en `App.tsx`.
+- Desactivación de `persistSession` en Supabase.
+- Verificación de modelos procedimentales (D20, Cofre, Runa).
+
+## 10. Unlock-Based Navigation
+**Prompt:** "habilitar la transición entre las distintas paginas tras meter la contraseña"
+**Acciones:**
+- Implementación de estado global `isAppUnlocked` en `App.tsx`.
+- Creación de componente `NavRune.tsx` (Runa Mística de Navegación).
+- Propagación de señal `onUnlock` desde `BankAccountDashboard` hasta `App`.
+- Condicionamiento de visibilidad de navegación al estado de desbloqueo del banco.
+
+## 11. Responsive Navigation (Mobile)
+**Prompt:** "para la version movil, haz que esto cambie a un desplegable en la parte superior"
+**Acciones:**
+- Refactor de `NavRune.tsx` con soporte dual.
+- **Desktop**: Runa mística flotante animada.
+- **Mobile**: Menú desplegable "El Oráculo" en el top-bar central.
+
+## 12. Reimagined Navigation (Anti-Overlap)
+**Prompt:** "el navegador de pestañas este el problema que hay es que esta encima de botones de algunas funcionalidades de la app, entonces reimaginalo"
+**Acciones:**
+- Transformación de la Desktop NavRune en un **Portal de Esquina** compacto que se expande al hacer hover.
+- Migración de la navegación móvil de la cabecera a un **Mystical Bottom Dock** (inferior).
+- Optimización de ergonomía y eliminación de solapamientos con botones de acción global.
