@@ -1,14 +1,15 @@
 import React from 'react';
 import { IonPage, IonContent, useIonRouter } from '@ionic/react';
 import { BentoGrid, BentoItem } from './components/dashboard/BentoGrid';
-import VaultModel from './components/dashboard/3d/VaultModel';
 import MarketHolo from './components/dashboard/3d/MarketHolo';
 import EnergyWidget from './widgets/EnergyWidget';
-import BankAccountManager from './BankAccountManager';
+import BagCarousel from './components/dashboard/BagCarousel';
+import AccountUnlockModal from './AccountUnlockModal';
+import { bankAccountService, type BankAccount } from '../ts/bankAccountService';
 
 // Icons
 import { IonIcon } from '@ionic/react';
-import { walletOutline, statsChartOutline, cubeOutline, personOutline } from 'ionicons/icons';
+import { statsChartOutline, cubeOutline, personOutline } from 'ionicons/icons';
 
 interface DashboardProps {
     onUnlock: () => void;
@@ -16,13 +17,52 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onUnlock }) => {
     const router = useIonRouter();
+    const [accounts, setAccounts] = React.useState<BankAccount[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [unlockedAccounts, setUnlockedAccounts] = React.useState<Set<string>>(new Set());
+    const [selectedAccountForUnlock, setSelectedAccountForUnlock] = React.useState<BankAccount | null>(null);
+
+    const loadAccounts = React.useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await bankAccountService.getUserAccounts();
+            setAccounts(data);
+        } catch (error) {
+            console.error('Error loading accounts:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        loadAccounts();
+    }, [loadAccounts]);
+
+    const handleAccountAction = (account: BankAccount) => {
+        if (unlockedAccounts.has(account.id)) {
+            router.push(`/app/finances`);
+        } else {
+            setSelectedAccountForUnlock(account);
+        }
+    };
+
+    const handleUnlockSuccess = () => {
+        if (selectedAccountForUnlock) {
+            setUnlockedAccounts(prev => new Set(prev).add(selectedAccountForUnlock.id));
+            setSelectedAccountForUnlock(null);
+            onUnlock(); // Spatial navigation signal
+        }
+    };
+
+    const totalBalance = React.useMemo(() => {
+        return accounts.reduce((sum, acc) => sum + (unlockedAccounts.has(acc.id) ? acc.balance : 0), 0);
+    }, [accounts, unlockedAccounts]);
 
     return (
         <IonPage>
             <IonContent fullscreen style={{ '--background': '#0f0a0a' }}>
                 <div className="relative min-h-screen bg-[#0f0a0a] pb-20 pt-24 px-4 overflow-hidden">
 
-                    {/* Background subtle effect */}
                     <div style={{
                         position: 'absolute',
                         top: 0, left: 0, width: '100%', height: '100%',
@@ -32,28 +72,47 @@ const Dashboard: React.FC<DashboardProps> = ({ onUnlock }) => {
                     }} />
 
                     <BentoGrid>
-                        {/* 1. Main Vault (Patrimonio) - Grande */}
+                        {/* 1. Account Carousel - Replacing VaultModel */}
                         <BentoItem
                             colSpan={2}
                             rowSpan={2}
-                            onClick={() => router.push('/app/finances')}
                             glowColor="#d4af37"
                         >
-                            <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }}>
-                                <h2 style={{ margin: 0, color: '#d4af37', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px' }}>
-                                    <IonIcon icon={walletOutline} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
-                                    Bóveda Principal
-                                </h2>
-                                <h1 style={{ margin: '5px 0', fontSize: '2.5rem', color: 'white', fontFamily: 'monospace' }}>
-                                    $ ---,---
-                                </h1>
-                                <p style={{ margin: 0, color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>
-                                    Estado: Bloqueado
-                                </p>
-                            </div>
-                            {/* 3D Scene Container */}
-                            <div style={{ position: 'absolute', top: 0, right: 0, width: '100%', height: '100%', zIndex: 1 }}>
-                                <VaultModel />
+                            <div className="flex flex-col h-full">
+                                <div className="p-5 flex justify-between items-start w-full relative z-10">
+                                    <div>
+                                        <h2 className="text-[#d4af37] text-[10px] uppercase tracking-[0.3em] font-bold mb-1">
+                                            Arcas del Reino
+                                        </h2>
+                                        <h1 className="text-3xl text-white font-[Inter] font-bold tracking-tight">
+                                            {totalBalance > 0 ? `${totalBalance.toLocaleString()} GP` : '--- ---'}
+                                        </h1>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Cuentas Activas</span>
+                                        <div className="flex -space-x-2">
+                                            {accounts.map((_, i) => (
+                                                <div key={i} className="w-5 h-5 rounded-full bg-[#1a1616] border border-[#d4af37]/30 flex items-center justify-center">
+                                                    <div className="w-1 h-1 rounded-full bg-[#d4af37]" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 w-full relative overflow-visible">
+                                    {loading ? (
+                                        <div className="h-full flex items-center justify-center opacity-30">
+                                            <div className="animate-pulse font-[Cinzel] tracking-widest text-[#d4af37]">Consultando Bovedas...</div>
+                                        </div>
+                                    ) : (
+                                        <BagCarousel
+                                            accounts={accounts}
+                                            onSelectAccount={handleAccountAction}
+                                            unlockedAccounts={unlockedAccounts}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </BentoItem>
 
@@ -108,23 +167,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onUnlock }) => {
 
                     </BentoGrid>
 
-                    {/* Hidden Logic for Bank Manager (Unlock Logic) - Kept in background or integrated? 
-                        The user wanted "Interfaces unique". Passing the Unlock handler to the vault click is cleaner.
-                        For now, we keep BankAccountManager logic if strictly needed, but visualize it differently.
-                        Actually, 'BankAccountManager' renders a UI list of accounts.
-                        Let's render it conditionally or in Finances Tab.
-                        The prop 'onUnlock' was passed to Dashboard. 
-                        Let's assume FinancesTab handles the details. 
-                    */}
-                    <div style={{ opacity: 0, pointerEvents: 'none', height: 0 }}>
-                        {/* Mantenemos BankAccountManager invisible para preservar lógica de unlock si está acoplada, 
-                             o mejor aún, asumimos que FinancesPage lo maneja. 
-                             El Dashboard es ahora un lanzador. */}
-                        <BankAccountManager onUnlock={onUnlock} />
-                    </div>
-
                 </div>
             </IonContent>
+
+            {selectedAccountForUnlock && (
+                <AccountUnlockModal
+                    account={selectedAccountForUnlock}
+                    onSuccess={handleUnlockSuccess}
+                    onClose={() => setSelectedAccountForUnlock(null)}
+                />
+            )}
         </IonPage>
     );
 };

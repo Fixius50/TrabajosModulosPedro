@@ -26,6 +26,7 @@ const CreateAccountWizard: React.FC<CreateAccountWizardProps> = ({ onComplete, o
         country_code: '',
         branch_id: '',
         account_type: 'checking' as 'checking' | 'savings' | 'credit',
+        group_name: '', // Added for "Bolsas"
         security_code: '',
         security_code_confirm: '',
         recovery_email: '',
@@ -113,6 +114,7 @@ const CreateAccountWizard: React.FC<CreateAccountWizardProps> = ({ onComplete, o
                 branch_name: selectedBranch.name,
                 iban,
                 account_type: formData.account_type,
+                group_name: formData.group_name || 'General',
                 security_code: formData.security_code,
                 recovery_methods,
             };
@@ -238,6 +240,17 @@ const CreateAccountWizard: React.FC<CreateAccountWizardProps> = ({ onComplete, o
                                     <option value="savings">Cuenta de Ahorro</option>
                                     <option value="credit">Tarjeta de Crédito</option>
                                 </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Bolsa (Categoría de Tesoro)</label>
+                                <input
+                                    type="text"
+                                    value={formData.group_name}
+                                    onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
+                                    className="w-full bg-[#0f0a0a] border border-[#4a4e5a] text-white px-4 py-3 rounded focus:outline-none focus:border-[#d4af37]"
+                                    placeholder="Ej: Ahorros Reales, Botín de Guerra..."
+                                />
                             </div>
                         </div>
                     )}
