@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
-import { diamond, colorPalette, watch, searchOutline, addCircleOutline } from 'ionicons/icons';
+import { searchOutline, addCircleOutline } from 'ionicons/icons';
 
 const Inventory: React.FC = () => {
-    // Inventory items (Reliquias) - Now empty by default to allow for real registration
-    const [selectedItem, setSelectedItem] = useState(-1);
-    const [items, setItems] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    // Inventory items (Reliquias)
+    const [selectedItem, setSelectedItem] = useState(0);
+    const [items] = useState<any[]>([
+        { id: 1, name: 'Espada del Vacío', type: 'Arma', rarity: 5, icon: 'flash', color: 'text-purple-400', value: 1500, profit: 300, desc: 'Forjada en la oscuridad eterna.' },
+        { id: 2, name: 'Cáliz de Oro', type: 'Reliquia', rarity: 3, icon: 'wine', color: 'text-yellow-400', value: 500, profit: 50, desc: 'Antiguo recipiente ceremonial.' },
+        { id: 3, name: 'Cristal de Maná', type: 'Recurso', rarity: 2, icon: 'diamond', color: 'text-blue-400', value: 100, profit: 10, desc: 'Fuente de energía pura.' },
+        { id: 4, name: 'Pergamino Antiguo', type: 'Documento', rarity: 4, icon: 'document-text', color: 'text-red-400', value: 800, profit: 120, desc: 'Contiene secretos de alquimia.' }
+    ]);
 
-    const activeItem = items[selectedItem] || null;
+    const activeItem = items[selectedItem] || items[0];
 
     return (
         <IonPage>
@@ -24,10 +28,10 @@ const Inventory: React.FC = () => {
                     <header className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-[#c5a059]/30 pb-4">
                         <div>
                             <h1 className="text-3xl md:text-5xl text-[#c5a059] font-bold tracking-[0.1em] uppercase gold-text-glow font-[Cinzel]">
-                                Galería de Reliquias
+                                Inventario
                             </h1>
                             <p className="text-[#9ca3af] text-sm mt-1 uppercase tracking-widest">
-                                Bóveda de Activos Tangibles
+                                Gestión de Activos Físicos
                             </p>
                         </div>
                         <div className="flex items-center gap-4 mt-4 md:mt-0">

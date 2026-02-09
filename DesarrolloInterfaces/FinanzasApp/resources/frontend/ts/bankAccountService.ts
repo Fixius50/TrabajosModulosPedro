@@ -14,6 +14,7 @@ export interface BankAccount {
     balance: number;
     currency: string;
     account_type: 'checking' | 'savings' | 'credit';
+    group_name: string; // classification "bolsa"
     is_locked: boolean;
     failed_attempts: number;
     last_unlock_at: string | null;
@@ -30,6 +31,7 @@ export interface CreateAccountData {
     branch_name: string;
     iban: string;
     account_type: 'checking' | 'savings' | 'credit';
+    group_name?: string; // classification "bolsa"
     security_code: string;
     recovery_methods: {
         type: 'sms' | 'email';
@@ -83,6 +85,7 @@ class BankAccountService {
                 branch_name: accountData.branch_name,
                 iban: accountData.iban,
                 account_type: accountData.account_type,
+                group_name: accountData.group_name || 'General',
                 security_code_hash,
             })
             .select()

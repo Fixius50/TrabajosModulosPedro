@@ -1,27 +1,34 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { IonList, IonItem, IonLabel, IonNote, IonFab, IonFabButton, IonIcon, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption, IonAlert, IonThumbnail } from '@ionic/react';
+import React, { useState, useEffect } from 'react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import { add, trash } from 'ionicons/icons';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getTransactions, createTransaction, updateTransaction, deleteTransaction, uploadReceipt } from '../ts/transactionService';
 import type { Transaction } from '../ts/types';
 import TransactionModal from './TransactionModal';
-import { useTranslation } from 'react-i18next';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment } from '@react-three/drei';
-import GoldCoin from './models/GoldCoin';
+import CoinValue from './components/dashboard/CoinValue';
+
+const categoryIcons: Record<string, string> = {
+    'Alimentación': 'restaurant',
+    'Comida': 'pizza',
+    'Entretenimiento': 'game-controller',
+    'Regalo': 'gift',
+    'Salud': 'medkit',
+    'Transporte': 'bus',
+    'General': 'wallet'
+};
 
 const Transactions: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | undefined>(undefined);
-    const [showAlert, setShowAlert] = useState(false);
-    const [transactionToDelete, setTransactionToDelete] = useState<number | null>(null);
-    const { t } = useTranslation();
 
     const loadData = async () => {
         try {
+            setLoading(true);
             const data = await getTransactions();
-            setTransactions(data);
+            const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setTransactions(sortedData);
         } catch (error) {
             console.error('Error loading transactions:', error);
         } finally {
@@ -33,22 +40,15 @@ const Transactions: React.FC = () => {
         loadData();
     }, []);
 
-
-
     const handleSave = async (transactionData: Partial<Transaction> & { imageFile?: File }) => {
         try {
             setLoading(true);
             let imageUrl = transactionData.image_url;
-
             if (transactionData.imageFile) {
-                // Upload file
                 imageUrl = await uploadReceipt(transactionData.imageFile);
             }
-
-            // Remove imageFile from data sent to DB
             const { imageFile, ...dataToSave } = transactionData;
             const finalData = { ...dataToSave, image_url: imageUrl };
-
             if (selectedTransaction && selectedTransaction.id) {
                 await updateTransaction(selectedTransaction.id, finalData);
             } else {
@@ -64,111 +64,113 @@ const Transactions: React.FC = () => {
         }
     };
 
-    const openCreateModal = () => {
-        setSelectedTransaction(undefined);
-        setShowModal(true);
-    };
-
-    const openEditModal = (transaction: Transaction) => {
-        setSelectedTransaction(transaction);
-        setShowModal(true);
-    };
-
-    const confirmDelete = (id: number) => {
-        setTransactionToDelete(id);
-        setShowAlert(true);
-    };
-
-    const handleDelete = async () => {
-        if (transactionToDelete) {
-            try {
-                setLoading(true);
-                await deleteTransaction(transactionToDelete);
-                await loadData();
-            } catch (error) {
-                console.error('Error deleting transaction:', error);
-            } finally {
-                setLoading(false);
-                setTransactionToDelete(null);
-            }
+    const handleDelete = async (id: number) => {
+        try {
+            setLoading(true);
+            await deleteTransaction(id);
+            await loadData();
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div style={{ height: '100%', overflowY: 'auto' }}>
-            {/* 3D Accent Section */}
-            <div className="h-32 mb-4 relative z-0">
-                <Canvas camera={{ position: [0, 0, 3], fov: 40 }}>
-                    <ambientLight intensity={0.7} />
-                    <pointLight position={[5, 1, 5]} intensity={1.5} color="#ffd700" />
-                    <Suspense fallback={null}>
-                        <GoldCoin position={[0, 0, 0]} scale={1.2} />
-                        <Environment preset="city" />
-                    </Suspense>
-                    <OrbitControls enableZoom={false} autoRotate />
-                </Canvas>
-            </div>
+        <div className="h-full flex flex-col p-4 bg-transparent mt-4">
+            {loading && transactions.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center opacity-50">
+                    <IonSpinner name="dots" color="primary" />
+                    <p className="text-sm font-[Inter] mt-2 uppercase tracking-widest text-[#c5a059]">Explorando la boveda...</p>
+                </div>
+            ) : (
+                <div className="space-y-4 overflow-y-auto custom-scrollbar pb-32 pr-2">
+                    <AnimatePresence initial={false}>
+                        {transactions.map((tra, index) => {
+                            const iconName = tra.category && categoryIcons[tra.category] ? categoryIcons[tra.category] : 'wallet';
+                            return (
+                                <motion.div
+                                    key={tra.id}
+                                    initial={{ x: -30, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ scale: 0.9, opacity: 0 }}
+                                    transition={{ delay: index * 0.03, type: 'spring', stiffness: 200, damping: 20 }}
+                                    className="relative group"
+                                >
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#c5a05933] to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl blur-sm" />
 
-            {loading && (
-                <div className="ion-text-center ion-padding">
-                    <IonSpinner name="crescent" />
-                    <p>Cargando movimientos...</p>
+                                    <div
+                                        className="relative flex items-center gap-4 p-4 bg-[#1a1616]/40 backdrop-blur-xl border border-white/5 rounded-2xl hover:border-[#c5a059]/40 transition-all cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+                                        onClick={() => { setSelectedTransaction(tra); setShowModal(true); }}
+                                    >
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c5a05922] to-black border border-[#c5a059]/20 flex items-center justify-center shrink-0 shadow-inner">
+                                            <IonIcon
+                                                icon={iconName}
+                                                className="text-2xl text-[#c5a059] drop-shadow-[0_0_10px_rgba(197,160,89,0.5)]"
+                                            />
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-[#e2d5b5] font-bold text-sm uppercase tracking-wide truncate">
+                                                    {tra.description}
+                                                </h3>
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-[9px] text-gray-500 uppercase font-bold tracking-tighter bg-white/5 px-1.5 py-0.5 rounded">{tra.category}</span>
+                                                <span className="text-[10px] text-gray-600">•</span>
+                                                <span className="text-[10px] text-gray-500 font-[Inter]">{new Date(tra.date).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-right flex flex-col items-end">
+                                            <CoinValue value={tra.amount} type={tra.type as any} />
+                                        </div>
+
+                                        <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDelete(tra.id!); }}
+                                                className="p-2 text-rose-500/60 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors border border-transparent hover:border-rose-500/20"
+                                            >
+                                                <IonIcon icon={trash} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
+
+                    {!loading && transactions.length === 0 && (
+                        <div className="text-center py-20 opacity-30">
+                            <IonIcon icon="journal" style={{ fontSize: '48px', color: '#c5a059' }} />
+                            <p className="mt-4 font-[Cinzel] tracking-[0.2em] text-[#c5a059] uppercase text-xs">La boveda esta vacia</p>
+                        </div>
+                    )}
                 </div>
             )}
 
-            <IonList style={{ background: 'transparent' }}>
-                {transactions.map(t => (
-                    <IonItemSliding key={t.id}>
-                        <IonItem button onClick={() => openEditModal(t)}>
-                            {t.image_url && (
-                                <IonThumbnail slot="start">
-                                    <img src={t.image_url} alt="Recibo" />
-                                </IonThumbnail>
-                            )}
-                            <IonLabel>
-                                <h2>{t.description}</h2>
-                                <p>{t.category} - {new Date(t.date).toLocaleDateString()}</p>
-                            </IonLabel>
-                            <IonNote slot="end" color={t.type === 'income' ? 'success' : 'danger'}>
-                                {t.type === 'income' ? '+' : '-'}{t.amount.toFixed(2)} €
-                            </IonNote>
-                        </IonItem>
-                        <IonItemOptions side="end">
-                            <IonItemOption color="danger" onClick={() => confirmDelete(t.id!)}>
-                                <IonIcon slot="icon-only" icon={trash} />
-                            </IonItemOption>
-                        </IonItemOptions>
-                    </IonItemSliding>
-                ))}
-                {!loading && transactions.length === 0 && (
-                    <div className="ion-text-center ion-padding">
-                        <p>{t('transactions.empty')}</p>
-                    </div>
-                )}
-            </IonList>
-
-            <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{ marginBottom: '60px', marginRight: '10px' }}>
-                <IonFabButton onClick={openCreateModal}>
-                    <IonIcon icon={add} />
-                </IonFabButton>
-            </IonFab>
+            <div className="fixed bottom-32 right-6 z-[1001]">
+                <motion.button
+                    whileHover={{ scale: 1.05, rotate: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { setSelectedTransaction(undefined); setShowModal(true); }}
+                    style={{
+                        background: 'linear-gradient(135deg, #c5a059, #8a6e3a)',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.5), 0 0 20px rgba(197,160,89,0.3)'
+                    }}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center border border-white/20 group hover:border-[#fff]/40 transition-all duration-300"
+                >
+                    <IonIcon icon={add} className="text-2xl text-black" />
+                    <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
+            </div>
 
             <TransactionModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
                 onSave={handleSave}
                 initialData={selectedTransaction}
-            />
-
-            <IonAlert
-                isOpen={showAlert}
-                onDidDismiss={() => setShowAlert(false)}
-                header={t('transactions.confirmDelete')}
-                message={t('transactions.deleteMessage')}
-                buttons={[
-                    { text: t('transactions.cancel'), role: 'cancel', handler: () => setTransactionToDelete(null) },
-                    { text: t('transactions.delete'), handler: handleDelete }
-                ]}
             />
         </div>
     );

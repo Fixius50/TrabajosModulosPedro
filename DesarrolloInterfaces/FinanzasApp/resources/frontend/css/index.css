@@ -231,3 +231,13 @@ h6 {
 .gold-text-glow {
   text-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
 }
+
+/* Login 3D Transition Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

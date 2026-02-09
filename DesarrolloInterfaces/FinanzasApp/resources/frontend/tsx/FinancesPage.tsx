@@ -18,45 +18,34 @@ const FinancesPage: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-90"></div>
                 </div>
 
-                <div className="relative z-10 p-6 pt-20 h-full flex flex-col">
-
-                    {/* RPG Header "Libro de Cuentas" */}
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-[Cinzel] text-[#c5a059] uppercase tracking-[0.2em] gold-text-glow">
-                            Libro de Cuentas
-                        </h1>
-                        <p className="text-[10px] text-gray-500 font-[MedievalSharp] uppercase tracking-widest mt-1">
-                            - Registros del Tesorero Real -
-                        </p>
+                <div className="relative z-10 p-6 pt-24 h-full flex flex-col">
+                    {/* Header is handled by AnimatedPageTitle, so we just add extra spacing or a subtle sub-indicator if needed */}
+                    <div className="mb-6 opacity-0 pointer-events-none">
+                        {/* Spacing for Animated Title */}
+                        <div className="h-8"></div>
                     </div>
 
-                    {/* RPG Tabs (Scrolls/Parchments) */}
-                    <div className="flex justify-center gap-4 mb-8">
+                    {/* Navigation Tabs (Standard Terminology) */}
+                    <div className="flex justify-center gap-2 mb-6">
                         {['transactions', 'budgets', 'recurring'].map((view) => (
                             <button
                                 key={view}
                                 onClick={() => setSelectedView(view as any)}
-                                className={`px-4 py-2 rounded-sm border font-[Cinzel] text-xs uppercase tracking-widest transition-all duration-300 ${selectedView === view
-                                        ? 'bg-[#8a1c1c] text-[#e2d5b5] border-[#c5a059] shadow-[0_0_15px_rgba(138,28,28,0.5)] transform -translate-y-1'
-                                        : 'bg-[#1a1616] text-gray-500 border-[#4a4e5a] hover:border-[#c5a059] hover:text-[#c5a059]'
+                                className={`px-5 py-2 rounded-full border text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${selectedView === view
+                                    ? 'bg-[#c5a059] text-black border-[#c5a059] shadow-[0_0_20px_rgba(197,160,89,0.3)]'
+                                    : 'bg-[#1a1616]/60 text-gray-400 border-[#4a4e5a]/50 hover:border-[#c5a059]/50'
                                     }`}
                             >
-                                {view === 'transactions' && 'Movimientos'}
+                                {view === 'transactions' && 'Transacciones'}
                                 {view === 'budgets' && 'Presupuestos'}
-                                {view === 'recurring' && 'Diezmos'}
+                                {view === 'recurring' && 'Recurrentes'}
                             </button>
                         ))}
                     </div>
 
-                    {/* Content Container (Parchment/Panel Style) */}
-                    <div className="flex-1 relative bg-[#1a1616]/60 border border-[#4a4e5a] rounded-lg backdrop-blur-sm p-1 overflow-hidden">
-                        {/* Decorative Corners */}
-                        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#c5a059]"></div>
-                        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#c5a059]"></div>
-                        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#c5a059]"></div>
-                        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#c5a059]"></div>
-
-                        <div className="h-full overflow-y-auto custom-scrollbar p-4">
+                    {/* Content Container (Premium Glass Box) */}
+                    <div className="flex-1 relative bg-[#1a1616]/20 border border-white/5 rounded-3xl backdrop-blur-xl p-2 overflow-hidden shadow-2xl">
+                        <div className="h-full overflow-y-auto custom-scrollbar p-2">
                             <div style={{ display: selectedView === 'transactions' ? 'block' : 'none', height: '100%' }}>
                                 <Transactions />
                             </div>

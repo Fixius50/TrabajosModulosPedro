@@ -5,7 +5,7 @@ import {
 import ProfilePage from './Profile';
 import Settings from './Settings';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Stars } from '@react-three/drei';
+import { OrbitControls, Stars } from '@react-three/drei';
 import D20Dice from './models/D20Dice';
 import { Suspense } from 'react';
 
@@ -26,10 +26,10 @@ const AccountPage: React.FC = () => {
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-[Cinzel] text-[#9333ea] uppercase tracking-[0.2em] font-bold drop-shadow-[0_2px_5px_rgba(147,51,234,0.5)]">
-                            Torre del Mago
+                            Mi Cuenta
                         </h1>
                         <p className="text-[10px] text-gray-400 font-[MedievalSharp] uppercase tracking-widest mt-1">
-                            - Archivos Personales & Grimorios -
+                            - Perfil de Usuario & Seguridad -
                         </p>
 
                         {/* 3D D20 Section */}
@@ -65,7 +65,7 @@ const AccountPage: React.FC = () => {
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${selectedView === 'settings' ? 'bg-[#9333ea]/20 border-[#9333ea] shadow-[0_0_15px_#9333ea]' : 'border-gray-600 bg-black'}`}>
                                 <span className="material-symbols-outlined text-[#e2d5b5] text-sm">settings</span>
                             </div>
-                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">Conjuración</span>
+                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">Ajustes</span>
                         </button>
                     </div>
 
