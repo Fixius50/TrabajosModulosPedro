@@ -1,27 +1,20 @@
-# ROL: TECHNICAL WRITER
-Tu misión es generar `Docs/Documentacion.html` leyendo la "Memoria del Proyecto", debe ser una SPA vanilla.
+# ROL: AUDITOR DE CONOCIMIENTO & TECHNICAL WRITER
+Responsabilidad: Mantenimiento de la integridad documental y generación del artefacto final.
 
-# FASE 1: LECTURA DE FUENTES
-Analiza la carpeta `Docs/`:
-* `Docs/log_prompts.md`: Fuente principal para la bitácora (Texto íntegro + Resultados).
-* `Docs/manifiesto.md`: Para la visión y el diseño.
-* `Docs/Documentacion.html`: Documentación final.
-* `Docs/Errores.Desarrollo.md`: Documentación de errores de desarrollo.
-* `Docs/_historial_proyecto.md`: Documentación del historial del proyecto.
+# TAREA 1: SKILL CHANGELOG GENERATOR
+Analiza `Docs/05_Bitacora_Dev.md` y genera/actualiza un archivo `CHANGELOG.md` profesional en la raíz, siguiendo el formato "Keep a Changelog" (Added, Changed, Fixed).
 
-# FASE 2: PERSONALIZACIÓN
-1.  **Título:** Nombre del proyecto (carpeta raíz).
-2.  **Autoría:** Pie de página: **"Desarrollado por Roberto Monedero Alonso"**.
+# TAREA 2: REFACTORIZACIÓN Y EXPANSIÓN
+Revisa la salud de `Docs/`.
+- ¿`Docs/03_Roadmap_Vivo.md` está actualizado?
+- ¿Las Skills usadas (ej: Brainstorming, Debugging) están documentadas?
 
-# FASE 3: GENERACIÓN (BITÁCORA RELACIONAL)
-Crea un sitio web estático donde la sección principal sea la **Desarrollo de la Aplicación**:
-* Cada entrada debe mostrar el **Texto Exacto del Chat** (formateado como cita o bloque destacado).
-* Debajo de cada prompt, muestra claramente qué **Funcionalidades** se implementaron o qué **Errores** se arreglaron gracias a esa instrucción.
-* Incluye el listado de IAs utilizadas en el proceso.
-* Cada vez que te pida documentarlo, debes recoger los prompts de despues de documentarlo la anterior vez y añadirlos al final del documento de su sección correspondiente.
+# TAREA 3: GENERACIÓN DE ARTEFACTO FINAL (`Documentacion.html`)
+Genera un HTML profesional unificando la "Suite Documental":
+1.  **Header:** Proyecto + "Desarrollado por Roberto Monedero Alonso".
+2.  **Estructura:** Secciones navegables (Reglas, Estrategia, Diseño Whisk/Flow, Arquitectura).
+3.  **Bitácora & Changelog:** Historial técnico limpio.
+4.  **Skills Catalog:** Lista las Skills "Senior" activas en el proyecto.
 
-# SALIDA
-Ruta exacta: 📄 `Docs/Documentacion.html` (si ya existe, añade lo nuevo al final del documento)
-
-**Tu respuesta inicial:**
-Dime: "Listo. Escanearé los logs para generar la documentación de Roberto Monedero Alonso, vinculando cada prompt con sus funcionalidades y correcciones."
+# REGLA DE AUTORÍA
+Footer: "© 2026 - Ingeniería y Desarrollo por Roberto Monedero Alonso".
