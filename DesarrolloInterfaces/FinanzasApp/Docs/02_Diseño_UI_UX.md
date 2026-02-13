@@ -1,50 +1,46 @@
-# 02. Diseño UI/UX y Sistema "Cosmic Financial"
+# 02_Diseño_UI_UX.md
 
-## 1. Filosofía de Diseño
+## Sistema de Diseño: "Dungeon Ledger"
 
-Inspirado en "El Prisma del Patrimonio Híbrido", buscando una estética financiera futurista y sólida.
+### Filosofía
 
-### Temas Visuales
+- **Mobile First**: Elementos grandes, tocables, navegación inferior.
+- **Inmersión**: Texturas de madera, pergamino, bordes de hierro.
+- **Claridad Financiera**: A pesar de la fantasía, los números y estados son claros (Verde Esmeralda / Rojo Rubí).
 
-* **Ecosystem (Dashboard)**: `Gold` (#d4af37) & `Cyan` (#00f5ff). Riqueza y Crecimiento.
-* **Vault (Activos)**: `Purple` (#7f13ec). Valor almacenado, activos raros.
-* **Ritual (Sync)**: `Crimson` (#d41132). Procesos críticos, alertas.
+### Paleta de Colores (Tailwind Config)
 
-## 2. Sistema de Componentes (Stitch Ready)
+Los tokens de diseño están definidos en `tailwind.config.js`:
 
-Este proyecto utiliza **Stitch** como herramienta de diseño asistida por IA.
-
-### Paleta de Colores (Tailwind Tokens)
-
-```javascript
-colors: {
-    "primary": "#d4af37",      // Gold
-    "secondary": "#00f5ff",    // Cyan
-    "background": "#05070a",   // Midnight
-    "surface": "#0a0c12",      // Deep Charcoal
-    "vault": "#7f13ec",        // Purple
-    "ritual": "#d41132",       // Red
-    "panel": "#191022",        // Vault Panel
-}
-```
+| Token | Valor Hex | Uso |
+|-------|-----------|-----|
+| `dungeon-bg` | `#1a1614` | Fondo Principal (Madera Oscura) |
+| `parchment` | `#dcd0b3` | Cartas y Modales (Papel Viejo) |
+| `ink` | `#2b2118` | Texto Principal |
+| `gold-coin` | `#ffcc00` | Acentos, Botones Primarios |
+| `iron-border` | `#4a4a4a` | Bordes Estructurales |
+| `ruby-expense` | `#8a1c1c` | Gastos / Errores |
+| `emerald-income` | `#1c5c2e` | Ingresos / Éxito |
+| `mana-blue` | `#1c3d5c` | Info / Neutral |
 
 ### Tipografía
 
-* **Cuerpo**: `Manrope` (Legibilidad moderna).
-* **Display**: `Newsreader` (Elegancia clásica para títulos).
-* **Datos**: `JetBrains Mono` (Precisión numérica).
+- **Títulos**: `Cinzel` (Serif, Capitales, Épico).
+- **Cuerpo**: `Merriweather` (Serif, Legible en tamaños pequeños).
+- **Técnico/Números**: `Manrope` (Sans-serif, para montos y fechas).
 
-## 3. Integración con Stitch (MCP)
+### Componentes Core (`components/dungeon/`)
 
-Utilizamos el servidor MCP de Stitch para conectar el diseño visual directamente con el código.
+1. **DungeonCard**: Contenedor con borde de hierro y fondo de pergamino (`bg-parchment-texture`).
+2. **DungeonButton**:
+   - *Primary*: Oro sobre Negro, borde dorado.
+   - *Secondary*: Fondo transparente, borde hierro.
+   - *Danger*: Rojo Rubí para acciones destructivas.
+3. **TransactionList**: Lista vertical sin tablas, optimizada para scroll infinito.
+4. **Modales**: Ventanas emergentes centradas con animaciones de entrada (`scale-100 rotate-1`).
 
-* **Flujo de Trabajo**:
-    1. Diseñar pantalla/componente en Stitch.
-    2. Consultar especificaciones vía MCP (`get_stitch_screen`).
-    3. Generar código React/Tailwind alineado con los tokens del sistema.
+### UX Patterns
 
-## 4. UX Patterns
-
-* **Modales**: Para formularios de edición/creación (Context preservation).
-* **Toasts**: Feedback no bloqueante.
-* **Pull-to-Refresh**: Actualización manual de datos.
+* **Loaders**: Texto pulsante ("Loading Ledger...") o indicadores dorados.
+- **Empty States**: Mensajes temáticos ("No inscriptions yet...").
+- **Feedback**: Toasts flotantes para confirmar acciones ("Saved").

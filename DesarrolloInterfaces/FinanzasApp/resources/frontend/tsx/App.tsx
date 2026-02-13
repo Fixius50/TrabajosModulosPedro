@@ -81,7 +81,19 @@ const App: React.FC = () => {
           </Layout>
         ) : (
           <Routes>
-            <Route path="/" element={<AuthPage onLoginSuccess={() => setAuthAnimationDone(true)} />} />
+            <Route path="/" element={<AuthPage onLoginSuccess={() => {
+              // Hack: Inject Mock Session for Demo purposes if no real auth exists
+              if (!session) {
+                setSession({
+                  user: { id: 'demo-adventurer-id', email: 'hero@dungeon.com' },
+                  access_token: 'mock-token',
+                  expires_in: 3600,
+                  refresh_token: 'mock-refresh',
+                  token_type: 'bearer'
+                } as any);
+              }
+              setAuthAnimationDone(true);
+            }} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )}

@@ -3,11 +3,7 @@ import {
     IonPage, IonContent
 } from '@ionic/react';
 import ProfilePage from './Profile';
-import Settings from './Settings';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
-import D20Dice from './models/D20Dice';
-import { Suspense } from 'react';
+import { DungeonSettings as Settings } from './components/dungeon/Settings';
 
 const AccountPage: React.FC = () => {
     const [selectedView, setSelectedView] = useState<'profile' | 'settings'>('profile');
@@ -31,19 +27,6 @@ const AccountPage: React.FC = () => {
                         <p className="text-[10px] text-gray-400 font-[MedievalSharp] uppercase tracking-widest mt-1">
                             - Perfil de Usuario & Seguridad -
                         </p>
-
-                        {/* 3D D20 Section */}
-                        <div className="h-40 mt-4 relative">
-                            <Canvas camera={{ position: [0, 0, 5], fov: 35 }}>
-                                <ambientLight intensity={0.5} />
-                                <pointLight position={[10, 10, 10]} intensity={1.5} color="#9333ea" />
-                                <Suspense fallback={null}>
-                                    <D20Dice position={[0, 0, 0]} scale={0.8} />
-                                    <Stars radius={50} depth={20} count={1000} factor={4} saturation={1} fade speed={2} />
-                                </Suspense>
-                                <OrbitControls enableZoom={false} autoRotate />
-                            </Canvas>
-                        </div>
                     </div>
 
                     {/* Magic Tabs */}

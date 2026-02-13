@@ -1,73 +1,21 @@
-# React + TypeScript + Vite
+# Documentación del Proyecto: Finanzas App (Dungeon Edition)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta carpeta contiene la "Verdad Única" del proyecto. Mantener limpia y actualizada.
 
-Currently, two official plugins are available:
+## 📚 Suite Documental Base
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* **[00_Reglas_Maestras.md](./00_Reglas_Maestras.md)**: Visión, reglas inmutables (incluyendo uso estricto de rutas relativas) y filosofía.
+* **[01_Estrategia_Tecnica.md](./01_Estrategia_Tecnica.md)**: Stack tecnológico, MCPs y estrategia de APIs.
+* **[02_Diseño_UI_UX.md](./02_Diseño_UI_UX.md)**: Sistema de diseño "Dungeon Ledger", colores y tipografía.
+* **[03_Roadmap_Vivo.md](./03_Roadmap_Vivo.md)**: Estado actual del proyecto y fases futuras (Market, Inventory, Oracle).
+* **[04_Arquitectura_Workspaces.md](./04_Arquitectura_Workspaces.md)**: Estructura de carpetas y flujo de datos.
+* **[05_Bitacora_Dev.md](./05_Bitacora_Dev.md)**: Registro de decisiones técnicas importantes.
 
-## React Compiler
+## 🛠️ Configuración Agéntica
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **[MCP/](./MCP/)**: Configuración de Model Context Protocol (Plaid, Stripe, Yahoo, etc.).
+* **[schema_snapshot.sql](./schema_snapshot.sql)**: Esquema actual de la base de datos (Supabase).
+* **[CHANGELOG.md](./CHANGELOG.md)**: Historial de cambios y versiones (v2.0+).
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+*Nota: Cualquier archivo fuera de esta lista en esta carpeta es considerado temporal o legacy y debe ser eliminado.*

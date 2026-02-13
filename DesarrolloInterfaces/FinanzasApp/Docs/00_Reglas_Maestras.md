@@ -11,13 +11,19 @@
 3. **Experiencia Nativa**: Aunque construida con tecnologías web (React/Ionic), la interacción debe sentirse nativa en plataformas móviles (gestos, transiciones, feedback táctil).
 4. **Integridad de Datos**: No se permiten estados inconsistentes. Las transacciones financieras deben ser atómicas y precisas.
 
-## 3. Principios de Diseño
+## 3. Estándares de Código y Archivos
+
+* **Rutas Relativas (STRICT)**: Siempre que sea técnicamente posible, se deben usar rutas relativas (`./`, `../`) en lugar de absolutas. Esto aplica a imports, links en documentación y comandos.
+* **English Code / Spanish Docs**: Código en inglés, comentarios complejos y documentación en español.
+* **Mobile-First**: La UI debe diseñarse primero para pantallas pequeñas.
+* **Accesibilidad**: Soporte nativo para modo claro/oscuro y tamaños de fuente adaptables.
+
+## 4. Principios de Diseño
 
 * **Minimalismo Funcional**: Mostrar solo lo necesario en el momento adecuado.
 * **Estética "Cosmic Financial"**: Uso de temas oscuros, gradientes sutiles y feedback visual rico (ver `02_Diseño_UI_UX.md`).
-* **Accesibilidad**: Soporte nativo para modo claro/oscuro y tamaños de fuente adaptables.
 
-## 4. Actores del Sistema
+## 5. Actores del Sistema
 
 * **Usuario Final**: Persona que registra gastos/ingresos y consulta reportes.
 * **Sistema (App)**: Interfaz que gestiona la lógica local y caché.

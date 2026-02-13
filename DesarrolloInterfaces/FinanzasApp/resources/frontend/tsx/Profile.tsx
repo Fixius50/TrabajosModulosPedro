@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { IonItem, IonLabel, IonInput, IonButton, IonAvatar, IonSpinner, IonToast } from '@ionic/react';
 import { getProfile, updateProfile, uploadAvatar } from '../ts/profileService';
 import { useTranslation } from 'react-i18next';
 
@@ -67,36 +66,71 @@ const ProfilePage: React.FC = () => {
     };
 
     return (
-        <div style={{ height: '100%', overflowY: 'auto', paddingBottom: '20px' }}>
-            <div className="ion-padding">
-                <div className="ion-text-center ion-margin-bottom">
-                    <IonAvatar style={{ width: '6rem', height: '6rem', margin: '0 auto' }}>
-                        <img src={avatarUrl || 'https://ionicframework.com/docs/img/demos/avatar.svg'} alt="Avatar" />
-                    </IonAvatar>
-                    <br />
-                    <input type="file" accept="image/*" onChange={handleAvatarUpload} />
+        <div className="h-full bg-dungeon-bg bg-wood-texture p-4 overflow-y-auto">
+            <div className="max-w-md mx-auto space-y-6">
+
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center">
+                    <div className="relative w-32 h-32 rounded-full border-4 border-gold-coin shadow-coin overflow-hidden bg-black mb-4 group cursor-pointer">
+                        <img
+                            src={avatarUrl || 'https://ionicframework.com/docs/img/demos/avatar.svg'}
+                            alt="Avatar"
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-white text-xs font-bold font-dungeon-header">CHANGE</span>
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                    </div>
+                    <h2 className="font-dungeon-header text-parchment text-xl tracking-widest">{username || 'Unknown Hero'}</h2>
                 </div>
 
-                <IonItem>
-                    <IonLabel position="stacked">{t('profile.username')}</IonLabel>
-                    <IonInput value={username} onIonChange={e => setUsername(e.detail.value!)} />
-                </IonItem>
-                <IonItem>
-                    <IonLabel position="stacked">{t('profile.website')}</IonLabel>
-                    <IonInput value={website} onIonChange={e => setWebsite(e.detail.value!)} />
-                </IonItem>
+                {/* Form Fields */}
+                <div className="space-y-4">
+                    <div className="space-y-1">
+                        <label className="text-parchment font-dungeon-header text-sm ml-1">Hero Name</label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            className="w-full bg-parchment-texture border-2 border-iron-border rounded p-3 text-ink font-dungeon-body focus:border-gold-coin outline-none"
+                            placeholder="Entus Username"
+                        />
+                    </div>
 
-                <IonButton expand="block" className="ion-margin-top" onClick={handleSave}>
-                    {t('profile.save')}
-                </IonButton>
+                    <div className="space-y-1">
+                        <label className="text-parchment font-dungeon-header text-sm ml-1">Guild Website</label>
+                        <input
+                            type="text"
+                            value={website}
+                            onChange={e => setWebsite(e.target.value)}
+                            className="w-full bg-parchment-texture border-2 border-iron-border rounded p-3 text-ink font-dungeon-body focus:border-gold-coin outline-none"
+                            placeholder="https://..."
+                        />
+                    </div>
+                </div>
 
-                {loading && (
-                    <div className="ion-text-center ion-padding">
-                        <IonSpinner name="crescent" />
-                        <p>Cargando perfil...</p>
+                <div className="pt-4">
+                    <button
+                        onClick={handleSave}
+                        disabled={loading}
+                        className="w-full bg-gold-coin text-ink font-dungeon-header font-bold py-3 rounded border-2 border-amber-600 shadow-md hover:brightness-110 active:scale-95 transition-all"
+                    >
+                        {loading ? 'Inscribing...' : 'Save Changes'}
+                    </button>
+                </div>
+
+                {/* Toast Notification (Simple HTML fallback for Dungeon Theme) */}
+                {showToast && (
+                    <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-black/90 text-gold-coin border border-gold-coin px-6 py-3 rounded-full shadow-lg font-dungeon-header z-50 animate-bounce">
+                        {toastMessage}
                     </div>
                 )}
-                <IonToast isOpen={showToast} message={toastMessage} duration={2000} onDidDismiss={() => setShowToast(false)} />
             </div>
         </div>
     );

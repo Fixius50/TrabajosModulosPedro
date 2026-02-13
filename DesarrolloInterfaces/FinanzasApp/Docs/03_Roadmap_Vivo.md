@@ -1,33 +1,51 @@
-# 03. Roadmap Vivo
+# 03_Roadmap_Vivo.md
 
-Este documento rastrea el estado actual del proyecto y los siguientes pasos.
+## Estado Actual: Fase 1 Completada (Base Dungeon)
 
-## Estado Actual: **Fase 7 - Ampliación & Refactor**
+- [x] Arquitectura Mobile-First
+- [x] Sistema de Diseño Dungeon Theme
+- [x] CRUD Transacciones (Ingresos/Gastos)
+- [x] Persistencia Supabase
 
-## Backlog de Tareas
+---
 
-### Infraestructura y Documentación
+## FASES FUTURAS (Diseño "Toda la App")
 
-- [ ] **Estandarización Docs**
-  - [x] Crear estructura `00-05` <!-- id: 100 -->
-  - [x] Migrar contenido legacy <!-- id: 101 -->
-  - [ ] Limpiar archivos antiguos (`manifiesto.md`, etc) <!-- id: 102 -->
+### 🛡️ Fase 2: The Market & Rumors (Información)
 
-### Integración Stitch (Nuevo)
+**Objetivo**: Convertir la app en un terminal de información financiera inmersiva.
 
-- [ ] **Configuración MCP**
-  - [ ] Crear Guía de Integración (`Docs/MCP/stitch_integration.md`) <!-- id: 110 -->
-  - [ ] Configurar `mcp_config.json` con claves de API <!-- id: 111 -->
-  - [ ] Validar primera conexión con Stitch <!-- id: 112 -->
+1. **Mercado Global (`GlobalMarketPage.tsx`)**:
+   - Pestaña nueva en `MainTabs`.
+   - Visualización de Crypto (CoinGecko) como "Artefactos Exóticos".
+   - Visualización de Stocks (Finnhub) como "Inversiones del Reino".
+2. **Rumores de Taverna**:
+   - Feed de noticias financieras (Finnhub News) estilizado como pergaminos breves.
 
-### Refactorización y Mejoras (Redo)
+### ⚔️ Fase 3: The Guild & Inventory (Gamificación)
 
-- [ ] **Revisión de Componentes**
-  - [ ] Auditar componentes actuales contra el nuevo Design System (Stitch) <!-- id: 120 -->
-  - [ ] Refactorizar `Dashboard` para usar nuevos tokens de color <!-- id: 121 -->
+**Objetivo**: Dar sentido al ahorro mediante mecánicas RPG.
 
-## Histórico de Fases (Completado)
+1. **Sistema de Inventario**:
+   - Conectar `dnd5eapi`: Mapear saldo total a items de D&D.
+   - *Feature*: "Tu tesoro actual equivale a: 1 Espada Larga + 2 Pociones".
+2. **Misiones (Presupuestos)**:
+   - "Misión: La Torre del Mago" (Ahorrar 500€ para un PC nuevo).
+   - Barra de progreso visual (XP Bar).
 
-* **Fase 1-4**: MVP Core (Auth, CRUD Transacciones, Supabase).
-- **Fase 5**: Avanzado (Storage, i18n, Dark Mode).
-- **Fase 6**: Extras (Exportación, Widgets).
+### 🔮 Fase 4: The Oracle (Inteligencia)
+
+**Objetivo**: Asistencia financiera automatizada.
+
+1. **Análisis de Gastos**:
+   - Gráficos de quesitos/barras pero con estilo "Mapas Astrales".
+2. **Predicciones**:
+   - Algoritmo simple que proyecta gastos futuros basado en el historial.
+
+---
+
+## Backlog Técnico
+
+- [ ] Implementar `FinnhubService.ts`
+- [ ] Implementar `DnDService.ts`
+- [ ] Crear contexto `GamificationContext`

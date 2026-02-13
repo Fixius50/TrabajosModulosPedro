@@ -8,29 +8,35 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#d4af37",      // Gold
-                "electric-cyan": "#00f5ff",    // Cyan
-                "background-dark": "#05070a",   // Midnight
-                "background-light": "#f8f6f6",
-                "surface": "#0a0c12",      // Deep Charcoal
-                "vault-panel": "#191022",        // Purple Tint
-                "primary-purple": "#7f13ec",
-                "primary-red": "#d41132",       // Crimson
-                "gold-accent": "#c5a059",
-                "silver-zen": "#e2e8f0",
-                "silver-muted": "#cbd5e1"
+                // Dungeon Theme
+                "dungeon-bg": "#1a1614",     // Dark Wood
+                "parchment": "#dcd0b3",      // Card Background
+                "ink": "#2b2118",            // Text
+                "gold-coin": "#ffcc00",      // Highlights
+                "iron-border": "#4a4a4a",    // Borders
+                "ruby-expense": "#8a1c1c",   // Expense
+                "emerald-income": "#1c5c2e", // Income
+                "mana-blue": "#1c3d5c",      // Info
+
+                // Legacy (Keep for now)
+                "primary": "#d4af37",
+                "electric-cyan": "#00f5ff",
+                "background-dark": "#05070a",
+                "surface": "#0a0c12",
             },
             fontFamily: {
-                "display": ["Newsreader", "serif"],
+                "dungeon-header": ["Cinzel", "serif"],
+                "dungeon-body": ["Merriweather", "serif"],
                 "sans": ["Manrope", "sans-serif"],
-                "technical": ["JetBrains Mono", "monospace"]
             },
             backgroundImage: {
+                'parchment-texture': "linear-gradient(to bottom right, #dcd0b3, #c5b593)",
+                'wood-texture': "repeating-linear-gradient(45deg, #2b2118 0px, #2b2118 10px, #1a1614 10px, #1a1614 20px)",
                 'stardust': "radial-gradient(circle, #fff 1px, transparent 1px)",
             },
             boxShadow: {
-                'hologram': '0 0 40px rgba(127, 19, 236, 0.3), inset 0 0 20px rgba(127, 19, 236, 0.2)',
-                'zen': '0 4px 30px rgba(0, 0, 0, 0.5)',
+                'parchment': 'inset 0 0 20px rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.3)',
+                'coin': '0 0 10px rgba(255, 204, 0, 0.5)',
             }
         },
     },

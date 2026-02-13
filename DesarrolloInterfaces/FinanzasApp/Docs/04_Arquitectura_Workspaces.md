@@ -1,41 +1,43 @@
-# 04. Arquitectura de Workspaces
+# 04_Arquitectura_Workspaces.md
 
-## Estructura del Proyecto (`src/`)
+## Estructura del Proyecto (Dungeon Edition)
 
-El código fuente se organiza siguiendo una arquitectura modular por funcionalidad y capas técnicas.
+`[Root]/`
+├── `Docs/` (Cerebro del Proyecto)
+│   ├── `schema_snapshot.sql` (Estructura BD Supabase)
+│   ├── `00_Reglas_Maestras.md`
+│   ├── `01_Estrategia_Tecnica.md`
+│   ├── `02_Diseño_UI_UX.md`
+│   └── `04_Arquitectura_Workspaces.md`
+│
+├── `resources/frontend/`
+│   ├── `tsx/`
+│   │   ├── `AuthPage.tsx` (Login Temático)
+│   │   ├── `MainTabs.tsx` (Navegación Inferior Mobile)
+│   │   ├── `AccountPage.tsx` (Contenedor de Perfil/Ajustes)
+│   │   └── `components/dungeon/` (Núcleo del Sistema de Diseño)
+│   │       ├── `Dashboard.tsx` (Vista Principal / Tesorería)
+│   │       ├── `TransactionsPage.tsx` (Vista de Movimientos / Ledger)
+│   │       ├── `TransactionModal.tsx` (Formulario de Inscripción)
+│   │       ├── `TransactionList.tsx` (Lista optimizada para móvil)
+│   │       ├── `DungeonCard.tsx` (Contenedor UI Base)
+│   │       ├── `DungeonButton.tsx` (Botón Temático)
+│   │       └── `DungeonInput.tsx` (Input Temático)
+│   └── `ts/` (Lógica de Negocio)
+│       ├── `supabaseClient.ts`
+│       └── `profileService.ts`
+│
+└── `tailwind.config.js` (Configuración de Tema: Colors, Fonts)
 
-```text
-src/
-├── components/       # Componentes UI reutilizables ("Dumb components")
-│   ├── ui/           # Atomos y moléculas básicos (Botones, Inputs)
-│   └── business/     # Componentes con lógica específica de negocio (Modales)
-├── pages/            # Vistas principales (Screens) - Gestores de estado
-├── services/         # Capa de comunicación con Backend (Supabase)
-│   ├── auth.ts
-│   ├── transactions.ts
-│   └── storage.ts
-├── hooks/            # Custom Hooks (Lógica reutilizable)
-├── context/          # React Context (Estado global ligero)
-├── theme/            # Configuración de estilos y variables globales
-├── i18n/             # Archivos de traducción
-└── types/            # Definiciones TypeScript (Interfaces/Types)
-```
+## Flujo de Datos
+
+1. **Auth**: Supabase Auth -> `AuthPage`
+2. **Dashboard**: `supabase.from('transactions').select()` -> Cálculo de Balance
+3. **Ledger**: `supabase.from('transactions')` con filtros -> `TransactionsPage`
+4. **Realtime**: Suscripciones activas en Dashboard y TransactionsPage para actualizaciones en vivo.
 
 ## Patrones Arquitectónicos
 
-### Service Repository Pattern
-
-* Las **Vistas (Pages)** no conocen la implementación de la base de datos.
-* Las Vistas llaman a **Servicios** (ej: `TransactionService.getAll()`).
-* Los Servicios manejan la lógica de Supabase, caché local y manejo de errores.
-
-### State Management
-
-* **Local State**: `useState` para formularios y UI efímera.
-* **Server State**: `useEffect` + Servicios para datos persistentes.
-* **Global State**: Mínimo uso de Context API (solo para Auth y Theme).
-
-### Separación de Responsabilidades
-
-* **Components**: Solo renderizan props. No hacen fetch de datos (salvo excepciones muy específicas).
-* **Pages**: Orquestan la carga de datos y pasan props a componentes.
+* **Mobile-First**: Toda la UI está pensada para pantallas verticales y uso táctil (botones grandes, inputs espaciosos).
+* **Component-Based**: Los componentes en `components/dungeon/` encapsulan estilos y lógica de presentación, manteniendo las páginas limpias.
+* **Service Layer**: `profileService.ts` y las llamadas directas a Supabase centralizan la lógica de datos.

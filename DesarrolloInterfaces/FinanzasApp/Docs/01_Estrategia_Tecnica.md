@@ -1,40 +1,68 @@
-# 01. Estrategia Técnica y Stack
+# 01. Estrategia Técnica y Stack (Redo)
 
 ## 1. Core Stack
 
-* **Runtime**: Node.js (v18+)
+* **Runtime**: Node.js (v20+)
 * **Framework**: React 18.2 + TypeScript
 * **UI Toolkit**: Ionic Framework 8.2 (React integration)
-* **Build Tool**: Vite
+* **Styling**: TailwindCSS (Custom "Dungeon" Config)
 * **Mobile Engine**: Capacitor (Android target)
 
-## 2. Backend & Data Layer
+## 2. Backend & Data Layer (Advanced Supabase)
 
-* **Platform**: Supabase (BaaS)
-  * **Database**: PostgreSQL
-  * **Auth**: Supabase Auth (Email/Password)
-  * **Storage**: Supabase Storage (Buckets para recibos)
-* **Offline Strategy**:
-  * **Local**: `localStorage` (Config), IndexedDB (Data Cache)
-  * **Remote**: Supabase Client (`@supabase/supabase-js`)
+Exploración profunda de capacidades de Supabase:
 
-## 3. Librerías Clave
+### A. Base de Datos (PostgreSQL)
 
-| Librería | Propósito | Versión (Aprox) |
-| :--- | :--- | :--- |
-| `react-router-dom` | Navegación SPA | v6 |
-| `chart.js` / `react-chartjs-2` | Visualización de datos | Latest |
-| `i18next` | Internacionalización (ES/EN) | Latest |
-| `jspdf` | Generación de reportes | Latest |
+* Uso de **Triggers** para cálculos automáticos (ej: actualizar balance al insertar transacción).
+* **RLS (Row Level Security)** estricto para aislamiento de usuarios.
 
-## 4. Convenciones de Código
+### B. Storage (Buckets)
 
-* **Estilo**: ESLint standard config + Prettier.
-* **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`).
-* **Estructura**: Feature-based folder structure (ver `04_Arquitectura_Workspaces.md`).
+Estructura de almacenamiento avanzada:
 
-## 5. Requisitos de Entorno
+* Bucket `treasury_docs` (Private):
+  * `/receipts/{user_id}/{year}/{month}/`: Imágenes de tickets.
+  * `/invoices/{user_id}/`: Facturas PDF.
+* Bucket `guild_assets` (Public):
+  * Assets de UI (texturas, iconos de rango) si es necesario.
 
-* Archivo `.env` con:
-  * `VITE_SUPABASE_URL`
-  * `VITE_SUPABASE_ANON_KEY`
+### C. Edge Functions (Serverless Deno)
+
+Lógica de negocio compleja fuera del cliente:
+
+* `process-receipt`: (Futuro) OCR de tickets usando IA.
+* `monthly-report`: Generación de resumen mensual y envío por email.
+* `market-prices`: Proxy seguro para consultar APIs financieras (CoinGecko) sin exponer keys.
+
+### D. Realtime
+
+Sincronización instantánea:
+
+* Suscripción a cambios en tabla `transactions` para actualizar el "Cofre de Oro" (Balance) en el Dashboard instantáneamente si se añade un gasto desde otro dispositivo.
+
+## 3. Integraciones Externas (Ecosistema MCP Reg-Free)
+
+### A. Datos Financieros ("The Market")
+
+* **Yahoo Finance MCP**:
+  * **Ventaja**: Sin API Keys. Datos de Mercado, Crypto y Divisas.
+  * Uso: Actualizar precios en `MarketPage`.
+* **DefeatBeta MCP**: Análisis financiero y estadísticas locales.
+
+### B. Divisas y Conversión
+
+* **Fetch MCP** + **Frankfurter API**:
+  * API Open Source sin registro.
+  * Uso: Conversión precisa de divisas para el Inventario.
+
+### C. Infraestructura Agéntica
+
+* **PostgreSQL MCP**: Gestión directa de Supabase DB.
+* **Sequential Thinking**: Motor de razonamiento para cálculos de impuestos/intereses.
+* **Filesystem & Search**: Herramientas base para operación del Agente.
+
+## 4. Estrategia de Refactor
+
+1. **Limpieza**: Eliminar componentes "Cosmic".
+2. **Core**: Implementar `AuthProvider` y `SupabaseClient` optimizado.
