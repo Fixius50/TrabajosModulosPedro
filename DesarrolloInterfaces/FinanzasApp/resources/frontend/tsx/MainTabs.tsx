@@ -35,14 +35,14 @@ const MainTabs: React.FC<MainTabsProps> = ({ onUnlock }) => {
                     active={currentTab === 'dashboard'}
                     onClick={() => setCurrentTab('dashboard')}
                     icon={homeOutline}
-                    label="Treasury"
+                    label="Tesorería"
                 />
 
                 <NavButton
                     active={currentTab === 'market'}
                     onClick={() => setCurrentTab('market')}
                     icon={globeOutline}
-                    label="Market"
+                    label="Mercado"
                 />
 
                 {/* FAB-like center button for Ledger */}
@@ -57,14 +57,14 @@ const MainTabs: React.FC<MainTabsProps> = ({ onUnlock }) => {
                     active={currentTab === 'inventory'}
                     onClick={() => setCurrentTab('inventory')}
                     icon={bagHandleOutline}
-                    label="Hoard"
+                    label="Botín"
                 />
 
                 <NavButton
                     active={currentTab === 'account'}
                     onClick={() => setCurrentTab('account')}
                     icon={personOutline}
-                    label="Guild"
+                    label="Gremio"
                 />
             </div>
         </div>

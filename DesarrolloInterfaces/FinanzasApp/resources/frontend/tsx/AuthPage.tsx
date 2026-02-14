@@ -27,19 +27,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLoginSuccess }) => {
     return (
         <div className="min-h-screen bg-dungeon-bg bg-wood-texture flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-parchment-texture p-8 rounded-lg shadow-2xl border-4 border-iron-border text-center">
-                <h1 className="font-dungeon-header text-3xl text-ink font-bold mb-4 uppercase tracking-widest">
+                <h1 className="font-dungeon-header text-4xl text-ink font-bold mb-2 uppercase tracking-[0.2em] drop-shadow-md">
                     Finanzas Dungeon
                 </h1>
-                <p className="font-dungeon-body text-ink/70 mb-8 italic">
-                    "Secure your digital treasury..."
+                <p className="font-dungeon-body text-ink/80 mb-8 italic text-lg border-b-2 border-ink/20 pb-4">
+                    "Asegura tu tesoro digital..."
                 </p>
 
                 <button
                     onClick={handleEnter}
                     disabled={loading}
-                    className="w-full bg-dungeon-bg border-2 border-gold-coin text-gold-coin py-3 px-6 rounded font-dungeon-header font-bold hover:bg-black/80 transition-all flex justify-center items-center gap-2"
+                    className="w-full bg-dungeon-bg border-4 border-double border-gold-coin text-gold-coin py-4 px-8 rounded-lg font-dungeon-header text-xl font-bold hover:bg-black/90 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex justify-center items-center gap-3 shadow-lg group"
                 >
-                    {loading ? 'Opening Gates...' : 'Enter the Realm'}
+                    <span className="material-symbols-outlined group-hover:animate-pulse">key</span>
+                    {loading ? 'Abriendo Portón...' : 'Entrar al Reino'}
                 </button>
             </div>
         </div>
