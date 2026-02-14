@@ -4,6 +4,10 @@ import { IonApp, setupIonicReact } from '@ionic/react';
 import MainTabs from './MainTabs';
 import Layout from './Layout';
 import AuthPage from './AuthPage';
+import { RoyalVaults } from './features/accounts/RoyalVaults';
+import { DungeonLoading } from './components/common/DungeonLoading';
+import { ErrorProvider } from './context/ErrorContext';
+import { GlobalErrorModal } from './components/common/GlobalErrorModal';
 
 /* Core Ionic & Theme */
 import '@ionic/react/css/core.css';
@@ -15,6 +19,7 @@ import '../css/index.css';
 
 import { supabase } from '../ts/supabaseClient';
 import type { Session } from '@supabase/supabase-js';
+import i18n from '../ts/config';
 
 setupIonicReact({ mode: 'md', animated: true });
 
@@ -22,6 +27,7 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAppUnlocked, setIsAppUnlocked] = useState(false);
+  const [i18nReady, setI18nReady] = useState(i18n.isInitialized);
 
   // Controla si la animación de login ha terminado.
   // Evita que la app cambie de página inmediatamente al recibir la sesión de Supabase,
@@ -40,6 +46,13 @@ const App: React.FC = () => {
 
       setLoading(false);
     };
+
+    if (!i18nReady) {
+      i18n.on('initialized', () => setI18nReady(true));
+      // Fallback check
+      if (i18n.isInitialized) setI18nReady(true);
+    }
+
     initApp();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
@@ -59,46 +72,70 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) return (
-    <div style={{ background: '#000', color: '#d4af37', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <h1>CARGANDO...</h1>
-    </div>
+  const [selectedVault, setSelectedVault] = useState<any>(null);
+  const [vaults, setVaults] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (session) {
+      const fetchVaults = async () => {
+        const { data, error } = await supabase
+          .from('bank_accounts')
+          .select('*')
+          .eq('user_id', session.user.id);
+
+        if (error) {
+          console.error("Error fetching vaults:", error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          setVaults(data.map(v => ({
+            ...v,
+            appearance: v.type === 'savings' ? 'gold' : 'iron'
+          })));
+        } else {
+          // Si no hay bóvedas, re-intentamos en 2 segundos por si el registro aún está insertando
+          setTimeout(fetchVaults, 2000);
+        }
+      };
+      fetchVaults();
+    }
+  }, [session]);
+
+  if (loading || !i18nReady) return (
+    <DungeonLoading />
   );
 
-  // Lógica crítica: Solo mostramos la app principal si hay sesión Y la animación terminó.
-  const showProtectedApp = session && authAnimationDone;
+  const showVaultSelector = session && authAnimationDone && !selectedVault;
+  const showProtectedApp = session && authAnimationDone && selectedVault;
 
   return (
-    <IonApp>
-      <BrowserRouter>
-        {showProtectedApp ? (
-          <Layout>
+    <ErrorProvider>
+      <IonApp>
+        <GlobalErrorModal />
+        <BrowserRouter>
+          {showProtectedApp ? (
+            <Layout>
+              <Routes>
+                <Route path="/app/*" element={<MainTabs isAppUnlocked={isAppUnlocked} onUnlock={() => setIsAppUnlocked(true)} />} />
+                <Route path="/" element={<Navigate to="/app/dashboard" />} />
+                <Route path="*" element={<Navigate to="/app/dashboard" />} />
+              </Routes>
+            </Layout>
+          ) : showVaultSelector ? (
             <Routes>
-              <Route path="/app/*" element={<MainTabs isAppUnlocked={isAppUnlocked} onUnlock={() => setIsAppUnlocked(true)} />} />
-              <Route path="/" element={<Navigate to="/app/dashboard" />} />
-              <Route path="*" element={<Navigate to="/app/dashboard" />} />
+              <Route path="/" element={<RoyalVaults vaults={vaults} onSelect={(v) => setSelectedVault(v)} />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
-          </Layout>
-        ) : (
-          <Routes>
-            <Route path="/" element={<AuthPage onLoginSuccess={() => {
-              // Hack: Inject Mock Session for Demo purposes if no real auth exists
-              if (!session) {
-                setSession({
-                  user: { id: 'demo-adventurer-id', email: 'hero@dungeon.com' },
-                  access_token: 'mock-token',
-                  expires_in: 3600,
-                  refresh_token: 'mock-refresh',
-                  token_type: 'bearer'
-                } as any);
-              }
-              setAuthAnimationDone(true);
-            }} />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        )}
-      </BrowserRouter>
-    </IonApp>
+          ) : (
+            <Routes>
+              <Route path="/" element={<AuthPage onLoginSuccess={() => setAuthAnimationDone(true)} />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          )}
+        </BrowserRouter>
+      </IonApp>
+    </ErrorProvider>
   );
 };
 

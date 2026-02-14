@@ -61,5 +61,74 @@
         "save": "Guardar Cambios",
         "saved": "Perfil actualizado",
         "error": "Error al actualizar"
+    },
+    "dungeon": {
+        "portal": {
+            "title": "El Portal del Tesoro",
+            "welcome": "Bienvenido de nuevo, aventurero. ¿O es esta tu primera misión en el reino de las finanzas?",
+            "resume": "Reanudar Campaña",
+            "new": "Nueva Inscripción",
+            "register_cta": "Registrarse",
+            "or": "O"
+        },
+        "registration": {
+            "title": "Crear tu Cuenta",
+            "subtitle": "Complete sus datos para configurar su perfil financiero",
+            "datos_acceso": "Datos de Acceso",
+            "confirm_title": "Confirmación",
+            "email_label": "Correo Electrónico",
+            "cipher_label": "Contraseña",
+            "prepare_seal": "Continuar",
+            "back_to_portal": "Volver al Portal",
+            "join_button": "Finalizar\nRegistro",
+            "contract_text": "Al registrarte, aceptas las condiciones de servicio.",
+            "classes": {
+                "warrior": "Guerrero",
+                "warrior_sub": "El Ahorrador Estoico",
+                "mage": "Mago",
+                "mage_sub": "El Sabio Inversor",
+                "rogue": "Pícaro",
+                "rogue_sub": "El Cazador de Ofertas"
+            }
+        },
+        "vaults": {
+            "title": "Las Cámaras Reales",
+            "subtitle": "Selecciona tu tesorería para gestionar el oro...",
+            "label_savings": "Ahorros Reales",
+            "label_checking": "Saqueo Diario",
+            "footer_treasury": "Tesorería",
+            "footer_forge": "Forja",
+            "footer_market": "Mercado"
+        },
+        "auth": {
+            "title": "Portal de Acceso",
+            "subtitle": "Identifícate para entrar en las cámaras",
+            "email_placeholder": "Tu email de aventurero",
+            "password_placeholder": "Tu clave secreta",
+            "login_button": "Entrar al Gremio",
+            "no_account": "¿Aún no tienes cuenta?",
+            "register_link": "Inscríbete aquí",
+            "unlocking": "Abriendo Bóveda...",
+            "enter": "Entrar al Reino",
+            "return": "Volver al portal"
+        },
+        "nav": {
+            "home": "Inicio",
+            "vault": "Tesoro",
+            "market": "Mercado",
+            "inventory": "Morral",
+            "settings": "Ajustes",
+            "profile": "Perfil"
+        },
+        "loading": {
+            "msg1": "Lanzando Iniciativa...",
+            "msg2": "Consultando los Oráculos...",
+            "msg3": "Preparando Hechizos de Oro...",
+            "msg4": "Abriendo Cierres Mágicos..."
+        },
+        "error": {
+            "title": "Error Crítico",
+            "dismiss": "Entendido"
+        }
     }
 }

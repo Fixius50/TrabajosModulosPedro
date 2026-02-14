@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DungeonCard } from './DungeonCard';
 import { DungeonButton } from './DungeonButton';
 import { TransactionList } from './TransactionList';
@@ -17,11 +18,13 @@ interface Transaction {
     desc: string;
 }
 
-interface DungeonDashboardProps {
-    onUnlock?: () => void;
+interface DashboardProps {
+    onUnlock: () => void;
+    isAppUnlocked: boolean;
 }
 
-export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
+export const DungeonDashboard: React.FC<DashboardProps> = () => {
+    const { t } = useTranslation();
     const [balance, setBalance] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -127,7 +130,7 @@ export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
         <div className="min-h-screen bg-dungeon-bg bg-wood-texture p-4 pb-20 flex flex-col gap-6 text-ink">
             {/* Header */}
             <header className="flex justify-between items-center mb-2 bg-paper-texture/20 p-2 rounded relative">
-                <h1 className="font-dungeon-header text-3xl text-gold-coin drop-shadow-md uppercase tracking-wider">Treasury</h1>
+                <h1 className="font-dungeon-header text-3xl text-gold-coin drop-shadow-md uppercase tracking-wider">{t('dungeon.vaults.footer_treasury')}</h1>
                 <div className="flex items-center gap-2">
                     <span className="font-dungeon-technical text-xs text-parchment opacity-70">LVL {Math.floor(balance / 1000) + 1}</span>
                     <div className="w-8 h-8 bg-parchment rounded-full border-2 border-gold-coin flex items-center justify-center shadow-coin">
@@ -147,7 +150,7 @@ export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
 
                 <DungeonCard className="bg-parchment-texture relative z-10 border-4 border-iron-border shadow-2xl">
                     <div className="flex flex-col items-center">
-                        <span className="font-dungeon-body text-xs text-ink/60 uppercase tracking-[0.2em] mb-1">— Total Hoard —</span>
+                        <span className="font-dungeon-body text-xs text-ink/60 uppercase tracking-[0.2em] mb-1">— {t('dashboard.totalBalance')} —</span>
                         <span className="text-5xl font-dungeon-header text-ink font-bold drop-shadow-sm">{loading ? '...' : `${balance.toLocaleString()} GP`}</span>
 
                         <div className="w-full h-[1px] bg-ink/10 my-4"></div>
@@ -155,12 +158,12 @@ export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
                         <div className="flex gap-8 w-full justify-center">
                             <div className="flex flex-col items-center group cursor-pointer hover:scale-105 transition-transform">
                                 <span className="text-emerald-income font-bold text-xl font-dungeon-technical">+ {transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0).toLocaleString()}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Tribute</span>
+                                <span className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">{t('dashboard.income')}</span>
                             </div>
                             <div className="w-[1px] h-10 bg-iron-border/20"></div>
                             <div className="flex flex-col items-center group cursor-pointer hover:scale-105 transition-transform">
                                 <span className="text-ruby-expense font-bold text-xl font-dungeon-technical">{transactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0).toLocaleString()}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">Upkeep</span>
+                                <span className="text-[10px] uppercase tracking-widest text-ink/50 font-bold">{t('dashboard.expenses')}</span>
                             </div>
                         </div>
                     </div>
@@ -171,11 +174,11 @@ export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
             <div className="flex gap-4">
                 <DungeonButton className="flex-1 shadow-lg shadow-emerald-income/20 border-emerald-income/50" onClick={() => setIsModalOpen(true)}>
                     <span className="material-symbols-outlined mr-2">add_circle</span>
-                    Add Tribute
+                    {t('dashboard.income')}
                 </DungeonButton>
                 <DungeonButton variant="danger" className="flex-1 shadow-lg shadow-ruby-expense/20 border-ruby-expense/50" onClick={() => setIsModalOpen(true)}>
                     <span className="material-symbols-outlined mr-2">remove_circle</span>
-                    Pay Upkeep
+                    {t('dashboard.expenses')}
                 </DungeonButton>
             </div>
 
@@ -183,7 +186,7 @@ export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
             <div className="flex-1 bg-paper-texture rounded-lg border border-ink/20 p-4 shadow-inner overflow-hidden relative">
                 <h2 className="font-dungeon-header text-xl text-ink mb-4 flex items-center gap-2 opacity-80 border-b border-ink/10 pb-2">
                     <span className="material-symbols-outlined">history_edu</span>
-                    Ledger Entries
+                    {t('transactions.title')}
                 </h2>
                 <div className="overflow-y-auto max-h-[40vh] pr-2 space-y-2 scrollbar-thin scrollbar-thumb-iron-border scrollbar-track-transparent">
                     <TransactionList transactions={transactions} />

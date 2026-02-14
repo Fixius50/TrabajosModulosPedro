@@ -35,6 +35,30 @@ Lógica de negocio compleja fuera del cliente:
 * `monthly-report`: Generación de resumen mensual y envío por email.
 * `market-prices`: Proxy seguro para consultar APIs financieras (CoinGecko) sin exponer keys.
 
+## Proposed Changes
+
+### [DONE] Internationalization (i18n)
+
+- Centralized all labels (Auth, Registration, Vaults) in `json/es.json` and `json/en.json`.
+* Integrated `useTranslation` in all reborn components.
+
+### [EXECUTION] Real Auth & Connectivity
+
+- [MODIFY] [AuthPage.tsx](file:///c:/Users/rober/Desktop/TrabajosModulosPedro/DesarrolloInterfaces/FinanzasApp/resources/frontend/tsx/AuthPage.tsx): Swapping mock logic for real Supabase Auth.
+* [MODIFY] [App.tsx](file:///c:/Users/rober/Desktop/TrabajosModulosPedro/DesarrolloInterfaces/FinanzasApp/resources/frontend/tsx/App.tsx): Fetching real accounts from `bank_accounts` table.
+
+### [NEW] Persistence & Storage (Supabase Buckets)
+
+- [MODIFY] `supabaseClient.ts`: Configure storage helpers.
+* [NEW] `storageService.ts`: Service to upload/download user JSON data to/from personal buckets.
+* [MODIFY] `settings.tsx`: Update export/import logic to use Cloud Storage instead of local filesystem where appropriate.
+
+## Verification Plan
+
+1. **Real Login**: Create a new account via "Guild Inscription" and verify it appears in Supabase Auth and `profiles` table.
+2. **Vault Sync**: Add a transaction to a vault and verify it persists in `bank_accounts` and `transactions` tables.
+3. **Cloud Storage**: Export data and verify the JSON file appears in the user's private Supabase Bucket.
+
 ### D. Realtime
 
 Sincronización instantánea:

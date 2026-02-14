@@ -61,5 +61,73 @@
         "save": "Save Changes",
         "saved": "Profile updated",
         "error": "Error updating"
+    },
+    "dungeon": {
+        "portal": {
+            "title": "The Treasury Portal",
+            "welcome": "Welcome back, adventurer. Or is this your first quest in the realm of finance?",
+            "resume": "Resume Campaign",
+            "new": "New Inscription",
+            "or": "OR"
+        },
+        "registration": {
+            "title": "Create Guild Account",
+            "subtitle": "Enter your details to begin your financial adventure",
+            "step1_title": "Step 1: Choose your Specialty",
+            "step2_title": "Step 2: Identity Details",
+            "step3_title": "Step 3: Confirmation & Access",
+            "email_label": "Adventurer Email",
+            "cipher_label": "Password (Minimum 6 characters)",
+            "prepare_seal": "Continue to Final Step",
+            "back_to_portal": "Return to Portal",
+            "change_class": "Change Specialty",
+            "join_button": "Complete\nRegistration",
+            "contract_text": "By registering, you agree to the guild's terms of service.",
+            "classes": {
+                "warrior": "Warrior",
+                "warrior_sub": "The Stoic Saver",
+                "mage": "Mage",
+                "mage_sub": "The Wise Investor",
+                "rogue": "Rogue",
+                "rogue_sub": "The Bargain Hunter"
+            }
+        },
+        "vaults": {
+            "title": "The Royal Vaults",
+            "subtitle": "Select your treasury to manage gold...",
+            "label_savings": "Royal Savings",
+            "label_checking": "Daily Plunder",
+            "footer_treasury": "Treasury",
+            "footer_forge": "Forge",
+            "footer_market": "Market"
+        },
+        "auth": {
+            "title": "Access Portal",
+            "subtitle": "Identify yourself to enter the vaults",
+            "email_placeholder": "Your adventurer email",
+            "password_placeholder": "Your secret key",
+            "login_button": "Enter the Guild",
+            "no_account": "Don't have an account?",
+            "register_link": "Inscribe here",
+            "return": "Return to portal"
+        },
+        "nav": {
+            "home": "Home",
+            "vault": "Vault",
+            "market": "Market",
+            "inventory": "Inventory",
+            "settings": "Settings",
+            "profile": "Profile"
+        },
+        "loading": {
+            "msg1": "Rolling for Initiative...",
+            "msg2": "Consulting the Oracles...",
+            "msg3": "Preparing Gold Spells...",
+            "msg4": "Unlocking Magical Seals..."
+        },
+        "error": {
+            "title": "Critical Error",
+            "dismiss": "Dismiss"
+        }
     }
 }

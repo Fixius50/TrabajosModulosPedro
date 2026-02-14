@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     IonPage, IonContent
 } from '@ionic/react';
@@ -6,6 +7,7 @@ import ProfilePage from './Profile';
 import { DungeonSettings as Settings } from './components/dungeon/Settings';
 
 const AccountPage: React.FC = () => {
+    const { t } = useTranslation();
     const [selectedView, setSelectedView] = useState<'profile' | 'settings'>('profile');
 
     return (
@@ -22,7 +24,7 @@ const AccountPage: React.FC = () => {
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-[Cinzel] text-[#9333ea] uppercase tracking-[0.2em] font-bold drop-shadow-[0_2px_5px_rgba(147,51,234,0.5)]">
-                            Mi Cuenta
+                            {t('profile.title')}
                         </h1>
                         <p className="text-[10px] text-gray-400 font-[MedievalSharp] uppercase tracking-widest mt-1">
                             - Perfil de Usuario & Seguridad -
@@ -38,7 +40,7 @@ const AccountPage: React.FC = () => {
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${selectedView === 'profile' ? 'bg-[#9333ea]/20 border-[#9333ea] shadow-[0_0_15px_#9333ea]' : 'border-gray-600 bg-black'}`}>
                                 <span className="material-symbols-outlined text-[#e2d5b5] text-sm">person</span>
                             </div>
-                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">Identidad</span>
+                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">{t('profile.username')}</span>
                         </button>
 
                         <button
@@ -48,7 +50,7 @@ const AccountPage: React.FC = () => {
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center border ${selectedView === 'settings' ? 'bg-[#9333ea]/20 border-[#9333ea] shadow-[0_0_15px_#9333ea]' : 'border-gray-600 bg-black'}`}>
                                 <span className="material-symbols-outlined text-[#e2d5b5] text-sm">settings</span>
                             </div>
-                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">Ajustes</span>
+                            <span className="font-[Cinzel] text-[#e2d5b5] text-xs uppercase tracking-widest">{t('settings.title')}</span>
                         </button>
                     </div>
 
