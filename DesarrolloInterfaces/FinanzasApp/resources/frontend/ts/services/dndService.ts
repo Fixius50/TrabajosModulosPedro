@@ -33,5 +33,10 @@ export const dndService = {
             affordable: affordable.sort((a, b) => b.cost_gp - a.cost_gp), // Most expensive first
             nextGoal
         };
+    },
+
+    getInventory: async (): Promise<DndItem[]> => {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return FANTASY_SHOP.slice(0, 4); // Return first 4 items as mock inventory
     }
 };

@@ -21,7 +21,7 @@ interface DungeonDashboardProps {
     onUnlock?: () => void;
 }
 
-export const DungeonDashboard: React.FC<DungeonDashboardProps> = ({ onUnlock }) => {
+export const DungeonDashboard: React.FC<DungeonDashboardProps> = () => {
     const [balance, setBalance] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);

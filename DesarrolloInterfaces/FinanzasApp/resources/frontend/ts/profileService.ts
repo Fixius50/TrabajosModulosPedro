@@ -13,6 +13,7 @@ export const getProfile = async () => {
             username: 'DungeonMaster',
             full_name: 'Roberto the Brave',
             avatar_url: null,
+            website: null,
             updated_at: new Date().toISOString()
         } as Profile;
     }

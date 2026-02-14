@@ -13,8 +13,8 @@ export interface Transaction {
 export interface Profile {
     id: string;
     username: string;
-    avatar_url: string;
-    website: string;
+    avatar_url: string | null;
+    website: string | null;
 }
 
 export interface RecurringTransaction {

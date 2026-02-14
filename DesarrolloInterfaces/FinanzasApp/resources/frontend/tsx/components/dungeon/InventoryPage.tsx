@@ -1,138 +1,134 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../ts/supabaseClient';
 import { dndService } from '../../../ts/services/dndService';
 import type { DndItem } from '../../../ts/services/dndService';
-import { DungeonCard } from './DungeonCard';
 
 export const InventoryPage: React.FC = () => {
     const [balance, setBalance] = useState(0);
-    const [inventory, setInventory] = useState<{ affordable: DndItem[], nextGoal: DndItem | null, percentToNext: number, level: string } | null>(null);
+    const [items, setItems] = useState<DndItem[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchGamifiedState = async () => {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                // Demo fallback if no user
-                const demoBalance = 1500;
-                setBalance(demoBalance);
-                const gamifiedData = await dndService.calculatePurchasingPower(demoBalance);
-                setInventory({ ...gamifiedData, percentToNext: 0, level: 'Novice' }); // Mock extra fields
-                setLoading(false);
-                return;
-            }
-
-            // Get Balance
-            const { data: accounts } = await supabase.from('bank_accounts').select('balance').eq('user_id', user.id);
-            const totalBalance = accounts?.reduce((sum, acc) => sum + Number(acc.balance), 0) || 0;
-
-            setBalance(totalBalance);
-
-            // Calculate purchasing power
-            const gamifiedData = await dndService.calculatePurchasingPower(totalBalance);
-
-            // Calculate extra gamification stats safely
-            const nextCost = gamifiedData.nextGoal?.cost_gp || 10000;
-            const percent = Math.min(100, Math.max(0, (totalBalance / nextCost) * 100));
-            const wealthLevel = totalBalance > 5000 ? 'Dragon' : totalBalance > 1000 ? 'Noble' : 'Peasant';
-
-            setInventory({
-                ...gamifiedData,
-                percentToNext: percent,
-                level: wealthLevel
-            });
-
-        } catch (error) {
-            console.error("Error fetching inventory:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Mock Level Logic
+    const level = 5;
+    const levelTitle = "Lord of the Realm";
+    const nextLevelTitle = "Dragon Hoarder";
+    const percentToNext = 72;
 
     useEffect(() => {
-        fetchGamifiedState();
+        const loadInventory = async () => {
+            try {
+                // In a real app, strict mode might double invoke, so we clear first or handle it
+                // For now, simple fetch
+                const dndItems = await dndService.getInventory();
+                setItems(dndItems); // Just take first 8 for the grid
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadInventory();
+        setBalance(1250000); // Mock Balance matching the design
     }, []);
 
-    if (loading || !inventory) {
-        return <div className="p-8 text-center font-dungeon-header text-gold-coin animate-pulse">Tasando tu botín...</div>;
-    }
-
-    const { affordable, nextGoal, percentToNext, level } = inventory;
+    // STITCH DESIGN: "Hero's Hoard" (Mahogany & Gold Theme)
+    // - Background: Mahogany Wood Texture #221e10
+    // - Accents: Liquid Gold #f2b90d
+    // - Font: Serif
 
     return (
-        <div className="min-h-screen bg-dungeon-bg bg-wood-texture p-4 pb-20 flex flex-col gap-6 text-ink">
-            <div className="p-4 bg-wood-texture min-h-[calc(100vh-80px)] rounded-t-xl shadow-inner-lg">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6 bg-parchment-texture p-3 rounded border-2 border-iron-border shadow-md">
-                    <div>
-                        <h1 className="text-2xl font-dungeon-header text-ink uppercase tracking-wider font-bold">
-                            Tu Botín
-                        </h1>
-                        <div className="text-xs text-ink/60 font-bold uppercase tracking-widest">Nivel de Riqueza: {level}</div>
+        <div className="min-h-screen bg-[#221e10] text-white font-serif pb-20 relative overflow-hidden flex flex-col">
+            {/* Background Texture (Mahogany) */}
+            <div className="absolute inset-0 opacity-40 pointer-events-none mix-blend-overlay"
+                style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1541123437800-1bb1317badc2?q=80&w=2070&auto=format&fit=crop)', backgroundSize: 'cover' }}>
+            </div>
+
+            {/* Border Frame */}
+            <div className="absolute inset-2 border-2 border-[#3d2b1f] pointer-events-none z-20"></div>
+
+            {/* SECTION 1: Wealth Level */}
+            <header className="relative z-10 px-6 pt-12 pb-6">
+                <div className="flex justify-between items-end mb-2">
+                    <span className="text-[10px] uppercase tracking-widest text-[#f2b90d]/70 font-bold">Current Tier</span>
+                    <span className="text-sm text-[#f2b90d] font-bold italic drop-shadow-md text-right">{levelTitle}</span>
+                </div>
+                {/* Progress Bar Container */}
+                <div className="h-6 w-full bg-black/40 rounded-full p-1 border border-[#f2b90d]/20 relative shadow-inner">
+                    {/* Liquid Gold Bar */}
+                    <div className="h-full rounded-full relative overflow-hidden transition-all duration-1000 ease-out" style={{ width: `${percentToNext}%`, background: 'linear-gradient(90deg, #b8860b 0%, #f2b90d 50%, #ffd700 100%)', boxShadow: '0 0 10px rgba(242, 185, 13, 0.4)' }}>
+                        <div className="absolute inset-0 bg-white/20 mix-blend-overlay"></div>
                     </div>
-                    <div className="text-right">
-                        <div className="text-3xl font-dungeon-header text-yellow-700 drop-shadow-sm font-bold">
-                            {balance.toLocaleString()} <span className="text-sm">GP</span>
-                        </div>
+                    {/* Marks */}
+                    <div className="absolute inset-0 flex justify-between px-4 items-center">
+                        <span className="text-[8px] text-white/50 font-bold uppercase z-10">{level}</span>
+                        <span className="text-[8px] text-[#f2b90d] font-bold uppercase drop-shadow-md z-10">{nextLevelTitle}</span>
                     </div>
                 </div>
+            </header>
 
-                {/* Progress Bar (Experience) */}
-                <div className="mb-8 relative pt-2">
-                    <div className="flex justify-between text-xs text-parchment-light mb-1 font-bold uppercase tracking-wider px-1">
-                        <span>Siguiente Item: {nextGoal?.name || 'Maxed Out'}</span>
-                        <span>{nextGoal ? `${nextGoal.cost_gp - balance} GP Restantes` : ''}</span>
+            {/* SECTION 2: Net Worth Stats (Ornate Box) */}
+            <section className="relative z-10 px-6 py-2 flex flex-col items-center">
+                <div className="relative w-full py-8 text-center bg-black/30 rounded-xl border border-[#f2b90d]/10 backdrop-blur-sm">
+                    {/* Ornate Corners */}
+                    <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#f2b90d]/40 rounded-tl-xl p-1"></div>
+                    <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#f2b90d]/40 rounded-tr-xl p-1"></div>
+                    <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#f2b90d]/40 rounded-bl-xl p-1"></div>
+                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#f2b90d]/40 rounded-br-xl p-1"></div>
+
+                    <h2 className="text-[#f2b90d]/60 text-xs uppercase tracking-[0.2em] mb-2 font-bold">Total Net Worth</h2>
+                    <div className="flex items-center justify-center gap-2">
+                        <span className="text-4xl font-bold text-[#f2b90d] tracking-tight drop-shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
+                            {balance.toLocaleString()}
+                        </span>
+                        <span className="text-xl text-[#f2b90d]/80 font-bold italic">GP</span>
                     </div>
-                    {/* XP Bar Background */}
-                    <div className="h-6 w-full bg-black/60 rounded-full border-2 border-iron-border relative overflow-hidden shadow-inner">
-                        {/* XP Bar Fill */}
-                        <div
-                            className="h-full bg-gradient-to-r from-red-900 via-red-600 to-gold-coin transition-all duration-1000 ease-out flex items-center justify-end pr-2"
-                            style={{ width: `${percentToNext}%` }}
-                        >
-                            <div className="h-full w-full absolute top-0 left-0 bg-[url('/images/shine.png')] opacity-20 animate-pulse"></div>
-                        </div>
+
+                    {/* Decorative Particles */}
+                    <div className="mt-4 flex justify-center gap-2">
+                        <div className="w-1 h-1 bg-[#f2b90d] rounded-full animate-pulse"></div>
+                        <div className="w-1.5 h-1.5 bg-[#f2b90d]/40 rounded-full"></div>
+                        <div className="w-1 h-1 bg-[#f2b90d]/70 rounded-full animate-pulse delay-75"></div>
                     </div>
                 </div>
+            </section>
 
-                {/* Inventory Grid */}
-                <h2 className="font-dungeon-header text-xl text-parchment-light mb-4 flex items-center gap-2 drop-shadow-md">
-                    <span className="material-symbols-outlined text-gold-coin">backpack</span>
-                    Mochila
-                </h2>
+            {/* SECTION 3: Backpack (Grid) */}
+            <section className="relative z-10 flex-1 px-6 py-6 pb-24 overflow-y-auto">
+                <div className="flex items-center gap-2 mb-4">
+                    <span className="text-[#f2b90d] text-lg">🎒</span>
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-[#f2b90d]/80">Backpack Slots</h3>
+                </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                    {affordable.map((item, index) => (
-                        <div
-                            key={index}
-                            className="aspect-square rounded border-4 transition-all duration-300 relative group bg-paper-texture border-gold-coin shadow-gold hover:scale-105 cursor-pointer"
-                        >
-                            {/* Item Icon */}
-                            <div className="flex flex-col items-center justify-center h-full text-center p-1">
-                                <span className="material-symbols-outlined text-3xl mb-1 text-ink">
-                                    {/* Icon placeholder logic could go here */}
-                                    token
-                                </span>
-                                <div className="text-[10px] leading-tight font-bold text-ink font-dungeon-body">
+                <div className="grid grid-cols-4 gap-3">
+                    {loading ? (
+                        [1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className="aspect-square bg-black/20 rounded border border-[#3d2b1f] animate-pulse"></div>
+                        ))
+                    ) : (
+                        items.map((item, index) => (
+                            <div key={index} className="aspect-square bg-[#1a1609] rounded-lg border-2 border-[#3d2b1f] shadow-[inset_0_4px_8px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center p-1 group relative cursor-pointer hover:border-[#f2b90d]/60 transition-colors">
+                                <div className="text-2xl drop-shadow-md mb-1 group-hover:scale-110 transition-transform">
+                                    {/* Simple mapping based on name or default */}
+                                    {item.name.includes('Potion') ? '🧪' : item.name.includes('Sword') ? '⚔️' : item.name.includes('Map') ? '🗺️' : '📦'}
+                                </div>
+                                <span className="text-[8px] text-[#f2b90d]/60 font-bold uppercase text-center leading-none truncate w-full px-1">
                                     {item.name}
+                                </span>
+
+                                {/* Info Tooltip */}
+                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#2a2721] border border-[#f2b90d] text-[#e3d5b8] text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
+                                    {item.cost_gp} GP
                                 </div>
                             </div>
-
-                            {/* Tooltip on Hover */}
-                            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs p-2 rounded w-max opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-gold-coin">
-                                <div className="text-gold-coin font-bold mt-1">{item.cost_gp} GP</div>
-                            </div>
-                        </div>
-                    ))}
-
+                        ))
+                    )}
                     {/* Empty Slots Filler */}
-                    {[...Array(Math.max(0, 9 - affordable.length))].map((_, i) => (
-                        <div key={`empty-${i}`} className="aspect-square rounded border-4 border-dashed border-white/5 bg-black/20 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-white/5">lock</span>
+                    {[...Array(Math.max(0, 12 - items.length))].map((_, i) => (
+                        <div key={`empty-${i}`} className="aspect-square bg-[#0f0c05] rounded-lg border border-[#2a1e16] shadow-inner opacity-50 flex items-center justify-center">
+                            <span className="text-[#3d2b1f] text-xs">+</span>
                         </div>
                     ))}
                 </div>
-            </div>
+            </section>
         </div>
     );
 };

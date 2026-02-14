@@ -8,6 +8,10 @@ export default {
     theme: {
         extend: {
             colors: {
+                // Stitch Theme (High Fidelity)
+                "stitch-gold": "#f2b90d",    // The Grand Market Gold
+                "stitch-stone": "#1a1814",   // Dark Stone
+
                 // Dungeon Theme
                 "dungeon-bg": "#1a1614",     // Dark Wood
                 "parchment": "#dcd0b3",      // Card Background
@@ -27,6 +31,8 @@ export default {
             fontFamily: {
                 "dungeon-header": ["Cinzel", "serif"],
                 "dungeon-body": ["Merriweather", "serif"],
+                "display": ["Cinzel", "serif"], // Stitch Header
+                "serif": ["Merriweather", "serif"], // Stitch Body
                 "sans": ["Manrope", "sans-serif"],
             },
             backgroundImage: {
