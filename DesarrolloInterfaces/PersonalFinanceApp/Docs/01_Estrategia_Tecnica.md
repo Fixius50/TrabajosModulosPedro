@@ -28,12 +28,18 @@ src/
   main.tsx
 ```
 
-## Estrategia de Datos (Fase Actual)
+## Estrategia de Datos (Implementado)
 
 1. **Lectura**: `StorageService` lee de `localStorage`. Si está vacío, carga de `src/data/initialData.json`.
 2. **Escritura**: Las mutaciones (añadir deuda, pagar cofre) actualizan el estado local y persisten inmediatamente en `localStorage`.
-3. **Sincronización (Futuro)**:
-    - Se implementará un `DataSyncService` para conectar este estado local con Supabase cuando haya conexión.
+3. **Sincronización**: ✅ **Implementado**
+    - `DataSyncService` actualiza precios de cripto/divisas cada 60s en segundo plano.
+    - Integración con CoinGecko API y Currency API.
+    - Cálculo automático de riqueza total (crypto holdings + gold balance).
+4. **Gamificación**: ✅ **Implementado**
+    - `GamificationService` gestiona XP, niveles y títulos.
+    - Sistema de notificaciones toast para feedback inmediato.
+    - Persistencia de stats de usuario en `localStorage`.
 
 ## Seguridad
 

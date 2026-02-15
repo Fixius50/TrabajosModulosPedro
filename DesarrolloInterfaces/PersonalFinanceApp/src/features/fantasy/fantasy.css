@@ -22,7 +22,7 @@
 
 /* Textures */
 .leather-texture {
-    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAiHb8VysQ0ynkk9XaQk7aV5DcavgYhUZ06veyKAsQfbdGiyupWJikBh_sKTVUo95mjsVBB6Ld88uQOa_l1_C1gHQOc0GICd4upXCQLeaF-ear7Y2TcyYh_d9uq8W1x1CaYh1qKc_kyLqKQUDN9DUQSJiWgi7ruMwhkbf93qGLsQWaPL46PuAJmK-nkNrbRbqiKDxckXrNV_5bUADMS0iZoRC-GMFP9DXm4Urb5DorXsi8eDuW35X_vUg0wMDUBWaLj88JdH2O_a2mk);
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAiHb8VysQ0ynkk9XaQk7aV5DcavgYhUZ06veyKAsQfbdGiyupWJikBh_sKTVUo95mjsVBB6Ld88uQOa_l1_C1gHQOc0GICd4upXCQLeaF-ear7Y2TcyYh_d9uq8W1x1CaYh1qKc_kyLqKQUDN9DUQSJiWgi7ruMwhkbf93qGLsQWaPL46PuAJmK-nkNrbRbqiKDxckXrNV_5bUADMS0iZoRC-GMFP9DXNrjtNqmfMoR-GmsT39uWYwvvCLvF5MjDe8gEeydGwYwjj5);
     background-repeat: repeat;
 }
 
@@ -33,20 +33,20 @@
 
 /* Effects */
 .iron-border {
-    box-shadow: inset 0 0 0 4px #3a3429, inset 0 0 15px rgba(0, 0, 0, 0.8);
-    border: 2px solid #5a5445;
+    box-shadow: inset 0 0 0 0.25rem #3a3429, inset 0 0 0.9375rem rgba(0, 0, 0, 0.8);
+    border: 0.125rem solid #5a5445;
 }
 
 .runic-glow {
-    text-shadow: 0 0 10px rgba(236, 182, 19, 0.6);
+    text-shadow: 0 0 0.625rem rgba(236, 182, 19, 0.6);
 }
 
 .rune-glow-box {
-    box-shadow: 0 0 25px 2px rgba(236, 182, 19, 0.4);
+    box-shadow: 0 0 1.5625rem 0.125rem rgba(236, 182, 19, 0.4);
 }
 
 .card-inner-shadow {
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 0 0.9375rem rgba(0, 0, 0, 0.8);
 }
 
 .vial-gradient {
@@ -83,7 +83,7 @@
     padding-right: 1.5rem;
     position: relative;
     z-index: 10;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.1);
 }
 
 .fantasy-card {
@@ -91,19 +91,19 @@
     /* stone-900/50 */
     border-radius: 0.75rem;
     padding: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.05);
 }
 
 /* Debt Tracker / Ancient Scroll Styles */
 .parchment-texture {
     background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDeVsDuAE_3aJJ9iAQnbUba2GJczzGZ4wAeuSFxkGFyTTXBJcG-PuMaR0RjpEhtuUYEiC1CpWM8rbjGvtPil4jYU_RELqdkxAUj9hpiPKndVC84ewqlhBbKFLJ4_1r3XlW6wnlAJR3XLikBDx3Z5yrdiBSpFkK-0Z5k66zexMSGR58HYBYmVa3S8zy1BXT7yWNhdJcqWSomCcj3sDx-bmPm9xHkFOzQ3XNrjtNqmfMoR-GmsT39uWYwvvCLvF5MjDe8gEeydGwYwjj5);
     background-repeat: repeat;
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1), 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 6.25rem rgba(0, 0, 0, 0.1), 0 0.625rem 1.875rem rgba(0, 0, 0, 0.5);
 }
 
 .burnt-edge {
     clip-path: polygon(2% 0%, 98% 1%, 100% 4%, 99% 96%, 97% 100%, 3% 99%, 0% 97%, 1% 5%);
-    border: 2px solid #5c4033;
+    border: 0.125rem solid #5c4033;
 }
 
 .dungeon-bg {
@@ -114,13 +114,13 @@
 
 .wax-seal {
     background: radial-gradient(circle at 30% 30%, #ff1a1a, #d41111, #8b0000);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4), inset 0 0.125rem 0.25rem rgba(255, 255, 255, 0.3);
 }
 
 .glow-green {
-    text-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+    text-shadow: 0 0 0.625rem rgba(46, 204, 113, 0.6);
 }
 
 .glow-red {
-    text-shadow: 0 0 10px rgba(212, 17, 17, 0.6);
+    text-shadow: 0 0 0.625rem rgba(212, 17, 17, 0.6);
 }

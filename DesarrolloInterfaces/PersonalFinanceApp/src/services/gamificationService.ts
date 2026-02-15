@@ -1,11 +1,6 @@
-// import { storageService } from './storageService'; // Commented out to test build
-// Local mock for now
-const storageService = {
-    getUserProfile: () => ({ stats: { wealthXP: 0, questsCompleted: 0, goldEarned: 0, netWorth: 0 }, title: 'Novice' }),
-    updateUserProfile: (_p: any) => { }
-};
+import { storageService } from './storageService';
 
-export class GamificationService {
+class GamificationService {
 
     // XP needed for next level: base * (level ^ exponent)
     // Simplified for MVP: Level = floor(XP / 1000) + 1
@@ -37,8 +32,8 @@ export class GamificationService {
         const newLevel = this.getLevel(profile.stats.wealthXP);
 
         if (newLevel > oldLevel) {
-            // profile.title = this.getTitleForLevel(newLevel); // Read-only in mock
-            this.showToast(`LEVEL UP! You are now a ${this.getTitleForLevel(newLevel)}`, 'gold');
+            profile.title = this.getTitleForLevel(newLevel);
+            this.showToast(`LEVEL UP! You are now a ${profile.title}`, 'gold');
         } else {
             this.showToast(`+${amount} XP (${source})`, 'blue');
         }
@@ -56,13 +51,34 @@ export class GamificationService {
     }
 
     private showToast(message: string, color: string) {
-        // Use variables to avoid unused warning
-        console.log(message, color);
+        // Simple DOM-based toast for MVP (avoids adding new dependencies like react-toastify right now)
         const toast = document.createElement('div');
         toast.className = `fixed bottom-24 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-2xl z-50 font-bold border-2 animate-bounce-in transition-all duration-500`;
-        // Styles omitted for brevity in test
+
+        if (color === 'gold') {
+            toast.style.background = 'linear-gradient(to right, #b8860b, #f4c025)';
+            toast.style.color = '#1a0f0a';
+            toast.style.borderColor = '#fff';
+            toast.innerHTML = `<span class="material-icons align-middle mr-2">stars</span> ${message}`;
+        } else if (color === 'yellow') {
+            toast.style.background = '#1a0f0a';
+            toast.style.color = '#f4c025';
+            toast.style.borderColor = '#f4c025';
+            toast.innerHTML = `<span class="material-icons align-middle mr-2">monetization_on</span> ${message}`;
+        } else if (color === 'blue') {
+            toast.style.background = '#1a0f0a';
+            toast.style.color = '#60a5fa';
+            toast.style.borderColor = '#60a5fa';
+            toast.innerHTML = `<span class="material-icons align-middle mr-2">auto_awesome</span> ${message}`;
+        }
+
         document.body.appendChild(toast);
-        setTimeout(() => document.body.removeChild(toast), 3000);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translate(-50%, 20px)';
+            setTimeout(() => document.body.removeChild(toast), 500);
+        }, 3000);
     }
 }
 

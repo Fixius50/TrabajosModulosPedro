@@ -107,31 +107,31 @@ export default function FinancialScore() {
                         <div className="relative z-20 w-48 h-48 rounded-full bg-gradient-to-b from-primary/20 via-primary/5 to-transparent border border-primary/30 flex flex-col items-center justify-center shadow-[0_0_2.5rem_rgba(244,192,37,0.2)] backdrop-blur-sm">
                             <div className="animate-pulse bg-primary/40 w-16 h-16 blur-2xl absolute rounded-full"></div>
                             <span className="text-5xl font-black text-primary tracking-tighter drop-shadow-lg">{currentAnimatedScore}</span>
-                            <span className="text-[10px] uppercase tracking-widest text-primary/60 font-bold mt-1">Excellent Standing</span>
+                            <span className="text-[0.625rem] uppercase tracking-widest text-primary/60 font-bold mt-1">Excellent Standing</span>
 
                             {/* Floating Ember Particles */}
-                            <div className="absolute top-1/4 w-1 h-1 bg-primary rounded-full blur-[1px] animate-pulse"></div>
-                            <div className="absolute bottom-1/4 left-1/4 w-1 h-1 bg-primary rounded-full blur-[1px] animate-bounce"></div>
+                            <div className="absolute top-1/4 w-1 h-1 bg-primary rounded-full blur-[0.0625rem] animate-pulse"></div>
+                            <div className="absolute bottom-1/4 left-1/4 w-1 h-1 bg-primary rounded-full blur-[0.0625rem] animate-bounce"></div>
                         </div>
                     </div>
 
                     {/* Net Worth Display */}
                     <div className="w-full mt-6 flex flex-col items-center">
-                        <span className="text-[10px] text-primary/60 uppercase font-bold tracking-widest mb-1">Total Net Worth</span>
+                        <span className="text-[0.625rem] text-primary/60 uppercase font-bold tracking-widest mb-1">Total Net Worth</span>
                         <span className="text-2xl font-black text-primary drop-shadow-[0_0_0.3125rem_rgba(244,192,37,0.5)]">
                             ${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
-                        <span className="text-[10px] text-primary/40 italic">(Updated Live)</span>
+                        <span className="text-[0.625rem] text-primary/40 italic">(Updated Live)</span>
                     </div>
 
                     {/* Level Up Experience Bar */}
                     <div className="w-full mt-6 px-4">
                         <div className="flex justify-between items-end mb-2">
                             <div className="flex flex-col">
-                                <span className="text-[10px] text-primary/60 uppercase font-bold tracking-widest">Current Tier</span>
+                                <span className="text-[0.625rem] text-primary/60 uppercase font-bold tracking-widest">Current Tier</span>
                                 <span className="text-sm font-bold text-primary">{data?.tier || 'Novice'}</span>
                             </div>
-                            <span className="text-[10px] text-primary/60">{data?.currentXP} / {data?.maxXP} XP</span>
+                            <span className="text-[0.625rem] text-primary/60">{data?.currentXP} / {data?.maxXP} XP</span>
                         </div>
                         <div className="w-full h-2 bg-black/40 rounded-full border border-primary/20 overflow-hidden">
                             <div className="h-full bg-gradient-to-r from-primary/60 to-primary w-[74%] shadow-[0_0_0.625rem_rgba(244,192,37,0.5)]"></div>
@@ -152,7 +152,7 @@ export default function FinancialScore() {
                                         "{insight.text}"
                                     </p>
                                     <div className="flex items-center gap-2 mt-2">
-                                        <span className="text-[10px] uppercase tracking-wider text-primary/50">Recommendation:</span>
+                                        <span className="text-[0.625rem] uppercase tracking-wider text-primary/50">Recommendation:</span>
                                         <span className="text-xs text-white bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{insight.recommendation}</span>
                                     </div>
                                 </div>

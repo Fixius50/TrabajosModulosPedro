@@ -14,7 +14,7 @@ import AddTransaction from './features/dashboard/AddTransaction';
 import DebtTracker from './features/fantasy/DebtTracker';
 import FinancialScore from './features/fantasy/FinancialScore';
 import SharedAccounts from './features/fantasy/SharedAccounts';
-// // import MercenaryContracts from './features/fantasy/ContractsFeature';
+import MercenaryContracts from './features/fantasy/MercenaryContracts';
 import TreasureChests from './features/fantasy/TreasureChests';
 import AdventurerLicense from './features/fantasy/AdventurerLicense';
 import { dataSyncService } from './services/dataSyncService';
@@ -45,7 +45,7 @@ function App() {
               <Route path="/debt-tracker" element={<DebtTracker />} />
               <Route path="/financial-score" element={<FinancialScore />} />
               <Route path="/shared-accounts" element={<SharedAccounts />} />
-              {/* <Route path="/mercenary-contracts" element={<MercenaryContracts />} /> */}
+              <Route path="/mercenary-contracts" element={<MercenaryContracts />} />
               <Route path="/treasure-chests" element={<TreasureChests />} />
               <Route path="/adventurer-license" element={<AdventurerLicense />} />
               <Route path="/profile" element={<h2>Profile</h2>} />

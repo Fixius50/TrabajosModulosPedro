@@ -34,7 +34,7 @@ export default function Dashboard() {
                     <h2 className="text-3xl font-bold">Dashboard</h2>
                     <p className="text-muted">Your financial overview</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[2px]">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-secondary p-[0.125rem]">
                     <img
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Felix`}
                         alt="Profile"

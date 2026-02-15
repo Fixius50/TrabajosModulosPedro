@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
 import { storageService } from '../../services/storageService';
-import { Contract } from '../../services/storageService';
+import type { Contract } from '../../services/storageService';
 import { gamificationService } from '../../services/gamificationService';
 
 export default function MercenaryContracts() {
@@ -24,7 +24,7 @@ export default function MercenaryContracts() {
         }
     };
 
-    const handlePayContract = (id: string, cost: number) => {
+    const handlePayContract = (_id: string, cost: number) => {
         if (!window.confirm(`Pay ${cost} GP to renew this contract?`)) return;
         gamificationService.awardXP(25, "Mercenary Paid");
         // In a real app, this would deduct gold. For now, it just awards XP.
@@ -58,7 +58,7 @@ export default function MercenaryContracts() {
                 <main className="relative z-10 flex-1 w-full overflow-y-auto no-scrollbar px-4 pb-20 pt-4">
                     <div className="bg-[#dcd3bc] rounded-t-sm shadow-[0_0.625rem_1.875rem_rgba(0,0,0,0.5),inset_0_0_6.25rem_rgba(139,69,19,0.15)] relative min-h-full px-5 py-8 text-stone-900 clip-path-jagged-bottom">
                         {/* Top Shadow Gradient */}
-                        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#101622] to-transparent z-10 opacity-40pointer-events-none"></div>
+                        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#101622] to-transparent z-10 opacity-40 pointer-events-none"></div>
 
                         <div className="space-y-10 relative z-20">
                             {contracts.map(contract => (

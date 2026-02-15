@@ -1,4 +1,4 @@
-import './fantasy.css';
+import '../fantasy/fantasy.css';
 // import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ export default function HeroHall() {
                 {/* Guild Mode Toggle */}
                 <div className="absolute top-8 left-6 flex items-center gap-3">
                     <div className="relative w-8 h-12 bg-black/40 border border-primary/20 rounded-md flex justify-center items-start pt-1">
-                        <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_#ecb613] relative z-10"></div>
+                        <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_0.625rem_#ecb613] relative z-10"></div>
                         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-primary/20"></div>
                     </div>
                     <span className="text-[0.625rem] uppercase tracking-widest text-primary/70 font-bold">Family Mode</span>
@@ -51,7 +51,7 @@ export default function HeroHall() {
                                         <h3 className="text-xl font-bold text-white/90">{profile.name}</h3>
                                     </div>
                                     <div className="w-full h-1.5 bg-black/60 rounded-full mb-3 overflow-hidden border border-white/5">
-                                        <div className="bg-primary h-full shadow-[0_0_8px_#ecb613]" style={{ width: profile.active ? '65%' : '20%' }}></div>
+                                        <div className="bg-primary h-full shadow-[0_0_0.5rem_#ecb613]" style={{ width: profile.active ? '65%' : '20%' }}></div>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="material-icons text-primary text-sm">monetization_on</span>
