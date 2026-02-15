@@ -15,19 +15,23 @@ export default function AdventurerLicense() {
         setProfile(storageService.getUserProfile());
     }, []);
 
-    const updateClass = (title: string) => {
-        if (profile) {
-            const updatedProfile = { ...profile, title };
-            storageService.updateUserProfile(updatedProfile);
-            setProfile(updatedProfile);
-        }
-    };
-
     const logout = () => {
         // Implement logout logic here
         console.log("Logging out...");
         navigate('/');
     };
+
+    const getRank = (xp: number) => {
+        if (xp >= 10000) return 'Platino I';
+        if (xp >= 5000) return 'Oro I';
+        if (xp >= 2500) return 'Oro II';
+        if (xp >= 1000) return 'Plata I';
+        if (xp >= 500) return 'Plata II';
+        return 'Bronce I';
+    };
+
+    const guildId = profile?.name ? `MER-${profile.name.substring(0, 3).toUpperCase()}-${new Date().getFullYear()}` : 'PENDING';
+    const rank = profile ? getRank(profile.stats.wealthXP) : '...';
 
     return (
         <div className="font-display text-primary/90 bg-[#0c0b06] min-h-screen flex justify-center items-center overflow-hidden relative selection:bg-amber-500/30">
@@ -38,8 +42,18 @@ export default function AdventurerLicense() {
 
             <div className="w-full max-w-md h-screen relative bg-[#0c0b06]/90 sm:h-[53.125rem] sm:rounded-3xl sm:border sm:border-primary/20 sm:shadow-2xl overflow-hidden flex flex-col backdrop-blur-md">
 
+                {/* Return Button */}
+                <div className="absolute top-4 left-4 z-20">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#16140d]/80 border border-primary/20 text-primary/80 hover:bg-primary/20 transition-all active:scale-95 backdrop-blur-sm"
+                    >
+                        <span className="material-symbols-outlined">arrow_back</span>
+                    </button>
+                </div>
+
                 {/* ID Card / License Container */}
-                <div className="m-6 mb-0 p-1 rounded-2xl bg-gradient-to-br from-primary/30 via-primary/5 to-transparent relative">
+                <div className="m-6 mt-16 mb-0 p-1 rounded-2xl bg-gradient-to-br from-primary/30 via-primary/5 to-transparent relative">
                     <div className="bg-[#110f0a] rounded-xl p-6 relative overflow-hidden border border-primary/10">
                         {/* Holofoil Effect overlay */}
                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30 pointer-events-none"></div>
@@ -53,7 +67,7 @@ export default function AdventurerLicense() {
                         <div className="flex items-center gap-5 relative z-10 mb-6">
                             <div className="w-24 h-24 rounded-full border-2 border-primary/40 p-1 bg-[#16140d] relative shadow-[0_0_1.25rem_rgba(244,192,37,0.15)]">
                                 <img
-                                    src={profile?.avatar}
+                                    src={profile?.avatar || "https://ui-avatars.com/api/?name=Adventurer&background=1c1917&color=f4c025"}
                                     alt="Avatar del Aventurero"
                                     className="w-full h-full rounded-full object-cover filter sepia-[0.2]"
                                 />
@@ -64,7 +78,7 @@ export default function AdventurerLicense() {
 
                             <div className="flex flex-col">
                                 <h2 className="text-2xl font-bold text-primary tracking-tight">{profile?.name || 'Aventurero'}</h2>
-                                <span className="text-sm text-stone-400 font-medium">{profile?.title}</span>
+                                <span className="text-sm text-stone-400 font-medium">{profile?.title || 'Novato'}</span>
                             </div>
                         </div>
 
@@ -73,11 +87,11 @@ export default function AdventurerLicense() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">ID de Gremio</span>
-                                    <span className="font-mono text-primary/80 text-sm">MER-8821-X</span>
+                                    <span className="font-mono text-primary/80 text-sm">{guildId}</span>
                                 </div>
                                 <div>
                                     <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">Rango</span>
-                                    <span className="font-mono text-primary/80 text-sm">Plata III</span>
+                                    <span className="font-mono text-primary/80 text-sm">{rank}</span>
                                 </div>
                             </div>
 
@@ -102,7 +116,7 @@ export default function AdventurerLicense() {
                                     <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">Oro Ganado</span>
                                 </div>
                                 <div className="bg-[#16140d] p-4 rounded-lg border border-primary/10 flex flex-col items-center gap-1">
-                                    <span className="text-2xl font-bold text-stone-300">{profile?.stats.questsCompleted}</span>
+                                    <span className="text-2xl font-bold text-stone-300">{profile?.stats.questsCompleted || 0}</span>
                                     <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">Misiones Completas</span>
                                 </div>
                             </div>
@@ -112,23 +126,20 @@ export default function AdventurerLicense() {
 
                 {/* Settings Menu */}
                 <div className="flex-1 p-6 space-y-2 overflow-y-auto no-scrollbar">
-                    <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">Sistema</h3>
+                    <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">Configuración del Gremio</h3>
 
                     {[
-                        { icon: 'manage_accounts', label: 'Cambiar Clase (Guardián)', action: () => updateClass('Guardián') },
-                        { icon: 'auto_fix_high', label: 'Cambiar Clase (Alquimista)', action: () => updateClass('Alquimista') },
                         {
                             icon: isStealth ? 'visibility' : 'visibility_off',
                             label: isStealth ? t('stealth_off') : t('stealth_on'),
                             action: toggleStealth,
                             active: isStealth
-                        },
-                        { icon: 'language', label: 'Lengua Común' },
+                        }
                     ].map((item, i) => (
                         <button
                             key={i}
                             onClick={item.action}
-                            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${item.active ? 'bg-primary/10 border-primary/30' : 'hover:bg-primary/5 border-transparent hover:border-primary/10'}`}
+                            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${item.active ? 'bg-primary/10 border-primary/30' : 'bg-[#16140d] hover:bg-primary/5 border-transparent hover:border-primary/10'}`}
                         >
                             <span className={`material-symbols-outlined transition-colors ${item.active ? 'text-primary' : 'text-primary/60 group-hover:text-primary'}`}>{item.icon}</span>
                             <span className={`flex-1 transition-colors ${item.active ? 'text-primary font-bold' : 'text-stone-300 group-hover:text-primary'}`}>{item.label}</span>
@@ -138,7 +149,7 @@ export default function AdventurerLicense() {
 
                     <button
                         onClick={logout}
-                        className="w-full flex items-center gap-4 p-4 rounded-xl hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-left group mt-6"
+                        className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-left group mt-6"
                     >
                         <span className="material-symbols-outlined text-red-400 group-hover:text-red-300 transition-colors">logout</span>
                         <span className="text-red-400 group-hover:text-red-300 transition-colors flex-1">Abandonar Misión</span>

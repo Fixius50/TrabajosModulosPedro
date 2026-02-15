@@ -1,26 +1,16 @@
-import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, Suspense } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './lib/queryClient';
-import { ProtectedLayout } from './components/ProtectedLayout';
 import { StealthProvider } from './context/StealthContext';
 import { dataSyncService } from './services/dataSyncService';
+import AnimatedRoutes from './components/AnimatedRoutes';
 import './lib/i18n';
 import './index.css';
 
 // Lazy load components for code splitting
-const GrimoireDashboard = lazy(() => import('./features/fantasy/GrimoireDashboard'));
-const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
-const HeroHall = lazy(() => import('./features/auth/HeroHall'));
-const AddTransaction = lazy(() => import('./features/dashboard/AddTransaction'));
-const TransactionHistory = lazy(() => import('./features/fantasy/TransactionHistory'));
-const MarketplaceScreen = lazy(() => import('./features/marketplace/MarketplaceScreen'));
-const DebtTracker = lazy(() => import('./features/fantasy/DebtTracker'));
-const FinancialScore = lazy(() => import('./features/fantasy/FinancialScore'));
-const SharedAccounts = lazy(() => import('./features/fantasy/SharedAccounts'));
-const MercenaryContracts = lazy(() => import('./features/fantasy/MercenaryContracts'));
-const TreasureChests = lazy(() => import('./features/fantasy/TreasureChests'));
-const AdventurerLicense = lazy(() => import('./features/fantasy/AdventurerLicense'));
+// Components are now loaded in AnimatedRoutes.tsx
+
 
 function App() {
   useEffect(() => {
@@ -51,25 +41,7 @@ function App() {
                 Cargando...
               </div>
             }>
-              <Routes>
-                <Route path="/login" element={<LoginScreen />} />
-                <Route path="/hero-hall" element={<HeroHall />} />
-
-                <Route element={<ProtectedLayout />}>
-                  <Route path="/" element={<GrimoireDashboard />} />
-                  <Route path="/app" element={<GrimoireDashboard />} />
-                  <Route path="/add-transaction" element={<AddTransaction />} />
-                  <Route path="/transactions" element={<TransactionHistory />} />
-                  <Route path="/marketplace" element={<MarketplaceScreen />} />
-                  <Route path="/debt-tracker" element={<DebtTracker />} />
-                  <Route path="/financial-score" element={<FinancialScore />} />
-                  <Route path="/shared-accounts" element={<SharedAccounts />} />
-                  <Route path="/mercenary-contracts" element={<MercenaryContracts />} />
-                  <Route path="/treasure-chests" element={<TreasureChests />} />
-                  <Route path="/adventurer-license" element={<AdventurerLicense />} />
-                  <Route path="/profile" element={<AdventurerLicense />} />
-                </Route>
-              </Routes>
+              <AnimatedRoutes />
             </Suspense>
           </BrowserRouter>
         </StealthProvider>

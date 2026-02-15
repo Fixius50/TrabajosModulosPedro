@@ -1,138 +1,204 @@
 import { useState, useEffect } from 'react';
-import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
-import { storageService } from '../../services/storageService';
-import type { Contract } from '../../services/storageService';
-import { gamificationService } from '../../services/gamificationService';
+import { ArrowLeft, Scroll, Plus, Trash2, Calendar } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+// storageService removed
+
+// Type for Contract (Subscription)
+interface Contract {
+    id: string;
+    name: string;
+    amount: number;
+    cycle: 'monthly' | 'yearly';
+    nextPayment: string; // ISO date
+    icon?: string;
+}
 
 export default function MercenaryContracts() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [contracts, setContracts] = useState<Contract[]>([]);
+    const [isAdding, setIsAdding] = useState(false);
 
+    // Form state
+    const [newName, setNewName] = useState('');
+    const [newAmount, setNewAmount] = useState('');
+    const [newCycle, setNewCycle] = useState<'monthly' | 'yearly'>('monthly');
+
+    // Load from storage
     useEffect(() => {
-        setContracts(storageService.getContracts());
+        const loadContracts = async () => {
+            // We use storageService generic 'user_settings' or a new store?
+            // Since we don't have a backend table for this yet, we simulate persistence
+            // via a specific localStorage key managed by storageService if extended, 
+            // or just direct localStorage for this prototype phase.
+            // Ideally, we'd add 'subscriptions' to the DB schema.
+            // For now: use localStorage 'mercenary_contracts'
+            const saved = localStorage.getItem('mercenary_contracts');
+            if (saved) {
+                setContracts(JSON.parse(saved));
+            }
+        };
+        loadContracts();
     }, []);
 
-    const handleTerminate = (id: string) => {
-        if (!window.confirm("Terminate this contract? The mercenary will leave.")) return;
-        const contract = contracts.find(c => c.id === id);
-        if (contract) {
-            const updated = { ...contract, status: 'Paused' as const };
-            storageService.updateContract(updated);
-            setContracts(storageService.getContracts());
-            gamificationService.awardXP(10, "Contract Terminated");
+    const saveContracts = (newContracts: Contract[]) => {
+        setContracts(newContracts);
+        localStorage.setItem('mercenary_contracts', JSON.stringify(newContracts));
+    };
+
+    const handleAdd = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newName || !newAmount) return;
+
+        const newContract: Contract = {
+            id: crypto.randomUUID(),
+            name: newName,
+            amount: parseFloat(newAmount),
+            cycle: newCycle,
+            nextPayment: new Date().toISOString(), // Mock next payment
+        };
+
+        saveContracts([...contracts, newContract]);
+        setIsAdding(false);
+        setNewName('');
+        setNewAmount('');
+    };
+
+    const handleDelete = (id: string) => {
+        if (confirm('¿Romper este contrato?')) {
+            saveContracts(contracts.filter(c => c.id !== id));
         }
     };
 
-    const handlePayContract = (_id: string, cost: number) => {
-        if (!window.confirm(`Pay ${cost} GP to renew this contract?`)) return;
-        gamificationService.awardXP(25, "Mercenary Paid");
-        // In a real app, this would deduct gold. For now, it just awards XP.
-    };
+    const totalMonthly = contracts.reduce((acc, c) => {
+        if (c.cycle === 'monthly') return acc + c.amount;
+        return acc + (c.amount / 12);
+    }, 0);
 
     return (
-        <div className="font-display text-slate-200 bg-[#101622] min-h-screen flex justify-center items-center overflow-hidden relative selection:bg-blue-500/30">
-            {/* Background Stone Layer */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#101622] via-[#0b0f19] to-[#101622]"></div>
-                {/* Subtle Glow */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[6.25rem] rounded-full"></div>
-            </div>
+        <div className="min-h-screen bg-[#0c0a09] text-stone-200 font-sans selection:bg-red-900/30 pb-24">
+            {/* Header */}
+            <header className="sticky top-0 z-10 bg-[#0c0a09]/95 backdrop-blur-md border-b border-[#292524] px-4 py-3 flex items-center gap-3 shadow-lg">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1917] hover:bg-[#292524] text-stone-400 transition-colors active:scale-95"
+                >
+                    <ArrowLeft size={18} />
+                </button>
+                <h1 className="text-lg font-bold bg-gradient-to-r from-red-500 to-orange-600 bg-clip-text text-transparent">
+                    {t('mercenary_contracts', 'Contratos Mercenarios')}
+                </h1>
+            </header>
 
-            {/* Mobile Container */}
-            <div className="relative w-full max-w-[24.375rem] h-[52.75rem] bg-[#101622] overflow-hidden shadow-2xl border-4 border-[#1a1a1a] flex flex-col items-center rounded-3xl">
+            <main className="p-4 space-y-6 max-w-md mx-auto w-full">
 
-                {/* Header Section */}
-                <header className="relative z-10 w-full px-6 pt-12 pb-6 text-center border-b border-white/5 bg-[#101622]/90 backdrop-blur-sm">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="absolute top-12 left-6 w-10 h-10 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center text-slate-400 hover:bg-white/10 transition-colors"
-                    >
-                        <span className="material-icons">arrow_back</span>
-                    </button>
-                    <h1 className="text-xl font-bold uppercase tracking-widest text-blue-500 mb-1 drop-shadow-[0_0_0.5rem_rgba(19,91,236,0.6)]">Grimorio Oscuro</h1>
-                    <h2 className="text-sm italic text-slate-400">Mercenary Contracts</h2>
-                </header>
+                {/* Visual Summary */}
+                <div className="fantasy-card bg-gradient-to-br from-[#1c1917] to-[#0c0a09] border-red-900/30 p-6 relative overflow-hidden">
+                    <div className="relative z-10">
+                        <span className="text-xs uppercase tracking-widest text-red-400 font-bold mb-1 block">Tributo Mensual Total</span>
+                        <div className="text-3xl font-black text-stone-200">
+                            {totalMonthly.toFixed(2)} <span className="text-sm text-stone-500 font-normal">/ mes</span>
+                        </div>
+                    </div>
+                    <Scroll className="absolute -right-4 -bottom-4 text-red-900/20 w-32 h-32" />
+                </div>
 
-                {/* The Parchment Scroll */}
-                <main className="relative z-10 flex-1 w-full overflow-y-auto no-scrollbar px-4 pb-20 pt-4">
-                    <div className="bg-[#dcd3bc] rounded-t-sm shadow-[0_0.625rem_1.875rem_rgba(0,0,0,0.5),inset_0_0_6.25rem_rgba(139,69,19,0.15)] relative min-h-full px-5 py-8 text-stone-900 clip-path-jagged-bottom">
-                        {/* Top Shadow Gradient */}
-                        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#101622] to-transparent z-10 opacity-40 pointer-events-none"></div>
+                {/* List */}
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-sm font-bold text-stone-400 uppercase tracking-wider">Contratos Activos</h2>
+                        <button
+                            onClick={() => setIsAdding(!isAdding)}
+                            className="text-xs bg-red-900/20 text-red-400 px-3 py-1 rounded hover:bg-red-900/40 transition-colors flex items-center gap-1"
+                        >
+                            <Plus size={14} /> Nuevo Pacto
+                        </button>
+                    </div>
 
-                        <div className="space-y-10 relative z-20">
+                    {isAdding && (
+                        <form onSubmit={handleAdd} className="fantasy-card p-4 animate-in fade-in slide-in-from-top-4 border-red-500/30">
+                            <div className="space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Nombre del Mercenario (ej. Netflix)"
+                                    className="w-full bg-[#0c0a09] border border-stone-800 rounded p-2 text-sm focus:border-red-500 outline-none transition-colors"
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    autoFocus
+                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        placeholder="Coste"
+                                        className="w-full bg-[#0c0a09] border border-stone-800 rounded p-2 text-sm focus:border-red-500 outline-none transition-colors"
+                                        value={newAmount}
+                                        onChange={(e) => setNewAmount(e.target.value)}
+                                    />
+                                    <select
+                                        className="bg-[#0c0a09] border border-stone-800 rounded p-2 text-sm focus:border-red-500 outline-none"
+                                        value={newCycle}
+                                        onChange={(e) => setNewCycle(e.target.value as any)}
+                                    >
+                                        <option value="monthly">Mensual</option>
+                                        <option value="yearly">Anual</option>
+                                    </select>
+                                </div>
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAdding(false)}
+                                        className="text-xs text-stone-500 hover:text-stone-300 px-3 py-2"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="text-xs bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors shadow-[0_0_10px_rgba(220,38,38,0.4)]"
+                                    >
+                                        Firmar Contrato
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    )}
+
+                    {contracts.length === 0 ? (
+                        <div className="text-center py-10 text-stone-600">
+                            <Scroll className="mx-auto w-10 h-10 mb-2 opacity-50" />
+                            <p className="text-sm">No tienes contratos activos.</p>
+                            <p className="text-xs">¡Eres libre!</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-3">
                             {contracts.map(contract => (
-                                <div key={contract.id} className="relative border-b border-stone-800/20 pb-6 last:border-0">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-stone-900/10 rounded-full flex items-center justify-center border border-stone-800/20">
-                                                <span className="material-icons text-stone-800 text-xl opacity-80">{contract.icon}</span>
-                                            </div>
-                                            <div>
-                                                <h3 className="text-stone-900 text-lg font-bold leading-none">{contract.name}</h3>
-                                                <p className="text-stone-700 text-xs italic mt-0.5">{contract.description}</p>
-                                            </div>
+                                <div key={contract.id} className="fantasy-card p-4 flex justify-between items-center group hover:border-red-500/30 transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded bg-[#1c1917] flex items-center justify-center border border-stone-800 text-stone-400">
+                                            {contract.name.charAt(0).toUpperCase()}
                                         </div>
-                                        <div className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase tracking-wider border ${contract.status === 'Active'
-                                            ? 'bg-blue-600/10 text-blue-800 border-blue-600/20'
-                                            : 'bg-stone-600/10 text-stone-600 border-stone-600/20'
-                                            }`}>
-                                            {contract.status}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-end pl-14">
                                         <div>
-                                            <p className="text-[0.625rem] uppercase text-stone-500 font-bold tracking-wider">Tribute</p>
-                                            <p className="text-xl font-black text-stone-900">{contract.cost} <span className="text-xs font-normal text-stone-600">GP / {contract.cycle}</span></p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[0.625rem] uppercase text-stone-500 font-bold tracking-wider">Next Reaping</p>
-                                            <p className="text-sm font-bold text-red-900/80">{contract.nextReaping}</p>
+                                            <h3 className="font-bold text-stone-200">{contract.name}</h3>
+                                            <p className="text-[10px] text-stone-500 uppercase tracking-wider flex items-center gap-1">
+                                                <Calendar size={10} /> {contract.cycle === 'monthly' ? 'Cada Luna' : 'Cada Año'}
+                                            </p>
                                         </div>
                                     </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="mt-4 flex justify-end gap-2">
-                                        {contract.status === 'Active' ? (
-                                            <>
-                                                <button
-                                                    onClick={() => handlePayContract(contract.id, contract.cost)}
-                                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-800 text-white rounded-sm shadow-md hover:bg-blue-700 transition-colors"
-                                                >
-                                                    <span className="material-icons text-xs">payments</span>
-                                                    <span className="text-[0.625rem] font-bold uppercase tracking-widest">Pay</span>
-                                                </button>
-                                                <button
-                                                    onClick={() => handleTerminate(contract.id)}
-                                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8b0000] text-white rounded-sm shadow-md hover:bg-[#6b0000] transition-colors group"
-                                                >
-                                                    <span className="material-icons text-xs opacity-70 group-hover:rotate-12 transition-transform">broken_image</span>
-                                                    <span className="text-[0.625rem] font-bold uppercase tracking-widest">Terminate</span>
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <button
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-500 text-white rounded-sm opacity-50 cursor-not-allowed"
-                                                disabled
-                                            >
-                                                <span className="text-[0.625rem] font-bold uppercase tracking-widest">Paused</span>
-                                            </button>
-                                        )}
+                                    <div className="flex items-center gap-4">
+                                        <span className="font-mono font-bold text-red-400">-{contract.amount}</span>
+                                        <button
+                                            onClick={() => handleDelete(contract.id)}
+                                            className="text-stone-600 hover:text-red-500 transition-colors p-2"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                </main>
-
-                {/* New Contract Button */}
-                <div className="absolute bottom-6 right-6 z-30">
-                    <button className="w-14 h-14 rounded-full bg-blue-700 text-white shadow-[0_0_1.25rem_rgba(19,91,236,0.5)] flex items-center justify-center hover:bg-blue-600 hover:scale-105 transition-all border border-blue-400/30">
-                        <span className="material-icons text-2xl">add</span>
-                    </button>
+                    )}
                 </div>
-            </div>
+            </main>
         </div>
     );
 }
