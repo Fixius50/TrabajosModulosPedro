@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './lib/queryClient';
 import { ProtectedLayout } from './components/ProtectedLayout';
+import { StealthProvider } from './context/StealthContext';
 import './lib/i18n';
 import './index.css';
 
@@ -34,39 +35,41 @@ function App() {
   return (
     <QueryProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100vh',
-              background: '#0f172a',
-              color: '#8b5cf6',
-              fontSize: '1.25rem'
-            }}>
-              Cargando...
-            </div>
-          }>
-            <Routes>
-              <Route path="/login" element={<LoginScreen />} />
-              <Route path="/hero-hall" element={<HeroHall />} />
+        <StealthProvider>
+          <BrowserRouter>
+            <Suspense fallback={
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                background: '#0f172a',
+                color: '#8b5cf6',
+                fontSize: '1.25rem'
+              }}>
+                Cargando...
+              </div>
+            }>
+              <Routes>
+                <Route path="/login" element={<LoginScreen />} />
+                <Route path="/hero-hall" element={<HeroHall />} />
 
-              <Route element={<ProtectedLayout />}>
-                <Route path="/" element={<GrimoireDashboard />} />
-                <Route path="/app" element={<GrimoireDashboard />} />
-                <Route path="/add-transaction" element={<AddTransaction />} />
-                <Route path="/debt-tracker" element={<DebtTracker />} />
-                <Route path="/financial-score" element={<FinancialScore />} />
-                <Route path="/shared-accounts" element={<SharedAccounts />} />
-                <Route path="/mercenary-contracts" element={<MercenaryContracts />} />
-                <Route path="/treasure-chests" element={<TreasureChests />} />
-                <Route path="/adventurer-license" element={<AdventurerLicense />} />
-                <Route path="/profile" element={<h2>Profile</h2>} />
-              </Route>
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+                <Route element={<ProtectedLayout />}>
+                  <Route path="/" element={<GrimoireDashboard />} />
+                  <Route path="/app" element={<GrimoireDashboard />} />
+                  <Route path="/add-transaction" element={<AddTransaction />} />
+                  <Route path="/debt-tracker" element={<DebtTracker />} />
+                  <Route path="/financial-score" element={<FinancialScore />} />
+                  <Route path="/shared-accounts" element={<SharedAccounts />} />
+                  <Route path="/mercenary-contracts" element={<MercenaryContracts />} />
+                  <Route path="/treasure-chests" element={<TreasureChests />} />
+                  <Route path="/adventurer-license" element={<AdventurerLicense />} />
+                  <Route path="/profile" element={<h2>Profile</h2>} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </StealthProvider>
       </AuthProvider>
     </QueryProvider>
   );

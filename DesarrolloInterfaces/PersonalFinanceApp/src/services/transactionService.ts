@@ -11,7 +11,7 @@ export interface Transaction {
     created_at: string;
 }
 
-export const transactionService = {
+export class TransactionService {
     async getTransactions() {
         const { data, error } = await supabase
             .from('transactions')
@@ -23,7 +23,7 @@ export const transactionService = {
 
         if (error) throw error;
         return data;
-    },
+    }
 
     async createTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>) {
         const { data, error } = await supabase
@@ -34,7 +34,7 @@ export const transactionService = {
 
         if (error) throw error;
         return data;
-    },
+    }
 
     async deleteTransaction(id: string) {
         const { error } = await supabase
@@ -43,7 +43,7 @@ export const transactionService = {
             .eq('id', id);
 
         if (error) throw error;
-    },
+    }
 
     async uploadAttachment(file: File) {
         const fileExt = file.name.split('.').pop();
@@ -56,9 +56,11 @@ export const transactionService = {
 
         if (error) throw error;
         return filePath;
-    },
+    }
 
     getAttachmentUrl(path: string) {
         return supabase.storage.from('attachments').getPublicUrl(path).data.publicUrl;
     }
-};
+}
+
+export const transactionService = new TransactionService();

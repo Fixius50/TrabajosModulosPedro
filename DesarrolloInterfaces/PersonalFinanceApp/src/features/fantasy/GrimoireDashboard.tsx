@@ -1,15 +1,31 @@
 import './fantasy.css';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { transactionService } from '../../services/transactionService';
 import { useMarketData } from '../../hooks/useMarketData';
 import QuickAddMenu from './QuickAddMenu';
+import { useStealth } from '../../context/StealthContext';
+import { storageService } from '../../services/storageService';
+import { oracleService } from '../../services/oracleService';
 
 export default function GrimoireDashboard() {
+    const { t } = useTranslation();
     const market = useMarketData();
+    const { formatAmount } = useStealth();
     const { data: transactions } = useQuery({
         queryKey: ['transactions'],
         queryFn: transactionService.getTransactions,
+    });
+
+    const { data: budgets } = useQuery({
+        queryKey: ['budgets'],
+        queryFn: () => storageService.getBudgets(),
+    });
+
+    const { data: visions } = useQuery({
+        queryKey: ['oracle_visions'],
+        queryFn: () => oracleService.getVisions(),
     });
 
     const totalBalance = transactions?.reduce((acc: number, curr: any) => {
@@ -30,8 +46,8 @@ export default function GrimoireDashboard() {
 
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-primary runic-glow uppercase italic">Dashboard</h1>
-                            <p className="text-xs text-stone-400 uppercase tracking-widest mt-1">Personal Finance</p>
+                            <h1 className="text-3xl font-bold tracking-tight text-primary runic-glow uppercase italic">{t('dashboard')}</h1>
+                            <p className="text-xs text-stone-400 uppercase tracking-widest mt-1">Finanzas Personales</p>
                         </div>
                         <Link to="/adventurer-license" className="w-12 h-12 rounded-lg bg-stone-800 border border-primary/30 flex items-center justify-center hover:bg-stone-700 transition-colors">
                             <span className="material-icons text-primary">account_circle</span>
@@ -46,7 +62,7 @@ export default function GrimoireDashboard() {
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Total Balance
+                            {t('net_worth')}
                         </h2>
                         <div className="relative fantasy-card h-48 overflow-hidden">
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -59,9 +75,9 @@ export default function GrimoireDashboard() {
                                 </svg>
                             </div>
                             <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                                <span className="text-stone-500 text-xs uppercase tracking-tighter">Current Net Worth</span>
+                                <span className="text-stone-500 text-xs uppercase tracking-tighter">{t('current_net_worth')}</span>
                                 <div className="text-4xl font-bold text-white tracking-widest my-1">
-                                    €{totalBalance.toFixed(2)}
+                                    {formatAmount(totalBalance)}
                                 </div>
                             </div>
                         </div>
@@ -71,20 +87,47 @@ export default function GrimoireDashboard() {
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Budgets
+                            {t('budgets')}
                         </h2>
                         <div className="grid grid-cols-3 gap-4">
-                            {[
-                                { label: 'Food', color: 'bg-mana-blue', fill: '70%' },
-                                { label: 'Home', color: 'bg-emerald-500', fill: '40%' },
-                                { label: 'Leisure', color: 'bg-orange-500', fill: '90%' }
-                            ].map((vial, i) => (
-                                <div key={i} className="flex flex-col items-center gap-2">
-                                    <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
-                                        <div className={`absolute bottom-0 left-0 right-0 ${vial.color} opacity-80 transition-all duration-1000 vial-gradient`} style={{ height: vial.fill }}></div>
-                                        <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                            {budgets?.slice(0, 3).map((budget) => {
+                                const fillPercent = Math.min((budget.spent / budget.limit) * 100, 100);
+                                const isWarning = fillPercent > 80;
+                                const colorClass = isWarning ? 'bg-orange-500' : 'bg-mana-blue';
+
+                                return (
+                                    <div key={budget.id} className="flex flex-col items-center gap-2">
+                                        <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
+                                            <div
+                                                className={`absolute bottom-0 left-0 right-0 ${colorClass} opacity-80 transition-all duration-1000 vial-gradient`}
+                                                style={{ height: `${fillPercent}%` }}
+                                            ></div>
+                                            <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                                        </div>
+                                        <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60 truncate w-full text-center">{budget.name}</span>
                                     </div>
-                                    <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60">{vial.label}</span>
+                                );
+                            })}
+                        </div>
+                    </section>
+
+                    {/* Oracle Visions */}
+                    <section>
+                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
+                            <span className="w-2 h-2 bg-primary rounded-full"></span>
+                            {t('oracle_visions')}
+                        </h2>
+                        <div className="grid grid-cols-1 gap-4">
+                            {visions?.map((vision, idx) => (
+                                <div key={idx} className="fantasy-card p-4 relative overflow-hidden group">
+                                    <div className={`absolute top-0 right-0 w-1 h-full ${vision.trend === 'rising' ? 'bg-emerald-500' : vision.trend === 'falling' ? 'bg-red-500' : 'bg-stone-500'}`}></div>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="text-[0.625rem] uppercase tracking-widest text-stone-500 font-bold">{vision.timeframe} Projection</span>
+                                        <span className={`text-sm font-mono font-bold ${vision.trend === 'rising' ? 'text-emerald-400' : vision.trend === 'falling' ? 'text-red-400' : 'text-stone-300'}`}>
+                                            {formatAmount(vision.projectedBalance)}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-stone-300 italic">"{vision.insight}"</p>
                                 </div>
                             ))}
                         </div>
@@ -94,7 +137,7 @@ export default function GrimoireDashboard() {
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Guild Tools
+                            {t('guild_tools')}
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
                             <Link to="/debt-tracker" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
@@ -158,7 +201,7 @@ export default function GrimoireDashboard() {
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Market Data
+                            {t('market_data')}
                         </h2>
                         <div className="fantasy-card flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap py-3">
                             {/* Crypto Ticker */}
@@ -183,7 +226,7 @@ export default function GrimoireDashboard() {
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            Recent Transactions
+                            {t('recent_scrolls')}
                         </h2>
                         <div className="space-y-3">
                             {transactions?.map((t: any) => (
@@ -198,7 +241,7 @@ export default function GrimoireDashboard() {
                                         </div>
                                     </div>
                                     <span className={`font-mono font-bold ${t.categories?.type === 'expense' ? 'text-stone-300' : 'text-primary'}`}>
-                                        {t.categories?.type === 'expense' ? '-' : '+'} €{t.amount}
+                                        {t.categories?.type === 'expense' ? '-' : '+'} {formatAmount(t.amount, '')}
                                     </span>
                                 </div>
                             ))}

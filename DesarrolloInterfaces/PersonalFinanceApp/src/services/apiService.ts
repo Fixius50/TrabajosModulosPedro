@@ -14,8 +14,7 @@ const CACHE_DURATION = {
     FOREX: 24 * 60 * 60 * 1000 // 24 hours
 };
 
-export const apiService = {
-
+export class ApiService {
     async getCryptoPrices(ids: string[] = ['bitcoin', 'ethereum', 'solana'], currency: string = 'eur') {
         const cacheKey = `${CACHE_KEYS.CRYPTO}_${currency}`;
         const cached = localStorage.getItem(cacheKey);
@@ -52,7 +51,7 @@ export const apiService = {
             if (cached) return JSON.parse(cached).data;
             return {};
         }
-    },
+    }
 
     async getForexRates(base: string = 'EUR') {
         const cacheKey = `${CACHE_KEYS.FOREX}_${base}`;
@@ -89,4 +88,6 @@ export const apiService = {
             return null;
         }
     }
-};
+}
+
+export const apiService = new ApiService();

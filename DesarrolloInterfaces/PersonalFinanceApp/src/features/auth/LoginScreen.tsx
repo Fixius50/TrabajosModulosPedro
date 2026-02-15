@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -21,9 +23,13 @@ export default function LoginScreen() {
                 const { error } = await supabase.auth.signUp({
                     email,
                     password,
+                    options: {
+                        emailRedirectTo: window.location.origin
+                    }
                 });
                 if (error) throw error;
-                alert('Check your email for the login link!');
+                // Redirect directly to dashboard assuming user followed the Supabase config instruction
+                navigate('/');
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -35,6 +41,22 @@ export default function LoginScreen() {
         } catch (err: any) {
             setError(err.message);
         } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleOAuth = async (provider: 'google') => {
+        setLoading(true);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider,
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            if (error) throw error;
+        } catch (err: any) {
+            setError(err.message);
             setLoading(false);
         }
     };
@@ -53,10 +75,10 @@ export default function LoginScreen() {
                 </div>
 
                 <h2 className="text-[1.875rem] font-bold text-center mb-[0.5rem]">
-                    {isSignUp ? 'Create Account' : 'Welcome Back'}
+                    {isSignUp ? t('sign_up') : t('login_welcome')}
                 </h2>
                 <p className="text-muted text-center mb-[2rem]">
-                    Manage your finances with clarity and style.
+                    {t('login_subtitle')}
                 </p>
 
                 {error && (
@@ -67,19 +89,19 @@ export default function LoginScreen() {
 
                 <form onSubmit={handleAuth} className="space-y-[1.25rem]">
                     <div>
-                        <label className="block text-sm font-medium text-muted mb-[0.25rem]">Email</label>
+                        <label className="block text-sm font-medium text-muted mb-[0.25rem]">{t('email')}</label>
                         <input
                             type="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full bg-white/5 border border-white/10 rounded-xl px-[1rem] py-[0.75rem] text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-white/20"
-                            placeholder="you@example.com"
+                            placeholder="tu@ejemplo.com"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-muted mb-[0.25rem]">Password</label>
+                        <label className="block text-sm font-medium text-muted mb-[0.25rem]">{t('password')}</label>
                         <input
                             type="password"
                             required
@@ -95,21 +117,39 @@ export default function LoginScreen() {
                         disabled={loading}
                         className="w-full btn btn-primary mt-[1rem] group"
                     >
-                        {loading ? 'Processing...' : (
+                        {loading ? t('processing') : (
                             <>
-                                {isSignUp ? 'Sign Up' : 'Sign In'}
+                                {isSignUp ? t('sign_up') : t('sign_in')}
                                 <ArrowRight className="w-[1.125rem] h-[1.125rem] group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
                     </button>
                 </form>
 
+                <div className="relative my-8 text-center text-sm">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-white/10"></div>
+                    </div>
+                    <span className="relative px-4 bg-[#0f172a] text-stone-500 uppercase tracking-widest text-[0.625rem]">O accede con</span>
+                </div>
+
+                <div className="mt-8">
+                    <button
+                        onClick={() => handleOAuth('google')}
+                        disabled={loading}
+                        className="w-full flex items-center justify-center gap-3 p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all group"
+                    >
+                        <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+                        <span className="text-sm font-bold text-stone-300 group-hover:text-white">Acceder con Google</span>
+                    </button>
+                </div>
+
                 <div className="mt-[1.5rem] text-center">
                     <button
                         onClick={() => setIsSignUp(!isSignUp)}
                         className="text-sm text-muted hover:text-white transition-colors"
                     >
-                        {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                        {isSignUp ? t('has_account') : t('no_account')}
                     </button>
                 </div>
             </div>
