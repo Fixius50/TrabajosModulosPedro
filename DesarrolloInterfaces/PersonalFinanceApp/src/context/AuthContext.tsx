@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { storageService } from '../services/storageService';
 
 interface AuthContextType {
     session: Session | null;
@@ -27,6 +28,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // Init storage
+            if (session?.user) {
+                storageService.init(session.user.id);
+            } else {
+                storageService.init('guest');
+            }
         });
 
         // Listen for auth changes
@@ -34,6 +42,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // Update storage
+            if (session?.user) {
+                storageService.init(session.user.id);
+            } else {
+                storageService.init('guest');
+            }
         });
 
         return () => subscription.unsubscribe();
@@ -41,6 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const signOut = async () => {
         await supabase.auth.signOut();
+        storageService.init('guest');
     };
 
     return (

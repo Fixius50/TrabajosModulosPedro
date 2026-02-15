@@ -23,7 +23,7 @@ export default function QuickAddMenu() {
     };
 
     return (
-        <div className="fixed bottom-8 right-6 z-50 flex items-end justify-end pointer-events-none">
+        <div className="fixed bottom-24 right-6 z-[110] flex items-end justify-end pointer-events-none">
 
             {/* Circular Menu Items */}
             <div className={`absolute bottom-2 right-2 transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>

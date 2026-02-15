@@ -44,12 +44,26 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 
 ---
 
+### ✅ Phase 20: Deuda Técnica y Estandarización (COMPLETADO)
+
+- [x] **Refactor**: Estandarización de interfaces `Contract` en toda la app.
+- [x] **Storage**: Migración de `MercenaryContracts` y `SharedAccounts` a `StorageService`.
+- [x] **CRUD**: Verificación de consistencia en create/read/update/delete.
+
+### ✅ Phase 21: Privacidad y Multi-usuario (COMPLETADO)
+
+- [x] **Aislamiento de Datos**: Soporte real para múltiples usuarios en el mismo dispositivo (Claves dinámicas).
+- [x] **Borrado de Cuenta**: Funcionalidad de eliminación de datos locales y cierre de sesión ("Zona de Peligro").
+- [x] **Seguridad**: Integración de `AuthContext` con inicialización de almacenamiento seguro.
+
+---
+
 ## 🚀 Próxima Fase
 
-### ⏳ Phase 20: Post-Lanzamiento y Mantenimiento
+### ⏳ Phase 22: Post-Lanzamiento y Expansión
 
 - [ ] **Versión Móvil Nativa**: Empaquetado con Capacitor para iOS/Android.
-- [ ] **Modo Multijugador Real**: Gremios con múltiples usuarios en tiempo real.
+- [ ] **Modo Multijugador Real**: Gremios con múltiples usuarios en tiempo real (Sincronización Supabase DB).
 - [ ] **Integración Bancaria**: Conexión con APIs bancarias (PSD2/Nordigen).
 - [ ] **Exportación de Datos**: PDF/CSV de reportes financieros.
 
@@ -57,7 +71,7 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 
 ## 📊 Métricas del Proyecto (Actualizadas)
 
-### Features Implementadas (19/19)
+### Features Implementadas (21/21)
 
 - ✅ Autenticación + Google OAuth
 - ✅ Dashboard + Glassmorphism UI
@@ -65,6 +79,8 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - ✅ Gestión de Deudas + Suscripciones
 - ✅ Localización (ES) + Multi-moneda
 - ✅ PWA + Offline Support
+- ✅ Multi-usuario Local + Privacidad (GDPR Friendly)
+- ✅ Estandarización de Código y Estabilidad
 
 ---
 
@@ -75,11 +91,12 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - **Framework**: React 19.2.0
 - **Build Tool**: Vite 7.3.1
 - **Styling**: Tailwind CSS + Framer Motion
-- **Icons**: Lucide React
+- **Icons**: Lucide React + Material Symbols
 
 ### Backend & Data
 
 - **BaaS**: Supabase (Auth, DB, Storage, RLS)
+- **Local Persistence**: Custom StorageService (JSON/LocalStorage) with Multi-tenancy
 - **State**: React Query + Context API
 - **i18n**: i18next
 
@@ -88,16 +105,16 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 ## 📈 Progreso General
 
 ```
-Phase 1-15:  ████████████████████ 100%
-Phase 16-19: ████████████████████ 100%
-Phase 20:    ░░░░░░░░░░░░░░░░░░░░   0%
+Phase 1-19:  ████████████████████ 100%
+Phase 20-21: ████████████████████ 100%
+Phase 22:    ░░░░░░░░░░░░░░░░░░░░   0%
 
-TOTAL:       ██████████████████░░  95%
+TOTAL:       ███████████████████░  98%
 ```
 
 ---
 
 **Última actualización**: 2026-02-16
-**Versión**: 1.0.0
+**Versión**: 1.1.0 (Privacy Update)
 **Estado**: Production Ready 🚀
 **Autor**: Roberto Monedero Alonso

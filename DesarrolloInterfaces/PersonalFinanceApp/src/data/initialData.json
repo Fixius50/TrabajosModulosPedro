@@ -1,187 +1,36 @@
 {
-    "debts": [
-        {
-            "id": "1",
-            "name": "Malfas the Sage",
-            "role": "Alchemy Debt",
-            "amount": 1450,
-            "type": "owed_to_me",
-            "dueDate": "3 Days Past"
-        },
-        {
-            "id": "2",
-            "name": "Shadow Merchant",
-            "role": "Blood Contract",
-            "amount": 500,
-            "type": "i_owe",
-            "dueDate": "Due at Eclipse"
-        },
-        {
-            "id": "3",
-            "name": "Borg the Mercenary",
-            "role": "Safe Passage",
-            "amount": 50,
-            "type": "i_owe",
-            "dueDate": "Pending"
-        },
-        {
-            "id": "4",
-            "name": "The Ferryman",
-            "role": "Passage Toll",
-            "amount": 1,
-            "type": "i_owe",
-            "dueDate": "Eternal Debt"
-        }
-    ],
-    "contracts": [
-        {
-            "id": "1",
-            "name": "Bard Guild",
-            "description": "Music & Melodies",
-            "cost": 15,
-            "cycle": "Moon",
-            "nextReaping": "In 3 days",
-            "status": "Active",
-            "icon": "music_note"
-        },
-        {
-            "id": "2",
-            "name": "Minstrel Service",
-            "description": "Streaming Arts",
-            "cost": 12,
-            "cycle": "Moon",
-            "nextReaping": "In 12 days",
-            "status": "Active",
-            "icon": "theater_comedy"
-        },
-        {
-            "id": "3",
-            "name": "Cartographer Guild",
-            "description": "Maps & Navigation",
-            "cost": 8,
-            "cycle": "Moon",
-            "nextReaping": "Tomorrow",
-            "status": "Paused",
-            "icon": "map"
-        },
-        {
-            "id": "4",
-            "name": "Owl Post",
-            "description": "Fast Delivery",
-            "cost": 25,
-            "cycle": "Sun",
-            "nextReaping": "In 20 days",
-            "status": "Active",
-            "icon": "mail"
-        }
-    ],
+    "debts": [],
+    "contracts": [],
     "guild": {
-        "balance": 12840,
+        "balance": 0,
         "members": [
             {
                 "id": "1",
                 "name": "You",
                 "role": "Leader",
                 "avatar": "https://ui-avatars.com/api/?name=You&background=ecb613&color=000"
-            },
-            {
-                "id": "2",
-                "name": "Alric",
-                "role": "Member",
-                "avatar": "https://ui-avatars.com/api/?name=Alric&background=2d89ef&color=fff"
-            },
-            {
-                "id": "3",
-                "name": "Elara",
-                "role": "Member",
-                "avatar": "https://ui-avatars.com/api/?name=Elara&background=7b1d1d&color=fff"
-            },
-            {
-                "id": "4",
-                "name": "Thorne",
-                "role": "Member",
-                "avatar": "https://ui-avatars.com/api/?name=Thorne&background=3a3429&color=fff"
             }
         ],
-        "tithes": [
-            {
-                "id": "101",
-                "memberId": "2",
-                "amount": 50,
-                "date": "Today",
-                "note": "Dungeon Loot"
-            },
-            {
-                "id": "102",
-                "memberId": "1",
-                "amount": 200,
-                "date": "Yesterday",
-                "note": "Quest Reward"
-            },
-            {
-                "id": "103",
-                "memberId": "3",
-                "amount": 25,
-                "date": "2 days ago",
-                "note": "Crafting Sales"
-            }
-        ]
+        "tithes": []
     },
     "financialScore": {
-        "currentScore": 742,
-        "tier": "Master Alchemist",
-        "maxXP": 800,
-        "currentXP": 742,
-        "insights": [
-            {
-                "text": "Thy treasury grows, young master. The hoarding of gold has increased by 15% this moon cycle. Beware the temptations of the tavern, for they drain thy pouch most swiftly.",
-                "recommendation": "Reduce 'Leisure' by 50 GP"
-            }
-        ]
+        "currentScore": 0,
+        "tier": "Novice",
+        "maxXP": 1000,
+        "currentXP": 0,
+        "insights": []
     },
-    "budgets": [
-        {
-            "id": "1",
-            "name": "Provisiones",
-            "limit": 600,
-            "spent": 450,
-            "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
-            "isOpen": false
-        },
-        {
-            "id": "2",
-            "name": "Armería",
-            "limit": 1000,
-            "spent": 200,
-            "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
-            "isOpen": false
-        },
-        {
-            "id": "3",
-            "name": "Expediciones",
-            "limit": 800,
-            "spent": 750,
-            "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
-            "isOpen": true
-        },
-        {
-            "id": "4",
-            "name": "Taberna",
-            "limit": 300,
-            "spent": 50,
-            "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
-            "isOpen": false
-        }
-    ],
+    "budgets": [],
     "userProfile": {
-        "name": "Roberto Monedero",
-        "title": "Lvl 5 Merchant",
-        "avatar": "https://ui-avatars.com/api/?name=Roberto+Monedero&background=0c0b06&color=f4c025&size=256",
+        "name": "Adventurer",
+        "title": "Novice",
+        "avatar": "",
+        "currency": "EUR",
         "stats": {
-            "wealthXP": 3450,
-            "maxXP": 5000,
-            "goldEarned": 12450,
-            "questsCompleted": 42,
+            "wealthXP": 0,
+            "maxXP": 1000,
+            "goldEarned": 0,
+            "questsCompleted": 0,
             "netWorth": 0
         }
     }

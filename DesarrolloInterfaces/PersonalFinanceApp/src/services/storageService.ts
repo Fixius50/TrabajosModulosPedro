@@ -73,8 +73,23 @@ export interface UserProfile {
     };
 }
 
-// Storage Key
-const STORAGE_KEY = 'grimoire_data_v1';
+// Storage Key Prefix
+const STORAGE_KEY_PREFIX = 'grimoire_data_';
+
+// Shared Accounts Types
+export interface SharedTransaction {
+    id: string;
+    who: string;
+    amount: number;
+    description: string;
+    date: string;
+}
+
+export interface SharedMember {
+    id: string;
+    name: string;
+    balance: number;
+}
 
 // Full Storage Interface
 interface StorageData {
@@ -84,49 +99,109 @@ interface StorageData {
     guild: GuildData;
     financialScore: FinancialScoreData;
     budgets: BudgetChest[];
+    sharedMembers: SharedMember[];
+    sharedTransactions: SharedTransaction[];
 }
 
 class StorageService {
     private data: StorageData;
+    private currentUserId: string = 'guest';
 
     constructor() {
-        // Initialize from LocalStorage or fall back to initialData.json
-        const stored = localStorage.getItem(STORAGE_KEY);
+        // Default init
+        this.data = JSON.parse(JSON.stringify(initialData)) as StorageData;
+        this.tryLoadFromDefault();
+    }
+
+    private tryLoadFromDefault() {
+        const stored = localStorage.getItem('grimoire_data_v1');
         if (stored) {
             this.data = JSON.parse(stored);
-            // Migration: Ensure netWorth exists
-            if (this.data.userProfile && this.data.userProfile.stats && typeof this.data.userProfile.stats.netWorth === 'undefined') {
-                this.data.userProfile.stats.netWorth = 0;
-            }
-            // Migration: Ensure currency exists
-            if (this.data.userProfile && !this.data.userProfile.currency) {
-                this.data.userProfile.currency = 'EUR';
-            }
-            if (!this.data.budgets) {
-                this.data.budgets = JSON.parse(JSON.stringify(initialData.budgets || []));
-            }
-        } else {
-            this.data = JSON.parse(JSON.stringify(initialData)) as StorageData; // Deep copy
-
-            // Initialize missing fields for new installs
-            if (!this.data.userProfile.currency) {
-                this.data.userProfile.currency = 'EUR';
-            }
-
-            this.save();
+            this.performMigrations();
         }
     }
 
+    init(userId: string) {
+        this.currentUserId = userId;
+        this.loadData();
+    }
+
+    private getStorageKey(): string {
+        // If guest, maybe stick to 'v1' for backward compat? 
+        // Or migrate guest to 'grimoire_data_guest'?
+        // Let's use standard pattern:
+        return `${STORAGE_KEY_PREFIX}${this.currentUserId}`;
+    }
+
+    private loadData() {
+        const key = this.getStorageKey();
+        const stored = localStorage.getItem(key);
+
+        if (stored) {
+            this.data = JSON.parse(stored);
+            this.performMigrations();
+        } else {
+            // Check if we have legacy data to migrate (only for first user or guest?)
+            // For now, new users get fresh data
+            this.initializeNewData();
+        }
+    }
+
+    private performMigrations() {
+        // Migration: Ensure netWorth exists
+        if (this.data.userProfile && this.data.userProfile.stats && typeof this.data.userProfile.stats.netWorth === 'undefined') {
+            this.data.userProfile.stats.netWorth = 0;
+        }
+        // Migration: Ensure currency exists
+        if (this.data.userProfile && !this.data.userProfile.currency) {
+            this.data.userProfile.currency = 'EUR';
+        }
+        if (!this.data.budgets) {
+            this.data.budgets = JSON.parse(JSON.stringify(initialData.budgets || []));
+        }
+        // Migration: Ensure Shared Accounts exist
+        if (!this.data.sharedMembers) this.data.sharedMembers = [
+            { id: '1', name: 'Tú', balance: 0 },
+            { id: '2', name: 'Aliado', balance: 0 }
+        ];
+        if (!this.data.sharedTransactions) this.data.sharedTransactions = [];
+    }
+
+    private initializeNewData() {
+        this.data = JSON.parse(JSON.stringify(initialData)) as StorageData; // Deep copy
+
+        // Initialize missing fields for new installs
+        if (!this.data.userProfile.currency) {
+            this.data.userProfile.currency = 'EUR';
+        }
+        this.data.sharedMembers = [
+            { id: '1', name: 'Tú', balance: 0 },
+            { id: '2', name: 'Aliado', balance: 0 }
+        ];
+        this.data.sharedTransactions = [];
+
+        this.save();
+    }
+
     private save() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        localStorage.setItem(this.getStorageKey(), JSON.stringify(this.data));
+    }
+
+    // --- Account Management ---
+    deleteAccount() {
+        localStorage.removeItem(this.getStorageKey());
+        // Reset to initial state
+        this.data = JSON.parse(JSON.stringify(initialData)) as StorageData;
+        window.location.reload();
     }
 
     // --- Debts ---
     getDebts(): Debt[] {
-        return this.data.debts as Debt[];
+        return this.data.debts || [];
     }
 
     addDebt(debt: Debt) {
+        if (!this.data.debts) this.data.debts = [];
         this.data.debts.push(debt);
         this.save();
     }
@@ -143,11 +218,35 @@ class StorageService {
 
     // --- Contracts ---
     getContracts(): Contract[] {
-        return this.data.contracts as Contract[];
+        return this.data.contracts || [];
+    }
+
+    saveContracts(contracts: Contract[]) {
+        this.data.contracts = contracts;
+        this.save();
     }
 
     updateContract(updatedContract: Contract) {
         this.data.contracts = this.data.contracts.map(c => c.id === updatedContract.id ? updatedContract : c);
+        this.save();
+    }
+
+    // --- Shared Accounts ---
+    getSharedMembers(): SharedMember[] {
+        return this.data.sharedMembers || [];
+    }
+
+    saveSharedMembers(members: SharedMember[]) {
+        this.data.sharedMembers = members;
+        this.save();
+    }
+
+    getSharedTransactions(): SharedTransaction[] {
+        return this.data.sharedTransactions || [];
+    }
+
+    saveSharedTransactions(txs: SharedTransaction[]) {
+        this.data.sharedTransactions = txs;
         this.save();
     }
 
@@ -201,6 +300,39 @@ class StorageService {
         this.data.userProfile.stats.goldEarned -= goldCost;
         this.save();
         return true;
+    }
+
+    // --- Data Management ---
+    exportData(): string {
+        return JSON.stringify(this.data, null, 2);
+    }
+
+    importData(jsonData: string): boolean {
+        try {
+            const parsed = JSON.parse(jsonData);
+            // Basic validation: check if userProfile exists
+            if (!parsed.userProfile) return false;
+
+            this.data = parsed;
+            this.save();
+            return true;
+        } catch (e) {
+            console.error("Failed to import data", e);
+            return false;
+        }
+    }
+
+    resetData() {
+        localStorage.removeItem(this.getStorageKey());
+        this.data = JSON.parse(JSON.stringify(initialData)) as StorageData;
+
+        // Initialize missing fields for new installs
+        if (!this.data.userProfile.currency) {
+            this.data.userProfile.currency = 'EUR';
+        }
+
+        this.save();
+        window.location.reload(); // Force reload to reflect changes
     }
 }
 

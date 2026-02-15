@@ -2,17 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Scroll, Plus, Trash2, Calendar } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-// storageService removed
-
-// Type for Contract (Subscription)
-interface Contract {
-    id: string;
-    name: string;
-    amount: number;
-    cycle: 'monthly' | 'yearly';
-    nextPayment: string; // ISO date
-    icon?: string;
-}
+import { storageService, type Contract } from '../../services/storageService';
 
 export default function MercenaryContracts() {
     const navigate = useNavigate();
@@ -27,24 +17,12 @@ export default function MercenaryContracts() {
 
     // Load from storage
     useEffect(() => {
-        const loadContracts = async () => {
-            // We use storageService generic 'user_settings' or a new store?
-            // Since we don't have a backend table for this yet, we simulate persistence
-            // via a specific localStorage key managed by storageService if extended, 
-            // or just direct localStorage for this prototype phase.
-            // Ideally, we'd add 'subscriptions' to the DB schema.
-            // For now: use localStorage 'mercenary_contracts'
-            const saved = localStorage.getItem('mercenary_contracts');
-            if (saved) {
-                setContracts(JSON.parse(saved));
-            }
-        };
-        loadContracts();
+        setContracts(storageService.getContracts());
     }, []);
 
     const saveContracts = (newContracts: Contract[]) => {
         setContracts(newContracts);
-        localStorage.setItem('mercenary_contracts', JSON.stringify(newContracts));
+        storageService.saveContracts(newContracts);
     };
 
     const handleAdd = (e: React.FormEvent) => {
@@ -54,12 +32,17 @@ export default function MercenaryContracts() {
         const newContract: Contract = {
             id: crypto.randomUUID(),
             name: newName,
-            amount: parseFloat(newAmount),
+            description: 'Suscripción', // Added default description
+            cost: parseFloat(newAmount),
             cycle: newCycle,
-            nextPayment: new Date().toISOString(), // Mock next payment
+            nextReaping: new Date().toISOString(),
+            status: 'Active', // Added default status
+            icon: 'receipt_long' // Added default icon
         };
 
-        saveContracts([...contracts, newContract]);
+        const updatedContracts = [...contracts, newContract];
+        saveContracts(updatedContracts);
+
         setIsAdding(false);
         setNewName('');
         setNewAmount('');
@@ -72,8 +55,8 @@ export default function MercenaryContracts() {
     };
 
     const totalMonthly = contracts.reduce((acc, c) => {
-        if (c.cycle === 'monthly') return acc + c.amount;
-        return acc + (c.amount / 12);
+        if (c.cycle === 'monthly') return acc + c.cost;
+        return acc + (c.cost / 12);
     }, 0);
 
     return (
@@ -185,7 +168,7 @@ export default function MercenaryContracts() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <span className="font-mono font-bold text-red-400">-{contract.amount}</span>
+                                        <span className="font-mono font-bold text-red-400">-{contract.cost}</span>
                                         <button
                                             onClick={() => handleDelete(contract.id)}
                                             className="text-stone-600 hover:text-red-500 transition-colors p-2"

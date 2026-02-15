@@ -4,21 +4,41 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { storageService, type UserProfile } from '../../services/storageService';
 import { useStealth } from '../../context/StealthContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdventurerLicense() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { isStealth, toggleStealth, formatAmount } = useStealth();
+    const { signOut } = useAuth();
     const [profile, setProfile] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         setProfile(storageService.getUserProfile());
     }, []);
 
-    const logout = () => {
-        // Implement logout logic here
-        console.log("Logging out...");
+    const logout = async () => {
+        await signOut();
         navigate('/');
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!confirm('¿ESTÁS SEGURO? Esta acción es irreversible.\n\nSe eliminará tu cuenta y todos los datos locales asociados.\n\nPulsa Aceptar para confirmar.')) {
+            return;
+        }
+
+        try {
+            // 1. Delete Local Data
+            storageService.deleteAccount();
+
+            // 2. Sign Out
+            await signOut();
+
+            navigate('/');
+        } catch (error) {
+            console.error(error);
+            alert('Error al eliminar la cuenta.');
+        }
     };
 
     const getRank = (xp: number) => {
@@ -175,6 +195,42 @@ export default function AdventurerLicense() {
                         <span className="material-symbols-outlined text-red-400 group-hover:text-red-300 transition-colors">logout</span>
                         <span className="text-red-400 group-hover:text-red-300 transition-colors flex-1">Abandonar Misión</span>
                     </button>
+
+                    {/* Data Management Section */}
+                    <div className="px-6 pb-6 pt-6 space-y-2">
+                        <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-2 pl-2">Gestión de Datos</h3>
+
+                        <button
+                            onClick={() => {
+                                const data = storageService.exportData();
+                                const blob = new Blob([data], { type: 'application/json' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `grimoire_backup_${new Date().toISOString().split('T')[0]}.json`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                            }}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-primary/5 border border-transparent hover:border-primary/10 transition-all text-left group"
+                        >
+                            <span className="material-symbols-outlined text-stone-400 group-hover:text-primary transition-colors">download</span>
+                            <span className="text-stone-300 group-hover:text-primary transition-colors flex-1">Exportar Grimorio (JSON)</span>
+                        </button>
+
+                        {/* Danger Zone */}
+                        <div className="pt-4 space-y-2">
+                            <h3 className="text-xs uppercase tracking-widest text-red-500 font-bold mb-2 pl-2">Zona de Peligro</h3>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="w-full flex items-center gap-4 p-4 rounded-xl bg-red-950/20 hover:bg-red-900/40 border border-red-900/30 hover:border-red-500/50 transition-all text-left group"
+                            >
+                                <span className="material-symbols-outlined text-red-500 group-hover:text-red-400 transition-colors">delete_forever</span>
+                                <span className="text-red-500 group-hover:text-red-400 transition-colors flex-1 font-bold">Eliminar Cuenta</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Bottom Nav Spacer */}

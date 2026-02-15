@@ -2,32 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Coins, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-
-// Simple Shared Account Simulator
-// Persistence: LocalStorage for now
-interface SharedTransaction {
-    id: string;
-    who: string;
-    amount: number;
-    description: string;
-    date: string;
-}
-
-interface Member {
-    id: string;
-    name: string;
-    balance: number; // Positive = paid more than share (owed money), Negative = paid less (owes money)
-}
+import { storageService, type SharedTransaction, type SharedMember } from '../../services/storageService';
 
 export default function SharedAccounts() {
     const navigate = useNavigate();
     const { t } = useTranslation();
 
     // State
-    const [members, setMembers] = useState<Member[]>([
-        { id: '1', name: 'Tú', balance: 0 },
-        { id: '2', name: 'Aliado', balance: 0 }
-    ]);
+    const [members, setMembers] = useState<SharedMember[]>([]);
     const [transactions, setTransactions] = useState<SharedTransaction[]>([]);
 
     const [amount, setAmount] = useState('');
@@ -36,17 +18,15 @@ export default function SharedAccounts() {
 
     // Load
     useEffect(() => {
-        const savedTx = localStorage.getItem('shared_transactions');
-        const savedMem = localStorage.getItem('shared_members');
-        if (savedTx) setTransactions(JSON.parse(savedTx));
-        if (savedMem) setMembers(JSON.parse(savedMem));
+        setMembers(storageService.getSharedMembers());
+        setTransactions(storageService.getSharedTransactions());
     }, []);
 
-    const updateBalances = (txs: SharedTransaction[], mems: Member[]) => {
+    const updateBalances = (txs: SharedTransaction[], mems: SharedMember[]) => {
         // Recalculate all balances
         const newMembers = mems.map(m => ({ ...m, balance: 0 }));
         const totalSpent = txs.reduce((sum, t) => sum + t.amount, 0);
-        const sharePerPerson = totalSpent / newMembers.length;
+        const sharePerPerson = newMembers.length > 0 ? totalSpent / newMembers.length : 0;
 
         txs.forEach(t => {
             const payerMember = newMembers.find(m => m.id === t.who);
@@ -61,7 +41,7 @@ export default function SharedAccounts() {
         });
 
         setMembers(newMembers);
-        localStorage.setItem('shared_members', JSON.stringify(newMembers));
+        storageService.saveSharedMembers(newMembers);
     };
 
     const handleAddTx = (e: React.FormEvent) => {
@@ -79,7 +59,7 @@ export default function SharedAccounts() {
 
         const newTxs = [newTx, ...transactions];
         setTransactions(newTxs);
-        localStorage.setItem('shared_transactions', JSON.stringify(newTxs));
+        storageService.saveSharedTransactions(newTxs);
 
         updateBalances(newTxs, members);
 

@@ -190,7 +190,10 @@ export default function DebtTracker() {
                                         {debt.type === 'owed_to_me' ? '+' : '-'}{debt.amount}
                                     </span>
                                     <button
-                                        onClick={() => handleSettleDebt(debt.id, debt.amount, debt.type)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleSettleDebt(debt.id, debt.amount, debt.type);
+                                        }}
                                         className="text-[10px] uppercase font-bold text-stone-500 hover:text-red-400 transition-colors mt-1 flex items-center gap-1 justify-end ml-auto"
                                     >
                                         <Trash2 size={12} /> Saldar

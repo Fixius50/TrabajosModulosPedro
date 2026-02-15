@@ -9,7 +9,7 @@ import QuickAddMenu from './QuickAddMenu';
 import { useStealth } from '../../context/StealthContext';
 import { storageService } from '../../services/storageService';
 import { oracleService } from '../../services/oracleService';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { LogOut, ChevronDown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function GrimoireDashboard() {
@@ -47,7 +47,7 @@ export default function GrimoireDashboard() {
     return (
         <div className="fantasy-theme">
             {/* Mobile Container */}
-            <div className="fantasy-container leather-texture w-full flex flex-col h-screen">
+            <div className="fantasy-container leather-texture w-full flex flex-col min-h-[calc(100vh-6rem)]">
 
                 {/* Header */}
                 <header className="fantasy-header pt-4 pb-2 px-6 relative z-50 bg-[#0c0b06]/95 backdrop-blur-sm border-b border-primary/10">
@@ -90,7 +90,7 @@ export default function GrimoireDashboard() {
                 </header>
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto px-6 py-4 space-y-8 no-scrollbar">
+                <main className="flex-1 px-6 py-4 space-y-8">
 
                     {/* Rivers of Gold */}
                     <section>
