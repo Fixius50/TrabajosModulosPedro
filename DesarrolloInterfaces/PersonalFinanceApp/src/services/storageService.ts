@@ -63,6 +63,7 @@ export interface UserProfile {
     name: string;
     title: string;
     avatar: string;
+    currency: string;
     stats: {
         wealthXP: number;
         maxXP: number;
@@ -75,8 +76,18 @@ export interface UserProfile {
 // Storage Key
 const STORAGE_KEY = 'grimoire_data_v1';
 
+// Full Storage Interface
+interface StorageData {
+    userProfile: UserProfile;
+    debts: Debt[];
+    contracts: Contract[];
+    guild: GuildData;
+    financialScore: FinancialScoreData;
+    budgets: BudgetChest[];
+}
+
 class StorageService {
-    private data: typeof initialData;
+    private data: StorageData;
 
     constructor() {
         // Initialize from LocalStorage or fall back to initialData.json
@@ -87,12 +98,21 @@ class StorageService {
             if (this.data.userProfile && this.data.userProfile.stats && typeof this.data.userProfile.stats.netWorth === 'undefined') {
                 this.data.userProfile.stats.netWorth = 0;
             }
-            // Migration: Ensure budgets exists
+            // Migration: Ensure currency exists
+            if (this.data.userProfile && !this.data.userProfile.currency) {
+                this.data.userProfile.currency = 'EUR';
+            }
             if (!this.data.budgets) {
                 this.data.budgets = JSON.parse(JSON.stringify(initialData.budgets || []));
             }
         } else {
-            this.data = JSON.parse(JSON.stringify(initialData)); // Deep copy to avoid reference issues
+            this.data = JSON.parse(JSON.stringify(initialData)) as StorageData; // Deep copy
+
+            // Initialize missing fields for new installs
+            if (!this.data.userProfile.currency) {
+                this.data.userProfile.currency = 'EUR';
+            }
+
             this.save();
         }
     }

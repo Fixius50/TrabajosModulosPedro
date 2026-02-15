@@ -147,6 +147,27 @@ export default function AdventurerLicense() {
                         </button>
                     ))}
 
+                    {/* Currency Selector */}
+                    <div className="relative w-full group">
+                        <select
+                            value={profile?.currency || 'EUR'}
+                            onChange={(e) => {
+                                if (profile) {
+                                    const newProfile = { ...profile, currency: e.target.value };
+                                    setProfile(newProfile);
+                                    storageService.updateUserProfile(newProfile);
+                                }
+                            }}
+                            className="w-full appearance-none bg-[#16140d] hover:bg-primary/5 border border-transparent hover:border-primary/10 text-stone-300 hover:text-primary p-4 rounded-xl outline-none cursor-pointer flex items-center gap-4 transition-all pl-12 font-bold"
+                        >
+                            <option value="EUR">Moneda: Taros (EUR €)</option>
+                            <option value="USD">Moneda: Áureos (USD $)</option>
+                            <option value="GBP">Moneda: Libras (GBP £)</option>
+                        </select>
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 group-hover:text-primary pointer-events-none transition-colors">payments</span>
+                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-stone-600 text-sm pointer-events-none">expand_more</span>
+                    </div>
+
                     <button
                         onClick={logout}
                         className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-left group mt-6"

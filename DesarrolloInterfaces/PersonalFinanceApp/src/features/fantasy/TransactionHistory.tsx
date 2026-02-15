@@ -47,7 +47,7 @@ export default function TransactionHistory() {
                         <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                             <ArrowLeft className="text-primary" />
                         </button>
-                        <h1 className="text-xl font-bold text-primary uppercase tracking-widest">Historial</h1>
+                        <h1 className="text-xl font-bold text-primary uppercase tracking-widest">{t('history', 'Historial')}</h1>
                     </div>
                     <button
                         onClick={() => navigate('/add-transaction')}
@@ -59,37 +59,37 @@ export default function TransactionHistory() {
 
                 <main className="p-4 space-y-4">
                     {loading ? (
-                        <div className="text-center py-10 text-muted">Cargando pergaminos...</div>
+                        <div className="text-center py-10 text-muted">{t('loading_scrolls', 'Cargando pergaminos...')}</div>
                     ) : transactions.length === 0 ? (
                         <div className="text-center py-10 space-y-4">
                             <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto">
                                 <span className="text-3xl">📜</span>
                             </div>
-                            <p className="text-stone-400">No hay registros en el libro de cuentas.</p>
+                            <p className="text-stone-400">{t('no_transactions', 'No hay registros en el libro de cuentas.')}</p>
                             <button
                                 onClick={() => navigate('/add-transaction')}
                                 className="text-primary hover:underline text-sm uppercase tracking-wider"
                             >
-                                Registrar primer movimiento
+                                {t('first_transaction', 'Registrar primer movimiento')}
                             </button>
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {transactions.map((t) => (
-                                <div key={t.id} className="fantasy-card flex items-center justify-between p-4 group cursor-pointer hover:border-primary/50 transition-colors">
+                            {transactions.map((tx) => (
+                                <div key={tx.id} className="fantasy-card flex items-center justify-between p-4 group cursor-pointer hover:border-primary/50 transition-colors">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-2xl border border-white/5 shadow-inner">
-                                            {t.categories?.icon || '📄'}
+                                            {tx.categories?.icon || '📄'}
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-stone-200">{t.description}</h4>
+                                            <h4 className="font-bold text-stone-200">{tx.description}</h4>
                                             <p className="text-xs uppercase text-stone-500 tracking-wider">
-                                                {new Date(t.date).toLocaleDateString()}
+                                                {new Date(tx.date).toLocaleDateString()}
                                             </p>
                                         </div>
                                     </div>
-                                    <span className={`font-mono font-bold text-lg ${t.categories?.type === 'expense' ? 'text-stone-300' : 'text-emerald-400'}`}>
-                                        {t.categories?.type === 'expense' ? '-' : '+'} {formatAmount(Math.abs(t.amount), '')}
+                                    <span className={`font-mono font-bold text-lg ${tx.categories?.type === 'expense' ? 'text-stone-300' : 'text-emerald-400'}`}>
+                                        {tx.categories?.type === 'expense' ? '-' : '+'} {formatAmount(Math.abs(tx.amount), '')}
                                     </span>
                                 </div>
                             ))}

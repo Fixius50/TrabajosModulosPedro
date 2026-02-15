@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import './fantasy.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { transactionService } from '../../services/transactionService';
@@ -8,11 +9,16 @@ import QuickAddMenu from './QuickAddMenu';
 import { useStealth } from '../../context/StealthContext';
 import { storageService } from '../../services/storageService';
 import { oracleService } from '../../services/oracleService';
+import { ChevronDown, LogOut } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function GrimoireDashboard() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const market = useMarketData();
     const { formatAmount } = useStealth();
+    const [showMenu, setShowMenu] = useState(false);
+
     const { data: transactions } = useQuery({
         queryKey: ['transactions'],
         queryFn: transactionService.getTransactions,
@@ -33,26 +39,54 @@ export default function GrimoireDashboard() {
         return acc + (isExpense ? -curr.amount : curr.amount);
     }, 0) || 0;
 
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/login');
+    };
+
     return (
         <div className="fantasy-theme">
             {/* Mobile Container */}
-            <div className="fantasy-container leather-texture w-full">
+            <div className="fantasy-container leather-texture w-full flex flex-col h-screen">
 
                 {/* Header */}
-                <header className="fantasy-header">
+                <header className="fantasy-header pt-4 pb-2 px-6 relative z-50 bg-[#0c0b06]/95 backdrop-blur-sm border-b border-primary/10">
                     {/* Corner Decors */}
                     <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-sm opacity-50"></div>
                     <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-sm opacity-50"></div>
 
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-primary runic-glow uppercase italic">{t('dashboard')}</h1>
-                            <p className="text-xs text-stone-400 uppercase tracking-widest mt-1">Finanzas Personales</p>
+                    <div className="relative flex items-center justify-center">
+                        <div className="flex flex-col items-center z-10">
+                            <h1 className="text-3xl font-bold tracking-tight text-primary runic-glow uppercase italic">{t('dashboard', 'Grimorio')}</h1>
+                            <p className="text-[10px] text-stone-400 uppercase tracking-[0.2em]">Finanzas Personales</p>
+
+                            {/* Dropdown Trigger */}
+                            <button
+                                onClick={() => setShowMenu(!showMenu)}
+                                className="mt-1 text-primary/40 hover:text-primary transition-colors active:scale-95"
+                            >
+                                <ChevronDown size={20} className={`transition-transform duration-300 ${showMenu ? 'rotate-180 text-primary' : ''}`} />
+                            </button>
                         </div>
-                        <Link to="/adventurer-license" className="w-12 h-12 rounded-lg bg-stone-800 border border-primary/30 flex items-center justify-center hover:bg-stone-700 transition-colors">
-                            <span className="material-icons text-primary">account_circle</span>
+
+                        {/* Profile Button (Absolute Right) */}
+                        <Link to="/adventurer-license" className="absolute right-0 top-2 w-10 h-10 rounded-lg bg-stone-800/80 border border-primary/20 flex items-center justify-center hover:bg-stone-700 transition-colors shadow-lg">
+                            <span className="material-icons text-primary/80 text-xl">account_circle</span>
                         </Link>
                     </div>
+
+                    {/* Dropdown Menu */}
+                    {showMenu && (
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-[#16140d] border border-primary/20 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 origin-top">
+                            <button
+                                onClick={handleLogout}
+                                className="w-full flex items-center gap-3 p-4 hover:bg-red-500/10 text-stone-400 hover:text-red-400 transition-colors text-left group"
+                            >
+                                <LogOut size={16} className="text-stone-500 group-hover:text-red-400 transition-colors" />
+                                <span className="text-xs font-bold uppercase tracking-wider">{t('logout', 'Cerrar Sesión')}</span>
+                            </button>
+                        </div>
+                    )}
                 </header>
 
                 {/* Main Content */}

@@ -1,48 +1,82 @@
-# 02. Diseño UI/UX
+# 02. Diseño UI/UX - Sistema "Fantasy Finance"
 
-## Filosofía Visual: "El Grimorio Financiero"
+## Filosofía de Diseño
 
-El diseño ya no es un "Glassmorphism" genérico, sino una **Interfaz de Fantasía Oscura de Alta Fidelidad**. La aplicación se siente como un artefacto mágico antiguo.
+Estética "Dark Glassmorphism" combinada con elementos de rol y fantasía medieval.
 
-- **Tema Principal**: **Grimoire Dark** (Oscuro, Místico, Premium).
-- **Metáfora Visual**: El usuario es un aventurero gestionando sus recursos en un mundo de rol.
-- **Tipografía**:
-  - `Cinzel` / `Playfair Display` (Títulos, Headers, Sensación Épica).
-  - `Inter` / `Lato` (Cuerpo de texto, para legibilidad en datos financieros).
+- **Look & Feel**: Oscuro, misterioso, pero limpio y usable.
+- **Paleta**: Tonos oscuros de piedra, acentos dorados/ámbar (Primary), y efectos de neón rúnico.
 
-## Paleta de Colores (Variables CSS)
+---
 
-El sistema se basa en tonos tierra oscuros, dorados brillantes y acentos mágicos.
+## 1. Paleta de Colores
 
-```css
-:root {
-  /* Fondos */
-  --bg-dark: #0c0b06;       /* Negro casi absoluto */
-  --bg-panel: #16140d;      /* Marrón muy oscuro */
-  --bg-scroll: #eaddcf;     /* Pergamino claro (para contratos) */
-  
-  /* Acentos */
-  --color-gold: #f4c025;    /* Oro principal */
-  --color-gold-dim: #b8860b; /* Oro apagado */
-  --color-magic: #8b5cf6;   /* Violeta mágico (encantamientos) */
-  --color-fire: #ef4444;    /* Rojo (peligro, deudas) */
-  --color-forest: #10b981;  /* Verde (ingresos, éxito) */
+### Primary (Gold/Amber)
 
-  /* Bordes y Texturas */
-  --border-gold: rgba(244, 192, 37, 0.3);
-  --shadow-glow: 0 0 15px rgba(244, 192, 37, 0.15);
-}
-```
+- **Base**: `#f59e0b` (Amber-500)
+- **Glow**: `rgba(245, 158, 11, 0.5)`
+- **Uso**: Botones principales, acentos, iconos activos, bordes de cartas raras.
 
-## Componentes Clave
+### Backgrounds
 
-1. **Cofres (Budgets)**: Contenedores físicos que se abren/cierran con animaciones. Barras de progreso con texturas metálicas.
-2. **Pergaminos (Contratos)**: Listas con fondo de papel envejecido, tipografía serif y bordes rasgados.
-3. **Medallones (Score)**: Indicadores circulares con efectos de partículas y brillo.
-4. **Licencia de Aventurero (Perfil)**: Tarjeta de identificación con efecto holográfico sutil y sellos de cera.
+- **App Bg**: `#0c0a09` (Stone-950)
+- **Card Bg**: `rgba(28, 25, 23, 0.7)` (Stone-900 con opacidad)
+- **Overlay**: `rgba(0, 0, 0, 0.8)`
 
-## Interacciones
+### Texturizado
 
-- **Hover**: Los elementos dorados brillan más intenso.
-- **Click**: Efecto de "prensa" física o sonido sutil (futuro).
-- **Transiciones**: Suaves, como pasar páginas de un libro.
+- **Leather**: Fondo con patrón de cuero sutil.
+- **Parchment**: Usado para tooltips o notas.
+
+---
+
+## 2. Componentes UI
+
+### 2.1 Glass Cards
+
+- **Clase**: `.glass-panel`
+- **Estilo**: Fondo semitransparente, borde sutil blanco/10, backdrop-blur.
+- **Uso**: Contenedores principales de información.
+
+### 2.2 Botones "Runic"
+
+- **Clase**: `.btn-primary`
+- **Estilo**: Gradiente ámbar, texto oscuro, shadow glow, uppercase.
+- **Estado**: Scale on active, brightness on hover.
+
+### 2.3 Tipografía
+
+- **Títulos**: `Cinzel` o `Serif` (Toque medieval).
+- **Cuerpo**: `Inter` o `Sans-serif` (Legibilidad moderna).
+- **Números**: `Monospace` (Para datos financieros).
+
+---
+
+## 3. Feedback & Animaciones
+
+- **Transiciones**: `Framer Motion` para cambios de página (Fade/Slide).
+- **Micro-interacciones**: Escala al pulsar botones, brillo al hover en items.
+- **Success**: Partículas doradas o brillo verde.
+- **Error**: Vibración roja y mensaje de "Maldición".
+
+---
+
+## 4. Nuevos Patrones UI (Fase 16-19)
+
+### 4.1 Encabezados Centrados
+
+- **Estructura**: `ArrowLeft` (izquierda), `Título` (centro), `Acción` (derecha).
+- **Estilo**: Fondo `bg-stone-900/90` con `backdrop-blur`.
+- **Interacción**: Chevron en dashboard para menú desplegable (Logout).
+
+### 4.2 Marketplace Grid
+
+- **Layout**: Grid responsivo (2 col móvil, 3-4 col desktop).
+- **Cards**: Estilo "Glass" con borde dorado al seleccionar.
+- **Feedback**: Animación de desbloqueo y deducción de monedas.
+
+### 4.3 Selector de Moneda
+
+- **Ubicación**: Perfil de usuario (Adventurer License).
+- **Opciones**: Taros (EUR), Áureos (USD), Libras (GBP).
+- **Persistencia**: LocalStorage + Supabase.

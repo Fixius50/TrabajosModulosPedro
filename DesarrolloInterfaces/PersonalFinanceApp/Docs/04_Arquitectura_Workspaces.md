@@ -37,12 +37,13 @@ PersonalFinanceApp/
 │   │   │
 │   │   └── fantasy/                # Módulos Core del Grimorio
 │   │       ├── GrimoireDashboard.tsx    # Dashboard principal
-│   │       ├── DebtTracker.tsx          # Gestión de deudas
+│   │       ├── DebtTracker.tsx          # Gestión de deudas (Refactorizado)
 │   │       ├── FinancialScore.tsx       # Score financiero
 │   │       ├── SharedAccounts.tsx       # Cuentas compartidas
 │   │       ├── MercenaryContracts.tsx   # Contratos/Suscripciones
 │   │       ├── TreasureChests.tsx       # Presupuestos/Cofres
-│   │       ├── AdventurerLicense.tsx    # Perfil de usuario
+│   │       ├── AdventurerLicense.tsx    # Perfil y Configuración (Moneda)
+│   │       ├── MarketplaceScreen.tsx    # Tienda de items y personalización
 │   │       ├── QuickAddMenu.tsx         # Menú rápido de acciones
 │   │       └── fantasy.css              # Estilos compartidos
 │   │
@@ -52,9 +53,11 @@ PersonalFinanceApp/
 │   ├── services/                   # ⚙️ Capa de Servicios
 │   │   ├── storageService.ts       # Persistencia local (CRUD)
 │   │   ├── gamificationService.ts  # Sistema XP/Niveles
+│   │   ├── marketplaceService.ts   # Sistema de compra e inventario
 │   │   ├── dataSyncService.ts      # Sincronización automática
 │   │   ├── coinGeckoService.ts     # API de criptomonedas
-│   │   └── currencyService.ts      # API de divisas
+│   │   ├── currencyService.ts      # API de divisas
+│   │   └── oracleService.ts        # Predicciones financieras
 │   │
 │   ├── types/                      # 📝 Definiciones TypeScript
 │   │   └── (interfaces globales)
@@ -89,129 +92,66 @@ PersonalFinanceApp/
 #### Auth
 
 - **HeroHall**: Selector de perfil de usuario (modo familia)
-- **LoginScreen**: Pantalla de autenticación
+- **LoginScreen**: Pantalla de autenticación (Google OAuth)
 
 #### Fantasy (Grimorio Oscuro)
 
-- **GrimoireDashboard**: Dashboard principal con navegación
-- **DebtTracker**: Gestión de deudas (Splitwise-style)
-- **FinancialScore**: Score financiero (Fintonic-style)
-- **SharedAccounts**: Cuentas compartidas (Guild)
-- **MercenaryContracts**: Suscripciones/Contratos recurrentes
-- **TreasureChests**: Presupuestos/Objetivos de ahorro
-- **AdventurerLicense**: Perfil de usuario y stats
-- **QuickAddMenu**: Menú rápido de acciones (Monefy-style)
+- **GrimoireDashboard**: Dashboard principal con navegación y resumen financiero.
+- **DebtTracker**: Gestión de deudas con sistema de "Pergaminos de Deuda".
+- **FinancialScore**: Score financiero gamificado.
+- **SharedAccounts**: Cuentas compartidas para gremios.
+- **MercenaryContracts**: Gestión de suscripciones recurrentes.
+- **TreasureChests**: Metas de ahorro y presupuestos.
+- **AdventurerLicense**: Perfil de usuario, estadísticas y configuración de moneda.
+- **MarketplaceScreen**: Tienda para gastar XP/Oro en personalización (skins, avatares).
 
 ### ⚙️ Services (`src/services/`)
 
 #### StorageService
 
 **Responsabilidad**: Persistencia de datos offline-first
-
-**Funciones clave**:
-
-- `getUserProfile()`: Obtener perfil de usuario
-- `updateUserProfile()`: Actualizar stats de usuario
-- `getDebts()`, `updateDebt()`: CRUD de deudas
-- `getContracts()`, `updateContract()`: CRUD de contratos
-- `getChests()`, `updateChest()`: CRUD de cofres
-- `updateNetWorth()`: Actualizar riqueza total
-
-**Estrategia**: LocalStorage + JSON, con fallback a `initialData.json`
+**Estrategia**: LocalStorage + JSON, con fallback a `initialData.json` y sincronización con Supabase.
 
 #### GamificationService
 
-**Responsabilidad**: Sistema de XP, niveles y gamificación
+**Responsabilidad**: Sistema de XP, niveles y recompensas (Oro).
+**Mecánicas**: 1000 XP = 1 nivel. Toast notifications para feedback.
 
-**Funciones clave**:
+#### MarketplaceService
 
-- `awardXP(amount, source)`: Otorgar XP por acciones
-- `awardGold(amount, source)`: Otorgar oro
-- `getLevel(xp)`: Calcular nivel actual
-- `getTitleForLevel(level)`: Obtener título según nivel
-
-**Mecánicas**:
-
-- 1000 XP = 1 nivel
-- 7 rangos de títulos (Novice → Guild Master)
-- Toast notifications para feedback
+**Responsabilidad**: Gestión de inventario y transacciones de items.
+**Funciones**: `getMarketplaceItems()`, `purchaseItem(itemId)`, `getUserInventory()`.
+**Integración**: Verifica saldo en `GamificationService` antes de permitir compra.
 
 #### DataSyncService
 
-**Responsabilidad**: Sincronización automática de datos externos
-
-**Funciones clave**:
-
-- `startSync()`: Iniciar sincronización automática (60s)
-- `stopSync()`: Detener sincronización
-- `sync()`: Actualizar precios crypto/divisas
-- `calculateTotalWealth()`: Calcular riqueza total
-
-**Integraciones**:
-
-- CoinGecko API (precios crypto)
-- Currency API (tasas de cambio)
-
-#### CoinGeckoService
-
-**Responsabilidad**: Obtener precios de criptomonedas
-
-**Funciones clave**:
-
-- `getTopCoins(currency)`: Top 10 cryptos por market cap
-
-#### CurrencyService
-
-**Responsabilidad**: Obtener tasas de cambio de divisas
-
-**Funciones clave**:
-
-- `getRates()`: Tasas de cambio actualizadas
+**Responsabilidad**: Sincronización automática de datos externos (Crypto, Divisas).
+**Integraciones**: CoinGecko API, ExchangeRate-API.
 
 ---
 
-## 🔄 Flujo de Datos
+## 🔄 Flujo de Datos (Marketplace)
 
 ```
 ┌─────────────────┐
-│  User Action    │
+│  User Action    │ (Click "Buy Item")
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   Component     │ (React State)
+│ MarketplaceSvc  │ (Validate Funds)
 └────────┬────────┘
          │
          ▼
-┌─────────────────┐
-│ GamificationSvc │ (Award XP/Gold)
-└────────┬────────┘
+┌─────────────────┐       ┌─────────────────┐
+│ GamificationSvc │ <───> │  Supabase DB    │
+│ (Deduct Price)  │       │ (Insert Item)   │
+└────────┬────────┘       └─────────────────┘
          │
          ▼
 ┌─────────────────┐
-│  StorageService │ (Persist to LocalStorage)
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  LocalStorage   │
+│  StorageService │ (Update Local Inventory)
 └─────────────────┘
-
-         ┌─────────────────┐
-         │ DataSyncService │ (Background, 60s interval)
-         └────────┬────────┘
-                  │
-         ┌────────┴────────┐
-         ▼                 ▼
-┌─────────────────┐ ┌─────────────────┐
-│ CoinGeckoService│ │ CurrencyService │
-└────────┬────────┘ └────────┬────────┘
-         │                   │
-         └────────┬──────────┘
-                  ▼
-         ┌─────────────────┐
-         │  StorageService │ (Update NetWorth)
-         └─────────────────┘
 ```
 
 ---
@@ -228,59 +168,25 @@ PersonalFinanceApp/
 - Gold: `#f4c025` (Dorado brillante)
 - Text: `#e2e8f0` (Slate claro)
 
-**Tipografía**:
-
-- Display: Custom fantasy font
-- Body: System fonts
-
-**Unidades**:
-
-- ✅ **Usar `rem`** para sizing y spacing
-- ❌ **Evitar `px` hardcoded**
-- Tailwind utilities preferidas
-
 **Componentes Visuales**:
 
 - Glassmorphism para overlays
 - Sombras profundas para depth
 - Bordes dorados para elementos premium
-- Animaciones sutiles para feedback
-
----
-
-## 🔧 Configuración Técnica
-
-### TypeScript
-
-- Strict mode habilitado
-- Path aliases configurados
-- Type checking en build
-
-### Vite
-
-- Fast refresh para desarrollo
-- Build optimizado para producción
-- Asset handling automático
-
-### Tailwind CSS
-
-- JIT mode habilitado
-- Custom colors en config
-- Purge CSS en producción
+- Animaciones `framer-motion` para transiciones
 
 ---
 
 ## 📊 Métricas del Proyecto
 
-- **Componentes**: 15+
-- **Servicios**: 5
-- **Rutas**: 10
-- **Build time**: 3.73s ✅
-- **Bundle size**: Optimizado (code splitting, lazy loading)
+- **Componentes**: 20+
+- **Servicios**: 7
+- **Rutas**: 12
+- **Build time**: ~3.8s ✅
 - **PWA**: Completamente funcional ✅
-- **Tests**: Vitest configurado (refactorización pendiente)
+- **Estado**: Production Ready (Version 1.0) 🚀
 
 ---
 
-**Última actualización**: 2026-02-15 19:50 CET  
-**Versión**: 1.0 (Phase 15 - Production Build completado)
+**Última actualización**: 2026-02-16
+**Versión**: 1.0 (Phase 19 - Localization & Marketplace)
