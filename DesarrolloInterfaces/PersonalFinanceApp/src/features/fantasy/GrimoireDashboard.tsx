@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { transactionService } from '../../services/transactionService';
 import { useMarketData } from '../../hooks/useMarketData';
-import QuickAddMenu from './QuickAddMenu';
 import { useStealth } from '../../context/StealthContext';
 import { storageService } from '../../services/storageService';
 import { oracleService } from '../../services/oracleService';
@@ -301,8 +300,6 @@ export default function GrimoireDashboard() {
                     </section>
 
                 </main>
-
-                <QuickAddMenu />
             </div>
         </div>
     );

@@ -60,17 +60,9 @@ export default function AdventurerLicense() {
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f4c025' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
             }}></div>
 
-            <div className="w-full max-w-md h-screen relative bg-[#0c0b06]/90 sm:h-[53.125rem] sm:rounded-3xl sm:border sm:border-primary/20 sm:shadow-2xl overflow-hidden flex flex-col backdrop-blur-md">
+            <div className="w-full min-h-screen relative bg-[#0c0b06]/90 flex flex-col backdrop-blur-md pb-24">
 
-                {/* Return Button */}
-                <div className="absolute top-4 left-4 z-20">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-[#16140d]/80 border border-primary/20 text-primary/80 hover:bg-primary/20 transition-all active:scale-95 backdrop-blur-sm"
-                    >
-                        <span className="material-symbols-outlined">arrow_back</span>
-                    </button>
-                </div>
+
 
                 {/* ID Card / License Container */}
                 <div className="m-6 mt-16 mb-0 p-1 rounded-2xl bg-gradient-to-br from-primary/30 via-primary/5 to-transparent relative">
@@ -145,7 +137,7 @@ export default function AdventurerLicense() {
                 </div>
 
                 {/* Settings Menu */}
-                <div className="flex-1 p-6 space-y-2 overflow-y-auto no-scrollbar">
+                <div className="flex-1 p-6 space-y-2">
                     <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">Configuración del Gremio</h3>
 
                     {[
