@@ -89,26 +89,35 @@ export default function GrimoireDashboard() {
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
                             {t('budgets')}
                         </h2>
-                        <div className="grid grid-cols-3 gap-4">
-                            {budgets?.slice(0, 3).map((budget) => {
-                                const fillPercent = Math.min((budget.spent / budget.limit) * 100, 100);
-                                const isWarning = fillPercent > 80;
-                                const colorClass = isWarning ? 'bg-orange-500' : 'bg-mana-blue';
+                        {budgets && budgets.length > 0 ? (
+                            <div className="grid grid-cols-3 gap-4">
+                                {budgets.slice(0, 3).map((budget) => {
+                                    const fillPercent = Math.min((budget.spent / budget.limit) * 100, 100);
+                                    const isWarning = fillPercent > 80;
+                                    const colorClass = isWarning ? 'bg-orange-500' : 'bg-mana-blue';
 
-                                return (
-                                    <div key={budget.id} className="flex flex-col items-center gap-2">
-                                        <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
-                                            <div
-                                                className={`absolute bottom-0 left-0 right-0 ${colorClass} opacity-80 transition-all duration-1000 vial-gradient`}
-                                                style={{ height: `${fillPercent}%` }}
-                                            ></div>
-                                            <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                                    return (
+                                        <div key={budget.id} className="flex flex-col items-center gap-2">
+                                            <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
+                                                <div
+                                                    className={`absolute bottom-0 left-0 right-0 ${colorClass} opacity-80 transition-all duration-1000 vial-gradient`}
+                                                    style={{ height: `${fillPercent}%` }}
+                                                ></div>
+                                                <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                                            </div>
+                                            <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60 truncate w-full text-center">{budget.name}</span>
                                         </div>
-                                        <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60 truncate w-full text-center">{budget.name}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="fantasy-card p-4 text-center bg-stone-900/50 border-stone-800">
+                                <div className="w-10 h-10 rounded-full bg-stone-800 mx-auto mb-2 flex items-center justify-center opacity-50">
+                                    <span className="material-icons text-stone-600 text-xl">savings</span>
+                                </div>
+                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest">Sin presupuestos activos</p>
+                            </div>
+                        )}
                     </section>
 
                     {/* Oracle Visions */}
@@ -117,20 +126,29 @@ export default function GrimoireDashboard() {
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
                             {t('oracle_visions')}
                         </h2>
-                        <div className="grid grid-cols-1 gap-4">
-                            {visions?.map((vision, idx) => (
-                                <div key={idx} className="fantasy-card p-4 relative overflow-hidden group">
-                                    <div className={`absolute top-0 right-0 w-1 h-full ${vision.trend === 'rising' ? 'bg-emerald-500' : vision.trend === 'falling' ? 'bg-red-500' : 'bg-stone-500'}`}></div>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="text-[0.625rem] uppercase tracking-widest text-stone-500 font-bold">{vision.timeframe} Projection</span>
-                                        <span className={`text-sm font-mono font-bold ${vision.trend === 'rising' ? 'text-emerald-400' : vision.trend === 'falling' ? 'text-red-400' : 'text-stone-300'}`}>
-                                            {formatAmount(vision.projectedBalance)}
-                                        </span>
+                        {visions && visions.length > 0 ? (
+                            <div className="grid grid-cols-1 gap-4">
+                                {visions.map((vision, idx) => (
+                                    <div key={idx} className="fantasy-card p-4 relative overflow-hidden group">
+                                        <div className={`absolute top-0 right-0 w-1 h-full ${vision.trend === 'rising' ? 'bg-emerald-500' : vision.trend === 'falling' ? 'bg-red-500' : 'bg-stone-500'}`}></div>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-[0.625rem] uppercase tracking-widest text-stone-500 font-bold">{vision.timeframe} Projection</span>
+                                            <span className={`text-sm font-mono font-bold ${vision.trend === 'rising' ? 'text-emerald-400' : vision.trend === 'falling' ? 'text-red-400' : 'text-stone-300'}`}>
+                                                {formatAmount(vision.projectedBalance)}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-stone-300 italic">"{vision.insight}"</p>
                                     </div>
-                                    <p className="text-xs text-stone-300 italic">"{vision.insight}"</p>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="fantasy-card p-4 text-center bg-stone-900/50 border-stone-800">
+                                <div className="w-10 h-10 rounded-full bg-stone-800 mx-auto mb-2 flex items-center justify-center opacity-50">
+                                    <span className="material-icons text-stone-600 text-xl">visibility_off</span>
                                 </div>
-                            ))}
-                        </div>
+                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest">El oráculo necesita más datos</p>
+                            </div>
+                        )}
                     </section>
 
                     {/* Guild Tools */}
@@ -140,13 +158,23 @@ export default function GrimoireDashboard() {
                             {t('guild_tools')}
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
+                            <Link to="/marketplace" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
+                                <div className="w-10 h-10 rounded-lg bg-stone-900 flex items-center justify-center border border-primary/20 group-hover:bg-primary/10 transition-colors">
+                                    <span className="material-icons text-primary/80 group-hover:text-primary">storefront</span>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm text-stone-200">Mercado Negro</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gastar XP y Oro</p>
+                                </div>
+                            </Link>
+
                             <Link to="/debt-tracker" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
                                 <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-[#5c4033] flex items-center justify-center group-hover:bg-[#5c4033] transition-colors">
                                     <span className="material-icons text-primary/80 group-hover:text-white">description</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Debt Tracker</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Manage IOUs</p>
+                                    <h3 className="font-bold text-sm text-stone-200">Rastreador de Deudas</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestionar IOUs</p>
                                 </div>
                             </Link>
 
@@ -155,8 +183,8 @@ export default function GrimoireDashboard() {
                                     <span className="material-icons text-primary/80 group-hover:text-primary">military_tech</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Hero Score</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Analysis</p>
+                                    <h3 className="font-bold text-sm text-stone-200">Puntuación Héroe</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Análisis</p>
                                 </div>
                             </Link>
 
@@ -167,8 +195,8 @@ export default function GrimoireDashboard() {
                                             <span className="material-icons text-primary/80 group-hover:text-primary">account_balance</span>
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-sm text-stone-200">Guild Vault</h3>
-                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Shared Assets</p>
+                                            <h3 className="font-bold text-sm text-stone-200">Cuentas Conjuntas</h3>
+                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Activos Compartidos</p>
                                         </div>
                                     </div>
                                     <span className="material-icons text-stone-600 group-hover:text-primary transition-colors">chevron_right</span>
@@ -180,18 +208,8 @@ export default function GrimoireDashboard() {
                                     <span className="material-icons text-primary/80 group-hover:text-primary">assignment_late</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Mercenary Contracts</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Subscriptions</p>
-                                </div>
-                            </Link>
-
-                            <Link to="/treasure-chests" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 col-span-2">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-primary">inventory_2</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Treasure Chests</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Budgets</p>
+                                    <h3 className="font-bold text-sm text-stone-200">Contratos Mercenarios</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Suscripciones</p>
                                 </div>
                             </Link>
                         </div>

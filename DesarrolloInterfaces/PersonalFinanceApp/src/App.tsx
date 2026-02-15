@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './lib/queryClient';
 import { ProtectedLayout } from './components/ProtectedLayout';
 import { StealthProvider } from './context/StealthContext';
+import { dataSyncService } from './services/dataSyncService';
 import './lib/i18n';
 import './index.css';
 
@@ -12,14 +13,14 @@ const GrimoireDashboard = lazy(() => import('./features/fantasy/GrimoireDashboar
 const LoginScreen = lazy(() => import('./features/auth/LoginScreen'));
 const HeroHall = lazy(() => import('./features/auth/HeroHall'));
 const AddTransaction = lazy(() => import('./features/dashboard/AddTransaction'));
+const TransactionHistory = lazy(() => import('./features/fantasy/TransactionHistory'));
+const MarketplaceScreen = lazy(() => import('./features/marketplace/MarketplaceScreen'));
 const DebtTracker = lazy(() => import('./features/fantasy/DebtTracker'));
 const FinancialScore = lazy(() => import('./features/fantasy/FinancialScore'));
 const SharedAccounts = lazy(() => import('./features/fantasy/SharedAccounts'));
 const MercenaryContracts = lazy(() => import('./features/fantasy/MercenaryContracts'));
 const TreasureChests = lazy(() => import('./features/fantasy/TreasureChests'));
 const AdventurerLicense = lazy(() => import('./features/fantasy/AdventurerLicense'));
-
-import { dataSyncService } from './services/dataSyncService';
 
 function App() {
   useEffect(() => {
@@ -58,13 +59,15 @@ function App() {
                   <Route path="/" element={<GrimoireDashboard />} />
                   <Route path="/app" element={<GrimoireDashboard />} />
                   <Route path="/add-transaction" element={<AddTransaction />} />
+                  <Route path="/transactions" element={<TransactionHistory />} />
+                  <Route path="/marketplace" element={<MarketplaceScreen />} />
                   <Route path="/debt-tracker" element={<DebtTracker />} />
                   <Route path="/financial-score" element={<FinancialScore />} />
                   <Route path="/shared-accounts" element={<SharedAccounts />} />
                   <Route path="/mercenary-contracts" element={<MercenaryContracts />} />
                   <Route path="/treasure-chests" element={<TreasureChests />} />
                   <Route path="/adventurer-license" element={<AdventurerLicense />} />
-                  <Route path="/profile" element={<h2>Profile</h2>} />
+                  <Route path="/profile" element={<AdventurerLicense />} />
                 </Route>
               </Routes>
             </Suspense>

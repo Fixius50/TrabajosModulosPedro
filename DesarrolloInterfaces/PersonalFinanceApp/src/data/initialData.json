@@ -142,7 +142,7 @@
     "budgets": [
         {
             "id": "1",
-            "name": "Rations",
+            "name": "Provisiones",
             "limit": 600,
             "spent": 450,
             "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
@@ -150,7 +150,7 @@
         },
         {
             "id": "2",
-            "name": "Armory",
+            "name": "Armería",
             "limit": 1000,
             "spent": 200,
             "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
@@ -158,7 +158,7 @@
         },
         {
             "id": "3",
-            "name": "Expeditions",
+            "name": "Expediciones",
             "limit": 800,
             "spent": 750,
             "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",
@@ -166,7 +166,7 @@
         },
         {
             "id": "4",
-            "name": "Tavern",
+            "name": "Taberna",
             "limit": 300,
             "spent": 50,
             "icon": "https://lh3.googleusercontent.com/aida-public/AB6AXuDu0TO92phEy5mcj-R8XP9zZgQkBQQK3S0VhlZ4RkuTYhcvmfKk5T5zZnaKEjJxTyJ7t2CnQDT3CgPTFJplHEuc6INiOLQosMUN7lVSo42Mg5tJpmqB91GCiRVdqAN4YX2nwkKdePh4U_cFCBOf0Bh6HRb9T6dBlNwPHl9ChVJituS161y3UMZhhR0UzyUNH5faqKbGMInEDOHd9CimLe2GbfICwWxZ7od4BGrdxj3aPEwASemkXj2QEGI7U7H3YTUB1CCpP3R30O3S",

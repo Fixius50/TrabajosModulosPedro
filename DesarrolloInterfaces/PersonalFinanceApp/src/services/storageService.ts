@@ -87,6 +87,10 @@ class StorageService {
             if (this.data.userProfile && this.data.userProfile.stats && typeof this.data.userProfile.stats.netWorth === 'undefined') {
                 this.data.userProfile.stats.netWorth = 0;
             }
+            // Migration: Ensure budgets exists
+            if (!this.data.budgets) {
+                this.data.budgets = JSON.parse(JSON.stringify(initialData.budgets || []));
+            }
         } else {
             this.data = JSON.parse(JSON.stringify(initialData)); // Deep copy to avoid reference issues
             this.save();
@@ -162,6 +166,21 @@ class StorageService {
             this.data.userProfile.stats.netWorth = amount;
             this.save();
         }
+    }
+
+    // --- Marketplace Helpers ---
+    hasFunds(xpCost: number, goldCost: number): boolean {
+        const stats = this.data.userProfile.stats;
+        return stats.wealthXP >= xpCost && stats.goldEarned >= goldCost;
+    }
+
+    deductFunds(xpCost: number, goldCost: number): boolean {
+        if (!this.hasFunds(xpCost, goldCost)) return false;
+
+        this.data.userProfile.stats.wealthXP -= xpCost;
+        this.data.userProfile.stats.goldEarned -= goldCost;
+        this.save();
+        return true;
     }
 }
 
