@@ -1,0 +1,126 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+:root {
+    --fantasy-primary: #ecb613;
+    --fantasy-bg-light: #f8f8f6;
+    --fantasy-bg-dark: #221d10;
+    --fantasy-iron: #3a3429;
+    --fantasy-crimson: #7b1d1d;
+    --fantasy-mana: #2d89ef;
+    --fantasy-font: 'Newsreader', serif;
+}
+
+.fantasy-theme {
+    font-family: var(--fantasy-font);
+    background-color: var(--fantasy-bg-dark);
+    color: #e7e5e4;
+    /* stone-200 */
+}
+
+/* Textures */
+.leather-texture {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAiHb8VysQ0ynkk9XaQk7aV5DcavgYhUZ06veyKAsQfbdGiyupWJikBh_sKTVUo95mjsVBB6Ld88uQOa_l1_C1gHQOc0GICd4upXCQLeaF-ear7Y2TcyYh_d9uq8W1x1CaYh1qKc_kyLqKQUDN9DUQSJiWgi7ruMwhkbf93qGLsQWaPL46PuAJmK-nkNrbRbqiKDxckXrNV_5bUADMS0iZoRC-GMFP9DXm4Urb5DorXsi8eDuW35X_vUg0wMDUBWaLj88JdH2O_a2mk);
+    background-repeat: repeat;
+}
+
+.stone-texture {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDwVduwp8pOr8oNwtsNTDyga2l173pz_gLLrmfwJ3eLgAZqDGwm-wNKi3VA4fkZdFIk6WOOQawL0xCMTGaMPhcsS6kzWuXvkB80CQyxAsi7xn7zuZwuhSIu7hAfQtOZRzkE9EnE-RJnMgIKV_gAWbcAnW6aynsn3mHA1kMlwjdnDaafWiEiPYVBEa1HEtz2uER60mclWCFQKyUtznhpNMTKhkpqo9vLLAuMtopTRUrB0_V8ht6hIOXuPo__71-M0JVOKWipdRrhxsi6);
+    background-color: #1a160d;
+}
+
+/* Effects */
+.iron-border {
+    box-shadow: inset 0 0 0 4px #3a3429, inset 0 0 15px rgba(0, 0, 0, 0.8);
+    border: 2px solid #5a5445;
+}
+
+.runic-glow {
+    text-shadow: 0 0 10px rgba(236, 182, 19, 0.6);
+}
+
+.rune-glow-box {
+    box-shadow: 0 0 25px 2px rgba(236, 182, 19, 0.4);
+}
+
+.card-inner-shadow {
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+.vial-gradient {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Utilities mapping */
+.text-primary {
+    color: var(--fantasy-primary);
+}
+
+.bg-primary {
+    background-color: var(--fantasy-primary);
+}
+
+.border-primary {
+    border-color: var(--fantasy-primary);
+}
+
+/* Layout Components */
+.fantasy-container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fantasy-header {
+    padding-top: 3rem;
+    padding-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fantasy-card {
+    background-color: rgba(28, 25, 23, 0.5);
+    /* stone-900/50 */
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Debt Tracker / Ancient Scroll Styles */
+.parchment-texture {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDeVsDuAE_3aJJ9iAQnbUba2GJczzGZ4wAeuSFxkGFyTTXBJcG-PuMaR0RjpEhtuUYEiC1CpWM8rbjGvtPil4jYU_RELqdkxAUj9hpiPKndVC84ewqlhBbKFLJ4_1r3XlW6wnlAJR3XLikBDx3Z5yrdiBSpFkK-0Z5k66zexMSGR58HYBYmVa3S8zy1BXT7yWNhdJcqWSomCcj3sDx-bmPm9xHkFOzQ3XNrjtNqmfMoR-GmsT39uWYwvvCLvF5MjDe8gEeydGwYwjj5);
+    background-repeat: repeat;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1), 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.burnt-edge {
+    clip-path: polygon(2% 0%, 98% 1%, 100% 4%, 99% 96%, 97% 100%, 3% 99%, 0% 97%, 1% 5%);
+    border: 2px solid #5c4033;
+}
+
+.dungeon-bg {
+    background-color: #1a0d0d;
+    background-image: linear-gradient(rgba(26, 13, 13, 0.9), rgba(26, 13, 13, 0.9)), url(https://lh3.googleusercontent.com/aida-public/AB6AXuApSlgiDAJ-Mqh99ZaL8o94jX-MQh2NBFQul9ZN7ltmuitVtetKpt9u9jG_cKSPW7DPTFhGv4Bw63fXKqNowXwptRKybtHncX8znrb3aG9myQ-o_d-R5J8u765ZHPBJbu39eSptHqNLbQXVJVQU8g2nE7ccGiQfcrQXuQMo9nLX_YwyfmovZSAshTucoxbdN-7pz-jt5Bk5-x-ozFgU5B7FtvfPlBXkZAb0aMoFwhehLIEHqRodtNyymfKryfypkLRqpzWcWvafZAJz);
+    background-size: cover;
+}
+
+.wax-seal {
+    background: radial-gradient(circle at 30% 30%, #ff1a1a, #d41111, #8b0000);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.glow-green {
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+}
+
+.glow-red {
+    text-shadow: 0 0 10px rgba(212, 17, 17, 0.6);
+}
