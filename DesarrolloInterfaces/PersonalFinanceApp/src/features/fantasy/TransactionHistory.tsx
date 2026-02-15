@@ -41,7 +41,7 @@ export default function TransactionHistory() {
 
     return (
         <div className="fantasy-theme min-h-screen pb-24">
-            <div className="fantasy-container leather-texture max-w-md mx-auto min-h-screen">
+            <div className="fantasy-container leather-texture w-full min-h-screen">
                 <header className="fantasy-header flex items-center justify-between p-4 sticky top-0 z-10 bg-stone-900/90 backdrop-blur-md border-b border-white/10">
                     <div className="flex items-center gap-3">
                         <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">

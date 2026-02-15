@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
 import { storageService, type Debt } from '../../services/storageService';
-
 import { gamificationService } from '../../services/gamificationService';
+import { ArrowLeft } from 'lucide-react';
 
 export default function DebtTracker() {
     const navigate = useNavigate();
@@ -36,98 +36,81 @@ export default function DebtTracker() {
         .reduce((acc, curr) => acc + curr.amount, 0);
 
     return (
-        <div className="font-display text-stone-900 bg-background-dark min-h-screen flex justify-center items-center overflow-hidden dungeon-bg p-4">
-            {/* Phone Container equivalent */}
-            <div className="relative w-full max-w-[24.375rem] h-[52.75rem] bg-background-dark overflow-hidden shadow-2xl border-4 border-[#2d1a1a] flex flex-col items-center rounded-3xl">
+        <div className="fantasy-theme min-h-screen pb-24">
+            <div className="fantasy-container dungeon-bg w-full min-h-screen">
 
-                {/* Status Bar Mockup */}
-                <div className="w-full px-8 pt-4 flex justify-between items-center text-xs opacity-50 z-20 text-stone-300">
-                    <span>9:41</span>
-                    <div className="flex gap-1.5">
-                        <span className="material-icons text-xs">signal_cellular_alt</span>
-                        <span className="material-icons text-xs">wifi</span>
-                        <span className="material-icons text-xs">battery_full</span>
-                    </div>
-                </div>
-
-                {/* Back Button */}
-                <button
-                    onClick={() => navigate(-1)}
-                    className="absolute top-12 left-4 z-50 text-stone-800 bg-parchment/80 p-2 rounded-full shadow-lg hover:bg-parchment transition-colors"
-                >
-                    <span className="material-icons">arrow_back</span>
-                </button>
-
-                {/* Scroll Content Area */}
-                <div className="mt-4 mb-20 w-[92%] h-full relative z-10 overflow-visible flex flex-col">
-                    {/* Top Scroll Roll */}
-                    <div className="absolute -top-4 left-0 right-0 h-10 bg-[#5c4033] rounded-full shadow-lg z-20 border-b-2 border-[#3d2b22] overflow-hidden shrink-0">
-                        <div className="w-full h-full opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
-                    </div>
-
-                    {/* Main Scroll Body */}
-                    <div className="parchment-texture burnt-edge bg-[#e8d5b5] flex-grow w-full py-12 px-6 flex flex-col overflow-y-auto no-scrollbar relative">
-
-                        {/* Header */}
-                        <header className="text-center mb-8 border-b border-[#5c4033]/20 pb-4 shrink-0">
-                            <h1 className="text-4xl font-bold text-[#3d2b22] italic tracking-tight uppercase drop-shadow-sm">Debt Tracker</h1>
-                            <p className="text-[#5c4033] text-sm italic font-medium mt-1">"A Soul's Balance of Tribute & Burden"</p>
-                        </header>
-
-                        {/* Summary Cards */}
-                        <div className="grid grid-cols-2 gap-3 mb-8 shrink-0">
-                            <div className="bg-stone-800/5 p-3 rounded border border-[#5c4033]/30 text-center shadow-inner">
-                                <span className="text-[0.625rem] uppercase font-bold text-[#5c4033] block tracking-wider">Tribute</span>
-                                <span className="text-emerald-600 text-xl font-bold glow-green">+{totalTribute.toLocaleString()} <span className="text-xs">GP</span></span>
-                            </div>
-                            <div className="bg-stone-800/5 p-3 rounded border border-[#5c4033]/30 text-center shadow-inner">
-                                <span className="text-[0.625rem] uppercase font-bold text-[#5c4033] block tracking-wider">Burden</span>
-                                <span className="text-red-700 text-xl font-bold glow-red">-{totalBurden.toLocaleString()} <span className="text-xs">GP</span></span>
-                            </div>
+                {/* Header */}
+                <header className="fantasy-header flex items-center justify-between p-4 sticky top-0 z-10 bg-stone-900/90 backdrop-blur-md border-b border-white/10">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                            <ArrowLeft className="text-primary" />
+                        </button>
+                        <div>
+                            <h1 className="text-xl font-bold text-primary uppercase tracking-widest">Debt Tracker</h1>
+                            <p className="text-[0.625rem] text-muted uppercase tracking-wider">Tribute & Burden</p>
                         </div>
+                    </div>
+                </header>
 
-                        {/* Contact List */}
-                        <div className="space-y-4 flex-grow">
-                            {debts.map(debt => (
-                                <div key={debt.id} className="flex items-center gap-3 border-b border-[#5c4033]/10 pb-3 group relative">
-                                    <div className="w-12 h-12 rounded-full border-2 border-[#5c4033] overflow-hidden bg-stone-300 shadow-sm shrink-0">
+                <main className="p-4 space-y-6">
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="fantasy-card p-4 text-center border-emerald-900/30 bg-stone-900/80">
+                            <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Tribute</span>
+                            <span className="text-emerald-400 text-2xl font-bold glow-green">+{totalTribute.toLocaleString()} <span className="text-xs text-stone-500">GP</span></span>
+                        </div>
+                        <div className="fantasy-card p-4 text-center border-red-900/30 bg-stone-900/80">
+                            <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Burden</span>
+                            <span className="text-red-500 text-2xl font-bold glow-red">-{totalBurden.toLocaleString()} <span className="text-xs text-stone-500">GP</span></span>
+                        </div>
+                    </div>
+
+                    {/* Contact List */}
+                    <div className="space-y-4">
+                        <h2 className="text-xs uppercase tracking-widest text-primary/70 flex items-center gap-2">
+                            <span className="w-2 h-2 bg-primary rounded-full"></span>
+                            Active Contracts
+                        </h2>
+
+                        {debts.length === 0 ? (
+                            <div className="text-center py-12 text-stone-500 italic">
+                                No active debts found in the archives.
+                            </div>
+                        ) : (
+                            debts.map(debt => (
+                                <div key={debt.id} className="fantasy-card p-4 flex items-center gap-4 group hover:border-primary/50 transition-all">
+                                    <div className="w-12 h-12 rounded-full border-2 border-stone-700 overflow-hidden bg-stone-800 shadow-sm shrink-0">
                                         <img
                                             src={`https://ui-avatars.com/api/?name=${debt.name}&background=random&color=fff`}
                                             alt={debt.name}
-                                            className="w-full h-full object-cover sepia-[.5]"
+                                            className="w-full h-full object-cover opacity-80"
                                         />
                                     </div>
                                     <div className="flex-grow min-w-0">
-                                        <h3 className="font-bold text-[#3d2b22] truncate leading-tight">{debt.name}</h3>
-                                        <p className="text-xs text-[#5c4033]/80 italic truncate">{debt.role}</p>
+                                        <h3 className="font-bold text-stone-200 truncate leading-tight">{debt.name}</h3>
+                                        <p className="text-xs text-stone-500 uppercase tracking-wide">{debt.role || 'Unknown'}</p>
                                     </div>
                                     <div className="text-right shrink-0">
-                                        <span className={`font-bold block text-lg ${debt.type === 'owed_to_me' ? 'text-emerald-700 glow-green' : 'text-red-800 glow-red'}`}>
+                                        <span className={`font-mono font-bold block text-lg ${debt.type === 'owed_to_me' ? 'text-emerald-400' : 'text-red-400'}`}>
                                             {debt.type === 'owed_to_me' ? '+' : '-'}{debt.amount}
                                         </span>
                                         <button
                                             onClick={() => handleSettleDebt(debt.id, debt.amount, debt.type)}
-                                            className="text-[0.625rem] uppercase font-bold text-[#5c4033] hover:text-emerald-600 underline mt-1"
+                                            className="text-[0.625rem] uppercase font-bold text-stone-500 hover:text-primary transition-colors mt-2"
                                         >
-                                            Settle
+                                            Settle Contract
                                         </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Add Debt Button (Wax Seal) */}
-                        <button className="mt-8 mx-auto w-16 h-16 rounded-full wax-seal flex items-center justify-center transform hover:scale-105 transition-transform active:scale-95 shadow-xl shrink-0">
-                            <span className="material-icons text-white/90 text-3xl drop-shadow-md">edit_square</span>
-                        </button>
-
+                            ))
+                        )}
                     </div>
 
-                    {/* Bottom Scroll Roll */}
-                    <div className="absolute -bottom-4 left-0 right-0 h-10 bg-[#5c4033] rounded-full shadow-lg z-20 border-t-2 border-[#3d2b22] overflow-hidden shrink-0">
-                        <div className="w-full h-full opacity-30 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
-                    </div>
-                </div>
+                    {/* Add Debt Floating Button */}
+                    <button className="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary text-stone-900 shadow-lg shadow-primary/20 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 z-20">
+                        <span className="material-icons text-2xl">edit</span>
+                    </button>
+                </main>
             </div>
         </div>
     );

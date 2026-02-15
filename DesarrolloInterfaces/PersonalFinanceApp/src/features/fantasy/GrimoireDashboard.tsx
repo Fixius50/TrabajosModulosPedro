@@ -36,7 +36,7 @@ export default function GrimoireDashboard() {
     return (
         <div className="fantasy-theme">
             {/* Mobile Container */}
-            <div className="fantasy-container leather-texture iron-border max-w-md mx-auto">
+            <div className="fantasy-container leather-texture w-full">
 
                 {/* Header */}
                 <header className="fantasy-header">

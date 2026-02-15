@@ -103,7 +103,7 @@ h1 {
 .app-container {
   max-width: 75rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
   padding-bottom: 5rem;
   /* Space for bottom nav */
 }
