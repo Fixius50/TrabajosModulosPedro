@@ -9,9 +9,11 @@
 Una aplicación de finanzas personales *gamificada* con temática de fantasía oscura.
 El objetivo no es solo registrar gastos, sino convertir la gestión financiera en una aventura RPG.
 
-## 2. Ecosistema de Skills (Docs/Skills/)
+## 2. Ecosistema de Skills (Docs/Skills/) y MCPs (Docs/MCPs/)
 
 La verdad técnica reside en las Skills. Antes de programar, consulta la carpeta `Docs/Skills/`. Divide y vencerás.
+
+También hay MCPs (Master Component Patterns) que son componentes maestros que se usan en todo el proyecto. Antes de programar, consulta la carpeta `Docs/MCPs/`. Divide y vencerás.
 
 ## 3. Requisitos Inviolables (User Constraints)
 
