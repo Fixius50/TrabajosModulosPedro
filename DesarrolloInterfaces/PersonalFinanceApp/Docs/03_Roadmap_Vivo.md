@@ -58,22 +58,34 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - [x] **Borrado de Cuenta**: Funcionalidad de eliminación de datos locales y cierre de sesión ("Zona de Peligro").
 - [x] **Seguridad**: Integración de `AuthContext` con inicialización de almacenamiento seguro.
 
+### ✅ Phase 22: Expansión y Refinamiento (Fase 2.5 - COMPLETADO)
+
+- [x] **Generación de Assets**: Infraestructura y assets (Batches 1-4) integrados en Supabase.
+- [x] **Entrada Flexible**: Importador CSV (PapaParse) para carga masiva de transacciones.
+- [x] **Dashboard 2.0**:
+  - Perfil centrado con cálculo de Valor Neto en tiempo real.
+  - Navegación circular (Donut Chart) interactiva.
+- [x] **Gestión de Hogar**: Vista de tarjetas y subpáginas detalladas para miembros.
+- [x] **Estabilidad**:
+  - Hotfix "Stealth Mode" (prevención de crashes).
+  - Corrección de navegación en importación y assets de mercado.
+
 ---
 
 ## 🚀 Próxima Fase
 
-### ⏳ Phase 22: Post-Lanzamiento y Expansión
+### ⏳ Phase 23: Inteligencia Financiera y Gamificación Avanzada
 
-- [ ] **Versión Móvil Nativa**: Empaquetado con Capacitor para iOS/Android.
-- [ ] **Modo Multijugador Real**: Gremios con múltiples usuarios en tiempo real (Sincronización Supabase DB).
-- [ ] **Integración Bancaria**: Conexión con APIs bancarias (PSD2/Nordigen).
-- [ ] **Exportación de Datos**: PDF/CSV de reportes financieros.
+- [ ] **Financial Health Score**: Algoritmo de puntuación crediticia estilo RPG.
+- [ ] **Boss Battles**: Metas de ahorro gamificadas.
+- [ ] **Versión Móvil Nativa**: Empaquetado con Capacitor.
+- [ ] **Modo Multijugador Real**: Sincronización en tiempo real.
 
 ---
 
 ## 📊 Métricas del Proyecto (Actualizadas)
 
-### Features Implementadas (21/21)
+### Features Implementadas (24/24)
 
 - ✅ Autenticación + Google OAuth
 - ✅ Dashboard + Glassmorphism UI
@@ -81,8 +93,9 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - ✅ Gestión de Deudas + Suscripciones
 - ✅ Localización (ES) + Multi-moneda
 - ✅ PWA + Offline Support
-- ✅ Multi-usuario Local + Privacidad (GDPR Friendly)
-- ✅ Estandarización de Código y Estabilidad
+- ✅ Multi-usuario Local + Privacidad
+- ✅ CSV Import + Bulk Actions
+- ✅ Rediseño UI (Dashboard/Household)
 
 ---
 
@@ -101,17 +114,18 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - **Local Persistence**: Custom StorageService (JSON/LocalStorage) with Multi-tenancy
 - **State**: React Query + Context API
 - **i18n**: i18next
+- **CSV**: PapaParse
 
 ---
 
 ## 📈 Progreso General
 
-```
-Phase 1-19:  ████████████████████ 100%
-Phase 20-21: ████████████████████ 100%
-Phase 22:    ░░░░░░░░░░░░░░░░░░░░   0%
+```text
+Phase 1-21:  ████████████████████ 100%
+Phase 22:    ████████████████████ 100% (Fase 2.5)
+Phase 23:    ░░░░░░░░░░░░░░░░░░░░   0%
 
-TOTAL:       ███████████████████░  98%
+TOTAL:       ███████████████████░  99%
 ```
 
 ---

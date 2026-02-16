@@ -187,7 +187,7 @@ export default function DebtTracker() {
                                 <User className="absolute left-2 top-2 text-stone-600" size={14} />
                                 <input
                                     type="text"
-                                    placeholder="ID de Usuario / Amigo (Opcional)"
+                                    placeholder="Nombre de la Persona (o ID)"
                                     className="w-full bg-[#0c0a09] border border-stone-800 rounded p-2 pl-7 text-xs focus:border-red-500 outline-none transition-colors"
                                     value={partnerId}
                                     onChange={(e) => setPartnerId(e.target.value)}

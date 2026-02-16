@@ -251,14 +251,31 @@ export default function HouseholdManager() {
                 <form onSubmit={handleJoin} className="fantasy-card p-4 animate-in fade-in slide-in-from-top-4 border-l-4 border-blue-500 mt-4">
                     <h3 className="text-sm font-bold text-stone-300 mb-3">Unirse a Hogar existente</h3>
                     <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={joinHouseholdId}
-                            onChange={(e) => setJoinHouseholdId(e.target.value)}
-                            placeholder="ID del Hogar"
-                            className="bg-stone-900 border border-stone-700 text-white rounded p-2 flex-grow focus:border-blue-500 outline-none font-mono text-sm"
-                            autoFocus
-                        />
+                        <div className="relative flex-grow">
+                            <input
+                                type="text"
+                                value={joinHouseholdId}
+                                onChange={(e) => setJoinHouseholdId(e.target.value)}
+                                placeholder="ID del Hogar"
+                                className="w-full bg-stone-900 border border-stone-700 text-white rounded p-2 pr-8 focus:border-blue-500 outline-none font-mono text-sm"
+                                autoFocus
+                            />
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    try {
+                                        const text = await navigator.clipboard.readText();
+                                        setJoinHouseholdId(text);
+                                    } catch (err) {
+                                        console.error('Failed to read clipboard', err);
+                                    }
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-500 hover:text-white"
+                                title="Pegar desde portapapeles"
+                            >
+                                <Copy size={14} />
+                            </button>
+                        </div>
                         <button type="submit" className="bg-blue-600 text-white font-bold px-4 rounded hover:bg-blue-700">
                             Unirse
                         </button>

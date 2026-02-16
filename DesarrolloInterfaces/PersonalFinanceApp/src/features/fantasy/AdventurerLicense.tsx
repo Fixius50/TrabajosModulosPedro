@@ -260,7 +260,12 @@ export default function AdventurerLicense() {
                     ].map((item, i) => (
                         <button
                             key={i}
-                            onClick={item.action}
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                item.action();
+                            }}
                             className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${item.active ? 'bg-primary/10 border-primary/30' : 'bg-[#16140d] hover:bg-primary/5 border-transparent hover:border-primary/10'}`}
                         >
                             <span className={`material-symbols-outlined transition-colors ${item.active ? 'text-primary' : 'text-primary/60 group-hover:text-primary'}`}>{item.icon}</span>
@@ -270,7 +275,12 @@ export default function AdventurerLicense() {
                     ))}
 
                     <button
-                        onClick={logout}
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            logout();
+                        }}
                         className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-left group mt-6"
                     >
                         <span className="material-symbols-outlined text-red-400 group-hover:text-red-300 transition-colors">logout</span>

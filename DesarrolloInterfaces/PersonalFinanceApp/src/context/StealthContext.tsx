@@ -16,9 +16,11 @@ export const StealthProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     useEffect(() => {
         try {
-            localStorage.setItem('grimoire_stealth_mode', String(isStealth));
-        } catch (error) {
-            console.error('Error saving stealth mode:', error);
+            if (isStealth !== undefined && isStealth !== null) {
+                localStorage.setItem('grimoire_stealth_mode', String(isStealth));
+            }
+        } catch {
+            // fast fail
         }
     }, [isStealth]);
 

@@ -8,7 +8,7 @@ Este documento describe la estructura completa del proyecto y la responsabilidad
 
 ## 📂 Estructura del Proyecto
 
-```
+```text
 PersonalFinanceApp/
 ├── Docs/                           # 📚 Documentación del Proyecto
 │   ├── 00_Reglas_Maestras.md       # Visión y reglas de negocio
@@ -34,6 +34,15 @@ PersonalFinanceApp/
 │   │   ├── auth/                   # Autenticación
 │   │   │   ├── HeroHall.tsx        # Selector de perfil
 │   │   │   └── LoginScreen.tsx     # Pantalla de login
+│   │   │
+│   │   ├── dashboard/              # Dashboard
+│   │   │   ├── Dashboard.tsx       # UI Principal (Donut Chart)
+│   │   │   ├── AddTransaction.tsx  # Formulario de entrada
+│   │   │   └── CSVImport.tsx       # Importador masivo (PapaParse)
+│   │   │
+│   │   ├── household/              # Gestión de Hogar
+│   │   │   ├── HouseholdManager.tsx # Lista de grupos y miembros (Card View)
+│   │   │   └── ...
 │   │   │
 │   │   └── fantasy/                # Módulos Core del Grimorio
 │   │       ├── GrimoireDashboard.tsx    # Dashboard principal
@@ -73,7 +82,7 @@ PersonalFinanceApp/
 ├── tsconfig.json                   # ⚙️ Configuración TypeScript
 ├── vite.config.ts                  # ⚙️ Configuración Vite
 └── tailwind.config.js              # 🎨 Configuración Tailwind
-```
+```text
 
 ---
 
@@ -133,6 +142,7 @@ PersonalFinanceApp/
 ## 🔄 Flujo de Datos (Marketplace)
 
 ```
+
 ┌─────────────────┐
 │  User Action    │ (Click "Buy Item")
 └────────┬────────┘
@@ -152,6 +162,7 @@ PersonalFinanceApp/
 ┌─────────────────┐
 │  StorageService │ (Update Local Inventory)
 └─────────────────┘
+
 ```
 
 ---
