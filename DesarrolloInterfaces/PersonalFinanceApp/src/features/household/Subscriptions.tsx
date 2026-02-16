@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Scroll, Plus, Trash2, Calendar } from 'lucide-react';
+import { ArrowLeft, Scroll, Plus, Trash2, Calendar, CreditCard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { storageService, type Contract } from '../../services/storageService';
 
-export default function MercenaryContracts() {
+export default function Subscriptions() {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [contracts, setContracts] = useState<Contract[]>([]);
@@ -49,7 +49,7 @@ export default function MercenaryContracts() {
     };
 
     const handleDelete = (id: string) => {
-        if (confirm('¿Romper este contrato?')) {
+        if (confirm('¿Eliminar esta suscripción?')) {
             saveContracts(contracts.filter(c => c.id !== id));
         }
     };
@@ -70,7 +70,7 @@ export default function MercenaryContracts() {
                     <ArrowLeft size={18} />
                 </button>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-red-500 to-orange-600 bg-clip-text text-transparent">
-                    {t('mercenary_contracts', 'Contratos Mercenarios')}
+                    {t('subscriptions', 'Suscripciones y Pagos')}
                 </h1>
             </header>
 
@@ -79,23 +79,24 @@ export default function MercenaryContracts() {
                 {/* Visual Summary */}
                 <div className="fantasy-card bg-gradient-to-br from-[#1c1917] to-[#0c0a09] border-red-900/30 p-6 relative overflow-hidden">
                     <div className="relative z-10">
-                        <span className="text-xs uppercase tracking-widest text-red-400 font-bold mb-1 block">Tributo Mensual Total</span>
+                        <span className="text-xs uppercase tracking-widest text-red-400 font-bold mb-1 block">Coste Mensual Total</span>
                         <div className="text-3xl font-black text-stone-200">
-                            {totalMonthly.toFixed(2)} <span className="text-sm text-stone-500 font-normal">/ mes</span>
+                            {totalMonthly.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm text-stone-500 font-normal">/ mes</span>
                         </div>
                     </div>
-                    <Scroll className="absolute -right-4 -bottom-4 text-red-900/20 w-32 h-32" />
+                    <CreditCard className="absolute -right-4 -bottom-4 text-red-900/20 w-32 h-32" />
                 </div>
 
                 {/* List */}
                 <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-sm font-bold text-stone-400 uppercase tracking-wider">Contratos Activos</h2>
+                        <h2 className="text-sm font-bold text-stone-400 uppercase tracking-wider">Activas</h2>
                         <button
                             onClick={() => setIsAdding(!isAdding)}
                             className="text-xs bg-red-900/20 text-red-400 px-3 py-1 rounded hover:bg-red-900/40 transition-colors flex items-center gap-1"
+                            title="Añadir Suscripción"
                         >
-                            <Plus size={14} /> Nuevo Pacto
+                            <Plus size={14} /> Añadir
                         </button>
                     </div>
 
@@ -104,7 +105,7 @@ export default function MercenaryContracts() {
                             <div className="space-y-3">
                                 <input
                                     type="text"
-                                    placeholder="Nombre del Mercenario (ej. Netflix)"
+                                    placeholder="Nombre (ej. Netflix, Spotify)"
                                     className="w-full bg-[#0c0a09] border border-stone-800 rounded p-2 text-sm focus:border-red-500 outline-none transition-colors"
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}
@@ -139,7 +140,7 @@ export default function MercenaryContracts() {
                                         type="submit"
                                         className="text-xs bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors shadow-[0_0_10px_rgba(220,38,38,0.4)]"
                                     >
-                                        Firmar Contrato
+                                        Guardar
                                     </button>
                                 </div>
                             </div>
@@ -149,8 +150,7 @@ export default function MercenaryContracts() {
                     {contracts.length === 0 ? (
                         <div className="text-center py-10 text-stone-600">
                             <Scroll className="mx-auto w-10 h-10 mb-2 opacity-50" />
-                            <p className="text-sm">No tienes contratos activos.</p>
-                            <p className="text-xs">¡Eres libre!</p>
+                            <p className="text-sm">No tienes suscripciones activas.</p>
                         </div>
                     ) : (
                         <div className="grid gap-3">
@@ -163,7 +163,7 @@ export default function MercenaryContracts() {
                                         <div>
                                             <h3 className="font-bold text-stone-200">{contract.name}</h3>
                                             <p className="text-[10px] text-stone-500 uppercase tracking-wider flex items-center gap-1">
-                                                <Calendar size={10} /> {contract.cycle === 'monthly' ? 'Cada Luna' : 'Cada Año'}
+                                                <Calendar size={10} /> {contract.cycle === 'monthly' ? 'Mensual' : 'Anual'}
                                             </p>
                                         </div>
                                     </div>
@@ -172,6 +172,7 @@ export default function MercenaryContracts() {
                                         <button
                                             onClick={() => handleDelete(contract.id)}
                                             className="text-stone-600 hover:text-red-500 transition-colors p-2"
+                                            title="Eliminar"
                                         >
                                             <Trash2 size={16} />
                                         </button>

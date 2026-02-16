@@ -13,10 +13,11 @@ const TransactionHistory = lazy(() => import('../features/fantasy/TransactionHis
 const MarketplaceScreen = lazy(() => import('../features/marketplace/MarketplaceScreen'));
 const DebtTracker = lazy(() => import('../features/fantasy/DebtTracker'));
 const FinancialScore = lazy(() => import('../features/fantasy/FinancialScore'));
-const SharedAccounts = lazy(() => import('../features/fantasy/SharedAccounts'));
-const MercenaryContracts = lazy(() => import('../features/fantasy/MercenaryContracts'));
+const SharedAccounts = lazy(() => import('../features/household/SharedAccounts'));
+const Subscriptions = lazy(() => import('../features/household/Subscriptions'));
 const TreasureChests = lazy(() => import('../features/fantasy/TreasureChests'));
 const AdventurerLicense = lazy(() => import('../features/fantasy/AdventurerLicense'));
+const HouseholdManager = lazy(() => import('../features/household/HouseholdManager'));
 
 export default function AnimatedRoutes() {
     const location = useLocation();
@@ -78,7 +79,7 @@ export default function AnimatedRoutes() {
                     } />
                     <Route path="/mercenary-contracts" element={
                         <PageTransition>
-                            <MercenaryContracts />
+                            <Subscriptions />
                         </PageTransition>
                     } />
                     <Route path="/treasure-chests" element={
@@ -94,6 +95,11 @@ export default function AnimatedRoutes() {
                     <Route path="/profile" element={
                         <PageTransition>
                             <AdventurerLicense />
+                        </PageTransition>
+                    } />
+                    <Route path="/household" element={
+                        <PageTransition>
+                            <HouseholdManager />
                         </PageTransition>
                     } />
                 </Route>

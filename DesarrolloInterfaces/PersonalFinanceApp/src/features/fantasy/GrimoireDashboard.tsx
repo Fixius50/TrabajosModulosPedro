@@ -184,67 +184,63 @@ export default function GrimoireDashboard() {
                         )}
                     </section>
 
-                    {/* Guild Tools */}
+                    {/* Household / Shared Finance */}
                     <section>
                         <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
                             <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('guild_tools')}
+                            {t('household_management', 'Gestión del Hogar')}
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
+
+                            <Link to="/household" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 col-span-2 bg-primary/5 border-primary/20">
+                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                    <span className="material-icons text-primary/80 group-hover:text-primary">home</span>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-sm text-stone-200">Mi Hogar</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestionar Grupo y Miembros</p>
+                                </div>
+                            </Link>
+
                             <Link to="/marketplace" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
                                 <div className="w-10 h-10 rounded-lg bg-stone-900 flex items-center justify-center border border-primary/20 group-hover:bg-primary/10 transition-colors">
                                     <span className="material-icons text-primary/80 group-hover:text-primary">storefront</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Mercado Negro</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gastar XP y Oro</p>
+                                    <h3 className="font-bold text-sm text-stone-200">Marketplace</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Personalización</p>
                                 </div>
                             </Link>
 
                             <Link to="/debt-tracker" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
                                 <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-[#5c4033] flex items-center justify-center group-hover:bg-[#5c4033] transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-white">description</span>
+                                    <span className="material-icons text-primary/80 group-hover:text-white">receipt_long</span>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Rastreador de Deudas</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestionar IOUs</p>
+                                    <h3 className="font-bold text-sm text-stone-200">Gastos Pendientes</h3>
+                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Splitwise Tracker</p>
                                 </div>
                             </Link>
 
-                            <Link to="/financial-score" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-primary">military_tech</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Puntuación Héroe</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Análisis</p>
-                                </div>
-                            </Link>
-
-                            <div className="col-span-2">
-                                <Link to="/shared-accounts" className="fantasy-card p-3 flex items-center justify-between group hover:border-primary/50 transition-all active:scale-95">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                            <span className="material-icons text-primary/80 group-hover:text-primary">account_balance</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-sm text-stone-200">Cuentas Conjuntas</h3>
-                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Activos Compartidos</p>
-                                        </div>
+                            <div className="col-span-2 grid grid-cols-2 gap-4">
+                                <Link to="/shared-accounts" className="fantasy-card p-3 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
+                                    <div className="w-8 h-8 rounded-full bg-stone-800 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                        <span className="material-icons text-primary/80 group-hover:text-primary text-sm">account_balance_wallet</span>
                                     </div>
-                                    <span className="material-icons text-stone-600 group-hover:text-primary transition-colors">chevron_right</span>
+                                    <div>
+                                        <h3 className="font-bold text-xs text-stone-200">Cuentas Comunes</h3>
+                                    </div>
+                                </Link>
+
+                                <Link to="/mercenary-contracts" className="fantasy-card p-3 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
+                                    <div className="w-8 h-8 rounded-full bg-stone-800 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                        <span className="material-icons text-primary/80 group-hover:text-primary text-sm">subscriptions</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-xs text-stone-200">Suscripciones</h3>
+                                    </div>
                                 </Link>
                             </div>
-
-                            <Link to="/mercenary-contracts" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 col-span-2">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-primary">assignment_late</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Contratos Mercenarios</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Suscripciones</p>
-                                </div>
-                            </Link>
                         </div>
                     </section>
 
