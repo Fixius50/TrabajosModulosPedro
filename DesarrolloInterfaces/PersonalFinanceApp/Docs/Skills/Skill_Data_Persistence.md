@@ -9,6 +9,14 @@ Guía para manejar la lectura y escritura de datos en la aplicación utilizando 
 1. **Fuente de Verdad**: `localStorage` bajo la clave `grimoire_data_v1`.
 2. **Respaldo**: `src/data/initialData.json` actúa como semilla inicial si no hay datos en `localStorage`.
 3. **Servicio Central**: `StorageService` (`src/services/storageService.ts`) es la **ÚNICA** vía permitida para acceder o modificar datos.
+4. **Estrategia Híbrida**: "Offline-first".
+    - Leer siempre de local para velocidad inmediata.
+    - Escribir en local + intentar sincronizar en segundo plano (Supabase).
+    - Permitir exportación manual a JSON (`Backup`).
+5. **Estrategia Híbrida**: "Offline-first".
+    - Leer siempre de local para velocidad inmediata.
+    - Escribir en local + intentar sincronizar en segundo plano (Supabase).
+    - Permitir exportación manual a JSON (`Backup`).
 
 ## Uso de StorageService
 

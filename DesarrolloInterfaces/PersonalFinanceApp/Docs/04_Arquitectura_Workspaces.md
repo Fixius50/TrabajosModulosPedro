@@ -44,7 +44,7 @@ PersonalFinanceApp/
 │   │       ├── TreasureChests.tsx       # Presupuestos/Cofres
 │   │       ├── AdventurerLicense.tsx    # Perfil y Configuración (Moneda)
 │   │       ├── MarketplaceScreen.tsx    # Tienda de items y personalización
-│   │       ├── QuickAddMenu.tsx         # Menú rápido de acciones
+│   │       ├── QuickAddMenu.tsx         # Navegación principal estilo menú flotante vertical
 │   │       └── fantasy.css              # Estilos compartidos
 │   │
 │   ├── hooks/                      # 🪝 Custom Hooks

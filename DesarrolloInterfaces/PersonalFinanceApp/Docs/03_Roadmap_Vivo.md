@@ -40,6 +40,8 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - [x] **Moneda**: Configuración de moneda (EUR, USD, GBP) en perfil de usuario.
 - [x] **Traducción**: "Añadir Transacción" y componentes clave 100% en español.
 - [x] **UI Header**: Rediseño con títulos centrados y menú desplegable para Logout.
+- [x] **Navegación**: Menú flotante central (QuickAddMenu) como navegación principal completa.
+- [x] **Optimización**: `AdventurerLicense` full-screen con scroll natural.
 - [x] **Limpieza**: Eliminación de imports no usados y optimización de código.
 
 ---

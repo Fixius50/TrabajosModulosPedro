@@ -4,6 +4,20 @@
 
 ---
 
+## [Fecha: 2026-02-16] | Fase 19 | Refactorización de Navegación y Pulido UI
+
+- **Usuario**: Roberto Monedero Alonso
+- **Cambios**:
+  - **Refactor**: Reemplazo de barra de navegación inferior estática por menú flotante central (`QuickAddMenu`).
+  - **Diseño**: Implementación de menú estilo "Hamburguesa Vertical" con iconos y etiquetas claras.
+  - **Fix**: Eliminación de cabecera duplicada "FinFlow" y restauración de tema Grimorio.
+  - **Fix**: Resolución de conflicto de Z-index y scroll doble en Dashboard.
+  - **Fix**: Eliminación de renderizado duplicado de `<Outlet />` en `ProtectedLayout` (causante de duplicación de interfaz).
+  - **Mejora**: `AdventurerLicense` ahora ocupa toda la pantalla con scroll vertical natural; eliminado botón de retroceso redundante.
+- **Estado**: Production Ready (Version 1.1).
+
+---
+
 ## [Fecha: 2026-02-15] | Fase 16-19 | Implementación Marketplace y Pulido UI
 
 - **Usuario**: Roberto Monedero Alonso

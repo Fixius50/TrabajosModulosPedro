@@ -16,6 +16,11 @@ Estándares y mejores prácticas para el desarrollo de componentes de interfaz e
     - `src/features/[feature_name]/`: Componentes específicos de dominio (ej: `fantasy/DebtTracker.tsx`).
 5. **Hooks Personalizados**: Extraer lógica compleja a `src/hooks/` (ej: `useAuth`, `useGamification`).
 
+6. **Navegación y Layout**:
+    - **Paradigma**: "Inmersión Total". Evitar barras de navegación estáticas.
+    - **Implementación**: Usar `QuickAddMenu` como hub central flontante (Bottom Center).
+    - **Layout**: `ProtectedLayout` debe gestionar la navegación para evitar duplicidad.
+
 ## Snippet de Componente Base
 
 ```tsx

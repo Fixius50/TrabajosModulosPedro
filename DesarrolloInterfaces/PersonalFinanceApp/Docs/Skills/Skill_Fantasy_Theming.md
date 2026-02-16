@@ -8,12 +8,12 @@ Guía de diseño para mantener la inmersión en el tema "Grimorio Oscuro" (Dark 
 
 | Color | Tailwind Class | Código Hex | Uso |
 | :--- | :--- | :--- | :--- |
-| **Fondo Profundo** | `bg-[#101622]` | `#101622` | Color base de la aplicación. |
-| **Acento Dorado** | `text-primary` | `#f4c025` | Títulos, iconos importantes, oro. |
-| **Pergamino** | `bg-[#dcd3bc]` | `#dcd3bc` | Contenedores de contenido (cartas, listas). |
-| **Texto Oscuro** | `text-stone-900` | `#1c1917` | Texto sobre pergamino. |
-| **Rojo Sangre** | `text-[#8b0000]` | `#8b0000` | Botones de peligro, deudas, alertas. |
-| **Azul Arcano** | `text-blue-500` | `#3b82f6` | Elementos mágicos, energía, maná. |
+| **Fondo Base** | `bg-[#0c0a09]` | `#0c0a09` | Stone-950. Fondo principal profundo. |
+| **Acento Mágico** | `text-primary` | `#f59e0b` | Amber-500. Oro, XP, Elementos activos. |
+| **Superficie** | `bg-stone-900/90` | `#1c1917` | Paneles con glassmorphism (backdrop-blur). |
+| **Texto** | `text-stone-200` | `#e7e5e4` | Texto legible sobre fondo oscuro. |
+| **Peligro** | `text-red-500` | `#ef4444` | Deudas, Errores, "Huir". |
+| **Maná** | `text-violet-500` | `#8b5cf6` | Elementos místicos, sabiduría. |
 
 ## Tipografía
 

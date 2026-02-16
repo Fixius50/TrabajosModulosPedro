@@ -80,3 +80,14 @@ Estética "Dark Glassmorphism" combinada con elementos de rol y fantasía mediev
 - **Ubicación**: Perfil de usuario (Adventurer License).
 - **Opciones**: Taros (EUR), Áureos (USD), Libras (GBP).
 - **Persistencia**: LocalStorage + Supabase.
+
+### 4.4 Navegación Central (QuickAddMenu)
+
+- **Concepto**: Menú flotante central inferior que reemplaza la barra de navegación tradicional.
+- **Estilo**: Botón circular rúnico que despliega opciones en vertical ("Stack").
+- **Items**:
+  - **Grimorio (Dashboard)**
+  - **Bolsa (Transacciones)**
+  - **Licencia (Perfil)**
+  - **Huir (Logout)**
+- **Interacción**: Animación de entrada suave y backdrop blur para foco.

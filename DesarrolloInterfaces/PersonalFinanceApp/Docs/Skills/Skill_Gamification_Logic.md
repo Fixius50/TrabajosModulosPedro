@@ -36,6 +36,19 @@ gamificationService.awardGold(100, "Botín de Guerra");
 - **Toasts**: El servicio emite notificaciones visuales automáticas al otorgar recompensas.
 - **Barra de Progreso**: Componentes como `FinancialScore` o `AdventurerLicense` deben suscribirse a los cambios del perfil (`storageService.getUserProfile()`) para reflejar el progreso en tiempo real.
 
+## 4. Mercado (Marketplace)
+
+- **Moneda**: Oro (Gold) ganado por misiones.
+- **Items**: Cosméticos y funcionales (Skins, Potions).
+- **Validación**: `MarketplaceService` gestiona inventario y transacciones seguras.
+
+## 5. Sistema de Rangos de Gremio
+
+- **Bronce (Novato)**: 0 - 999 XP
+- **Plata (Aventurero)**: 1000 - 4999 XP
+- **Oro (Veterano)**: 5000 - 9999 XP
+- **Platino (Leyenda)**: 10000+ XP
+
 ## Eventos Estándar
 
 | Acción | XP Base | Mensaje Sugerido |
