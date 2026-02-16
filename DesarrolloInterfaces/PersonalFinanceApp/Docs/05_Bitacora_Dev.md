@@ -4,6 +4,21 @@
 
 ---
 
+## [Fecha: 2026-02-16] | Fase 22 | Gestión de Hogares y Multijugador
+
+- **Usuario**: Roberto Monedero Alonso
+- **Cambios**:
+  - Implementación de **Gestión de Hogares**:
+    - Creación y Unión a hogares mediante ID.
+    - Visualización de miembros y roles (Admin/Member).
+    - Servicio `HouseholdService` conectado a Supabase.
+  - Refactorización de **Cuentas Compartidas**:
+    - Adaptación de `SharedAccounts` para usar datos reales del hogar.
+    - Eliminación de lógica legacy basada en LocalStorage.
+- **Estado**: En Progreso (Falta sincronización de transacciones).
+
+---
+
 ## [Fecha: 2026-02-16] | Fase 19 | Refactorización de Navegación y Pulido UI
 
 - **Usuario**: Roberto Monedero Alonso

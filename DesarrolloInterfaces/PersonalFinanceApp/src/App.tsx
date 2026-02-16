@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { QueryProvider } from './lib/queryClient';
 import { StealthProvider } from './context/StealthContext';
 import { dataSyncService } from './services/dataSyncService';
+import { SessionTimeoutProvider } from './context/SessionTimeoutContext';
 import AnimatedRoutes from './components/AnimatedRoutes';
 import './lib/i18n';
 import './index.css';
@@ -41,7 +42,9 @@ function App() {
                 Cargando...
               </div>
             }>
-              <AnimatedRoutes />
+              <SessionTimeoutProvider>
+                <AnimatedRoutes />
+              </SessionTimeoutProvider>
             </Suspense>
           </BrowserRouter>
         </StealthProvider>

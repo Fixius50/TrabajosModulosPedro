@@ -1,22 +1,24 @@
+
 import { useState } from 'react';
 import './fantasy.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { transactionService } from '../../services/transactionService';
-import { useMarketData } from '../../hooks/useMarketData';
+
 import { useStealth } from '../../context/StealthContext';
 import { storageService } from '../../services/storageService';
-import { oracleService } from '../../services/oracleService';
-import { LogOut, ChevronDown } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+
+
+import QuestBoard from './QuestBoard';
 
 export default function GrimoireDashboard() {
     const { t } = useTranslation();
-    const navigate = useNavigate();
-    const market = useMarketData();
+
     const { formatAmount } = useStealth();
-    const [showMenu, setShowMenu] = useState(false);
+
+    // Tabs: 'dashboard' | 'quests'
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'quests'>('dashboard');
 
     const { data: transactions } = useQuery({
         queryKey: ['transactions'],
@@ -28,20 +30,14 @@ export default function GrimoireDashboard() {
         queryFn: () => storageService.getBudgets(),
     });
 
-    const { data: visions } = useQuery({
-        queryKey: ['oracle_visions'],
-        queryFn: () => oracleService.getVisions(),
-    });
+
 
     const totalBalance = transactions?.reduce((acc: number, curr: any) => {
         const isExpense = curr.categories?.type === 'expense';
         return acc + (isExpense ? -curr.amount : curr.amount);
     }, 0) || 0;
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate('/login');
-    };
+
 
     return (
         <div className="fantasy-theme">
@@ -57,15 +53,32 @@ export default function GrimoireDashboard() {
                     <div className="relative flex items-center justify-center">
                         <div className="flex flex-col items-center z-10">
                             <h1 className="text-3xl font-bold tracking-tight text-primary runic-glow uppercase italic">{t('dashboard', 'Grimorio')}</h1>
-                            <p className="text-[10px] text-stone-400 uppercase tracking-[0.2em]">Finanzas Personales</p>
 
-                            {/* Dropdown Trigger */}
-                            <button
-                                onClick={() => setShowMenu(!showMenu)}
-                                className="mt-1 text-primary/40 hover:text-primary transition-colors active:scale-95"
+                            {/* Navigation Tabs (Mini) */}
+                            <div className="flex items-center gap-4 mt-2">
+                                <button
+                                    onClick={() => setActiveTab('dashboard')}
+                                    className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${activeTab === 'dashboard' ? 'text-primary font-bold border-b border-primary' : 'text-stone-500 hover:text-stone-300'}`}
+                                >
+                                    Balance
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('quests')}
+                                    className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${activeTab === 'quests' ? 'text-primary font-bold border-b border-primary' : 'text-stone-500 hover:text-stone-300'}`}
+                                >
+                                    Misiones
+                                </button>
+                            </div>
+
+                            {/* Marketplace Link (Replaces Dropdown) */}
+                            <Link
+                                to="/marketplace"
+                                className="mt-2 flex items-center gap-1 text-stone-500 hover:text-primary transition-colors active:scale-95"
+                                title={t('marketplace', 'Mercado')}
                             >
-                                <ChevronDown size={20} className={`transition-transform duration-300 ${showMenu ? 'rotate-180 text-primary' : ''}`} />
-                            </button>
+                                <span className="material-icons text-base">storefront</span>
+                                <span className="text-[10px] uppercase tracking-widest font-bold">Mercado</span>
+                            </Link>
                         </div>
 
                         {/* Profile Button (Absolute Right) */}
@@ -73,230 +86,136 @@ export default function GrimoireDashboard() {
                             <span className="material-icons text-primary/80 text-xl">account_circle</span>
                         </Link>
                     </div>
-
-                    {/* Dropdown Menu */}
-                    {showMenu && (
-                        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-[#16140d] border border-primary/20 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-top-2 origin-top">
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-3 p-4 hover:bg-red-500/10 text-stone-400 hover:text-red-400 transition-colors text-left group"
-                            >
-                                <LogOut size={16} className="text-stone-500 group-hover:text-red-400 transition-colors" />
-                                <span className="text-xs font-bold uppercase tracking-wider">{t('logout', 'Cerrar Sesión')}</span>
-                            </button>
-                        </div>
-                    )}
                 </header>
 
-                {/* Main Content */}
+                {/* Main Content Area */}
                 <main className="flex-1 px-6 py-4 space-y-8">
 
-                    {/* Rivers of Gold */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('net_worth')}
-                        </h2>
-                        <div className="relative fantasy-card h-48 overflow-hidden">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <svg className="w-full h-full opacity-60" viewBox="0 0 200 100">
-                                    <path className="opacity-80" d="M 0 20 Q 50 20 100 50" fill="none" stroke="#ecb613" strokeWidth="3"></path>
-                                    <path className="opacity-40" d="M 0 35 Q 50 35 100 50" fill="none" stroke="#ecb613" strokeWidth="1.5"></path>
-                                    <path className="opacity-80" d="M 200 20 Q 150 20 100 50" fill="none" stroke="#7b1d1d" strokeWidth="3"></path>
-                                    <path className="opacity-40" d="M 200 35 Q 150 35 100 50" fill="none" stroke="#7b1d1d" strokeWidth="1.5"></path>
-                                    <circle className="animate-pulse" cx="100" cy="50" fill="#ecb613" r="12"></circle>
-                                </svg>
-                            </div>
-                            <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                                <span className="text-stone-500 text-xs uppercase tracking-tighter">{t('current_net_worth')}</span>
-                                <div className="text-4xl font-bold text-white tracking-widest my-1">
-                                    {formatAmount(totalBalance)}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    {activeTab === 'quests' ? (
+                        <QuestBoard />
+                    ) : (
+                        <>
+                            {/* DASHBOARD CONTENT */}
 
-                    {/* Mana Vials */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('budgets')}
-                        </h2>
-                        {budgets && budgets.length > 0 ? (
-                            <div className="grid grid-cols-3 gap-4">
-                                {budgets.slice(0, 3).map((budget) => {
-                                    const fillPercent = Math.min((budget.spent / budget.limit) * 100, 100);
-                                    const isWarning = fillPercent > 80;
-                                    const colorClass = isWarning ? 'bg-orange-500' : 'bg-mana-blue';
-
-                                    return (
-                                        <div key={budget.id} className="flex flex-col items-center gap-2">
-                                            <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
-                                                <div
-                                                    className={`absolute bottom-0 left-0 right-0 ${colorClass} opacity-80 transition-all duration-1000 vial-gradient`}
-                                                    style={{ height: `${fillPercent}%` }}
-                                                ></div>
-                                                <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
-                                            </div>
-                                            <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60 truncate w-full text-center">{budget.name}</span>
+                            {/* Net Worth */}
+                            <section>
+                                <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                    {t('net_worth')}
+                                </h2>
+                                <div className="relative fantasy-card h-48 overflow-hidden">
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <svg className="w-full h-full opacity-60" viewBox="0 0 200 100">
+                                            <path className="opacity-80" d="M 0 20 Q 50 20 100 50" fill="none" stroke="#ecb613" strokeWidth="3"></path>
+                                            <path className="opacity-40" d="M 0 35 Q 50 35 100 50" fill="none" stroke="#ecb613" strokeWidth="1.5"></path>
+                                            <path className="opacity-80" d="M 200 20 Q 150 20 100 50" fill="none" stroke="#7b1d1d" strokeWidth="3"></path>
+                                            <path className="opacity-40" d="M 200 35 Q 150 35 100 50" fill="none" stroke="#7b1d1d" strokeWidth="1.5"></path>
+                                            <circle className="animate-pulse" cx="100" cy="50" fill="#ecb613" r="12"></circle>
+                                        </svg>
+                                    </div>
+                                    <div className="relative z-10 flex flex-col items-center justify-center h-full">
+                                        <span className="text-stone-500 text-xs uppercase tracking-tighter">{t('current_net_worth')}</span>
+                                        <div className="text-4xl font-bold text-white tracking-widest my-1">
+                                            {formatAmount(totalBalance)}
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="fantasy-card p-4 text-center bg-stone-900/50 border-stone-800">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 mx-auto mb-2 flex items-center justify-center opacity-50">
-                                    <span className="material-icons text-stone-600 text-xl">savings</span>
+                                    </div>
                                 </div>
-                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest">Sin presupuestos activos</p>
-                            </div>
-                        )}
-                    </section>
+                            </section>
 
-                    {/* Oracle Visions */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('oracle_visions')}
-                        </h2>
-                        {visions && visions.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                {visions.map((vision, idx) => (
-                                    <div key={idx} className="fantasy-card p-4 relative overflow-hidden group">
-                                        <div className={`absolute top-0 right-0 w-1 h-full ${vision.trend === 'rising' ? 'bg-emerald-500' : vision.trend === 'falling' ? 'bg-red-500' : 'bg-stone-500'}`}></div>
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-[0.625rem] uppercase tracking-widest text-stone-500 font-bold">{vision.timeframe} Projection</span>
-                                            <span className={`text-sm font-mono font-bold ${vision.trend === 'rising' ? 'text-emerald-400' : vision.trend === 'falling' ? 'text-red-400' : 'text-stone-300'}`}>
-                                                {formatAmount(vision.projectedBalance)}
-                                            </span>
+                            {/* Budgets */}
+                            <section>
+                                <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                    {t('budgets')}
+                                </h2>
+                                {budgets && budgets.length > 0 ? (
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {budgets.slice(0, 3).map((budget) => {
+                                            const fillPercent = Math.min((budget.spent / budget.limit) * 100, 100);
+                                            const isWarning = fillPercent > 80;
+                                            const colorClass = isWarning ? 'bg-orange-500' : 'bg-mana-blue';
+
+                                            return (
+                                                <div key={budget.id} className="flex flex-col items-center gap-2">
+                                                    <div className="w-16 h-16 rounded-full border-2 border-stone-600 bg-stone-900/80 relative overflow-hidden shadow-inner">
+                                                        <div
+                                                            className={`absolute bottom-0 left-0 right-0 ${colorClass} opacity-80 transition-all duration-1000 vial-gradient`}
+                                                            style={{ height: `${fillPercent}%` }}
+                                                        ></div>
+                                                        <div className="absolute inset-0 border-4 border-white/5 rounded-full"></div>
+                                                    </div>
+                                                    <span className="text-[0.625rem] uppercase font-bold tracking-wider opacity-60 truncate w-full text-center">{budget.name}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="fantasy-card p-4 text-center bg-stone-900/50 border-stone-800">
+                                        <div className="w-10 h-10 rounded-full bg-stone-800 mx-auto mb-2 flex items-center justify-center opacity-50">
+                                            <span className="material-icons text-stone-600 text-xl">savings</span>
                                         </div>
-                                        <p className="text-xs text-stone-300 italic">"{vision.insight}"</p>
+                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest">Sin presupuestos activos</p>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="fantasy-card p-4 text-center bg-stone-900/50 border-stone-800">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 mx-auto mb-2 flex items-center justify-center opacity-50">
-                                    <span className="material-icons text-stone-600 text-xl">visibility_off</span>
-                                </div>
-                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest">El oráculo necesita más datos</p>
-                            </div>
-                        )}
-                    </section>
+                                )}
+                            </section>
 
-                    {/* Household / Shared Finance */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('household_management', 'Gestión del Hogar')}
-                        </h2>
-                        <div className="grid grid-cols-2 gap-4">
-
-                            <Link to="/household" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 col-span-2 bg-primary/5 border-primary/20">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-primary">home</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Mi Hogar</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestionar Grupo y Miembros</p>
-                                </div>
-                            </Link>
-
-                            <Link to="/marketplace" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
-                                <div className="w-10 h-10 rounded-lg bg-stone-900 flex items-center justify-center border border-primary/20 group-hover:bg-primary/10 transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-primary">storefront</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Marketplace</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Personalización</p>
-                                </div>
-                            </Link>
-
-                            <Link to="/debt-tracker" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
-                                <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-[#5c4033] flex items-center justify-center group-hover:bg-[#5c4033] transition-colors">
-                                    <span className="material-icons text-primary/80 group-hover:text-white">receipt_long</span>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-stone-200">Gastos Pendientes</h3>
-                                    <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Splitwise Tracker</p>
-                                </div>
-                            </Link>
-
-                            <div className="col-span-2 grid grid-cols-2 gap-4">
-                                <Link to="/shared-accounts" className="fantasy-card p-3 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
-                                    <div className="w-8 h-8 rounded-full bg-stone-800 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                        <span className="material-icons text-primary/80 group-hover:text-primary text-sm">account_balance_wallet</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-xs text-stone-200">Cuentas Comunes</h3>
-                                    </div>
-                                </Link>
-
-                                <Link to="/mercenary-contracts" className="fantasy-card p-3 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
-                                    <div className="w-8 h-8 rounded-full bg-stone-800 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                        <span className="material-icons text-primary/80 group-hover:text-primary text-sm">subscriptions</span>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-xs text-stone-200">Suscripciones</h3>
-                                    </div>
-                                </Link>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Market Oracle (Ticker) */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('market_data')}
-                        </h2>
-                        <div className="fantasy-card flex items-center gap-6 overflow-x-auto no-scrollbar whitespace-nowrap py-3">
-                            {/* Crypto Ticker */}
-                            <div className="flex items-center gap-2 text-sm">
-                                <span className="text-stone-500">BTC</span>
-                                <span className="text-primary font-mono">{market.crypto?.bitcoin?.eur ? `€${market.crypto.bitcoin.eur}` : '...'}</span>
-                            </div>
-                            <div className="w-px h-4 bg-white/10"></div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <span className="text-stone-500">ETH</span>
-                                <span className="text-primary font-mono">{market.crypto?.ethereum?.eur ? `€${market.crypto.ethereum.eur}` : '...'}</span>
-                            </div>
-                            <div className="w-px h-4 bg-white/10"></div>
-                            <div className="flex items-center gap-2 text-sm">
-                                <span className="text-stone-500">USD</span>
-                                <span className="text-emerald-400 font-mono">{market.forex?.rates?.USD ? `$${market.forex.rates.USD}` : '...'}</span>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Recent Scrolls (Transactions) */}
-                    <section>
-                        <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-primary rounded-full"></span>
-                            {t('recent_scrolls')}
-                        </h2>
-                        <div className="space-y-3">
-                            {transactions?.map((t: any) => (
-                                <div key={t.id} className="fantasy-card flex items-center justify-between group cursor-pointer hover:border-primary/50 transition-colors">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded bg-stone-800 flex items-center justify-center text-xl border border-white/5">
-                                            {t.categories?.icon || '📄'}
+                            {/* Quick Access */}
+                            <section>
+                                <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                    {t('household_management', 'Gestión del Hogar')}
+                                </h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Link to="/household" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 bg-primary/5 border-primary/20">
+                                        <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                            <span className="material-icons text-primary/80 group-hover:text-primary">home</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-sm text-white/90">{t.description}</h4>
-                                            <p className="text-[0.625rem] uppercase text-stone-500">{t.categories?.name}</p>
+                                            <h3 className="font-bold text-sm text-stone-200">Mi Hogar</h3>
+                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestionar Grupo</p>
                                         </div>
-                                    </div>
-                                    <span className={`font-mono font-bold ${t.categories?.type === 'expense' ? 'text-stone-300' : 'text-primary'}`}>
-                                        {t.categories?.type === 'expense' ? '-' : '+'} {formatAmount(t.amount, '')}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                    </Link>
 
+                                    <Link to="/debt-tracker" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95">
+                                        <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-[#5c4033] flex items-center justify-center group-hover:bg-[#5c4033] transition-colors">
+                                            <span className="material-icons text-primary/80 group-hover:text-white">receipt_long</span>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-sm text-stone-200">Deudas</h3>
+                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Splitwise</p>
+                                        </div>
+                                    </Link>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h2 className="text-xs uppercase tracking-widest text-primary/70 mb-4 flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                    {t('recent_scrolls')}
+                                </h2>
+                                <div className="space-y-3">
+                                    {transactions?.slice(0, 5).map((t: any) => (
+                                        <div key={t.id} className="fantasy-card flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded bg-stone-800 flex items-center justify-center text-lg border border-white/5">
+                                                    {t.categories?.icon || '📄'}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-white/90">{t.description}</h4>
+                                                    <p className="text-[0.625rem] uppercase text-stone-500">{t.categories?.name}</p>
+                                                </div>
+                                            </div>
+                                            <span className={`font-mono font-bold text-sm ${t.categories?.type === 'expense' ? 'text-stone-300' : 'text-primary'}`}>
+                                                {formatAmount(t.amount, '')}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        </>
+                    )}
                 </main>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

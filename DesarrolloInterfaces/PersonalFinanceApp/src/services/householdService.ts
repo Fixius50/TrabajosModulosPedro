@@ -26,6 +26,19 @@ export interface SharedAccount {
     created_at: string;
 }
 
+export interface SharedTransaction {
+    id: string;
+    shared_account_id: string;
+    created_by: string;
+    amount: number;
+    description: string;
+    category: string;
+    created_at: string;
+    created_by_user?: {
+        email: string;
+    };
+}
+
 class HouseholdService {
 
     /**
@@ -178,6 +191,86 @@ class HouseholdService {
         if (error) {
             console.error('Error joining household:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Get transactions for a shared account
+     */
+    async getSharedAccountTransactions(accountId: string): Promise<SharedTransaction[]> {
+        const { data, error } = await supabase
+            .from('shared_account_transactions')
+            .select(`
+                *,
+                created_by_user:created_by (
+                    id,
+                    email
+                )
+            `) // Join with auth.users if possible, or just fetch ID
+            .eq('shared_account_id', accountId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching transactions:', error);
+            return [];
+        }
+
+        return data;
+    }
+
+    /**
+     * Add a transaction to a shared account
+     */
+    async addSharedTransaction(
+        accountId: string,
+        amount: number,
+        description: string,
+        category: string
+    ): Promise<SharedTransaction | null> {
+        const user = (await supabase.auth.getUser()).data.user;
+        if (!user) throw new Error("User not authenticated");
+
+        const { data, error } = await supabase
+            .from('shared_account_transactions')
+            .insert({
+                shared_account_id: accountId,
+                created_by: user.id,
+                amount,
+                description,
+                category
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding transaction:', error);
+            throw error;
+        }
+
+        // Update account balance
+        await this.updateAccountBalance(accountId, amount);
+
+        return data;
+    }
+
+    /**
+     * Helper to update account balance
+     */
+    private async updateAccountBalance(accountId: string, amount: number) {
+        // This is a simple client-side calculation. 
+        // In a real app, this should be a database trigger or RPC function for atomicity.
+        const { data: account } = await supabase
+            .from('shared_accounts')
+            .select('balance')
+            .eq('id', accountId)
+            .single();
+
+        if (account) {
+            const newBalance = account.balance + amount;
+            await supabase
+                .from('shared_accounts')
+                .update({ balance: newBalance })
+                .eq('id', accountId);
         }
     }
 }
