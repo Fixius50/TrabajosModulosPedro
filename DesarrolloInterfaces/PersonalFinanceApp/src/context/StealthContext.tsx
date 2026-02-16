@@ -15,7 +15,11 @@ export const StealthProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
 
     useEffect(() => {
-        localStorage.setItem('grimoire_stealth_mode', String(isStealth));
+        try {
+            localStorage.setItem('grimoire_stealth_mode', String(isStealth));
+        } catch (error) {
+            console.error('Error saving stealth mode:', error);
+        }
     }, [isStealth]);
 
     const toggleStealth = () => setIsStealth(prev => !prev);
@@ -24,12 +28,15 @@ export const StealthProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (isStealth) {
             return '✨✨✨';
         }
+        if (amount === null || amount === undefined) return `${unit}0`;
         const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-        return `${unit}${numericAmount.toLocaleString()}`;
+        return `${unit}${isNaN(numericAmount) ? 0 : numericAmount.toLocaleString()}`;
     };
 
+    const value = React.useMemo(() => ({ isStealth, toggleStealth, formatAmount }), [isStealth]);
+
     return (
-        <StealthContext.Provider value={{ isStealth, toggleStealth, formatAmount }}>
+        <StealthContext.Provider value={value}>
             {children}
         </StealthContext.Provider>
     );

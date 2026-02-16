@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { gamificationService, Mission, UserMission } from '../../services/gamificationService';
 import { useAuth } from '../../context/AuthContext';
-import { CheckCircle, Circle, Lock, Star, Clock, Trophy } from 'lucide-react';
+import { CheckCircle, Lock, Star, Clock, Trophy } from 'lucide-react';
 
 const QuestBoard: React.FC = () => {
     const { user } = useAuth();

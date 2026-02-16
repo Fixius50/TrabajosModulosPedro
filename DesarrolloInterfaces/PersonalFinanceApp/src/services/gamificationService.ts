@@ -114,6 +114,22 @@ class GamificationService {
         return true;
     }
 
+    async awardXP(amount: number, reason: string) {
+        const user = await supabase.auth.getUser();
+        if (!user.data.user) return;
+
+        await profileService.addPoints(user.data.user.id, amount);
+        this.showToast(`+${amount} XP: ${reason}`, 'blue');
+    }
+
+    async awardGold(amount: number, reason: string) {
+        const user = await supabase.auth.getUser();
+        if (!user.data.user) return;
+
+        await profileService.addGold(user.data.user.id, amount);
+        this.showToast(`+${amount} Gold: ${reason}`, 'yellow');
+    }
+
     // Helper for manual completion (dev testing or logic trigger)
     async completeMission(userId: string, missionId: string) {
         await supabase

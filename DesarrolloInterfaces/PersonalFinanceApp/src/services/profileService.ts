@@ -6,7 +6,9 @@ export interface UserProfile {
     username: string | null;
     full_name: string | null;
     avatar_url: string | null;
+    title: string; // Added title
     points: number;
+    gold: number; // Added for gold currency
     website?: string | null;
     updated_at?: string;
 }
@@ -27,6 +29,7 @@ export const profileService = {
     },
 
     async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
+        // Ensure gold is handled if passed
         const { data, error } = await supabase
             .from('profiles')
             .upsert({ id: userId, ...updates })
@@ -38,6 +41,37 @@ export const profileService = {
             throw error;
         }
         return data;
+    },
+
+    async addGold(userId: string, amount: number): Promise<number | null> {
+        // 1. Get current gold
+        const { data: profile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('gold')
+            .eq('id', userId)
+            .single();
+
+        if (fetchError || !profile) {
+            console.error('Error fetching gold:', fetchError);
+            return null;
+        }
+
+        const newGold = (profile.gold || 0) + amount;
+
+        // 2. Update gold
+        const { data, error: updateError } = await supabase
+            .from('profiles')
+            .update({ gold: newGold })
+            .eq('id', userId)
+            .select('gold')
+            .single();
+
+        if (updateError) {
+            console.error('Error updating gold:', updateError);
+            return null;
+        }
+
+        return data.gold;
     },
 
     async addPoints(userId: string, amount: number): Promise<number | null> {

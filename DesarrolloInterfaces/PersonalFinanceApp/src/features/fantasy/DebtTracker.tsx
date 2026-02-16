@@ -3,7 +3,7 @@ import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
 import { storageService, type Debt } from '../../services/storageService';
 import { gamificationService } from '../../services/gamificationService';
-import { ArrowLeft, Plus, Trash2, Skull, HandCoins, ScrollText } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Skull, HandCoins, ScrollText, Search, User, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function DebtTracker() {
@@ -12,8 +12,13 @@ export default function DebtTracker() {
     const [debts, setDebts] = useState<Debt[]>([]);
     const [isAdding, setIsAdding] = useState(false);
 
+    // Filter State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState<'all' | 'owed_to_me' | 'i_owe'>('all');
+
     // Form State
     const [newName, setNewName] = useState('');
+    const [partnerId, setPartnerId] = useState(''); // New field for User ID
     const [newAmount, setNewAmount] = useState('');
     const [newType, setNewType] = useState<'owed_to_me' | 'i_owe'>('i_owe');
 
@@ -28,7 +33,7 @@ export default function DebtTracker() {
         const newDebt: Debt = {
             id: crypto.randomUUID(),
             name: newName,
-            role: 'Unknown', // Default role
+            role: partnerId || 'Unknown',
             amount: parseFloat(newAmount),
             type: newType,
             dueDate: new Date().toISOString()
@@ -38,9 +43,9 @@ export default function DebtTracker() {
         setDebts(storageService.getDebts());
         setIsAdding(false);
         setNewName('');
+        setPartnerId('');
         setNewAmount('');
 
-        // Gamification: Taking on a burden (debt) gives small XP for tracking it
         if (newType === 'i_owe') {
             gamificationService.awardXP(10, "Debt Recorded");
         }
@@ -59,6 +64,13 @@ export default function DebtTracker() {
             gamificationService.awardXP(100, "Burden Lifted");
         }
     };
+
+    const filteredDebts = debts.filter(d => {
+        const matchesSearch = d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (d.role && d.role.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesType = filterType === 'all' || d.type === filterType;
+        return matchesSearch && matchesType;
+    });
 
     const totalTribute = debts
         .filter(d => d.type === 'owed_to_me')
@@ -89,29 +101,73 @@ export default function DebtTracker() {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="fantasy-card p-4 text-center border-emerald-900/30 bg-[#1c1917]">
-                        <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Tributos (A Favor)</span>
-                        <span className="text-emerald-400 text-xl font-bold drop-shadow-[0_0_5px_rgba(52,211,153,0.3)]">
-                            +{totalTribute.toLocaleString()} <span className="text-xs text-stone-500">GP</span>
+                        <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Tributos</span>
+                        <span className="text-emerald-400 text-xl font-bold drop-shadow-[0_0_5px_rgba(52,211,153,0.3)] truncate block">
+                            +{totalTribute.toLocaleString()}
                         </span>
                     </div>
                     <div className="fantasy-card p-4 text-center border-red-900/30 bg-[#1c1917]">
-                        <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Cargas (Debes)</span>
-                        <span className="text-red-500 text-xl font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.3)]">
-                            -{totalBurden.toLocaleString()} <span className="text-xs text-stone-500">GP</span>
+                        <span className="text-xs uppercase font-bold text-stone-500 block tracking-wider mb-1">Cargas</span>
+                        <span className="text-red-500 text-xl font-bold drop-shadow-[0_0_5px_rgba(239,68,68,0.3)] truncate block">
+                            -{totalBurden.toLocaleString()}
                         </span>
                     </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex justify-between items-center">
-                    <h2 className="text-sm font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2">
-                        <ScrollText size={14} /> Contratos Activos
-                    </h2>
+                {/* Controls & List */}
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-sm font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2">
+                            <ScrollText size={14} /> Contratos
+                        </h2>
+                        <button
+                            onClick={() => setIsAdding(!isAdding)}
+                            className="text-xs bg-red-900/20 text-red-400 px-3 py-1 rounded hover:bg-red-900/40 transition-colors flex items-center gap-1"
+                        >
+                            <Plus size={14} /> Nuevo Pacto
+                        </button>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-600" size={16} />
+                        <input
+                            type="text"
+                            placeholder="Buscar deuda..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full bg-[#1c1917] border border-stone-800 rounded-lg pl-9 pr-4 py-2 text-sm focus:border-red-500/50 outline-none text-stone-300 placeholder:text-stone-600"
+                        />
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-600 hover:text-stone-400"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="flex bg-[#1c1917] p-1 rounded-lg border border-stone-800">
                     <button
-                        onClick={() => setIsAdding(!isAdding)}
-                        className="text-xs bg-red-900/20 text-red-400 px-3 py-1 rounded hover:bg-red-900/40 transition-colors flex items-center gap-1"
+                        onClick={() => setFilterType('all')}
+                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'all' ? 'bg-stone-700 text-stone-200 shadow' : 'text-stone-500 hover:text-stone-300'}`}
                     >
-                        <Plus size={14} /> Nuevo Pacto
+                        Todos
+                    </button>
+                    <button
+                        onClick={() => setFilterType('owed_to_me')}
+                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'owed_to_me' ? 'bg-emerald-900/30 text-emerald-400 shadow border border-emerald-900/50' : 'text-stone-500 hover:text-stone-300'}`}
+                    >
+                        Tributos
+                    </button>
+                    <button
+                        onClick={() => setFilterType('i_owe')}
+                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'i_owe' ? 'bg-red-900/30 text-red-400 shadow border border-red-900/50' : 'text-stone-500 hover:text-stone-300'}`}
+                    >
+                        Cargas
                     </button>
                 </div>
 
@@ -127,6 +183,16 @@ export default function DebtTracker() {
                                 onChange={(e) => setNewName(e.target.value)}
                                 autoFocus
                             />
+                            <div className="relative">
+                                <User className="absolute left-2 top-2 text-stone-600" size={14} />
+                                <input
+                                    type="text"
+                                    placeholder="ID de Usuario / Amigo (Opcional)"
+                                    className="w-full bg-[#0c0a09] border border-stone-800 rounded p-2 pl-7 text-xs focus:border-red-500 outline-none transition-colors"
+                                    value={partnerId}
+                                    onChange={(e) => setPartnerId(e.target.value)}
+                                />
+                            </div>
                             <div className="flex gap-2">
                                 <input
                                     type="number"
@@ -165,28 +231,27 @@ export default function DebtTracker() {
 
                 {/* Debt List */}
                 <div className="space-y-3">
-                    {debts.length === 0 ? (
+                    {filteredDebts.length === 0 ? (
                         <div className="text-center py-10 text-stone-600">
                             <HandCoins className="mx-auto w-10 h-10 mb-2 opacity-50" />
-                            <p className="text-sm">No hay deudas pendientes.</p>
-                            <p className="text-xs">Tu alma es libre.</p>
+                            <p className="text-sm">No se encontraron deudas.</p>
                         </div>
                     ) : (
-                        debts.map(debt => (
+                        filteredDebts.map(debt => (
                             <div key={debt.id} className="fantasy-card p-4 flex justify-between items-center group hover:border-red-500/30 transition-all bg-[#1c1917]">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${debt.type === 'owed_to_me' ? 'border-emerald-900 bg-emerald-900/20 text-emerald-400' : 'border-red-900 bg-red-900/20 text-red-400'}`}>
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                    <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center border ${debt.type === 'owed_to_me' ? 'border-emerald-900 bg-emerald-900/20 text-emerald-400' : 'border-red-900 bg-red-900/20 text-red-400'}`}>
                                         {debt.type === 'owed_to_me' ? <HandCoins size={18} /> : <Skull size={18} />}
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold text-stone-200">{debt.name}</h3>
-                                        <p className="text-[10px] text-stone-500 uppercase tracking-widest">
-                                            {debt.type === 'owed_to_me' ? 'Tributo' : 'Carga'}
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-stone-200 truncate">{debt.name}</h3>
+                                        <p className="text-[10px] text-stone-500 uppercase tracking-widest truncate">
+                                            {debt.role && debt.role !== 'Unknown' ? debt.role : (debt.type === 'owed_to_me' ? 'Tributo' : 'Carga')}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className={`font-mono font-bold block ${debt.type === 'owed_to_me' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                <div className="text-right shrink-0 ml-2">
+                                    <span className={`font-mono font-bold block truncate max-w-[100px] ${debt.type === 'owed_to_me' ? 'text-emerald-400' : 'text-red-400'}`}>
                                         {debt.type === 'owed_to_me' ? '+' : '-'}{debt.amount}
                                     </span>
                                     <button

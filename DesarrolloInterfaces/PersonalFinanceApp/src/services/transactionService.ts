@@ -36,6 +36,16 @@ export class TransactionService {
         return data;
     }
 
+    async createTransactions(transactions: Omit<Transaction, 'id' | 'created_at'>[]) {
+        const { data, error } = await supabase
+            .from('transactions')
+            .insert(transactions)
+            .select();
+
+        if (error) throw error;
+        return data;
+    }
+
     async deleteTransaction(id: string) {
         const { error } = await supabase
             .from('transactions')
