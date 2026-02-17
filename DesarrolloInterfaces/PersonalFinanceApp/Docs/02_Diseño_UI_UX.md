@@ -57,7 +57,8 @@ Estética "Dark Glassmorphism" combinada con elementos de rol y fantasía mediev
 - **Transiciones**: `Framer Motion` para cambios de página (Fade/Slide).
 - **Micro-interacciones**: Escala al pulsar botones, brillo al hover en items.
 - **Success**: Partículas doradas o brillo verde.
-- **Error**: Vibración roja y mensaje de "Maldición".
+- **Error**: Vibración roja y mensaje de "Maldición" en formularios.
+- **Error Crítico**: Pantalla "Guru Meditation" estilo RPG para fallos de renderizado (GlobalErrorBoundary).
 
 ---
 

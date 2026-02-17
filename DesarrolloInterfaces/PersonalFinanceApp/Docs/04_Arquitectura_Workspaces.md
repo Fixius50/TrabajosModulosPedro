@@ -25,6 +25,7 @@ PersonalFinanceApp/
 │   │   └── (imágenes, fuentes)
 │   │
 │   ├── components/                 # 🧩 Componentes Reutilizables
+│   │   ├── GlobalErrorBoundary.tsx # Captura de errores críticos
 │   │   └── (botones, inputs, etc.)
 │   │
 │   ├── data/                       # 📊 Datos Iniciales

@@ -41,7 +41,11 @@ src/
     - Sistema de notificaciones toast para feedback inmediato.
     - Persistencia de stats de usuario en `localStorage`.
 
-## Seguridad
+## Seguridad y Resiliencia
 
-- **Validación**: Interfaces TypeScript estrictas para todos los modelos de datos (Debt, Contract, UserProfile).
-- **Sanitización**: Los componentes de UI (Stitch) no ejecutan scripts arbitrarios.
+- **Manejo de Excepciones**:
+  - `GlobalErrorBoundary`: Intercepta fallos críticos de renderizado para evitar cierres de app.
+  - Bloques `try-catch` preventivos en servicios de persistencia.
+- **Monitoreo**: Configuración base de Sentry para telemetría.
+- **Sesión**: Sistema de tiempo de espera (30m) con advertencia visual.
+- **Validación**: Interfaces TypeScript estrictas para todos los modelos de datos.

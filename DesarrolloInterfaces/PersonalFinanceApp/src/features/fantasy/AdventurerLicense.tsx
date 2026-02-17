@@ -2,18 +2,18 @@
 import { useState, useEffect } from 'react';
 import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
-import { useStealth } from '../../context/StealthContext';
+
+
 import { useAuth } from '../../context/AuthContext';
 import { profileService, UserProfile } from '../../services/profileService';
 
 import { Camera, Edit2, Save, X } from 'lucide-react';
 
 export default function AdventurerLicense() {
-    const { t } = useTranslation();
+
     const navigate = useNavigate();
-    const { isStealth, toggleStealth } = useStealth();
+
     const { user, signOut } = useAuth();
 
     // State for Profile Data
@@ -113,13 +113,7 @@ export default function AdventurerLicense() {
 
             <div className="w-full min-h-screen relative bg-[#0c0b06]/90 flex flex-col backdrop-blur-md pb-24">
 
-                {/* Back Button */}
-                <div className="p-4">
-                    <button onClick={() => navigate('/grimoire')} className="flex items-center gap-2 text-stone-400 hover:text-primary transition-colors">
-                        <span className="material-icons">arrow_back</span>
-                        <span>Volver al Grimorio</span>
-                    </button>
-                </div>
+                {/* Content Starts Here */}
 
 
                 {/* ID Card / License Container */}
@@ -250,29 +244,7 @@ export default function AdventurerLicense() {
                 <div className="flex-1 p-6 space-y-2">
                     <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">Configuración del Gremio</h3>
 
-                    {[
-                        {
-                            icon: isStealth ? 'visibility' : 'visibility_off',
-                            label: isStealth ? t('stealth_off') : t('stealth_on'),
-                            action: toggleStealth,
-                            active: isStealth
-                        }
-                    ].map((item, i) => (
-                        <button
-                            key={i}
-                            type="button"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                item.action();
-                            }}
-                            className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left group ${item.active ? 'bg-primary/10 border-primary/30' : 'bg-[#16140d] hover:bg-primary/5 border-transparent hover:border-primary/10'}`}
-                        >
-                            <span className={`material-symbols-outlined transition-colors ${item.active ? 'text-primary' : 'text-primary/60 group-hover:text-primary'}`}>{item.icon}</span>
-                            <span className={`flex-1 transition-colors ${item.active ? 'text-primary font-bold' : 'text-stone-300 group-hover:text-primary'}`}>{item.label}</span>
-                            <span className="material-symbols-outlined text-stone-600 text-sm">arrow_forward_ios</span>
-                        </button>
-                    ))}
+
 
                     <button
                         type="button"

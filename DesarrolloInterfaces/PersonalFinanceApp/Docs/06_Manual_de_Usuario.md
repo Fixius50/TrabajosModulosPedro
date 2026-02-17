@@ -22,7 +22,7 @@ Esta aplicación transforma la gestión de tus finanzas en una aventura épica. 
 ### Zona de Peligro: Borrado de Cuenta
 
 - Si deseas retirar tu aventurero permanentemente:
-  1. Ve a **Perfil** (Icono de la esquina superior derecha).
+  1. Ve a **Perfil** (Situado en el centro del Dashboard principal).
   2. Baja hasta la sección **"Zona de Peligro"**.
   3. Pulsa **"Eliminar Cuenta"** y confirma la acción.
   - **ADVERTENCIA:** Esto borrará todos tus registros locales y cerrará tu sesión irreversiblemente.
@@ -43,7 +43,7 @@ Esta aplicación transforma la gestión de tus finanzas en una aventura épica. 
 - **Items Disponibles:**
   - **Cosméticos:** Fondos de pantalla, bordes de avatar.
   - **Funcionales:** Slots extra para prespuestos, herramientas de análisis.
-- **Acceso:** Pulsa el icono de la "Tienda" en la barra de navegación inferior.
+- **Acceso:** Pulsa el icono del Compass/Grimorio en el Menú de Acción Central (QuickAdd).
 
 ### 3. Gremio (Cuentas Compartidas)
 

@@ -273,6 +273,74 @@ class HouseholdService {
                 .eq('id', accountId);
         }
     }
+
+    /**
+     * Get statistics of member contributions for a household
+     */
+    async getMemberStats(householdId: string, filters?: { startDate?: string; endDate?: string; category?: string }) {
+        // 1. Get all shared accounts for this household
+        const accounts = await this.getSharedAccounts(householdId);
+        const accountIds = accounts.map(a => a.id);
+
+        if (accountIds.length === 0) return [];
+
+        // 2. Query transactions for these accounts
+        let query = supabase
+            .from('shared_account_transactions')
+            .select(`
+                amount,
+                created_by,
+                category,
+                created_at,
+                profiles:created_by (
+                    username,
+                    avatar_url
+                )
+            `)
+            .in('shared_account_id', accountIds);
+
+        if (filters?.startDate) {
+            query = query.gte('created_at', filters.startDate);
+        }
+        if (filters?.endDate) {
+            query = query.lte('created_at', filters.endDate);
+        }
+        if (filters?.category && filters.category !== 'all') {
+            query = query.eq('category', filters.category);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Error fetching stats:', error);
+            return [];
+        }
+
+        // 3. Aggregate data by user
+        const statsMap: Record<string, { username: string; avatar_url: string; total: number; count: number; categories: Record<string, number> }> = {};
+
+        data.forEach((tx: any) => {
+            const userId = tx.created_by;
+            if (!statsMap[userId]) {
+                const profileData = Array.isArray(tx.profiles) ? tx.profiles[0] : tx.profiles;
+                statsMap[userId] = {
+                    username: profileData?.username || 'Anónimo',
+                    avatar_url: profileData?.avatar_url || '',
+                    total: 0,
+                    count: 0,
+                    categories: {}
+                };
+            }
+            statsMap[userId].total += tx.amount;
+            statsMap[userId].count += 1;
+            statsMap[userId].categories[tx.category] = (statsMap[userId].categories[tx.category] || 0) + tx.amount;
+        });
+
+        return Object.entries(statsMap).map(([userId, stats]) => ({
+            userId,
+            ...stats
+        })).sort((a, b) => b.total - a.total);
+    }
 }
 
 export const householdService = new HouseholdService();

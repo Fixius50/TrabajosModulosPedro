@@ -118,7 +118,7 @@ const QuestBoard: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                {isClaimed && <span className="px-2 py-0.5 rounded border border-primary/20 text-[10px] text-primary/30 uppercase tracking-widest">Reclamado</span>}
+                                {isClaimed && <span className="px-2 py-0.5 rounded border border-primary/20 text-[0.625rem] text-primary/30 uppercase tracking-widest">Reclamado</span>}
                             </div>
 
                             <p className="text-sm text-primary/60 mb-4 pl-12">
@@ -138,7 +138,7 @@ const QuestBoard: React.FC = () => {
                                 {isActive && (
                                     <button
                                         onClick={() => handleComplete(mission.id)} // DEV ONLY for now
-                                        className="px-3 py-1 border border-primary/30 text-primary/40 text-[10px] uppercase hover:text-primary hover:border-primary/60 transition-colors"
+                                        className="px-3 py-1 border border-primary/30 text-primary/40 text-[0.625rem] uppercase hover:text-primary hover:border-primary/60 transition-colors"
                                     >
                                         (Dev: Simular Completar)
                                     </button>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { householdService, Household, HouseholdMember } from '../../services/householdService';
-import { Users, Plus, LogIn, Crown, Shield, Copy, Check, ArrowLeft } from 'lucide-react';
+import { Users, Plus, LogIn, Crown, Shield, Copy, Check, ArrowLeft, BarChart3, List } from 'lucide-react';
+import HouseholdAnalytics from './HouseholdAnalytics';
 
 export default function HouseholdManager() {
     const { t } = useTranslation();
@@ -9,6 +10,7 @@ export default function HouseholdManager() {
     const [selectedHousehold, setSelectedHousehold] = useState<Household | null>(null);
     const [members, setMembers] = useState<HouseholdMember[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showStats, setShowStats] = useState(false);
 
     // Forms
     const [isCreating, setIsCreating] = useState(false);
@@ -97,70 +99,94 @@ export default function HouseholdManager() {
                         <p className="text-xs text-stone-500 font-mono">ID: {selectedHousehold.id}</p>
                     </div>
                     <div className="ml-auto">
-                        <div className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20">
+                        <div className="text-[0.625rem] bg-primary/10 text-primary px-2 py-1 rounded border border-primary/20">
                             {selectedHousehold.currency}
                         </div>
                     </div>
                 </header>
 
-                {/* Stats / Overview Mockup */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="fantasy-card p-4 bg-[#1c1917]">
-                        <span className="text-xs uppercase font-bold text-stone-500 block mb-1">Total Balance</span>
-                        <span className="text-xl font-bold text-emerald-400">Todo: $0</span>
-                    </div>
-                    <div className="fantasy-card p-4 bg-[#1c1917]">
-                        <span className="text-xs uppercase font-bold text-stone-500 block mb-1">Members</span>
-                        <span className="text-xl font-bold text-stone-300">{members.length}</span>
-                    </div>
+                {/* Navigation Tabs */}
+                <div className="flex gap-2 p-1 bg-stone-900/50 rounded-xl border border-white/5">
+                    <button
+                        onClick={() => setShowStats(false)}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${!showStats ? 'bg-primary text-black shadow-lg' : 'text-stone-400 hover:text-stone-200'}`}
+                    >
+                        <List size={14} />
+                        Miembros
+                    </button>
+                    <button
+                        onClick={() => setShowStats(true)}
+                        className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${showStats ? 'bg-primary text-black shadow-lg' : 'text-stone-400 hover:text-stone-200'}`}
+                    >
+                        <BarChart3 size={14} />
+                        Estadísticas
+                    </button>
                 </div>
 
-                {/* Members List */}
-                <div className="fantasy-card p-0 overflow-hidden">
-                    <div className="bg-stone-900/50 p-3 border-b border-white/5">
-                        <span className="text-xs font-bold uppercase tracking-wider text-stone-400">Squad Members</span>
-                    </div>
-                    <div className="divide-y divide-white/5">
-                        {members.map((member) => (
-                            <div key={member.id} className="p-3 flex items-center gap-3 hover:bg-white/5 transition-colors">
-                                <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-600 flex items-center justify-center overflow-hidden">
-                                    {member.profile?.avatar_url ? (
-                                        <img src={member.profile.avatar_url} alt={member.profile.username} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Users size={14} className="text-stone-500" />
-                                    )}
-                                </div>
-                                <div className="flex-grow">
-                                    <div className="text-sm font-bold text-stone-200">
-                                        {member.profile?.username || 'Usuario desconocido'}
+                {!showStats ? (
+                    <>
+                        {/* Stats / Overview Mockup */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="fantasy-card p-4 bg-[#1c1917]">
+                                <span className="text-xs uppercase font-bold text-stone-500 block mb-1">Total Balance</span>
+                                <span className="text-xl font-bold text-emerald-400">Todo: $0</span>
+                            </div>
+                            <div className="fantasy-card p-4 bg-[#1c1917]">
+                                <span className="text-xs uppercase font-bold text-stone-500 block mb-1">Members</span>
+                                <span className="text-xl font-bold text-stone-300">{members.length}</span>
+                            </div>
+                        </div>
+
+                        {/* Members List */}
+                        <div className="fantasy-card p-0 overflow-hidden">
+                            <div className="bg-stone-900/50 p-3 border-b border-white/5">
+                                <span className="text-xs font-bold uppercase tracking-wider text-stone-400">Squad Members</span>
+                            </div>
+                            <div className="divide-y divide-white/5">
+                                {members.map((member) => (
+                                    <div key={member.id} className="p-3 flex items-center gap-3 hover:bg-white/5 transition-colors">
+                                        <div className="w-8 h-8 rounded-full bg-stone-800 border border-stone-600 flex items-center justify-center overflow-hidden">
+                                            {member.profile?.avatar_url ? (
+                                                <img src={member.profile.avatar_url} alt={member.profile.username} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Users size={14} className="text-stone-500" />
+                                            )}
+                                        </div>
+                                        <div className="flex-grow">
+                                            <div className="text-sm font-bold text-stone-200">
+                                                {member.profile?.username || 'Usuario desconocido'}
+                                            </div>
+                                            <div className="text-[0.625rem] text-stone-500 uppercase flex items-center gap-1">
+                                                {member.role === 'admin' ? (
+                                                    <span className="text-gold flex items-center gap-0.5"><Crown size={10} /> Admin</span>
+                                                ) : (
+                                                    <span className="text-stone-500 flex items-center gap-0.5"><Shield size={10} /> Member</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="text-[10px] text-stone-500 uppercase flex items-center gap-1">
-                                        {member.role === 'admin' ? (
-                                            <span className="text-gold flex items-center gap-0.5"><Crown size={10} /> Admin</span>
-                                        ) : (
-                                            <span className="text-stone-500 flex items-center gap-0.5"><Shield size={10} /> Member</span>
-                                        )}
-                                    </div>
+                                ))}
+                            </div>
+                            {/* Copy ID Section */}
+                            <div className="p-3 bg-stone-900/30 border-t border-white/5">
+                                <div className="flex items-center justify-between gap-2 p-2 rounded border border-dashed border-stone-700 bg-black/20">
+                                    <span className="text-xs font-mono text-stone-500 truncate max-w-[12.5rem]">
+                                        {selectedHousehold.id}
+                                    </span>
+                                    <button
+                                        onClick={() => copyToClipboard(selectedHousehold.id)}
+                                        className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
+                                    >
+                                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                                        {copied ? 'Copied' : 'Copy'}
+                                    </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                    {/* Copy ID Section */}
-                    <div className="p-3 bg-stone-900/30 border-t border-white/5">
-                        <div className="flex items-center justify-between gap-2 p-2 rounded border border-dashed border-stone-700 bg-black/20">
-                            <span className="text-xs font-mono text-stone-500 truncate max-w-[200px]">
-                                {selectedHousehold.id}
-                            </span>
-                            <button
-                                onClick={() => copyToClipboard(selectedHousehold.id)}
-                                className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
-                            >
-                                {copied ? <Check size={14} /> : <Copy size={14} />}
-                                {copied ? 'Copied' : 'Copy'}
-                            </button>
                         </div>
-                    </div>
-                </div>
+                    </>
+                ) : (
+                    <HouseholdAnalytics householdId={selectedHousehold.id} />
+                )}
             </div>
         );
     }

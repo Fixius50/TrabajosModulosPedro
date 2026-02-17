@@ -3,7 +3,7 @@ import './fantasy.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { transactionService } from '../../services/transactionService';
+import { transactionService, TransactionWithCategory } from '../../services/transactionService';
 import { useStealth } from '../../context/StealthContext';
 import { storageService } from '../../services/storageService';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -20,9 +20,12 @@ export default function GrimoireDashboard() {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'quests'>('dashboard');
 
     // Data Fetching
-    const { data: transactions } = useQuery({
+    const { data: transactions } = useQuery<TransactionWithCategory[]>({
         queryKey: ['transactions'],
-        queryFn: transactionService.getTransactions,
+        queryFn: async () => {
+            const data = await transactionService.getTransactions();
+            return (data || []) as TransactionWithCategory[];
+        },
     });
 
     const { data: budgets } = useQuery({
@@ -42,8 +45,9 @@ export default function GrimoireDashboard() {
     });
 
     // Calculations
-    const totalBalance = transactions?.reduce((acc: number, curr: any) => {
-        const isExpense = curr.categories?.type === 'expense';
+    const totalBalance = transactions?.reduce((acc: number, curr: TransactionWithCategory) => {
+        const categories = curr.categories as { type?: string } | null;
+        const isExpense = categories?.type === 'expense';
         return acc + (isExpense ? -curr.amount : curr.amount);
     }, 0) || 0;
 
@@ -67,7 +71,7 @@ export default function GrimoireDashboard() {
         data.push({ name: 'Vacio', value: 100, color: '#292524', path: '#' });
     }
 
-    const onPieClick = (data: any) => {
+    const onPieClick = (data: { path?: string }) => {
         if (data && data.path && data.path !== '#') {
             navigate(data.path);
         }
@@ -138,7 +142,7 @@ export default function GrimoireDashboard() {
 
                                 {/* Name & Net Worth */}
                                 <h2 className="text-lg font-bold text-stone-200 tracking-wide">{profile?.username || 'Aventurero'}</h2>
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest mb-2">Valor Neto Actual</p>
+                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest mb-2">Valor Neto Actual</p>
                                 <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-200 to-primary animate-pulse-slow">
                                     {formatAmount(netWorth)}
                                 </div>
@@ -157,7 +161,7 @@ export default function GrimoireDashboard() {
                                             paddingAngle={5}
                                             dataKey="value"
                                             stroke="none"
-                                            onClick={onPieClick}
+                                            onClick={(data: { payload: { path?: string } }) => onPieClick(data.payload)}
                                             cursor="pointer"
                                         >
                                             {data.map((entry, index) => (
@@ -165,8 +169,8 @@ export default function GrimoireDashboard() {
                                             ))}
                                         </Pie>
                                         <Tooltip
-                                            formatter={(value: any) => formatAmount(value)}
-                                            contentStyle={{ backgroundColor: '#1c1917', borderColor: '#292524', borderRadius: '8px', color: '#e7e5e4' }}
+                                            formatter={(value: number | string | undefined) => formatAmount(Number(value || 0))}
+                                            contentStyle={{ backgroundColor: '#1c1917', borderColor: '#292524', borderRadius: '0.5rem', color: '#e7e5e4' }}
                                             itemStyle={{ color: '#f4c025' }}
                                         />
                                     </PieChart>
@@ -174,7 +178,7 @@ export default function GrimoireDashboard() {
 
                                 {/* Center Label */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-[10px] uppercase text-stone-600 font-bold tracking-widest">Finanzas</span>
+                                    <span className="text-[0.625rem] uppercase text-stone-600 font-bold tracking-widest">Finanzas</span>
                                 </div>
                             </section>
 

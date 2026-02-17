@@ -162,7 +162,7 @@ export default function Subscriptions() {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-stone-200">{contract.name}</h3>
-                                            <p className="text-[10px] text-stone-500 uppercase tracking-wider flex items-center gap-1">
+                                            <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider flex items-center gap-1">
                                                 <Calendar size={10} /> {contract.cycle === 'monthly' ? 'Mensual' : 'Anual'}
                                             </p>
                                         </div>

@@ -134,7 +134,7 @@ export default function AddTransaction() {
                                         }`}
                                 >
                                     <div className="text-2xl filter drop-shadow-md">{cat.icon}</div>
-                                    <div className="text-[10px] uppercase font-bold tracking-wide text-center">{t(`category_${cat.name.toLowerCase()}`, cat.name)}</div>
+                                    <div className="text-[0.625rem] uppercase font-bold tracking-wide text-center">{t(`category_${cat.name.toLowerCase()}`, cat.name)}</div>
                                 </div>
                             ))}
                         </div>

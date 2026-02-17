@@ -159,8 +159,8 @@ export default function SharedAccounts() {
                                     : 'bg-[#1c1917] border-[#292524] text-stone-500 hover:text-stone-300'
                                     }`}
                             >
-                                <div className="text-xs font-bold truncate max-w-[100px]">{acc.name}</div>
-                                <div className="text-[10px] opacity-70">{acc.currency} {acc.balance.toFixed(2)}</div>
+                                <div className="text-xs font-bold truncate max-w-[6.25rem]">{acc.name}</div>
+                                <div className="text-[0.625rem] opacity-70">{acc.currency} {acc.balance.toFixed(2)}</div>
                             </button>
                         ))}
                     </div>
@@ -196,7 +196,7 @@ export default function SharedAccounts() {
                             <div className="text-xs text-blue-200">
                                 <span className="font-bold text-blue-300">{currentUserEmail || 'Tu usuario'}</span> está compartiendo esta cuenta con el hogar.
                                 <br />
-                                <span className="opacity-60 text-[10px]">Todas las transacciones son visibles para los miembros del grupo.</span>
+                                <span className="opacity-60 text-[0.625rem]">Todas las transacciones son visibles para los miembros del grupo.</span>
                             </div>
                         </div>
 
@@ -219,7 +219,7 @@ export default function SharedAccounts() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-stone-200">{tx.description}</p>
-                                                    <p className="text-[10px] text-stone-500">
+                                                    <p className="text-[0.625rem] text-stone-500">
                                                         {new Date(tx.created_at).toLocaleDateString()} • {tx.created_by_user?.email || 'Miembro'}
                                                     </p>
                                                 </div>

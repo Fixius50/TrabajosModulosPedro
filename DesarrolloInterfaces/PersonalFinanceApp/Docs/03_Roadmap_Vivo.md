@@ -69,6 +69,13 @@ El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Lo
 - [x] **Estabilidad**:
   - Hotfix "Stealth Mode" (prevención de crashes).
   - Corrección de navegación en importación y assets de mercado.
+  - Incremento de Session Timeout (1m -> 30m).
+
+### ⏳ Phase 2.5: Estabilidad y Resiliencia (EN PROGRESO)
+
+- [ ] **Manejo de Errores Global**: Implementación de `GlobalErrorBoundary` para prevenir cierres inesperados.
+- [ ] **Auth Debugging**: Trazabilidad de estados de sesión en `AuthContext`.
+- [ ] **Auditoría de Navegación**: Verificación de redirecciones fantasma en interacciones DOM.
 
 ---
 
@@ -125,7 +132,7 @@ Phase 1-21:  ████████████████████ 100%
 Phase 22:    ████████████████████ 100% (Fase 2.5)
 Phase 23:    ░░░░░░░░░░░░░░░░░░░░   0%
 
-TOTAL:       ███████████████████░  99%
+TOTAL:       ███████████████████░  95%
 ```
 
 ---

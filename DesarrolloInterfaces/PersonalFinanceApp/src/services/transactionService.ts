@@ -11,13 +11,22 @@ export interface Transaction {
     created_at: string;
 }
 
+export interface TransactionWithCategory extends Transaction {
+    categories: {
+        name: string;
+        icon: string;
+        color: string;
+        type?: 'income' | 'expense';
+    } | null;
+}
+
 export class TransactionService {
     async getTransactions() {
         const { data, error } = await supabase
             .from('transactions')
             .select(`
         *,
-        categories (name, icon, color)
+        categories (name, icon, color, type)
       `)
             .order('date', { ascending: false });
 

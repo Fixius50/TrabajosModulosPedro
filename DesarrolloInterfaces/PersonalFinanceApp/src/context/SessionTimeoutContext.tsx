@@ -17,7 +17,7 @@ const SessionTimeoutContext = createContext<SessionTimeoutContextType>({
     remainActive: () => { },
 });
 
-const TIMEOUT_DURATION = 60 * 1000; // 1 minute
+const TIMEOUT_DURATION = 30 * 60 * 1000; // 30 minutes
 const WARNING_THRESHOLD = 15 * 1000; // 15 seconds remaining (45s elapsed)
 
 export const SessionTimeoutProvider = ({ children }: { children: React.ReactNode }) => {
@@ -73,7 +73,7 @@ export const SessionTimeoutProvider = ({ children }: { children: React.ReactNode
             if (!timeoutId) {
                 handleActivity();
                 timeoutId = setTimeout(() => {
-                    // @ts-ignore
+                    // @ts-expect-error: window.navigation is not yet in all type definitions
                     timeoutId = null;
                 }, 500);
             }

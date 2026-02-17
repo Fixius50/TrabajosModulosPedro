@@ -98,14 +98,14 @@ export default function FinancialScore() {
                         <TrendingUp size={24} className="text-green-400" />
                         <div>
                             <span className="text-sm font-bold text-stone-200 block">Ingresos Constantes</span>
-                            <span className="text-[10px] text-stone-500">Basado en tus registros</span>
+                            <span className="text-[0.625rem] text-stone-500">Basado en tus registros</span>
                         </div>
                     </div>
                     <div className="fantasy-card p-4 flex flex-col items-center text-center gap-2">
                         <Shield size={24} className="text-blue-400" />
                         <div>
                             <span className="text-sm font-bold text-stone-200 block">Baja Deuda</span>
-                            <span className="text-[10px] text-stone-500">Control de gastos</span>
+                            <span className="text-[0.625rem] text-stone-500">Control de gastos</span>
                         </div>
                     </div>
                 </div>

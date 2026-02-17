@@ -29,7 +29,7 @@ export default function QuickAddMenu() {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] flex flex-col items-center justify-end pointer-events-none">
 
             {/* Vertical Menu Items (Hamburger Style) */}
-            <div className={`flex flex-col-reverse items-center gap-3 mb-20 transition-all duration-300 ease-out z-50 pointer-events-auto ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+            <div className={`flex flex-col-reverse items-center gap-3 mb-20 transition-all duration-300 ease-out z-50 ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
                 {NAV_ITEMS.map((item, index) => {
                     const Icon = item.icon;
                     return (

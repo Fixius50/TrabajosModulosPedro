@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { transactionService } from '../../services/transactionService';
+import { transactionService, TransactionWithCategory } from '../../services/transactionService';
 import { storageService } from '../../services/storageService';
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -14,9 +14,12 @@ export default function Dashboard() {
     const [netWorth, setNetWorth] = useState(0);
 
     // Queries
-    const { data: transactions } = useQuery({
+    const { data: transactions } = useQuery<TransactionWithCategory[]>({
         queryKey: ['transactions'],
-        queryFn: transactionService.getTransactions,
+        queryFn: async () => {
+            const data = await transactionService.getTransactions();
+            return (data || []) as TransactionWithCategory[];
+        },
     });
 
     const { data: profile } = useQuery({
@@ -26,7 +29,7 @@ export default function Dashboard() {
     });
 
     // Local Data for Chart
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<{ name: string; value: number; color: string; path?: string }[]>([]);
 
     useEffect(() => {
         calculateFinancials();
@@ -34,8 +37,9 @@ export default function Dashboard() {
 
     const calculateFinancials = () => {
         // 1. Calculate Transaction Balance (Cash on Hand)
-        const cashBalance = transactions?.reduce((acc: number, curr: any) => {
-            const isExpense = curr.categories?.type === 'expense';
+        const cashBalance = transactions?.reduce((acc: number, curr: TransactionWithCategory) => {
+            const categories = curr.categories as { type?: string } | null;
+            const isExpense = categories?.type === 'expense';
             return acc + (isExpense ? -curr.amount : curr.amount);
         }, 0) || 0;
 
@@ -66,7 +70,7 @@ export default function Dashboard() {
         setChartData(data);
     };
 
-    const onPieClick = (data: any) => {
+    const onPieClick = (data: { path?: string }) => {
         if (data && data.path) {
             navigate(data.path);
         }
@@ -114,7 +118,7 @@ export default function Dashboard() {
                                 outerRadius={80}
                                 paddingAngle={5}
                                 dataKey="value"
-                                onClick={(data) => onPieClick(data.payload)}
+                                onClick={(data: { payload: { path?: string } }) => onPieClick(data.payload)}
                                 cursor="pointer"
                                 stroke="none"
                             >
@@ -123,9 +127,8 @@ export default function Dashboard() {
                                 ))}
                             </Pie>
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#1c1917', borderColor: '#292524', borderRadius: '8px' }}
-                                itemStyle={{ color: '#e7e5e4' }}
-                                formatter={(value: any) => [`$${Number(value).toLocaleString()}`, '']}
+                                contentStyle={{ backgroundColor: '#1c1917', borderColor: '#292524', borderRadius: '0.5rem' }}
+                                formatter={(value: number | string | undefined) => [`$${Number(value || 0).toLocaleString()}`, '']}
                             />
                         </PieChart>
                     </ResponsiveContainer>

@@ -5,7 +5,6 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 // https://vite.dev/config/
-// @ts-ignore - Plugin type mismatch between vite-plugin-pwa and vitest's bundled Vite
 export default defineConfig({
   plugins: [
     react(),
@@ -79,7 +78,7 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000
   },
-  // @ts-ignore - test property is from Vitest, not recognized by Vite's UserConfigExport
+  // @ts-expect-error - test property is from Vitest, not recognized by Vite's UserConfigExport
   test: {
     environment: 'jsdom',
     globals: true,

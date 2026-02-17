@@ -10,12 +10,6 @@ interface CSVRow {
     [key: string]: string;
 }
 
-interface ColumnMapping {
-    date: string;
-    description: string;
-    amount: string;
-}
-
 interface Category {
     id: string;
     name: string;
@@ -27,7 +21,7 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
     const navigate = useNavigate();
     const [parsedData, setParsedData] = useState<CSVRow[]>([]);
     const [headers, setHeaders] = useState<string[]>([]);
-    const [mapping, setMapping] = useState<ColumnMapping>({ date: '', description: '', amount: '' });
+    const [mapping, setMapping] = useState<{ date: string; description: string[]; amount: string }>({ date: '', description: [], amount: '' });
     const [defaultCategoryId, setDefaultCategoryId] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Upload, 2: Map, 3: Preview/Submit
@@ -45,13 +39,13 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
                 setStep(2);
 
                 // Try to auto-map common headers
-                const newMapping = { date: '', description: '', amount: '' };
+                const newMapping: { date: string; description: string[]; amount: string } = { date: '', description: [], amount: '' };
                 const fields = results.meta.fields || [];
                 fields.forEach(f => {
                     const lower = f.toLowerCase();
                     if (lower.includes('date') || lower.includes('fecha')) newMapping.date = f;
-                    if (lower.includes('desc') || lower.includes('concept')) newMapping.description = f;
-                    if (lower.includes('amount') || lower.includes('cantidad') || lower.includes('importe')) newMapping.amount = f;
+                    if (lower.includes('desc') || lower.includes('concept') || lower.includes('nom') || lower.includes('ref')) newMapping.description.push(f);
+                    if (lower.includes('amount') || lower.includes('cantidad') || lower.includes('importe') || lower.includes('saldo')) newMapping.amount = f;
                 });
                 setMapping(newMapping);
             }
@@ -72,9 +66,15 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
                 amountStr = amountStr.replace(/[^0-9.,-]/g, '').replace(',', '.');
                 const amount = parseFloat(amountStr);
 
+                // Join multiple description columns
+                const description = mapping.description
+                    .map(col => row[col])
+                    .filter(val => val && val.trim() !== '')
+                    .join(' - ') || 'Sin descripción';
+
                 return {
                     amount: isNaN(amount) ? 0 : amount,
-                    description: row[mapping.description] || 'Sin descripción',
+                    description: description,
                     date: row[mapping.date] ? new Date(row[mapping.date]).toISOString() : new Date().toISOString(),
                     category_id: defaultCategoryId,
                     user_id: user.id
@@ -89,6 +89,16 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
         } finally {
             setLoading(false);
         }
+    };
+
+    const toggleDescriptionColumn = (column: string) => {
+        setMapping(prev => {
+            const exists = prev.description.includes(column);
+            const newDesc = exists
+                ? prev.description.filter(c => c !== column)
+                : [...prev.description, column];
+            return { ...prev, description: newDesc };
+        });
     };
 
     if (step === 1) {
@@ -128,17 +138,35 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
                                 {headers.map(h => <option key={h} value={h}>{h}</option>)}
                             </select>
                         </div>
+
                         <div>
-                            <label className="text-xs font-bold text-stone-500 uppercase block mb-1">Descripción</label>
+                            <label className="text-xs font-bold text-stone-500 uppercase block mb-1">Descripción (Multi-columna)</label>
+                            <div className="flex flex-wrap gap-2 mb-2 p-2 bg-stone-800/50 rounded-lg min-h-[2.625rem]">
+                                {mapping.description.length === 0 && <span className="text-stone-500 text-sm italic py-1 px-2">Ninguna seleccionada</span>}
+                                {mapping.description.map(col => (
+                                    <span key={col} className="bg-primary/20 text-primary text-xs px-2 py-1 rounded flex items-center gap-1">
+                                        {col}
+                                        <button onClick={() => toggleDescriptionColumn(col)} className="hover:text-white">×</button>
+                                    </span>
+                                ))}
+                            </div>
                             <select
-                                value={mapping.description}
-                                onChange={(e) => setMapping({ ...mapping, description: e.target.value })}
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        toggleDescriptionColumn(e.target.value);
+                                        e.target.value = ""; // Reset select
+                                    }
+                                }}
                                 className="w-full bg-stone-800 border-none rounded-lg p-2 text-stone-200"
                             >
-                                <option value="">Seleccionar...</option>
-                                {headers.map(h => <option key={h} value={h}>{h}</option>)}
+                                <option value="">+ Añadir Columna...</option>
+                                {headers.filter(h => !mapping.description.includes(h)).map(h => (
+                                    <option key={h} value={h}>{h}</option>
+                                ))}
                             </select>
+                            <p className="text-[0.625rem] text-stone-500 mt-1">Selecciona múltiples columnas para combinarlas (ej: Concepto + Notas).</p>
                         </div>
+
                         <div>
                             <label className="text-xs font-bold text-stone-500 uppercase block mb-1">Cantidad/Monto</label>
                             <select
@@ -154,7 +182,7 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
 
                     <button
                         onClick={() => setStep(3)}
-                        disabled={!mapping.date || !mapping.amount}
+                        disabled={!mapping.date || !mapping.amount || mapping.description.length === 0}
                         className="w-full btn-secondary py-3 mt-4 flex items-center justify-center gap-2"
                     >
                         Continuar <ArrowRight size={16} />
@@ -180,7 +208,12 @@ export default function CSVImport({ categories }: { categories: Category[] }) {
                                     {parsedData.slice(0, 5).map((row, i) => (
                                         <tr key={i} className="border-b border-stone-800/50">
                                             <td className="py-2 opacity-70">{row[mapping.date]?.substring(0, 10)}</td>
-                                            <td className="py-2 truncate max-w-[150px]">{row[mapping.description]}</td>
+                                            <td className="py-2 truncate max-w-[9.375rem]">
+                                                {mapping.description
+                                                    .map(col => row[col])
+                                                    .filter(val => val && val.trim() !== '')
+                                                    .join(' - ') || 'Sin descripción'}
+                                            </td>
                                             <td className="py-2 text-right font-mono">{row[mapping.amount]}</td>
                                         </tr>
                                     ))}

@@ -153,19 +153,19 @@ export default function DebtTracker() {
                 <div className="flex bg-[#1c1917] p-1 rounded-lg border border-stone-800">
                     <button
                         onClick={() => setFilterType('all')}
-                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'all' ? 'bg-stone-700 text-stone-200 shadow' : 'text-stone-500 hover:text-stone-300'}`}
+                        className={`flex-1 py-1 text-[0.625rem] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'all' ? 'bg-stone-700 text-stone-200 shadow' : 'text-stone-500 hover:text-stone-300'}`}
                     >
                         Todos
                     </button>
                     <button
                         onClick={() => setFilterType('owed_to_me')}
-                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'owed_to_me' ? 'bg-emerald-900/30 text-emerald-400 shadow border border-emerald-900/50' : 'text-stone-500 hover:text-stone-300'}`}
+                        className={`flex-1 py-1 text-[0.625rem] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'owed_to_me' ? 'bg-emerald-900/30 text-emerald-400 shadow border border-emerald-900/50' : 'text-stone-500 hover:text-stone-300'}`}
                     >
                         Tributos
                     </button>
                     <button
                         onClick={() => setFilterType('i_owe')}
-                        className={`flex-1 py-1 text-[10px] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'i_owe' ? 'bg-red-900/30 text-red-400 shadow border border-red-900/50' : 'text-stone-500 hover:text-stone-300'}`}
+                        className={`flex-1 py-1 text-[0.625rem] uppercase font-bold tracking-wider rounded transition-all ${filterType === 'i_owe' ? 'bg-red-900/30 text-red-400 shadow border border-red-900/50' : 'text-stone-500 hover:text-stone-300'}`}
                     >
                         Cargas
                     </button>
@@ -245,13 +245,13 @@ export default function DebtTracker() {
                                     </div>
                                     <div className="min-w-0">
                                         <h3 className="font-bold text-stone-200 truncate">{debt.name}</h3>
-                                        <p className="text-[10px] text-stone-500 uppercase tracking-widest truncate">
+                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest truncate">
                                             {debt.role && debt.role !== 'Unknown' ? debt.role : (debt.type === 'owed_to_me' ? 'Tributo' : 'Carga')}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="text-right shrink-0 ml-2">
-                                    <span className={`font-mono font-bold block truncate max-w-[100px] ${debt.type === 'owed_to_me' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                    <span className={`font-mono font-bold block truncate max-w-[6.25rem] ${debt.type === 'owed_to_me' ? 'text-emerald-400' : 'text-red-400'}`}>
                                         {debt.type === 'owed_to_me' ? '+' : '-'}{debt.amount}
                                     </span>
                                     <button
@@ -259,7 +259,7 @@ export default function DebtTracker() {
                                             e.stopPropagation();
                                             handleSettleDebt(debt.id, debt.amount, debt.type);
                                         }}
-                                        className="text-[10px] uppercase font-bold text-stone-500 hover:text-red-400 transition-colors mt-1 flex items-center gap-1 justify-end ml-auto"
+                                        className="text-[0.625rem] uppercase font-bold text-stone-500 hover:text-red-400 transition-colors mt-1 flex items-center gap-1 justify-end ml-auto"
                                     >
                                         <Trash2 size={12} /> Saldar
                                     </button>

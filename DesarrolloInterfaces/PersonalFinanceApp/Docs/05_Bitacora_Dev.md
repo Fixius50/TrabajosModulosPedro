@@ -4,6 +4,23 @@
 
 ---
 
+## [Fecha: 2026-02-17] | Fase 2.5 | Estabilidad y Resiliencia
+
+- **Usuario**: Roberto Monedero Alonso
+- **Cambios**:
+  - **BUG FIX**: Corregido problema de cierre de sesión involuntario en `QuickAddMenu`.
+    - Las opciones del menú (incluyendo "Huir") seguían siendo clickeables aunque fueran invisibles debido a un conflicto de clases `pointer-events`.
+    - Se eliminó la clase estática `pointer-events-auto` y se movió a la lógica condicional del estado `isOpen`.
+  - **Gamification**: Añadidas 20 nuevas misiones y logros de temática RPG.
+  - **Hogar Analytics**: Implementado sistema de estadísticas de contribución por miembro con filtros dinámicos.
+  - **GlobalErrorBoundary**: Implementado para capturar crashes de renderizado.
+  - **Auth Resilience**: Añadido logging de eventos de Supabase Auth para debug.
+  - **UX**: Incremento de Session Timeout a 30m.
+  - **Docs**: Sincronización masiva de la Suite Documental (Roadmap, Estrategia, Bitácora).
+- **Estado**: ✅ Completado.
+
+---
+
 ## [Fecha: 2026-02-16] | Fase 22 | Gestión de Hogares y Multijugador
 
 - **Usuario**: Roberto Monedero Alonso
