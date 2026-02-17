@@ -17,7 +17,22 @@
   - **Auth Resilience**: Añadido logging de eventos de Supabase Auth para debug.
   - **UX**: Incremento de Session Timeout a 30m.
   - **Docs**: Sincronización masiva de la Suite Documental (Roadmap, Estrategia, Bitácora).
+- [x] **Entorno**: Ajuste de `vite.config.ts` y scripts de `package.json` para despliegue correcto en Vercel.
 - **Estado**: ✅ Completado.
+
+---
+
+## [Fecha: 2026-02-17] | Fase 2.6 | Household Realtime & Vercel Fix
+
+- **Usuario**: Roberto Monedero Alonso
+- **Cambios**:
+  - **Supabase Realtime**: Implementada suscripción a `postgres_changes` en `SharedAccounts.tsx` para sincronización instantánea.
+  - **Verification Script**: Creado `simulate_spouse.ts` para pruebas E2E de concurrencia.
+    - *Tech*: Uso de token de sesión inyectado vía variables de entorno para saltar RLS.
+  - **DevOps / Vercel**:
+    - Reconfiguración del `package.json` raíz para construir `PersonalFinanceApp` correctamente.
+    - Ajuste de `vercel.json` para redirección SPA (`rewrites` a `/index.html`) eliminando config legacy.
+- **Estado**: ✅ Verificado y Desplegable.
 
 ---
 

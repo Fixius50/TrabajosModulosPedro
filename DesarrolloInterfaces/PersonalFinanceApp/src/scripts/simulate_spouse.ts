@@ -14,11 +14,25 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-    console.error("❌ Faltan variables de entorno VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY");
+    console.error("❌ Faltan variables de entorno.");
     process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Auth with token if provided
+const TEST_ACCESS_TOKEN = process.env.TEST_ACCESS_TOKEN;
+const TEST_REFRESH_TOKEN = process.env.TEST_REFRESH_TOKEN;
+
+if (TEST_ACCESS_TOKEN && TEST_REFRESH_TOKEN) {
+    console.log("🔐 Usando token de prueba para autenticación...");
+    await supabase.auth.setSession({
+        access_token: TEST_ACCESS_TOKEN,
+        refresh_token: TEST_REFRESH_TOKEN
+    });
+} else {
+    console.warn("⚠️ No se proporcionó token (TEST_ACCESS_TOKEN). Se usará cliente anónimo (puede fallar por RLS).");
+}
 
 async function simulateSpouseActivity() {
     console.log("🤖 Iniciando Simulación de Cónyuge...");

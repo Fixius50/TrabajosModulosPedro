@@ -13,6 +13,7 @@ El proyecto ha transcendido el plano web. Se ha configurado el núcleo de Capaci
 - [x] **Gestión de Activos**: Sistema de mercado, inventario y visualización rúnica (Nano Banana).
 - [x] **Entrada de Datos**: Importador CSV y gestión de Hogares (Households) funcionales.
 - [x] **Preparación Móvil**: Configuración de Capacitor y limpieza de Deuda Técnica (Linting/Types).
+- [x] **Realtime Household**: Sincronización instantánea de cuentas compartidas (Supabase Realtime).
 
 ---
 
@@ -32,7 +33,7 @@ Estas son las misiones sagradas que quedan para completar el grimorio final:
 
 ### ⏳ Futuro: Multijugador & Gamificación
 
-- [ ] **Sincronización en Tiempo Real**: Notificaciones y actualizaciones instantáneas entre miembros del Hogar.
+- [x] **Sincronización en Tiempo Real**: Notificaciones y actualizaciones instantáneas entre miembros del Hogar.
 - [ ] **Boss Battles & RPG Elements**: Algoritmos avanzados de ahorro gamificado.
 
 ---

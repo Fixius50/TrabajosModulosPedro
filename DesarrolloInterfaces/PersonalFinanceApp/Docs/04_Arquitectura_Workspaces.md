@@ -18,7 +18,9 @@ PersonalFinanceApp/
 │   ├── 05_Bitacora_Dev.md          # Historial técnico
 │   ├── Funcionalidades.md          # Especificación de features
 │   ├── Skills/                     # Procedimientos estandarizados
-│   └── MCP/                        # Configuración de herramientas
+│   ├── MCP/                        # Configuración de herramientas
+│   └── scripts/                    # 🤖 Scripts de Automatización y Pruebas
+│       └── simulate_spouse.ts      # Simulador de actividad de usuario secundario
 │
 ├── src/                            # 💻 Código Fuente
 │   ├── assets/                     # 🎨 Recursos estáticos
