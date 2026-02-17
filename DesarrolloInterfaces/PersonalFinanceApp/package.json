@@ -14,6 +14,7 @@
     "upload:assets": "tsx scripts/upload_assets.ts"
   },
   "dependencies": {
+    "@capacitor/core": "^8.1.0",
     "@sentry/browser": "^10.38.0",
     "@sentry/react": "^10.38.0",
     "@supabase/supabase-js": "^2.95.3",
@@ -33,8 +34,7 @@
     "react-i18next": "^16.5.4",
     "react-router-dom": "^7.13.0",
     "recharts": "^3.7.0",
-    "tailwind-merge": "^3.4.1",
-    "@capacitor/core": "^8.1.0"
+    "tailwind-merge": "^3.4.1"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",
@@ -48,6 +48,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "@vitest/ui": "^4.0.18",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^17.3.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

@@ -43,6 +43,52 @@ export default function SharedAccounts() {
         }
     }, [selectedAccount]);
 
+    // Realtime Subscription
+    useEffect(() => {
+        if (!householdId) return;
+
+        console.log("🔌 Suscribiéndose a cambios en Household:", householdId);
+
+        const channel = supabase
+            .channel(`household:${householdId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'shared_accounts',
+                    filter: `household_id=eq.${householdId}`
+                },
+                (payload) => {
+                    console.log("⚡ Cambio en Cuenta detectado:", payload);
+                    loadData(); // Reload accounts to update balances/lists
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'shared_account_transactions'
+                },
+                (payload) => {
+                    console.log("⚡ Nueva Transacción detectada:", payload);
+                    // Si la transacción pertenece a la cuenta seleccionada, recargar
+                    if (selectedAccount && payload.new.shared_account_id === selectedAccount.id) {
+                        loadTransactions(selectedAccount.id);
+                        loadData(); // Para actualizar el saldo global
+                    }
+                }
+            )
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') console.log("✅ Conectado a Realtime");
+            });
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [householdId, selectedAccount]);
+
     const loadUser = async () => {
         const { data } = await supabase.auth.getUser();
         if (data.user?.email) setCurrentUserEmail(data.user.email);
