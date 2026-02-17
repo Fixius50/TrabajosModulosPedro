@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinFlow: Codex Arcana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Cinzel:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #f4c025;
+            --primary-glow: rgba(244, 192, 37, 0.4);
+            --bg: #0c0b06;
+            --card-bg: rgba(28, 25, 23, 0.7);
+            --border: rgba(244, 192, 37, 0.15);
+            --text: #e7e5e4;
+            --text-dim: #a8a29e;
+            --transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(244, 192, 37, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(244, 192, 37, 0.05) 0%, transparent 50%);
+        }
+
+        /* Layout Structure */
+        .app-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        /* Navigation Sidebar */
+        nav {
+            background: rgba(12, 11, 6, 0.95);
+            border-right: 1px solid var(--border);
+            padding: 3rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .nav-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(244, 192, 37, 0.05);
+            border-color: var(--border);
+        }
+
+        .nav-item.active {
+            box-shadow: inset 0 0 10px rgba(244, 192, 37, 0.1);
+        }
+
+        /* Content Area */
+        main {
+            position: relative;
+            overflow-y: auto;
+            padding: 4rem;
+        }
+
+        .page {
+            position: absolute;
+            top: 4rem;
+            left: 4rem;
+            right: 4rem;
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        /* Elements */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            font-family: 'Cinzel', serif;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            font-family: monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: #10b981;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        /* Expanded Prompts */
+        .prompt-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .prompt-entry {
+            background: rgba(244, 192, 37, 0.02);
+            border-left: 2px solid var(--primary);
+            padding: 2rem;
+            border-radius: 0 1rem 1rem 0;
+        }
+
+        .prompt-entry h4 {
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .prompt-text {
+            font-family: 'Inter', sans-serif;
+            font-style: italic;
+            color: #d1d5db;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            border: 1px dashed var(--border);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .prompt-text strong {
+            color: var(--primary);
+        }
+
+        /* Guide */
+        .guide-step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .step-num {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            opacity: 0.3;
+            min-width: 50px;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 1.2rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #f8f8f2;
+            margin-top: 1rem;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'TERMINAL';
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            font-size: 0.6rem;
+            background: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #aaa;
+        }
+
+        @media (max-width: 900px) {
+            .app-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                display: none;
+            }
+
+            main {
+                padding: 2rem;
+            }
+
+            .page {
+                left: 2rem;
+                right: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <nav>
+            <div class="nav-header">
+                <h1>FINFLOW</h1>
+                <p style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5;">CODEX ARCANA</p>
+            </div>
+            <div class="nav-item active" onclick="showPage('anatomy')">◈ Anatomía Técnica</div>
+            <div class="nav-item" onclick="showPage('prompts')">◈ El Sendero de IA</div>
+            <div class="nav-item" onclick="showPage('android')">◈ Forjado de APK</div>
+        </nav>
+
+        <main>
+            <!-- Page 1: Anatomy -->
+            <div id="anatomy" class="page active">
+                <h2>I. Anatomía del Sistema</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Nexo de Persistencia</h3>
+                        <p>Gestión de datos en tiempo real y seguridad de nivel bancario mediante políticas de
+                            aislamiento.</p>
+                        <div class="tech-stack">
+                            <span class="badge">Supabase v2</span>
+                            <span class="badge">PostgreSQL</span>
+                            <span class="badge">RLS Policies</span>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
+                            <code>src/lib/supabase.ts</code></p>
+                    </div>
+                    <div class="card">
+                        <h3>Archivo del Hogar</h3>
+                        <p>Sincronización de gastos compartidos y gestión de miembros mediante lógica de base de datos
+                            atómica.</p>
+                        <div class="tech-stack">
+                            <span class="badge">React Context</span>
+                            <span class="badge">Custom Triggers</span>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
+                            <code>src/services/householdService.ts</code></p>
+                    </div>
+                    <div class="card">
+                        <h3>Memoria Arcaica</h3>
+                        <p>Caché inteligente que permite el funcionamiento offline y la recuperación instantánea de
+                            estados.</p>
+                        <div class="tech-stack">
+                            <span class="badge">IndexedDB</span>
+                            <span class="badge">TanStack Query</span>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
+                            <code>src/services/storageService.ts</code></p>
+                    </div>
+                    <div class="card">
+                        <h3>Cripta de Archivos</h3>
+                        <p>Manejo de comprobantes y evidencias gráficas almacenadas en buckets cifrados.</p>
+                        <div class="tech-stack">
+                            <span class="badge">Supabase Storage</span>
+                            <span class="badge">File API</span>
+                        </div>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
+                            <code>src/services/transactionService.ts</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Prompts -->
+            <div id="prompts" class="page">
+                <h2>II. El Sendero de la IA</h2>
+                <div class="prompt-timeline">
+                    <div class="prompt-entry">
+                        <h4>Génesis de la Arquitectura</h4>
+                        <p>El primer rito para establecer la base sólida del grimorio.</p>
+                        <div class="prompt-text">
+                            "Necesito crear una SPA profesional con React y TypeScript. El objetivo es una gestión de
+                            finanzas personales pero con una <strong>estética de Fantasía Oscura</strong> (Dark
+                            Fantasy). Configura el proyecto para usar Supabase como backend, pero asegúrate de que toda
+                            la UI use <strong>Glassmorphism</strong> premium. Crea una carpeta <code>Docs/</code> donde
+                            gestiones el roadmap, las reglas de negocio y los diagramas de arquitectura. Quiero que seas
+                            proactivo y sugieras patrones de diseño escalables."
+                        </div>
+                    </div>
+
+                    <div class="prompt-entry">
+                        <h4>Alquimia Rúnica e Iconografía</h4>
+                        <p>Invocación de elementos visuales únicos mediante Nano Banana.</p>
+                        <div class="prompt-text">
+                            "Actúa como un Senior UI Designer. Para el Dashboard de FinFlow, no quiero iconos estándar
+                            de Material UI. Usa la herramienta <strong>Nano Banana</strong> para generar una serie de
+                            glifos rúnicos dorados sobre fondos oscuros que representen: Comida (Runa de Nutrición),
+                            Alquiler (Runa del Refugio), y Salario (Runa de la Abundancia). Una vez generados,
+                            implementa un componente <code>IconRing</code> que use estos assets con filtros de brillo
+                            dinámicos al hacer hover."
+                        </div>
+                    </div>
+
+                    <div class="prompt-entry">
+                        <h4>Atuendo Multiprocesador</h4>
+                        <p>Lógica de base de datos para la gestión colaborativa.</p>
+                        <div class="prompt-text">
+                            "Tengo que implementar la funcionalidad de 'Hogares'. Escribe un <strong>script SQL de
+                                migración</strong> para Supabase que cree la tabla <code>households</code> y una tabla
+                            intermedia de miembros. Lo más importante: crea un <strong>Trigger en PostgreSQL</strong>
+                            que se dispare después de insertar un hogar; este trigger debe insertar automáticamente al
+                            usuario creador en la tabla de miembros con el rol de 'ADMIN'. Realiza esto de forma que sea
+                            una transacción atómica para evitar desincronizaciones."
+                        </div>
+                    </div>
+
+                    <div class="prompt-entry">
+                        <h4>Transmutación Móvil</h4>
+                        <p>Reacondicionamiento para el mundo táctil nativo.</p>
+                        <div class="prompt-text">
+                            "La app debe ser Mobile First. Analiza todos los archivos CSS y componentes del directorio
+                            <code>src/</code>. Reemplaza cualquier unidad <code>px</code> hardcoded por unidades
+                            <code>rem</code> y <code>vh/vw</code> para que el escalado sea perfecto en pantallas de alta
+                            densidad de móviles. Después, configura <strong>Capacitor</strong> en el proyecto, ajustando
+                            el <code>appId</code> a 'com.roberto.finflow' y habilita el esquema HTTPS para las
+                            peticiones a la API en Android."
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: Android -->
+            <div id="android" class="page">
+                <h2>III. Forjado del APK</h2>
+                <div class="apk-content" style="max-width: 800px;">
+                    <p style="margin-bottom: 2rem; color: var(--text-dim);">Sigue estos pasos rituales para transformar
+                        el código web en una aplicación nativa instalable en Android.</p>
+
+                    <div class="guide-step">
+                        <div class="step-num">01</div>
+                        <div>
+                            <h4>Substitución de Energía (Build)</h4>
+                            <p>Compila todo el código TypeScript y React en archivos estáticos optimizados.</p>
+                            <div class="code-block">npm run build</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-num|02">02</div>
+                        <div>
+                            <h4>Portal de Dimensión (Android Add)</h4>
+                            <p>Crea el contenedor nativo de Android dentro de tu proyecto.</p>
+                            <div class="code-block">npx cap add android</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-num">03</div>
+                        <div>
+                            <h4>Sincronía de Almas (Sync)</h4>
+                            <p>Copia los archivos construidos de la carpeta <code>dist</code> al proyecto de Android.
+                            </p>
+                            <div class="code-block">npx cap sync</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-num">04</div>
+                        <div>
+                            <h4>Apertura del Taller (Studio)</h4>
+                            <p>Lanza el entorno de compilación de Google para el paso final.</p>
+                            <div class="code-block">npx cap open android</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-num">05</div>
+                        <div>
+                            <h4>Extracción de la Esencia (Build APK)</h4>
+                            <p>Dentro de Android Studio, ve al menú superior:</p>
+                            <div class="code-block">Build > Build Bundle(s) / APK(s) > Build APK(s)</div>
+                            <p style="margin-top: 1rem; font-size: 0.85rem;">El archivo resultante se encontrará en:
+                                <br><code>app/build/outputs/apk/debug/app-debug.apk</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.innerText.toLowerCase().includes(pageId === 'anatomy' ? 'anatomía' : pageId === 'prompts' ? 'sendero' : 'apk')) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update active page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
