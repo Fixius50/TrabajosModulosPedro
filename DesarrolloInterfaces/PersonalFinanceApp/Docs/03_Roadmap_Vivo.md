@@ -1,143 +1,54 @@
 # 03. Roadmap Vivo
 
-## Estado Actual: ✅ PHASES 16-19 COMPLETADAS (Production Ready)
+## Estado Actual: ✅ CONVERSIÓN MÓVIL COMPLETADA 🚀
 
-El proyecto ha completado exitosamente las fases de Marketplace, Pulido UX, y Localización. La aplicación está totalmente funcional en español, con sistema de economía y personalización activos.
-
----
-
-## 🎯 Fases Completadas
-
-### ✅ Phase 1-15: Fundación y Core
-
-- Arquitectura base, Gamificación, PWA, y Performance Optimization completados previamente.
-
-### ✅ Phase 16: Sistema de Marketplace (COMPLETADO)
-
-- [x] **Backend**: Tablas `marketplace_items` y `user_inventory` creadas.
-- [x] **Service**: `MarketplaceService` implementado con lógica de negocio.
-- [x] **UI**: Pantalla `MarketplaceScreen` con filtros por rareza/tipo.
-- [x] **Lógica**: Compra de items con validación de saldo (Oro/XP) y persistencia.
-
-### ✅ Phase 17: Preparación para Lanzamiento (COMPLETADO)
-
-- [x] **QA**: Flujo de OAuth con Google verificado.
-- [x] **Traducciones**: Revisión completa de textos en español.
-- [x] **Fixes**: Inserción de categorías por defecto en BD y corrección de navegación.
-
-### ✅ Phase 18: Pulido UX y Features Finales (COMPLETADO)
-
-- [x] **Animaciones**: Integración de `framer-motion` para transiciones fluidas.
-- [x] **Perfil**: Sistema de Rangos y Gremio Dinámico implementados.
-- [x] **Herramientas de Gremio**:
-  - [x] Rastreador de Deudas (Refactorizado con persistencia).
-  - [x] Contratos Mercenarios (Suscripciones).
-  - [x] Cuentas Conjuntas.
-  - [x] Puntuación Héroe.
-
-### ✅ Phase 19: Localización y Refactor UI (COMPLETADO)
-
-- [x] **Moneda**: Configuración de moneda (EUR, USD, GBP) en perfil de usuario.
-- [x] **Traducción**: "Añadir Transacción" y componentes clave 100% en español.
-- [x] **UI Header**: Rediseño con títulos centrados y menú desplegable para Logout.
-- [x] **Navegación**: Menú flotante central (QuickAddMenu) como navegación principal completa.
-- [x] **Optimización**: `AdventurerLicense` full-screen con scroll natural.
-- [x] **Limpieza**: Eliminación de imports no usados y optimización de código.
+El proyecto ha transcendido el plano web. Se ha configurado el núcleo de Capacitor, optimizado el UI para pantallas de alta densidad (`rem`) y reforzado la seguridad atómica en el backend.
 
 ---
 
-### ✅ Phase 20: Deuda Técnica y Estandarización (COMPLETADO)
+## 🎯 Hitos Alcanzados
 
-- [x] **Refactor**: Estandarización de interfaces `Contract` en toda la app.
-- [x] **Storage**: Migración de `MercenaryContracts` y `SharedAccounts` a `StorageService`.
-- [x] **CRUD**: Verificación de consistencia en create/read/update/delete.
-
-### ✅ Phase 21: Privacidad y Multi-usuario (COMPLETADO)
-
-- [x] **Aislamiento de Datos**: Soporte real para múltiples usuarios en el mismo dispositivo (Claves dinámicas).
-- [x] **Borrado de Cuenta**: Funcionalidad de eliminación de datos locales y cierre de sesión ("Zona de Peligro").
-- [x] **Seguridad**: Integración de `AuthContext` con inicialización de almacenamiento seguro.
-
-### ✅ Phase 22: Expansión y Refinamiento (Fase 2.5 - COMPLETADO)
-
-- [x] **Generación de Assets**: Infraestructura y assets (Batches 1-4) integrados en Supabase.
-- [x] **Entrada Flexible**: Importador CSV (PapaParse) para carga masiva de transacciones.
-- [x] **Dashboard 2.0**:
-  - Perfil centrado con cálculo de Valor Neto en tiempo real.
-  - Navegación circular (Donut Chart) interactiva.
-- [x] **Gestión de Hogar**: Vista de tarjetas y subpáginas detalladas para miembros.
-- [x] **Estabilidad**:
-  - Hotfix "Stealth Mode" (prevención de crashes).
-  - Corrección de navegación en importación y assets de mercado.
-  - Incremento de Session Timeout (1m -> 30m).
-
-### ⏳ Phase 2.5: Estabilidad y Resiliencia (EN PROGRESO)
-
-- [ ] **Manejo de Errores Global**: Implementación de `GlobalErrorBoundary` para prevenir cierres inesperados.
-- [ ] **Auth Debugging**: Trazabilidad de estados de sesión en `AuthContext`.
-- [ ] **Auditoría de Navegación**: Verificación de redirecciones fantasma en interacciones DOM.
+- [x] **Arquitectura Dark Fantasy**: UI Glassmorphism completa y documentada.
+- [x] **Base de Datos & Auth**: Supabase integrado con RLS y Triggers atómicos.
+- [x] **Gestión de Activos**: Sistema de mercado, inventario y visualización rúnica (Nano Banana).
+- [x] **Entrada de Datos**: Importador CSV y gestión de Hogares (Households) funcionales.
+- [x] **Preparación Móvil**: Configuración de Capacitor y limpieza de Deuda Técnica (Linting/Types).
 
 ---
 
-## 🚀 Próxima Fase
+## 🚀 El Siguiente Nivel (Phase 23+)
 
-### ⏳ Phase 23: Inteligencia Financiera y Gamificación Avanzada
+Estas son las misiones sagradas que quedan para completar el grimorio final:
 
-- [ ] **Financial Health Score**: Algoritmo de puntuación crediticia estilo RPG.
-- [ ] **Boss Battles**: Metas de ahorro gamificadas.
-- [ ] **Versión Móvil Nativa**: Empaquetado con Capacitor.
-- [ ] **Modo Multijugador Real**: Sincronización en tiempo real.
+### ⏳ Prioridad Alta: Internacionalización
 
----
+- [ ] **Soporte Multidioma**: Implementación de selector (EN/ES) y persistencia de configuración de lenguaje.
+  - *Tecnología*: `i18next` + `i18n-persist`.
 
-## 📊 Métricas del Proyecto (Actualizadas)
+### ⏳ Prioridad Alta: Adaptabilidad Total
 
-### Features Implementadas (24/24)
+- [ ] **Interfaz por Resolución**: Refinar layouts específicos para Desktop vs Tablet vs Mobile.
+  - *Objetivo*: Que no sea solo una web reescalada, sino una UI que cambie según el dispositivo.
 
-- ✅ Autenticación + Google OAuth
-- ✅ Dashboard + Glassmorphism UI
-- ✅ Marketplace + Inventario
-- ✅ Gestión de Deudas + Suscripciones
-- ✅ Localización (ES) + Multi-moneda
-- ✅ PWA + Offline Support
-- ✅ Multi-usuario Local + Privacidad
-- ✅ CSV Import + Bulk Actions
-- ✅ Rediseño UI (Dashboard/Household)
+### ⏳ Futuro: Multijugador & Gamificación
+
+- [ ] **Sincronización en Tiempo Real**: Notificaciones y actualizaciones instantáneas entre miembros del Hogar.
+- [ ] **Boss Battles & RPG Elements**: Algoritmos avanzados de ahorro gamificado.
 
 ---
 
-## 🎨 Stack Tecnológico Final
-
-### Frontend
-
-- **Framework**: React 19.2.0
-- **Build Tool**: Vite 7.3.1
-- **Styling**: Tailwind CSS + Framer Motion
-- **Icons**: Lucide React + Material Symbols
-
-### Backend & Data
-
-- **BaaS**: Supabase (Auth, DB, Storage, RLS)
-- **Local Persistence**: Custom StorageService (JSON/LocalStorage) with Multi-tenancy
-- **State**: React Query + Context API
-- **i18n**: i18next
-- **CSV**: PapaParse
-
----
-
-## 📈 Progreso General
+## 📊 Estado de Entrega (Módulo Pedro)
 
 ```text
-Phase 1-21:  ████████████████████ 100%
-Phase 22:    ████████████████████ 100% (Fase 2.5)
-Phase 23:    ░░░░░░░░░░░░░░░░░░░░   0%
+Requisitos de Imagen: ████████████████████ 100%
+Documentación SPA:   ████████████████████ 100%
+Configuración Móvil: ████████████████████ 100%
 
-TOTAL:       ███████████████████░  95%
+ESTADO TOTAL:        ███████████████████░  98%
 ```
 
 ---
 
-**Última actualización**: 2026-02-16
-**Versión**: 1.1.0 (Privacy Update)
-**Estado**: Production Ready 🚀
+**Última actualización**: 2026-02-17  
+**Fase Actual**: Post-Conversión Nativa  
 **Autor**: Roberto Monedero Alonso

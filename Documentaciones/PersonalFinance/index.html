@@ -36,14 +36,12 @@
                 radial-gradient(circle at 80% 70%, rgba(244, 192, 37, 0.05) 0%, transparent 50%);
         }
 
-        /* Layout Structure */
         .app-wrapper {
             display: grid;
             grid-template-columns: 280px 1fr;
             height: 100vh;
         }
 
-        /* Navigation Sidebar */
         nav {
             background: rgba(12, 11, 6, 0.95);
             border-right: 1px solid var(--border);
@@ -75,7 +73,7 @@
             cursor: pointer;
             transition: var(--transition);
             font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border: 1px solid transparent;
             display: flex;
             align-items: center;
@@ -89,11 +87,6 @@
             border-color: var(--border);
         }
 
-        .nav-item.active {
-            box-shadow: inset 0 0 10px rgba(244, 192, 37, 0.1);
-        }
-
-        /* Content Area */
         main {
             position: relative;
             overflow-y: auto;
@@ -119,7 +112,7 @@
 
         h2 {
             font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: var(--primary);
             margin-bottom: 2rem;
             display: flex;
@@ -134,10 +127,9 @@
             background: linear-gradient(90deg, var(--border), transparent);
         }
 
-        /* Elements */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -147,63 +139,31 @@
             backdrop-filter: blur(12px);
             border: 1px solid var(--border);
             border-radius: 1rem;
-            padding: 2rem;
+            padding: 1.5rem;
             transition: var(--transition);
         }
 
         .card:hover {
             border-color: var(--primary);
-            transform: scale(1.02);
+            transform: translateY(-5px);
         }
 
         .card h3 {
             color: var(--primary);
             font-family: 'Cinzel', serif;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .card p {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            margin-bottom: 1.5rem;
-        }
-
-        .tech-stack {
-            display: flex;
-            wrap: wrap;
-            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
         }
 
         .badge {
             font-family: monospace;
             font-size: 0.7rem;
-            padding: 0.3rem 0.6rem;
+            padding: 0.2rem 0.6rem;
             background: rgba(0, 0, 0, 0.5);
             color: #10b981;
             border-radius: 4px;
+            margin-right: 0.5rem;
             border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        /* Expanded Prompts */
-        .prompt-timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-        }
-
-        .prompt-entry {
-            background: rgba(244, 192, 37, 0.02);
-            border-left: 2px solid var(--primary);
-            padding: 2rem;
-            border-radius: 0 1rem 1rem 0;
-        }
-
-        .prompt-entry h4 {
-            font-family: 'Cinzel', serif;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
         }
 
         .prompt-text {
@@ -216,50 +176,23 @@
             margin: 1rem 0;
             border: 1px dashed var(--border);
             font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .prompt-text strong {
-            color: var(--primary);
-        }
-
-        /* Guide */
-        .guide-step {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .step-num {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--primary);
-            opacity: 0.3;
-            min-width: 50px;
         }
 
         .code-block {
             background: #000;
-            padding: 1.2rem;
+            padding: 1rem;
             border-radius: 0.5rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
+            font-family: monospace;
+            font-size: 0.8rem;
             color: #f8f8f2;
             margin-top: 1rem;
-            border: 1px solid #333;
-            position: relative;
+            overflow-x: auto;
         }
 
-        .code-block::before {
-            content: 'TERMINAL';
-            position: absolute;
-            top: -10px;
-            right: 15px;
-            font-size: 0.6rem;
-            background: #333;
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: #aaa;
+        .mcp-icon {
+            color: var(--primary);
+            font-weight: 800;
+            margin-right: 0.5rem;
         }
 
         @media (max-width: 900px) {
@@ -291,6 +224,7 @@
                 <p style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5;">CODEX ARCANA</p>
             </div>
             <div class="nav-item active" onclick="showPage('anatomy')">◈ Anatomía Técnica</div>
+            <div class="nav-item" onclick="showPage('mcp')">◈ Arsenal Arcano (MCP)</div>
             <div class="nav-item" onclick="showPage('prompts')">◈ El Sendero de IA</div>
             <div class="nav-item" onclick="showPage('android')">◈ Forjado de APK</div>
         </nav>
@@ -302,162 +236,170 @@
                 <div class="grid">
                     <div class="card">
                         <h3>Nexo de Persistencia</h3>
-                        <p>Gestión de datos en tiempo real y seguridad de nivel bancario mediante políticas de
-                            aislamiento.</p>
-                        <div class="tech-stack">
-                            <span class="badge">Supabase v2</span>
-                            <span class="badge">PostgreSQL</span>
-                            <span class="badge">RLS Policies</span>
-                        </div>
+                        <p>Gestión de datos en tiempo real y seguridad mediante políticas de aislamiento PostgreSQL.</p>
+                        <span class="badge">Supabase v2</span>
+                        <span class="badge">RLS</span>
                         <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
                             <code>src/lib/supabase.ts</code></p>
                     </div>
                     <div class="card">
-                        <h3>Archivo del Hogar</h3>
-                        <p>Sincronización de gastos compartidos y gestión de miembros mediante lógica de base de datos
-                            atómica.</p>
-                        <div class="tech-stack">
-                            <span class="badge">React Context</span>
-                            <span class="badge">Custom Triggers</span>
-                        </div>
+                        <h3>Vínculos de Sangre (Sync)</h3>
+                        <p>Sincronización de Hogares compartidos mediante triggers atómicos en la base de datos.</p>
+                        <span class="badge">Postgres Triggers</span>
+                        <span class="badge">HouseholdService</span>
                         <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
                             <code>src/services/householdService.ts</code></p>
                     </div>
                     <div class="card">
+                        <h3>Oráculo de Divisa</h3>
+                        <p>Consulta en tiempo real de tipos de cambio y valores de activos mágicos.</p>
+                        <span class="badge">CoinGecko API</span>
+                        <span class="badge">CurrencyService</span>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
+                            <code>src/services/coinGeckoService.ts</code></p>
+                    </div>
+                    <div class="card">
                         <h3>Memoria Arcaica</h3>
-                        <p>Caché inteligente que permite el funcionamiento offline y la recuperación instantánea de
-                            estados.</p>
-                        <div class="tech-stack">
-                            <span class="badge">IndexedDB</span>
-                            <span class="badge">TanStack Query</span>
-                        </div>
+                        <p>Estrategia de caché híbrida para funcionamiento offline e integridad de datos.</p>
+                        <span class="badge">IndexedDB</span>
+                        <span class="badge">TanStack Query</span>
                         <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
                             <code>src/services/storageService.ts</code></p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Page 2: MCP Arsenal -->
+            <div id="mcp" class="page">
+                <h2>II. El Arsenal Arcano (MCP)</h2>
+                <p style="color: var(--text-dim); margin-bottom: 2rem;">Los MCP (Model Context Protocol) son las
+                    herramientas arcanas que permitieron a la IA interactuar con el mundo físico y el código.</p>
+                <div class="grid">
                     <div class="card">
-                        <h3>Cripta de Archivos</h3>
-                        <p>Manejo de comprobantes y evidencias gráficas almacenadas en buckets cifrados.</p>
-                        <div class="tech-stack">
-                            <span class="badge">Supabase Storage</span>
-                            <span class="badge">File API</span>
-                        </div>
-                        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">Localización:
-                            <code>src/services/transactionService.ts</code></p>
+                        <h3><span class="mcp-icon">[S]</span> StitchMCP</h3>
+                        <p>Invocador de interfaces. Permitió generar pantallas enteras desde descripciones rúnicas
+                            (texto).</p>
+                        <div class="code-block">mcp_StitchMCP_generate_screen_from_text</div>
                     </div>
+                    <div class="card">
+                        <h3><span class="mcp-icon">[B]</span> Supabase MCP</h3>
+                        <p>El puente hacia el reino de la persistencia. Gestionó tablas, triggers y RLS directamente.
+                        </p>
+                        <div class="code-block">mcp_supabase-mcp-server_execute_sql</div>
+                    </div>
+                    <div class="card">
+                        <h3><span class="mcp-icon">[F]</span> Filesystem MCP</h3>
+                        <p>El escriba digital. Manipuló físicamente los archivos del proyecto y la estructura de
+                            carpetas.</p>
+                        <div class="code-block">mcp_filesystem_write_file</div>
+                    </div>
+                    <div class="card">
+                        <h3><span class="mcp-icon">[N]</span> NotebookLM MCP</h3>
+                        <p>El bibliotecario arcano. Proporcionó el contexto de investigación basado en documentos
+                            previos.</p>
+                        <div class="code-block">mcp_notebooklm_ask_question</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 2rem;">
+                    <h3>API Integrations</h3>
+                    <p>Además de los MCPs, FinFlow consume servicios externos para su sabiduría:</p>
+                    <ul style="list-style: none; padding-left: 1rem;">
+                        <li style="margin-bottom: 0.5rem;"><span style="color: var(--primary);">◈</span>
+                            <strong>CoinGecko API:</strong> Para el valor de activos en tiempo real.</li>
+                        <li style="margin-bottom: 0.5rem;"><span style="color: var(--primary);">◈</span>
+                            <strong>Supabase Auth/Storage:</strong> Gestión de identidades y bóveda de archivos.</li>
+                        <li style="margin-bottom: 0.5rem;"><span style="color: var(--primary);">◈</span>
+                            <strong>Sentry:</strong> Ojo que todo lo ve para la detección de errores en el reino.</li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- Page 2: Prompts -->
+            <!-- Page 3: Prompts -->
             <div id="prompts" class="page">
-                <h2>II. El Sendero de la IA</h2>
-                <div class="prompt-timeline">
+                <h2>III. El Sendero de la IA (Prompts)</h2>
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
                     <div class="prompt-entry">
-                        <h4>Génesis de la Arquitectura</h4>
-                        <p>El primer rito para establecer la base sólida del grimorio.</p>
+                        <h4 style="color: var(--primary); font-family: 'Cinzel';">◈ Invocación de la Era Dark Fantasy
+                        </h4>
                         <div class="prompt-text">
-                            "Necesito crear una SPA profesional con React y TypeScript. El objetivo es una gestión de
-                            finanzas personales pero con una <strong>estética de Fantasía Oscura</strong> (Dark
-                            Fantasy). Configura el proyecto para usar Supabase como backend, pero asegúrate de que toda
-                            la UI use <strong>Glassmorphism</strong> premium. Crea una carpeta <code>Docs/</code> donde
-                            gestiones el roadmap, las reglas de negocio y los diagramas de arquitectura. Quiero que seas
-                            proactivo y sugieras patrones de diseño escalables."
+                            "Actúa como un arquitecto senior con maestría en diseño estético. Necesito crear la base de
+                            una aplicación llamada <strong>FinFlow: The Grimoire</strong>. Usa React 19 y TypeScript. El
+                            diseño debe ser <strong>Dark Fantasy</strong> profundo: fondos casi negros (#0c0b06),
+                            detalles en oro rúnico (#f4c025) y efectos de <strong>Glassmorphism</strong> intensos.
+                            Configura el proyecto para que todas las unidades de medida sean <strong>REM</strong>,
+                            anticipando una futura conversión a móvil nativo mediante Capacitor."
                         </div>
                     </div>
 
                     <div class="prompt-entry">
-                        <h4>Alquimia Rúnica e Iconografía</h4>
-                        <p>Invocación de elementos visuales únicos mediante Nano Banana.</p>
+                        <h4 style="color: var(--primary); font-family: 'Cinzel';">◈ Forjado del Nexo de Datos</h4>
                         <div class="prompt-text">
-                            "Actúa como un Senior UI Designer. Para el Dashboard de FinFlow, no quiero iconos estándar
-                            de Material UI. Usa la herramienta <strong>Nano Banana</strong> para generar una serie de
-                            glifos rúnicos dorados sobre fondos oscuros que representen: Comida (Runa de Nutrición),
-                            Alquiler (Runa del Refugio), y Salario (Runa de la Abundancia). Una vez generados,
-                            implementa un componente <code>IconRing</code> que use estos assets con filtros de brillo
-                            dinámicos al hacer hover."
+                            "Usa el MCP de Supabase para configurar la infraestructura. Crea una tabla de
+                            <code>transacciones</code> que soporte adjuntos multimedia. Lo más crítico: implementa un
+                            sistema de <strong>Hogares (Households)</strong> donde múltiples usuarios compartan gastos.
+                            Escribe un <strong>Trigger en PostgreSQL</strong> que asegure la integridad atómica: al
+                            crear un hogar, el <code>user_id</code> del creador debe insertarse inmediatamente como
+                            <code>admin</code> en la tabla de miembros. No olvides las políticas RLS para que ningún
+                            mago vea el oro de otro."
                         </div>
                     </div>
 
                     <div class="prompt-entry">
-                        <h4>Atuendo Multiprocesador</h4>
-                        <p>Lógica de base de datos para la gestión colaborativa.</p>
+                        <h4 style="color: var(--primary); font-family: 'Cinzel';">◈ Alquimia Visual con Nano Banana</h4>
                         <div class="prompt-text">
-                            "Tengo que implementar la funcionalidad de 'Hogares'. Escribe un <strong>script SQL de
-                                migración</strong> para Supabase que cree la tabla <code>households</code> y una tabla
-                            intermedia de miembros. Lo más importante: crea un <strong>Trigger en PostgreSQL</strong>
-                            que se dispare después de insertar un hogar; este trigger debe insertar automáticamente al
-                            usuario creador en la tabla de miembros con el rol de 'ADMIN'. Realiza esto de forma que sea
-                            una transacción atómica para evitar desincronizaciones."
+                            "Necesito iconos personalizados que respiren magia. Utiliza <strong>Nano Banana</strong>
+                            para generar 12 glifos en formato PNG. Cada glifo debe representar una categoría financiera:
+                            una runa de fuego para 'Gastos Urgentes', una runa de agua para 'Ocio' y una runa de tierra
+                            para 'Ahorros'. Integra estos iconos en el <code>CategoryPicker</code> y asegúrate de que
+                            tengan un filtro de <strong>drop-shadow dorado</strong> que palpite suavemente al ser
+                            seleccionados."
                         </div>
                     </div>
 
                     <div class="prompt-entry">
-                        <h4>Transmutación Móvil</h4>
-                        <p>Reacondicionamiento para el mundo táctil nativo.</p>
+                        <h4 style="color: var(--primary); font-family: 'Cinzel';">◈ Transmutación a Materia (Android)
+                        </h4>
                         <div class="prompt-text">
-                            "La app debe ser Mobile First. Analiza todos los archivos CSS y componentes del directorio
-                            <code>src/</code>. Reemplaza cualquier unidad <code>px</code> hardcoded por unidades
-                            <code>rem</code> y <code>vh/vw</code> para que el escalado sea perfecto en pantallas de alta
-                            densidad de móviles. Después, configura <strong>Capacitor</strong> en el proyecto, ajustando
-                            el <code>appId</code> a 'com.roberto.finflow' y habilita el esquema HTTPS para las
-                            peticiones a la API en Android."
+                            "Es hora de que la web trascienda al plano físico. Configura <strong>Capacitor</strong> en
+                            el proyecto actual. Ajusta el <code>capacitor.config.ts</code> para que el nombre de la app
+                            sea 'FinFlow' y el paquete 'com.roberto.finflow'. Analiza el reporte de linting para
+                            corregir cualquier <strong>'Unexpected any'</strong> que pueda romper la compilación de
+                            Android. Finalmente, genera los comandos necesarios para sincronizar la carpeta
+                            <code>dist</code> con el proyecto de Android Studio."
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Page 3: Android -->
+            <!-- Page 4: Android -->
             <div id="android" class="page">
-                <h2>III. Forjado del APK</h2>
-                <div class="apk-content" style="max-width: 800px;">
-                    <p style="margin-bottom: 2rem; color: var(--text-dim);">Sigue estos pasos rituales para transformar
-                        el código web en una aplicación nativa instalable en Android.</p>
-
-                    <div class="guide-step">
-                        <div class="step-num">01</div>
-                        <div>
-                            <h4>Substitución de Energía (Build)</h4>
-                            <p>Compila todo el código TypeScript y React en archivos estáticos optimizados.</p>
-                            <div class="code-block">npm run build</div>
-                        </div>
+                <h2>IV. Forjado del APK</h2>
+                <div style="max-width: 800px;">
+                    <p style="margin-bottom: 2rem; color: var(--text-dim);">Sigue los pasos rituales para materializar
+                        el grimorio en un dispositivo Android.</p>
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">01. Purificación del Código</h4>
+                        <div class="code-block">npm run build</div>
                     </div>
-
-                    <div class="guide-step">
-                        <div class="step-num|02">02</div>
-                        <div>
-                            <h4>Portal de Dimensión (Android Add)</h4>
-                            <p>Crea el contenedor nativo de Android dentro de tu proyecto.</p>
-                            <div class="code-block">npx cap add android</div>
-                        </div>
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">02. Apertura del Portal Nativo</h4>
+                        <div class="code-block">npx cap add android</div>
                     </div>
-
-                    <div class="guide-step">
-                        <div class="step-num">03</div>
-                        <div>
-                            <h4>Sincronía de Almas (Sync)</h4>
-                            <p>Copia los archivos construidos de la carpeta <code>dist</code> al proyecto de Android.
-                            </p>
-                            <div class="code-block">npx cap sync</div>
-                        </div>
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">03. Alineación de Dimensiones</h4>
+                        <div class="code-block">npx cap sync</div>
                     </div>
-
-                    <div class="guide-step">
-                        <div class="step-num">04</div>
-                        <div>
-                            <h4>Apertura del Taller (Studio)</h4>
-                            <p>Lanza el entorno de compilación de Google para el paso final.</p>
-                            <div class="code-block">npx cap open android</div>
-                        </div>
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 0.5rem;">04. El Taller de Google</h4>
+                        <div class="code-block">npx cap open android</div>
                     </div>
-
-                    <div class="guide-step">
-                        <div class="step-num">05</div>
-                        <div>
-                            <h4>Extracción de la Esencia (Build APK)</h4>
-                            <p>Dentro de Android Studio, ve al menú superior:</p>
-                            <div class="code-block">Build > Build Bundle(s) / APK(s) > Build APK(s)</div>
-                            <p style="margin-top: 1rem; font-size: 0.85rem;">El archivo resultante se encontrará en:
-                                <br><code>app/build/outputs/apk/debug/app-debug.apk</code></p>
-                        </div>
+                    <div class="card">
+                        <h3>Encantamiento Final (Build)</h3>
+                        <p>Dentro de Android Studio, ejecuta el encantamiento de compilación:</p>
+                        <p style="font-weight: bold; color: #fff;">Build > Build Bundle(s) / APK(s) > Build APK(s)</p>
+                        <p
+                            style="margin-top: 1rem; font-size: 0.8rem; background: #000; padding: 0.5rem; border-radius: 4px;">
+                            Destino: <code>app/build/outputs/apk/debug/app-debug.apk</code></p>
                     </div>
                 </div>
             </div>
@@ -466,15 +408,10 @@
 
     <script>
         function showPage(pageId) {
-            // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
-                if (item.innerText.toLowerCase().includes(pageId === 'anatomy' ? 'anatomía' : pageId === 'prompts' ? 'sendero' : 'apk')) {
-                    item.classList.add('active');
-                }
+                if (item.onclick.toString().includes(pageId)) item.classList.add('active');
             });
-
-            // Update active page
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
