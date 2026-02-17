@@ -2,9 +2,9 @@
     "name": "desarrollo-interfaces-root",
     "private": true,
     "scripts": {
-        "install": "cd PersonalFinanceApp/index && npm install",
-        "dev": "cd PersonalFinanceApp/index && npm run dev",
-        "build": "rm -rf dist && mkdir dist && cp index.html dist/ && cd PersonalFinanceApp/index && npm install && npm run build && cd ../.. && mkdir -p dist/PersonalFinanceApp && cp -r PersonalFinanceApp/index/dist/* dist/PersonalFinanceApp/"
+        "install": "cd PersonalFinanceApp && npm install",
+        "dev": "cd PersonalFinanceApp && npm run dev",
+        "build": "cd PersonalFinanceApp && npm install && npm run build && cd .. && rm -rf dist && mkdir dist && cp -r PersonalFinanceApp/dist/* dist/"
     },
     "engines": {
         "node": ">=18"
