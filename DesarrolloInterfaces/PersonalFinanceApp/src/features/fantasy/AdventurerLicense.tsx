@@ -1,19 +1,14 @@
-
 import { useState, useEffect } from 'react';
 import './fantasy.css';
 import { useNavigate } from 'react-router-dom';
-
-
-
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { profileService, UserProfile } from '../../services/profileService';
-
-import { Camera, Edit2, Save, X } from 'lucide-react';
+import { Camera, Edit2, Save, X, Languages } from 'lucide-react';
 
 export default function AdventurerLicense() {
-
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
-
     const { user, signOut } = useAuth();
 
     // State for Profile Data
@@ -36,7 +31,6 @@ export default function AdventurerLicense() {
         if (!user) return;
         setLoading(true);
         try {
-            // First try Supabase profile
             const supaProfile = await profileService.getProfile(user.id);
             if (supaProfile) {
                 setProfile(supaProfile);
@@ -47,7 +41,7 @@ export default function AdventurerLicense() {
                 });
             } else {
                 setEditForm({
-                    username: user.email?.split('@')[0] || 'Aventurero',
+                    username: user.email?.split('@')[0] || t('username'),
                     full_name: '',
                     avatar_url: ''
                 });
@@ -78,6 +72,11 @@ export default function AdventurerLicense() {
         }
     };
 
+    const toggleLanguage = () => {
+        const nextLng = i18n.language === 'es' ? 'en' : 'es';
+        i18n.changeLanguage(nextLng);
+    };
+
     const logout = async () => {
         await signOut();
         navigate('/');
@@ -93,7 +92,7 @@ export default function AdventurerLicense() {
         return 'Bronce I';
     };
 
-    // Calculate Level based on points (1000 points per level for simplicity)
+    // Calculate Level based on points
     const getLevel = (points: number) => Math.floor(points / 1000) + 1;
     const getProgress = (points: number) => (points % 1000) / 10; // Percentage
 
@@ -102,7 +101,7 @@ export default function AdventurerLicense() {
     const rank = getRank(points);
     const level = getLevel(points);
 
-    if (loading) return <div className="min-h-screen bg-[#0c0b06] flex items-center justify-center text-primary">Cargando Licencia...</div>;
+    if (loading) return <div className="min-h-screen bg-[#0c0b06] flex items-center justify-center text-primary">{t('loading_license')}</div>;
 
     return (
         <div className="font-display text-primary/90 bg-[#0c0b06] min-h-screen flex justify-center items-center overflow-hidden relative selection:bg-amber-500/30">
@@ -112,9 +111,6 @@ export default function AdventurerLicense() {
             }}></div>
 
             <div className="w-full min-h-screen relative bg-[#0c0b06]/90 flex flex-col backdrop-blur-md pb-24">
-
-                {/* Content Starts Here */}
-
 
                 {/* ID Card / License Container */}
                 <div className="m-6 mt-4 mb-0 p-1 rounded-2xl bg-gradient-to-br from-primary/30 via-primary/5 to-transparent relative">
@@ -140,7 +136,7 @@ export default function AdventurerLicense() {
                             <div className="w-24 h-24 rounded-full border-2 border-primary/40 p-1 bg-[#16140d] relative shadow-[0_0_1.25rem_rgba(244,192,37,0.15)] group">
                                 <img
                                     src={isEditing ? (editForm.avatar_url || "https://ui-avatars.com/api/?name=Adventurer&background=1c1917&color=f4c025") : (profile?.avatar_url || "https://ui-avatars.com/api/?name=Adventurer&background=1c1917&color=f4c025")}
-                                    alt="Avatar del Aventurero"
+                                    alt="Avatar"
                                     className="w-full h-full rounded-full object-cover filter sepia-[0.2]"
                                 />
                                 {isEditing && (
@@ -160,27 +156,27 @@ export default function AdventurerLicense() {
                                             type="text"
                                             value={editForm.full_name}
                                             onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                                            placeholder="Nombre Completo"
+                                            placeholder={t('full_name')}
                                             className="bg-black/30 border border-primary/20 rounded px-2 py-1 text-primary w-full text-lg font-bold placeholder:text-stone-600 focus:outline-none focus:border-primary/50"
                                         />
                                         <input
                                             type="text"
                                             value={editForm.username}
                                             onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                            placeholder="@usuario"
+                                            placeholder={`@${t('username')}`}
                                             className="bg-black/30 border border-primary/20 rounded px-2 py-1 text-stone-400 w-full text-sm font-medium placeholder:text-stone-600 focus:outline-none focus:border-primary/50"
                                         />
                                         <input
                                             type="text"
                                             value={editForm.avatar_url}
                                             onChange={(e) => setEditForm({ ...editForm, avatar_url: e.target.value })}
-                                            placeholder="URL de Avatar (https://...)"
+                                            placeholder={t('avatar_url')}
                                             className="bg-black/30 border border-primary/20 rounded px-2 py-1 text-stone-500 w-full text-xs placeholder:text-stone-600 focus:outline-none focus:border-primary/50"
                                         />
                                     </div>
                                 ) : (
                                     <>
-                                        <h2 className="text-2xl font-bold text-primary tracking-tight">{profile?.full_name || 'Aventurero Anónimo'}</h2>
+                                        <h2 className="text-2xl font-bold text-primary tracking-tight">{profile?.full_name || t('welcome')}</h2>
                                         <span className="text-sm text-stone-400 font-medium">@{profile?.username || 'usuario'}</span>
                                     </>
                                 )}
@@ -193,7 +189,7 @@ export default function AdventurerLicense() {
                                 className="w-full mb-6 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/40 rounded-lg py-2 flex items-center justify-center gap-2 font-bold transition-all"
                             >
                                 <Save size={18} />
-                                Guardar Cambios
+                                {t('save_changes')}
                             </button>
                         )}
 
@@ -202,11 +198,11 @@ export default function AdventurerLicense() {
                         <div className="space-y-4 relative z-10">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">ID de Gremio</span>
+                                    <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">{t('guild_id')}</span>
                                     <span className="font-mono text-primary/80 text-sm">{guildId}</span>
                                 </div>
                                 <div>
-                                    <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">Rango</span>
+                                    <span className="text-[0.625rem] uppercase tracking-widest text-primary/40 font-bold block mb-1">{t('rank')}</span>
                                     <span className="font-mono text-primary/80 text-sm">{rank}</span>
                                 </div>
                             </div>
@@ -214,7 +210,7 @@ export default function AdventurerLicense() {
                             {/* XP Bar */}
                             <div className="pt-2">
                                 <div className="flex justify-between items-end mb-2">
-                                    <span className="text-xs uppercase tracking-widest text-primary/60 font-bold">Progreso Nivel {level}</span>
+                                    <span className="text-xs uppercase tracking-widest text-primary/60 font-bold">{t('level_progress', { level })}</span>
                                     <span className="text-xs text-primary font-bold">{points % 1000} / 1000 XP</span>
                                 </div>
                                 <div className="w-full h-3 bg-black/40 rounded-full border border-primary/20 overflow-hidden">
@@ -229,11 +225,11 @@ export default function AdventurerLicense() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-[#16140d] p-4 rounded-lg border border-primary/10 flex flex-col items-center gap-1">
                                     <span className="text-2xl font-bold text-primary">{Math.floor(points / 100)}</span>
-                                    <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">Misiones Totales</span>
+                                    <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">{t('total_missions')}</span>
                                 </div>
                                 <div className="bg-[#16140d] p-4 rounded-lg border border-primary/10 flex flex-col items-center gap-1">
                                     <span className="text-2xl font-bold text-stone-300">{points}</span>
-                                    <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">Puntos de Gremio</span>
+                                    <span className="text-[0.625rem] uppercase tracking-widest text-stone-500">{t('guild_points')}</span>
                                 </div>
                             </div>
                         </div>
@@ -242,9 +238,19 @@ export default function AdventurerLicense() {
 
                 {/* Settings Menu */}
                 <div className="flex-1 p-6 space-y-2">
-                    <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">Configuración del Gremio</h3>
+                    <h3 className="text-xs uppercase tracking-widest text-stone-500 font-bold mb-4 pl-2">{t('settings')}</h3>
 
-
+                    {/* Language Selector Toggle */}
+                    <button
+                        onClick={toggleLanguage}
+                        className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-primary/5 border border-transparent hover:border-primary/10 transition-all text-left group"
+                    >
+                        <Languages className="text-primary/60 group-hover:text-primary" size={20} />
+                        <div className="flex-1">
+                            <span className="text-primary/90 block">{t('language')}</span>
+                            <span className="text-xs text-stone-500">{i18n.language === 'es' ? 'Español' : 'English'}</span>
+                        </div>
+                    </button>
 
                     <button
                         type="button"
@@ -256,7 +262,7 @@ export default function AdventurerLicense() {
                         className="w-full flex items-center gap-4 p-4 rounded-xl bg-[#16140d] hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all text-left group mt-6"
                     >
                         <span className="material-symbols-outlined text-red-400 group-hover:text-red-300 transition-colors">logout</span>
-                        <span className="text-red-400 group-hover:text-red-300 transition-colors flex-1">Cerrar Sesión</span>
+                        <span className="text-red-400 group-hover:text-red-300 transition-colors flex-1">{t('logout')}</span>
                     </button>
                 </div>
 

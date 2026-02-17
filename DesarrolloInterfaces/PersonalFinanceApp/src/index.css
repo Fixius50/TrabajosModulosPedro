@@ -101,22 +101,43 @@ h1 {
 
 /* Layout */
 .app-container {
-  max-width: 75rem;
+  max-width: 80rem;
   margin: 0 auto;
-  padding: 0;
-  padding-bottom: 5rem;
-  /* Space for bottom nav */
+  padding: 1rem;
+  padding-bottom: 7rem;
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    padding: 2rem;
+    padding-bottom: 2rem;
+  }
 }
 
 /* Mobile Nav */
 .bottom-nav {
   position: fixed;
-  bottom: 1rem;
-  left: 1rem;
-  right: 1rem;
-  height: 4rem;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5rem;
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 100;
+  background: var(--color-bg-glass-heavy);
+  backdrop-filter: blur(var(--backdrop-blur));
+  border-top: 0.0625rem solid var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    width: fit-content;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 2rem;
+    border-radius: 999px;
+    padding: 0 2rem;
+    border: 0.0625rem solid var(--color-border);
+  }
 }

@@ -94,16 +94,16 @@ export default function GrimoireDashboard() {
                         onClick={() => setActiveTab('dashboard')}
                         className={`text-xs uppercase tracking-[0.2em] transition-all pb-2 ${activeTab === 'dashboard' ? 'text-primary font-bold border-b-2 border-primary' : 'text-stone-500 hover:text-stone-300'}`}
                     >
-                        Resumen
+                        {t('summary', 'Resumen')}
                     </button>
                     <button
                         onClick={() => setActiveTab('quests')}
                         className={`text-xs uppercase tracking-[0.2em] transition-all pb-2 ${activeTab === 'quests' ? 'text-primary font-bold border-b-2 border-primary' : 'text-stone-500 hover:text-stone-300'}`}
                     >
-                        Misiones
+                        {t('quests', 'Misiones')}
                     </button>
                     <Link to="/marketplace" className="text-xs uppercase tracking-[0.2em] text-stone-500 hover:text-amber-400 transition-all pb-2 flex items-center gap-1">
-                        Mercado
+                        {t('marketplace', 'Mercado')}
                     </Link>
                 </div>
 
@@ -116,13 +116,14 @@ export default function GrimoireDashboard() {
                                 <button
                                     onClick={toggleStealth}
                                     className="absolute top-0 right-0 p-2 text-stone-600 hover:text-primary transition-colors"
+                                    title={isStealth ? t('stealth_off') : t('stealth_on')}
                                 >
                                     {isStealth ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
 
                                 {/* Avatar */}
                                 <Link to="/adventurer-license" className="relative group cursor-pointer mb-4">
-                                    <div className="w-24 h-24 rounded-full border-2 border-primary/30 p-1 bg-[#16140d] shadow-[0_0_20px_rgba(244,192,37,0.1)] group-hover:border-primary transition-all group-hover:shadow-[0_0_30px_rgba(244,192,37,0.3)]">
+                                    <div className="w-24 h-24 rounded-full border-2 border-primary/30 p-1 bg-[#16140d] shadow-[0_0_20px_rgba(244,192,37,0.15)] group-hover:border-primary transition-all group-hover:shadow-[0_0_30px_rgba(244,192,37,0.30)]">
                                         <div className="w-full h-full rounded-full overflow-hidden relative">
                                             {loadingProfile ? (
                                                 <div className="w-full h-full bg-stone-800 animate-pulse" />
@@ -141,8 +142,8 @@ export default function GrimoireDashboard() {
                                 </Link>
 
                                 {/* Name & Net Worth */}
-                                <h2 className="text-lg font-bold text-stone-200 tracking-wide">{profile?.username || 'Aventurero'}</h2>
-                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest mb-2">Valor Neto Actual</p>
+                                <h2 className="text-lg font-bold text-stone-200 tracking-wide">{profile?.username || t('welcome')}</h2>
+                                <p className="text-[0.625rem] text-stone-500 uppercase tracking-widest mb-2">{t('net_worth_label', 'Valor Neto Actual')}</p>
                                 <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-amber-200 to-primary animate-pulse-slow">
                                     {formatAmount(netWorth)}
                                 </div>
@@ -153,7 +154,12 @@ export default function GrimoireDashboard() {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
-                                            data={data}
+                                            data={[
+                                                { name: t('balance', 'Balance'), value: Math.max(0, totalBalance), color: '#10b981', path: '/transactions' },
+                                                { name: t('debts_to_collect', 'Deudas (Cobrar)'), value: totalDebtsOwedToMe, color: '#f4c025', path: '/debt-tracker' },
+                                                { name: t('debts_to_pay', 'Deudas (Pagar)'), value: totalDebtsIOwe, color: '#ef4444', path: '/debt-tracker' },
+                                                { name: t('budgets', 'Cofres'), value: totalBudgetSpent, color: '#3b82f6', path: '/treasure-chests' },
+                                            ].filter(item => item.value > 0)}
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={60}
@@ -178,19 +184,19 @@ export default function GrimoireDashboard() {
 
                                 {/* Center Label */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-[0.625rem] uppercase text-stone-600 font-bold tracking-widest">Finanzas</span>
+                                    <span className="text-[0.625rem] uppercase text-stone-600 font-bold tracking-widest">{t('finances', 'Finanzas')}</span>
                                 </div>
                             </section>
 
-                            {/* QUICK ACTIONS (Keep user loved features) */}
-                            <section className="grid grid-cols-2 gap-4">
+                            {/* QUICK ACTIONS */}
+                            <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Link to="/household" className="fantasy-card p-4 flex items-center gap-3 group hover:border-primary/50 transition-all active:scale-95 bg-stone-900/40 border-stone-800">
                                     <div className="w-10 h-10 rounded-full bg-stone-800 border-2 border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                                         <span className="material-icons text-primary/80 group-hover:text-primary">home</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-sm text-stone-200">Mi Hogar</h3>
-                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Gestión</p>
+                                        <h3 className="font-bold text-sm text-stone-200">{t('my_household', 'Mi Hogar')}</h3>
+                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">{t('management', 'Gestión')}</p>
                                     </div>
                                 </Link>
 
@@ -199,8 +205,8 @@ export default function GrimoireDashboard() {
                                         <span className="material-icons text-red-500/80 group-hover:text-red-400">receipt_long</span>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-sm text-stone-200">Deudas</h3>
-                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">Pactos</p>
+                                        <h3 className="font-bold text-sm text-stone-200">{t('debts', 'Deudas')}</h3>
+                                        <p className="text-[0.625rem] text-stone-500 uppercase tracking-wider">{t('pacts', 'Pactos')}</p>
                                     </div>
                                 </Link>
                             </section>
